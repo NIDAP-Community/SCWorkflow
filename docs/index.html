@@ -59,9 +59,10 @@
 <div class="page-header"><h1 id="scworkflow">SCWorkflow<a class="anchor" aria-label="anchor" href="#scworkflow"></a>
 </h1></div>
 <p>Workflow Package for Analysis of Single Cell Data</p>
-<p>The Single Cell Workflow streamlines the analysis of multimodal Single Cell RNA-Seq data produced from 10x Genomics. It can be run in a docker container, and for biologists, in user-friendly web-based interactive notebooks (NIDAP, Palantir Foundry). It is based on the Seurat workflow in Bioconductor.</p>
-<p>It has been tested on several single cell datasets. The main workflow is these steps:</p>
-<p><img src="https://github.com/NIDAP-Community/SCWorkflow/blob/7694f8da62160f7dd5aed8ac955378b2433ba32b/scWorkflow_image.png"></p>
+<p>The Single Cell Workflow streamlines the analysis of multimodal Single Cell RNA-Seq data produced from 10x Genomics. It can be run in a docker container, and for biologists, in user-friendly web-based interactive notebooks (NIDAP, Palantir Foundry). Much of it is based on the Seurat workflow in Bioconductor, and supports CITE-Seq data. It incorporates a cell identification step (ModScore) that utilizes module scores obtained from Seurat and also includes Harmony for batch correction.</p>
+<p>Some of the steps in the workflow:</p>
+<p><img src="scWorkflow_image.png"></p>
+<p>Future Developments include addition of support for multiomics (TCR-Seq, ATAC-Seq) single cell data and integration with spatial transcriptomics data.</p>
 </div>
   </div>
 
@@ -69,9 +70,7 @@
     <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li>
-<a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a>
-</li>
+<li><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a></li>
 </ul>
 </div>
 
@@ -103,7 +102,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

@@ -66,24 +66,27 @@ genes.</p>
 
 
 <dt>metadata</dt>
-<dd><p>Metadata category to plot</p></dd>
+<dd><p>Metadata column in Seurat Object to plot</p></dd>
 
 
 <dt>cells</dt>
-<dd><p>Metadata category factors to plot</p></dd>
+<dd><p>Vector of metadata category factors to plot and should be found
+in metadata column. Order of plotting will follow exact order as entered.</p></dd>
 
 
 <dt>markers</dt>
-<dd><p>Column that contains gene names</p></dd>
+<dd><p>Vector of genes to plot.  Order of plotting will follow exact
+order as entered</p></dd>
 
 
 <dt>plot.reverse</dt>
-<dd><p>Set Metadata categories to x-axis (default is FALSE)</p></dd>
+<dd><p>If TRUE, set metadata categories to x-axis and genes to
+y-axis (default is FALSE)</p></dd>
 
 
 <dt>cell.reverse.sort</dt>
-<dd><p>Reverse Metadata Categories to plot (default is
-FALSE)</p></dd>
+<dd><p>If TRUE, Reverse plot order of metadata category
+factors (default is FALSE)</p></dd>
 
 
 <dt>dot.color</dt>
@@ -115,7 +118,7 @@ of dot.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>
