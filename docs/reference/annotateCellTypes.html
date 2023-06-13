@@ -56,7 +56,8 @@ from a test dataset based on similarity to the reference.</p>
 <span>  reduction.type <span class="op">=</span> <span class="st">"umap"</span>,</span>
 <span>  legend.dot.size <span class="op">=</span> <span class="fl">2</span>,</span>
 <span>  do.finetuning <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  local.celldex <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  local.celldex <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  use.clusters <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -89,7 +90,12 @@ Default is FALSE</p></dd>
 
 <dt>local.celldex</dt>
 <dd><p>Provide a local copy of CellDex library.
-Default is FALSE</p></dd>
+Default is NULL</p></dd>
+
+
+<dt>use.clusters</dt>
+<dd><p>Provide cluster identities for each cell.
+Default is NULL</p></dd>
 
 </dl></div>
     <div id="value">
