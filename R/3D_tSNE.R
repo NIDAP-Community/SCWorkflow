@@ -1,5 +1,5 @@
-#' @title Plot 3D-TSNE given a Seurat Object and returns plotly image
-#' @description This method provides visualization of 3D-tSNE plot given a
+#' @title Plot 3D-TSNE given a Seurat Object and returns a plotly image
+#' @description This method provides visualization of a 3D-tSNE plot given a
 #'   Seurat Object and returns a plotly plot and a dataframe of TSNE
 #'   coordinates. It optionally saves the plotly image embedded in an html file.
 #'
@@ -9,7 +9,7 @@
 #' @param dot.size Dot size for plot (default is 4)
 #' @param legend If TRUE, show legend (default is TRUE)
 #' @param colors Colors used for the color.variable
-#' @param filename Filename for saving plot (default is "plot.html")
+#' @param filename File name for saving plot (default is "plot.html")
 #' @param npcs Number of principal components used for tSNE calculations
 #'   (default is 15)
 #' @param save.plot Save plot as widget in html file (default is FALSE)
@@ -31,7 +31,7 @@ tSNE3D <- function(object,
                    save.plot = FALSE,
                    npcs = 15) {
   
-  #Run TSNE again to get 3d coordinates:
+  #Run TSNE again to get 3d coordinates
   object <- RunTSNE(
     object,
     assay = "SCT",
