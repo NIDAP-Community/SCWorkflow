@@ -28,13 +28,14 @@
 #' @param jitter.dot.size Set size of individual points
 #' @param print.outliers Print outliers as points in your graph that may be 
 #'                       redundant to jitter 
-
-#' @import Seurat 
-#' @import reshape2
-#' @import tidyverse
-#' @import cowplot
-#' @import rlang
-#' @import ggplot2
+#' @importFrom Seurat GetAssayData Idents subset FetchData DefaultAssay
+#' @importFrom reshape2 melt
+#' @importFrom dplyr filter group_by mutate
+#' @importFrom cowplot plot_grid
+#' @importFrom rlang "%||%"
+#' @importFrom ggplot2 ggplot aes_string geom_violin theme_classic labs theme 
+#'  element_text ylim geom_jitter scale_y_log10 geom_boxplot 
+#'  facet_grid facet_wrap
 #'   
 #' @export
 #' @example Do not run: violinPlot(object = seurat,
