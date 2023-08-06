@@ -12,10 +12,9 @@ test_that("Color by Genes Automatic works for TEC data", {
   skip_on_ci()
   expect_snapshot_file(
     .drawCbG(cbg.demo),
-    "tec_cbg.png"
-  )
+    "tec_cbg.png")
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
+  expected_elements <- "list"
   expect_setequal(class(cbg.demo), expected_elements)
 })
 
@@ -35,7 +34,7 @@ test_that("Color by Genes Automatic works for Chariou data", {
     "chariou_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
+  expected_elements <- "list"
   expect_setequal(class(cbg.demo), expected_elements)
 
 })
@@ -56,7 +55,7 @@ test_that("Color by Genes Automatic works for pbmc.single data", {
     "pbmc_single_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
+  expected_elements <- "list"
   expect_setequal(class(cbg.demo), expected_elements)
 
 })
@@ -77,7 +76,7 @@ test_that("Color by Genes Automatic works for nsclc_multi data", {
     "nsclc_multi_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
+  expected_elements <- "list"
   expect_setequal(class(cbg.demo), expected_elements)
 
 })
@@ -98,7 +97,7 @@ test_that("Color by Genes Automatic works for BRCA data", {
     "brca_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
+  expected_elements <- "list"
   expect_setequal(class(cbg.demo), expected_elements)
 
 })

@@ -65,8 +65,12 @@ getCbgAutoParam <- function(data) {
   )
 }
 
-.drawCbG <- function(x, width = 10, height = 10){
+.drawCbG <- function(gglist, width = 20, height = 3 * length(gglist)) {
+  # Combine the list of plots into a single plot
+  combined_plot <- do.call(grid.arrange, c(gglist, ncol = 3))
+  
+  # Save the combined plot to a temporary file
   path <- tempfile(fileext = ".png")
-  ggsave(path, x, width = 10, height = 10)
-  print(path)
+  ggsave(path, combined_plot, width = width, height = height)
+  return(path)
 }
