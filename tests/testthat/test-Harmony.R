@@ -4,17 +4,20 @@ test_that("Harmony returns seurat object with adjusted embeddings for
   tec = getHarmonyParam("TEC")
 
   object.harmonized = do.call(harmonyBatchCorrect, tec)
-   
+
   skip_on_ci()
   expect_snapshot_file(
-    .drawHarmonyFig(object.harmonized$adj.tsne),
+    .drawHarmonyFig(object.harmonized$harm.figures),
     "tec_harm.png"
   )
-  
-  expect_equal(mean(object.harmonized$adj.object[["harmSCT"]]["Lum",]),
-               0.06279209, tolerance = 1e-1)
 
-  expected_elements = c("adj.object","adj.tsne")
+  saveRDS(object.harmonized$harm.object,
+          file = test_path("output/harmony/TEC_so.rds"))
+
+  expect_equal_to_reference(object.harmonized$harm.object,
+                            file = test_path("output/harmony/TEC_so.rds"))
+
+  expected_elements = c("harm.object","harm.figures")
   expect_setequal(names(object.harmonized), expected_elements)
 })
 
@@ -27,14 +30,17 @@ test_that("Harmony returns seurat object with adjusted embeddings for Chariou
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawHarmonyFig(object.harmonized$adj.tsne),
-    "char_harm.png"
+    .drawHarmonyFig(object.harmonized$harm.figures),
+    "chariou_harm.png"
   )
 
-  expect_equal(mean(object.harmonized$adj.object[["harmSCT"]]["Ccl8",]),
-               0.2046126, tolerance = 1e-1)
+  saveRDS(object.harmonized$harm.object,
+          file = test_path("output/harmony/chariou_so.rds"))
 
-  expected_elements = c("adj.object","adj.tsne")
+  expect_equal_to_reference(object.harmonized$harm.object,
+                            file = test_path("output/harmony/chariou_so.rds"))
+
+  expected_elements = c("harm.object","harm.figures")
   expect_setequal(names(object.harmonized), expected_elements)
 })
 
@@ -47,34 +53,40 @@ test_that("Harmony returns seurat object with adjusted embeddings for
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawHarmonyFig(object.harmonized$adj.tsne),
+    .drawHarmonyFig(object.harmonized$harm.figures),
     "pbmc_single_harm.png"
   )
 
-  expect_equal(mean(object.harmonized$adj.object[["harmSCT"]]["CLU",]),
-               -0.002671558, tolerance = 1e-1)
+  saveRDS(object.harmonized$harm.object,
+          file = test_path("output/harmony/pbmc_single_so.rds"))
 
-  expected_elements = c("adj.object","adj.tsne")
+  expect_equal_to_reference(object.harmonized$harm.object,
+                            file = test_path("output/harmony/pbmc_single_so.rds"))
+
+  expected_elements = c("harm.object","harm.figures")
   expect_setequal(names(object.harmonized), expected_elements)
 })
 
 test_that("Harmony returns seurat object with adjusted embeddings for
           nsclc_multi data", {
 
-  nsclc.multi = getHarmonyParam("nsclc_multi")
+  nsclc_multi = getHarmonyParam("nsclc_multi")
 
-  object.harmonized = do.call(harmonyBatchCorrect, nsclc.multi)
+  object.harmonized = do.call(harmonyBatchCorrect, nsclc_multi)
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawHarmonyFig(object.harmonized$adj.tsne),
+    .drawHarmonyFig(object.harmonized$harm.figures),
     "nsclc_multi_harm.png"
   )
 
-  expect_equal(mean(object.harmonized$adj.object[["harmSCT"]]["LCN2",]),
-               0.1265227, tolerance = 1e-1)
+  saveRDS(object.harmonized$harm.object,
+          file = test_path("output/harmony/nsclc_multi_so.rds"))
 
-  expected_elements = c("adj.object","adj.tsne")
+  expect_equal_to_reference(object.harmonized$harm.object, file = 
+                              test_path("output/harmony/nsclc_multi_so.rds"))
+
+  expected_elements = c("harm.object","harm.figures")
   expect_setequal(names(object.harmonized), expected_elements)
 })
 
@@ -87,14 +99,17 @@ test_that("Harmony returns seurat object with adjusted embeddings for
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawHarmonyFig(object.harmonized$adj.tsne),
-    "BRCA_harm.png"
+    .drawHarmonyFig(object.harmonized$harm.figures),
+    "brca_harm.png"
   )
 
-  expect_equal(mean(object.harmonized$adj.object[["harmSCT"]]["SCGB2A2",]),
-               -0.1078249, tolerance = 1e-1)
+  saveRDS(object.harmonized$harm.object,
+          file = test_path("output/harmony/brca_so.rds"))
 
-  expected_elements = c("adj.object","adj.tsne")
+  expect_equal_to_reference(object.harmonized$harm.object,
+                            file = test_path("output/harmony/brca_so.rds"))
+
+  expected_elements = c("harm.object","harm.figures")
   expect_setequal(names(object.harmonized), expected_elements)
 })
 

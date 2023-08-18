@@ -22,8 +22,8 @@ expressed genes}
 \item{group.by.var}{Which variable should be accounted for when running
 batch correction}
 
-\item{npc}{Number of principal components to use when running Harmony
-(Default: 20)}
+\item{npc}{Number of principal components to use when generating tSNE from
+harmony embeddings (Default: 20)}
 
 \item{seurat_object}{Seurat-class object}
 }

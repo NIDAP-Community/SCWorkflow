@@ -12,14 +12,15 @@
 #'                     expressed genes
 #' @param group.by.var Which variable should be accounted for when running 
 #'                     batch correction
-#' @param npc Number of principal components to use when running Harmony
-#'            (Default: 20)
-
-#' @import Seurat 
-#' @import harmony
-#' @import gridExtra
-#' @import RColorBrewer
-#' @import ggplot2
+#' @param npc Number of principal components to use when generating tSNE from
+#'            harmony embeddings (Default: 20)
+#'    
+#' @import patchwork    
+#' @importFrom harmony RunHarmony
+#' @importFrom Seurat VariableFeatures RunUMAP RunTSNE CreateAssayObject
+#' @importFrom ggplot2 ggplot theme_bw theme geom_point scale_color_manual 
+#'  guides guide_legend element_blank element_text
+#' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #'   
 #' @export
 #' @example Do not run: harmonyBatchCorrect(object = seurat,
@@ -94,17 +95,21 @@ harmonyBatchCorrect <- function(object,
   object <- RunHarmony(object, group.by.var,
                    do_pca=FALSE,
                    assay.use = "SCT",
-                   plot_convergence = TRUE,
                    return_object=TRUE)
   
   object <- RunUMAP(object, reduction = "harmony", dims=1:npc)
   object <- RunTSNE(object, reduction = "harmony", dims=1:npc)
   
   # Plot harmony embeddings annotated by variable to batch correct for
-  sdat <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),
+  sdat.tsne <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),
                      as.vector(object@reductions$tsne@cell.embeddings[,2]),
                      object@meta.data[eval(parse(text = "group.by.var"))])
-  names(sdat) <- c("TSNE1","TSNE2","ident")
+  names(sdat.tsne) <- c("TSNE1","TSNE2","ident")
+  
+  sdat.umap <- data.frame(as.vector(object@reductions$umap@cell.embeddings[,1]),
+                          as.vector(object@reductions$umap@cell.embeddings[,2]),
+                          object@meta.data[eval(parse(text = "group.by.var"))])
+  names(sdat.umap) <- c("UMAP1","UMAP2","ident")
   
   n <- 60
   qual.col.pals = brewer.pal.info[brewer.pal.info$category == 'qual',]
@@ -113,7 +118,21 @@ harmonyBatchCorrect <- function(object,
                        rownames(qual.col.pals)))
   
   set.seed(10)
-  g1 <- ggplot(sdat, aes(x=TSNE1, y=TSNE2)) +
+  g1 <- ggplot(sdat.tsne, aes(x=TSNE1, y=TSNE2)) +
+    theme_bw() +
+    theme(legend.title=element_blank()) +
+    geom_point(aes(colour=ident),size=1) +
+    scale_color_manual(values=cols) +
+    theme(panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(), 
+          legend.position="top",
+          panel.background = element_blank(),
+          legend.text=element_text(size=rel(0.5))) +
+    guides(colour = guide_legend(override.aes = list(size=5, alpha = 1))
+    ) 
+  
+  set.seed(11)
+  g2 <- ggplot(sdat.umap, aes(x=UMAP1, y=UMAP2)) +
     theme_bw() +
     theme(legend.title=element_blank()) +
     geom_point(aes(colour=ident),size=1) +
@@ -127,15 +146,13 @@ harmonyBatchCorrect <- function(object,
     ) 
   
   # Calculate adjusted gene expression from embeddings
-  seur.SCT <- t(object@assays$SCT@scale.data)
   harm.embeds <- object@reductions$harmony@cell.embeddings
   harm.lvl.backcalc <- harm.embeds %*% t(ppldngs)
   
-  # Insert back-calculated data into seurat
-  harmSCT <- CreateAssayObject(data = t(harm.lvl.backcalc))
-  object[["harmSCT"]] <- harmSCT
+  # Replace SCT scale.data expression with backcalculated data
+  object$SCT@scale.data <- t(harm.lvl.backcalc)
   
-  harmony.res <- list(adj.object = object,
-                      adj.tsne = g1)
+  harm_res <- list(harm.object = object, harm.figures = g1 + g2)
   
+  return(harm_res)
 }
