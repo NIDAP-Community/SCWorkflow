@@ -267,6 +267,8 @@ annotateCellTypes <- function(object,
     "#000075",
     colpaired(numColors)
   )
+
+  gc()
   
   # Creating plots (choice of datasets depends on species):
   if (species == "Human") {
