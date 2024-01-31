@@ -112,7 +112,7 @@ filterQC <- function(object,
                      mad.nfeature.limits=c(5,5),
                      ncounts.limits=c(NA,NA),
                      mad.ncounts.limits=c(5,5),
-                     mitoch.limits = c(NA,8),
+                     mitoch.limits = c(NA,25),
                      mad.mitoch.limits = c(NA,3),
                      complexity.limits = c(NA,NA),
                      mad.complexity.limits = c(5,NA),
@@ -122,23 +122,18 @@ filterQC <- function(object,
                      do.doublets.fitler=T,
                      
                      ## dim Reduction settings
-                     plot.outliers="FALSE",
+                     plot.outliers="None", #options(None,UMAP,tSNE) 
                      group.column = NA,
                      nfeatures = 2000,
-                     low_cut = 0.1,
-                     high_cut = 8,
-                     low_cut_disp = 1,
-                     high_cut_disp = 100000,
-                     selection_method = "vst",
+                     low.cut = 0.1,
+                     high.cut = 8,
+                     low.cut.disp = 1,
+                     high.cut.disp = 100000,
+                     selection.method = "vst",
                      npcs = 30,
-                     integratedata = FALSE,
-                     clust_res_low=0.2,
-                     clust_res_high = 1.2,
-                     clust_res_bin = 0.2,
-                     only_var_genes = FALSE, 
-                     seed_for_PCA = 42,
-                     seed_for_TSNE = 1,
-                     seed_for_UMAP = 42
+                     seed.for.PCA = 42,
+                     seed.for.TSNE = 1,
+                     seed.for.UMAP = 42
                      
                      
                      
@@ -152,7 +147,7 @@ filterQC <- function(object,
   
   ### Helper Functions #####
   
-  .perCountsTop20Genes <- function(so,n.topgnes) {
+  .topNGenes <- function(so,n.topgnes) { 
     ##Extract counts table
     counts_matrix = GetAssayData(so, slot="counts")
     
@@ -181,7 +176,7 @@ filterQC <- function(object,
     
     minlim <- med-(limits[1]*stdev)
     maxlim <- med+(limits[2]*stdev)
-    gl <- format(round(maxlim,0),nsmall=0)
+    # gl <- format(round(maxlim,0),nsmall=0)## Remove used in testing
     
     return(c(minlim,maxlim))
     
@@ -257,32 +252,32 @@ filterQC <- function(object,
   
   
   .runTsnepPlot= function(filterCat,filterM,so,reduction){
-    if (reduction=="UMAP") {
-      tsne.df.plot <- as.data.frame(so@reductions$umap@cell.embeddings)
+    if (reduction=="umap") {
+      qcFiltr.df.plot <- as.data.frame(so@reductions$umap@cell.embeddings)
     }else{
-      tsne.df.plot <- as.data.frame(so@reductions$tsne@cell.embeddings)
+      qcFiltr.df.plot <- as.data.frame(so@reductions$tsne@cell.embeddings)
     }
     
     filterM=filterM[,filterCat,drop=F]
     
-    tsne.df.plot[,filterCat]=NA
-    tsne.df.plot[rownames(tsne.df.plot)%in%
+    qcFiltr.df.plot[,filterCat]=NA
+    qcFiltr.df.plot[rownames(qcFiltr.df.plot)%in%
                    rownames(filterM[filterM[,1]==T,1,drop=F]),
                  colnames(filterM)]="Normal"
-    tsne.df.plot[rownames(tsne.df.plot)%in%
+    qcFiltr.df.plot[rownames(qcFiltr.df.plot)%in%
                    rownames(filterM[filterM[,1]==F,1,drop=F]==F),
                  colnames(filterM)]="Removed"
-    tsne.df.plot[,colnames(filterM)]=
-      factor(tsne.df.plot[,colnames(filterM)],levels=c("Normal",'Removed'))
+    qcFiltr.df.plot[,colnames(filterM)]=
+      factor(qcFiltr.df.plot[,colnames(filterM)],levels=c("Normal",'Removed'))
     
-    g <- .plotTsne(tsne.df.plot,so@project.name,filterCat)
+    g <- .plotTsne(qcFiltr.df.plot,so@project.name,filterCat)
     return(g) 
   }
   
-  .plotTsne <- function(tsne.df.plot,name,var){
-    g <- ggplot(tsne.df.plot[order(tsne.df.plot[,var]),]) +
-      geom_point(mapping = aes_string(x=colnames(tsne.df.plot[,1,drop=F]),
-                                      y=colnames(tsne.df.plot[,2,drop=F]),
+  .plotTsne <- function(qcFiltr.df.plot,name,var){
+    g <- ggplot(qcFiltr.df.plot[order(qcFiltr.df.plot[,var]),]) +
+      geom_point(mapping = aes_string(x=colnames(qcFiltr.df.plot[,1,drop=F]),
+                                      y=colnames(qcFiltr.df.plot[,2,drop=F]),
                                       color=var),
                  size = 1) + 
       theme_classic() + 
@@ -358,36 +353,36 @@ filterQC <- function(object,
     
     ## Optional: TSNE/UMAP for figures ####
     
-    if(plot.outliers!="FALSE"){
-      so.nf.tsne <- SCTransform(so.nf,do.correct.umi = TRUE,
+    if(plot.outliers!="none"){
+      so.nf.qcFiltr <- SCTransform(so.nf,do.correct.umi = TRUE,
                                 vars.to.regress=vars_to_regress, 
                                 return.only.var.genes = FALSE)
-      so.nf.tsne = FindVariableFeatures(object = so.nf.tsne, 
+      so.nf.qcFiltr = FindVariableFeatures(object = so.nf.qcFiltr, 
                              nfeatures = nfeatures, 
-                             mean.cutoff = c(low_cut, high_cut), 
-                             dispersion.cutoff=c(low_cut_disp,high_cut_disp), 
-                             selection.method=selection_method, verbose = FALSE)
-      so.nf.tsne <- RunPCA(object = so.nf.tsne, 
+                             mean.cutoff = c(low.cut, high.cut), 
+                             dispersion.cutoff=c(low.cut.disp,high.cut.disp), 
+                             selection.method=selection.method, verbose = FALSE)
+      so.nf.qcFiltr <- RunPCA(object = so.nf.qcFiltr, 
                            npcs = npcs, verbose = FALSE,
-                           seed.use = seed_for_PCA)
-      if (plot.outliers=="UMAP") {
+                           seed.use = seed.for.PCA)
+      if (plot.outliers=="umap") {
         
-        so.nf.tsne <- RunUMAP(object = so.nf.tsne, 
+        so.nf.qcFiltr <- RunUMAP(object = so.nf.qcFiltr, 
                               reduction = "pca", 
                               dims = 1:npcs, 
-                              seed.use=seed_for_UMAP)
-        tsne.df.plot = as.data.frame(so.nf.tsne@reductions$umap@cell.embeddings)
-        so.nf=AddMetaData(so.nf,tsne.df.plot) 
+                              seed.use=seed.for.UMAP)
+        qcFiltr.df.plot = as.data.frame(so.nf.qcFiltr@reductions$umap@cell.embeddings)
+        so.nf=AddMetaData(so.nf,qcFiltr.df.plot) 
         
       }else{
         
-        so.nf.tsne <- RunTSNE(object = so.nf.tsne, 
+        so.nf.qcFiltr <- RunTSNE(object = so.nf.qcFiltr, 
                               reduction = "pca", 
                               dim.embed = 2, 
                               dims = 1:npcs, 
-                              seed.use = seed_for_TSNE)
-        tsne.df.plot = as.data.frame(so.nf.tsne@reductions$tsne@cell.embeddings)
-        so.nf=AddMetaData(so.nf,tsne.df.plot) 
+                              seed.use = seed.for.TSNE)
+        qcFiltr.df.plot = as.data.frame(so.nf.qcFiltr@reductions$tsne@cell.embeddings)
+        so.nf=AddMetaData(so.nf,qcFiltr.df.plot) 
       }
     }
     
@@ -424,7 +419,7 @@ filterQC <- function(object,
     ## Caluclate filter Metrics
     
     ## calculate Counts in top 20 Genes
-    so=.perCountsTop20Genes(so,n.topgnes)
+    so=.topNGenes(so,n.topgnes)
     
     ## Counts(umi) Filter 
     mad.ncounts.limits=.madCalc(so,'nCount_RNA',mad.ncounts.limits)
@@ -533,7 +528,7 @@ filterQC <- function(object,
     cat(paste0("Percent Remaining: " ,perc.remain,"% \n\n")) 
     cat(paste0("# of Cells removed by individual Filters: \n"))
     print(colSums(filter_matrix==F))
-    cat(paste0("\n\n"))
+    cat("\n\n")
     
     
     
@@ -568,10 +563,10 @@ filterQC <- function(object,
     
     
     ## Optional: create TSNE plots ####
-    if(plot.outliers!="FALSE"){   filter.plot.cols=3
+    if(plot.outliers!="none"){   filter.plot.cols=3
     gtsne.list=lapply(colnames(filter_matrix),
                       function(x){.runTsnepPlot(x,filter_matrix,
-                                                so.nf.tsne,plot.outliers)})
+                                                so.nf.qcFiltr,plot.outliers)})
     gtsne.all <- arrangeGrob(grobs = gtsne.list, ncol = filter.plot.cols)
     
     so2.list <- list(Filtered=so,
@@ -592,8 +587,9 @@ filterQC <- function(object,
   ## --------------- ##
   ## Main Code Block ####
   ## --------------- ##
-  ## make sure that plot.outliers is character not boolean 
-  plot.outliers =as.character(plot.outliers)
+  ## make sure that plot.outliers is character not boolean and case insensitive
+  plot.outliers =tolower(as.character(plot.outliers))
+
   
   ## Caluclate filter Metrics
   so.nf.list=lapply(names(object), function(i){
@@ -601,7 +597,7 @@ filterQC <- function(object,
     
     ## calculate Counts in top 20 Genes
     ##calculated after min.cell filter as well
-    so=.perCountsTop20Genes(so,n.topgnes)
+    so=.topNGenes(so,n.topgnes) 
     
     ## Annotate Doublets: ####
     ## Gene filter does not effect doublet ident and so not recalculated
@@ -685,24 +681,24 @@ filterQC <- function(object,
                            'percent.mt','log10GenesPerUMI')]
   
   #### Combine meta.data tables ####
-  ftable.all=data.frame()
-  rtable.all=data.frame()
+  filtTable.all=data.frame()
+  rawTable.all=data.frame()
   for(s in names(so.f.list)) {
-    ftable=so.f.list[[s]]@meta.data
-    ftable=ftable[,colnames(ftable)%in%features,drop=F]
-    ftable$Sample=s
-    ftable$filt='filt'
+    filtTable=so.f.list[[s]]@meta.data
+    filtTable=filtTable[,colnames(filtTable)%in%features,drop=F]
+    filtTable$Sample=s
+    filtTable$filt='filt'
     
-    rtable=so.nf.list[[s]]@meta.data
-    rtable=rtable[,colnames(rtable)%in%features,drop=F]
-    rtable$Sample=s
-    rtable$filt='raw'
+    rawTable=so.nf.list[[s]]@meta.data
+    rawTable=rawTable[,colnames(rawTable)%in%features,drop=F]
+    rawTable$Sample=s
+    rawTable$filt='raw'
     
-    ftable.all=rbind(ftable.all,ftable)
-    rtable.all=rbind(rtable.all,rtable)
+    filtTable.all=rbind(filtTable.all,filtTable)
+    rawTable.all=rbind(rawTable.all,rawTable)
   }
   
-  table.meta=rbind(ftable.all,rtable.all)
+  table.meta=rbind(filtTable.all,rawTable.all)
   table.meta$nFeature_RNA=as.numeric(table.meta$nFeature_RNA)
   table.meta$filt=factor(table.meta$filt,levels = c('raw','filt'))
   
@@ -802,8 +798,8 @@ filterQC <- function(object,
   
   
   ### TSNE Plots
-  if (plot.outliers!="FALSE") {
-    tsne.grobs <- lapply(so.f.out,function(x) x[['TSNEfilter']])
+  if (plot.outliers!="none") {
+    qcFiltr.grobs <- lapply(so.f.out,function(x) x[['TSNEfilter']])
   }
   
   
@@ -820,42 +816,30 @@ filterQC <- function(object,
   
   gc(full = TRUE) 
   
+
   
   ### Output ####
-  if(plot.outliers!='FALSE'){
-    return(list(object=so.f.list,
-                FilteringMeta=so.nf.list.meta,
-                plots=list(
-                  ViolinPlotCombine=violin.grob,
-                  ViolinPlot=violin.list,
-                  ScatterPlotCombine=scatter.grob,
-                  Scatter=scatter.list,
-                  TSNEFeature=tsne.grobs,
-                  
-                  PostFilterCombined=postFilter.grobs,
-                  ViolinPostFilter=violin.allsamples.grob,
-                  ScatterPostFilter=scatter.allsamples.grob,
-                  HistogramPostFilter=hist.allsamples.grob
-                )
-    )
-    )
-  } else {
-    return(list(object=so.f.list,
-                FilteringMeta=so.nf.list.meta,
-                plots=list(
-                  ViolinPlotCombine=violin.grob,
-                  ViolinPlot=violin.list,
-                  ScatterPlotCombine=scatter.grob,
-                  Scatter=scatter.list,
-                  
-                  PostFilterCombined=postFilter.grobs,
-                  ViolinPostFilter=violin.allsamples.grob,
-                  ScatterPostFilter=scatter.allsamples.grob,
-                  HistogramPostFilter=hist.allsamples.grob
-                )
-    )
-    )
-  }
+  out=list(object=so.f.list,
+       FilteringMeta=so.nf.list.meta,
+       plots=list(
+         ViolinPlotCombine=violin.grob,
+         ViolinPlot=violin.list,
+         ScatterPlotCombine=scatter.grob,
+         Scatter=scatter.list,
+         
+         PostFilterCombined=postFilter.grobs,
+         ViolinPostFilter=violin.allsamples.grob,
+         ScatterPostFilter=scatter.allsamples.grob,
+         HistogramPostFilter=hist.allsamples.grob
+       )
+  )
+  
+  if(plot.outliers!='none'){
+    out$plots=c(out$plots,TSNEFeature=qcFiltr.grobs)
+    
+  } 
+    return(out)
+
   
 }
 
