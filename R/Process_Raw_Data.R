@@ -28,6 +28,9 @@
 #' If samples have been renamed set regular expression based on new names
 #' @param split.h5 If TRUE, split H5 into individual files. (Default: FALSE)
 #' @param cell.hash If TRUE, dataset contains cell hashtags. (Default: FALSE)
+#' @param tcr.summarize.topN Select number of top most identified TCR clonotypes
+#'  to be included in summary column. Any clonotypes below the top N most
+#'  populated will be classified as "Other". (Default: 10) 
 #' @param do.normalize.data If TRUE counts table will be log2 normalized. If 
 #' input contains counts that are already normalzed set to FALSE. 
 #' (Default: TRUE)
@@ -39,7 +42,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom stringr str_to_title
 #' @importFrom dplyr summarise filter arrange select mutate desc
-#' @importFrom dplyr if_else row_number relocate
+#' @importFrom dplyr if_else row_number relocate rename
 #' @importFrom tidyr fill 
 #' @importFrom ggplot2 ggplot
 #' @importFrom RColorBrewer brewer.pal
@@ -59,6 +62,7 @@ processRawData <- function(input,
                            file.filter.regex=c(),
                            split.h5=F,
                            cell.hash=F,
+                           tcr.summarize.topN=10,
                            do.normalize.data=T                
 ){          
   
@@ -80,8 +84,8 @@ processRawData <- function(input,
   #### Figures ####
   
   .plotScatterPost2=function(count.df,xaxis,yaxis){	
-    ylab = as.character(xaxis)	
-    xlab = as.character(yaxis)	
+    xlab = as.character(xaxis)	
+    ylab = as.character(yaxis)	
     name = paste(ylab,"vs.",xlab)          
     g = ggplot(count.df, aes(x=.data[[xaxis]], y=.data[[yaxis]],color=Sample)) +
       geom_point(size = 0.5) + 
@@ -90,7 +94,7 @@ processRawData <- function(input,
             legend.title=element_blank()) + 
       guides(colour = guide_legend(override.aes = list(size=2))) +
       scale_color_manual(values = col2) +
-      labs( x = xlab, y = ylab)
+      labs( x = xlab, y = gsub(" \\(", " \n\\(",ylab))
     
     return(g)
   }
@@ -99,21 +103,24 @@ processRawData <- function(input,
     g=ggplot(count.df) + 
       theme_bw() +
       geom_density(aes(x = .data[[xaxis]], colour = Sample)) +
-      # labs(x = NULL) +
       theme(legend.position='right',legend.text=element_text(size=10),
             legend.title=element_blank()) + 
       # ggtitle(xaxis) +
+      # labs(x = NULL) +
+      # labs( x = gsub(" \\(", " \n\\(",xaxis))+
       scale_x_continuous(trans='log10') + 
       scale_color_manual(values = col2) %>% 
       suppressMessages()%>%suppressWarnings()
+    
     return(g)
   }
   
   .plotViolinPost2=function(count.df,yaxis){
     axis.lab = unique(count.df$Sample)
     
-    g=ggplot(count.df, aes_string(x='Sample', y=(yaxis))) +
+    g=ggplot(count.df, aes(x=Sample, y=.data[[yaxis]])) +
       ggtitle(yaxis) +
+      labs( x = 'Sample', y = gsub(" \\(", " \n\\(",yaxis))+
       theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
@@ -126,7 +133,7 @@ processRawData <- function(input,
             plot.title = element_text(size = 20, face = "bold")) +
       geom_violin(aes(fill=as.factor(Sample))) +  
       scale_fill_manual(values = col2) +
-      geom_boxplot(width=.1) +
+      geom_boxplot(width=.0) +
       scale_x_discrete(limits = as.vector(axis.lab)) 
     return(g)
     
@@ -164,8 +171,21 @@ processRawData <- function(input,
     ## calculate Percent Mito
     so.nf[["percent.mt"]] = PercentageFeatureSet(object = so.nf, 
                                                  pattern = mitoch)
-    ## calculate Genes per UMI
+    
+    ## Error Check for Correct Organism using mitochondrial count
+    mt.cell.count=(so.nf[["percent.mt"]]>0)%>%sum()
+    if(mt.cell.count<length(so.nf[["percent.mt"]])){
+      stop("No Mitochondrial Genes Detetcted: Wrong Organism may be selected.
+           Supported Organisms are Human or Mouse")
+    }
+
+    
+    ## calculate Genes per UMI (complexity)
+    # https://hbctraining.github.io/scRNA-seq/lessons/04_SC_quality_control.html
+    # https://github.com/hbctraining/scRNA-seq/blob/master/lessons/old-quality_control_analysis_sce.md
     so.nf$log10GenesPerUMI = log10(so.nf$nFeature_RNA)/log10(so.nf$nCount_RNA)
+
+    
     
     return(so.nf)
   }
@@ -185,7 +205,7 @@ processRawData <- function(input,
     
     #filter down to only high confidence,productive contigs with 
     #sequencable proteins
-    df <- df[which(df$high_confidence==T & df$cdr3!="None" & df$productive==T ),]
+    df <-df[which(df$high_confidence==T & df$cdr3!="None" & df$productive==T ),]
     
     #collapse beta reads
     betaSeq <- df %>% 
@@ -274,16 +294,14 @@ processRawData <- function(input,
                          "cell_top_beta",
                          "clonotype_id",
                          "vdj_clonotype_id")
-    summarizeCutOff <- min(10,18)
-    
     for (i in colsToSummarize) {
       col <- df[[i]]
       valCount <- length(unique(col))
       
-      if ((valCount >=summarizeCutOff) & 
+      if ((valCount >=tcr.summarize.topN) & 
           (!is.element(class(df[[i]][1]),c("numeric","integer")))) 
       {
-        freqVals <- as.data.frame(-sort(-table(col)))$col[1:summarizeCutOff]
+        freqVals <- as.data.frame(-sort(-table(col)))$col[1:tcr.summarize.topN]
         summarized_col = list()
         count <- 0
         for (j in col) {
@@ -347,32 +365,8 @@ processRawData <- function(input,
   ### Process files h5, rds ####
   
   ### Create SO object depending on class of input SOs. 
-  if(class(input)=='RFilePaths'){
-    print(paste0('File Type: ',class(input)))
-    input.dat <- input$value[grepl("*h5$",input$value)]
-    input.tcr <- input$value[grepl("*csv$",input$value)]
-    
-    obj.list = lapply(input.dat, 
-                      function(x){ return(Read10X_h5(x, use.names=TRUE)) })
-    tcr.list = lapply(input.tcr, 
-                      function(x){return(read.csv(x, header = T))})
-    
-  }else if(class(input)=='FoundryTransformInput'){
-    print(paste0('File Type: ',class(input)))
-    
-    input.dat=nidapGetFiles(input,'*h5$')
-    input.tcr=nidapGetFiles(input,'*csv$')
-    
-    obj.list <- lapply(input.dat, 
-                       function(x) { return(Read10X_h5(x, use.names=TRUE)) })
-    if (length(input.tcr)>0) {
-      tcr.list = lapply(input.tcr, 
-                        function(x){return(read.csv(x, header = T))})
-    }
-    
-    
-  } else if(class(input)=='character'){
-    if (sum(grepl('*rds$',input))==1) {
+  if(class(input)=='character'|'list'){
+    if (sum(grepl('*rds$|*Rds$',input))==1) {
       ## Log output.
       cat("1. Reading Seurat Object from dataset: seurat_object.rds\n\n")
       
@@ -384,10 +378,11 @@ processRawData <- function(input,
                          function(x) { return(readRDS(x)) })
       if (length(input.tcr)>0) {
         tcr.list = lapply(input.tcr, 
-                          function(x){return(read.delim(x,sep=",", header = T))})
+                          function(x){return(read.delim(x,sep=",", header = T))}
+                          )
       }
       
-      
+    #  
     } else if (sum(grepl('*h5$',input))>0){
       ## Log output.
       cat("1. Processing .h5 files from dataset \n\n")
@@ -400,17 +395,23 @@ processRawData <- function(input,
                          function(x) { return(Read10X_h5(x, use.names=TRUE)) })
       if (length(input.tcr)>0) {
         tcr.list = lapply(input.tcr, 
-                          function(x){return(read.delim(x,sep=",", header = T))})
+                          function(x){return(read.delim(x,sep=",", header = T))}
+                          )
       }
       
       
     }else {
-      stop("Incorrect input format")
+      stop("Incorrect input format: 
+      files should be a vector or list of
+      .h5(Single Cell input)+.csv(TCR input) files or 
+      .rds files(Seurat Object input) "
+           )
     }
   } else {
-    stop("Incorrect input format")
+    stop("Incorrect input format:Input should be a vector or list of file paths 
+         to .h5(Single Cell input)+.csv(TCR input) files or 
+         .rds files(Seurat Object input) ")
   }
-  
   
   
   ## Clean up sample names
@@ -484,7 +485,8 @@ processRawData <- function(input,
   }
   
   
-  ### Split H5 ####
+  
+  ### Split SO ####
   
   if(split.h5 == TRUE){
     if (length(so.orig.nf)==1) {
@@ -501,12 +503,12 @@ processRawData <- function(input,
   }
   sample.names=names(so.orig.nf)
   
-  cat("Sample Names:\n",paste(names(so.orig.nf),collapse = '\n'))
+  cat("Sample Names:\n",paste(names(so.orig.nf),collapse = '\n'),"\n\n")
   
   
   
   ### log Normalize Data ####
-  if (do.normalize.data) {
+  if (do.normalize.data==T) {
     so.orig.nf <- lapply(seq_along(so.orig.nf), .logNormSeuratObject)
     names(so.orig.nf)=sample.names
   }else{
@@ -541,7 +543,8 @@ processRawData <- function(input,
                   Check sample names:
                   ",
                   paste(
-                    paste0("'",setdiff(meta.table[,sample.name.column],names(so.orig.nf)),"'"),
+                    paste0("'",setdiff(meta.table[,sample.name.column],
+                                       names(so.orig.nf)),"'"),
                     sep="",
                     collapse = "\n"
                   ),
@@ -559,8 +562,8 @@ processRawData <- function(input,
     metacols <- metacols[!metacols %in% 
                            unique(c(rename.col,sample.name.column))]
     if (length(metacols)>0) {
-      
-      so.orig.nf=appendMetadataToSeuratObject(
+
+        so.orig.nf=appendMetadataToSeuratObject(
         so.orig.nf,
         meta.table[,c(sample.name.column,metacols)],
         sample.name.column)[['object']]
@@ -624,7 +627,7 @@ processRawData <- function(input,
   }
   
   
-  ### Remove Sample files ####
+  ### Remove Sample  ####
   subsetRegex <- file.filter.regex
   if (length(subsetRegex) > 0) {
     if (keep == TRUE){
@@ -682,16 +685,14 @@ processRawData <- function(input,
   #           )%>%unique
 
 
-  
+  # 
+ 
   features=c("orig.ident",
              "nCount_RNA",
              "nFeature_RNA",
              "percent.mt",
              "log10GenesPerUMI")
-  v=features[features%in%c('nCount_RNA',
-                           'nFeature_RNA',
-                           'percent.mt',
-                           'log10GenesPerUMI')]
+
   
   
   #### Combine SO meta.data tables ####
@@ -706,11 +707,26 @@ processRawData <- function(input,
   
   table.meta$nFeature_RNA=as.numeric(table.meta$nFeature_RNA)
   
+
+  table.meta=rename(table.meta,
+         'UMI Count (nCount_RNA)' = 'nCount_RNA',
+         'Gene Count (nFeature_RNA)' ='nFeature_RNA',
+         'Percent Mitochondrial Genes (percent.mt)'='percent.mt',
+         'Complexity (log10GenesPerUMI)'='log10GenesPerUMI'
+         )
   
+  v=c('UMI Count (nCount_RNA)' ,
+  'Gene Count (nFeature_RNA)',
+  'Percent Mitochondrial Genes (percent.mt)',
+  'Complexity (log10GenesPerUMI)')
+  
+  
+
   ### Post Filter Summary - Scatter
   
   scatter.allsamples=lapply(v,
-                            function(y){.plotScatterPost2(table.meta,'nCount_RNA',y)})
+                            function(y){.plotScatterPost2(table.meta,
+                                                          'UMI Count (nCount_RNA)',y)})
   names(scatter.allsamples)=v
   
   scatter.allsamples.grob=ggarrange(plotlist=scatter.allsamples,
@@ -742,7 +758,8 @@ processRawData <- function(input,
   
   violin.allsamples.grob=annotate_figure(violin.allsamples.grob, 
                                          top = text_grob("", 
-                                                         face = "bold", size = 14))
+                                                         face = "bold", 
+                                                         size = 14))
   
   ### Post Filter Summary - combined Scatter + Histogram
   
@@ -758,7 +775,7 @@ processRawData <- function(input,
     suppressMessages()%>%suppressWarnings()
   
   raw.grobs=annotate_figure(raw.grobs, 
-                            top = text_grob(" Summary ", 
+                            top = text_grob(" Unfiltered QC Summary ", 
                                             face = "bold", size = 14))
   
   
