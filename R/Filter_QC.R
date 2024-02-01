@@ -40,7 +40,7 @@
 #'  exceed the selected lower or upper limits. 
 #'  Usage c(lower limit, Upper Limit). E.g. setting to c(0,8) will not set the 
 #'  lower limit and removes cells with more than 8% mitochondrial RNA. 
-#'  (Default: c(NA,8))
+#'  (Default: c(NA,25))
 #' @param mad.mitoch.limits Set filter limits based on how many Median Absolute 
 #'  Deviations an outlier cell will have. Calculated from the Median percentage 
 #'  of mitochondrial RNA for all cells in your sample. 
@@ -91,7 +91,7 @@
 #' @importFrom Seurat CreateAssayObject Idents as.SingleCellExperiment AddMetaData
 #' @importFrom reshape2 melt
 #' @importFrom magrittr %>%
-#' @importFrom dplyr arrange 
+#' @importFrom dplyr arrange rename
 #' @importFrom ggplot2 ggplot
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom ggpubr annotate_figure get_legend ggarrange
@@ -164,7 +164,7 @@ filterQC <- function(object,
     
     ### add to metadata  
     tbl=as.data.frame(tbl)
-    so_out=AddMetaData(so, tbl, col.name = 'pct_counts_in_top_20_genes')
+    so_out=AddMetaData(so, tbl, col.name = 'pct_counts_in_top_N_genes')
     
     return(so_out)  
   }
@@ -198,8 +198,11 @@ filterQC <- function(object,
   #### Filter QC plots  ####
   
   .plotViolin2=function(count.df,value){
-
-    g <- ggplot(count.df, aes_string(x='filt', y=value)) +
+    axis.lab = unique(count.df$filt)
+    ylabs=gsub(" \\(", "\n\\(",value)
+    ylabs=gsub(" TopN", "\nTopN",ylabs)
+    
+    g <- ggplot(count.df, aes(x=filt, y=.data[[value]])) +
       # ggtitle(paste(name,count.df$variable[1])) +
       theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
@@ -213,10 +216,11 @@ filterQC <- function(object,
             plot.title = element_text(size = 12, face = "bold")) +
       geom_violin(aes(fill=filt)) +  
       # scale_fill_manual(values = c("#00AFBB", "#FC4E07")) + 
-      geom_boxplot(width=.1) +
-      # scale_x_discrete(limits = as.vector(axislab))+
+      geom_boxplot(width=0) +
+      # scale_x_discrete(limits = as.vector(axis.lab))+
+      labs( y = ylabs)+
       facet_wrap(~Sample,nrow=1)
-    # v 
+  
     return(g)
   }
   
@@ -225,14 +229,20 @@ filterQC <- function(object,
   .plotScatter2=function(count.df,value){
     # count.df$filt=factor(count.df$filt,levels = c('filt','raw'))
     count.df$filt=factor(count.df$filt,levels = c('raw','filt'))
+    ylabs=gsub(" \\(", "\n\\(",value)
+    ylabs=gsub(" TopN", "\nTopN",ylabs)
+    
     g <- count.df%>%arrange(filt)%>%
-      ggplot(aes_string(x="nCount_RNA",y=value,color="filt")) + 
-      geom_point(size = 0.5) + 
+      ggplot(aes(x=`UMI Count (nCount_RNA)`,y=.data[[value]],color=filt)) + 
+      geom_point(size = 0.5) +
+      
       theme_classic() +
       theme(strip.background =element_rect(fill="grey"),
             axis.text.x=element_text(angle=45,hjust=1),
             axis.text=element_text(size=10)
-      ) + facet_wrap(~Sample,nrow=1,)
+      ) +       
+      labs( y = ylabs)+
+      facet_wrap(~Sample,nrow=1,)
     
     return(g)
   }
@@ -289,8 +299,11 @@ filterQC <- function(object,
   
   #### Post Filter plots ####
   .plotScatterPost2=function(count.df,xaxis,yaxis){	
-    ylab = as.character(xaxis)	
-    xlab = as.character(yaxis)	
+    xlab = as.character(xaxis)	
+    ylab = as.character(yaxis)	
+    ylab=gsub(" \\(", "\n\\(",ylab)
+    ylab=gsub(" TopN", "\nTopN",ylab)
+    
     name = paste(ylab,"vs.",xlab)          
     g =ggplot(count.df, aes(x=.data[[xaxis]], y=.data[[yaxis]],color = Sample))+
       geom_point(size = 0.5) + 
@@ -321,8 +334,10 @@ filterQC <- function(object,
   
   .plotViolinPost2=function(count.df,yaxis){
     axis.lab = unique(count.df$Sample)
+    ylabs=gsub(" \\(", "\n\\(",yaxis)
+    ylabs=gsub(" TopN", "\nTopN",ylabs)
     
-    g=ggplot(count.df, aes_string(x='Sample', y=(yaxis))) +
+    g=ggplot(count.df, aes(x=Sample, y=(.data[[yaxis]]))) +
       ggtitle(yaxis) +
       theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
@@ -334,9 +349,10 @@ filterQC <- function(object,
             axis.text.x=element_blank(),
             #axis.text.x=element_text(angle=45,hjust=1),
             plot.title = element_text(size = 20, face = "bold")) +
+      labs( y = ylabs)+
       geom_violin(aes(fill=as.factor(Sample))) +  
       scale_fill_manual(values = col2) +
-      geom_boxplot(width=.1) +
+      geom_boxplot(width=0) +
       scale_x_discrete(limits = as.vector(axis.lab)) 
     return(g)
     
@@ -425,7 +441,8 @@ filterQC <- function(object,
     mad.ncounts.limits=.madCalc(so,'nCount_RNA',mad.ncounts.limits)
     mad.ncounts.limits=.checkLimits(mad.ncounts.limits)
     ncounts.limits=.checkLimits(ncounts.limits)
-    
+    mad.ncounts.limits=mad.ncounts.limits%>%round(digits=2)
+    ncounts.limits=ncounts.limits%>%round(digits=2)
     
     ncounts.filter=((so@meta.data$nCount_RNA >= 
                       max(ncounts.limits[1],mad.ncounts.limits[1])) &
@@ -437,7 +454,8 @@ filterQC <- function(object,
     mad.nfeature.limits=.madCalc(so,'nFeature_RNA',mad.nfeature.limits)
     mad.nfeature.limits=.checkLimits(mad.nfeature.limits)
     nfeature.limits=.checkLimits(nfeature.limits)
-    
+    mad.nfeature.limits=mad.nfeature.limits%>%round(digits=2)
+    nfeature.limits=nfeature.limits%>%round(digits=2)
     
     nfeature.filter= ((so@meta.data$nFeature_RNA >= 
                      max(nfeature.limits[1],mad.nfeature.limits[1])) &
@@ -449,7 +467,8 @@ filterQC <- function(object,
     mad.mitoch.limits =.madCalc(so,'percent.mt',mad.mitoch.limits)  
     mad.mitoch.limits=.checkLimits(mad.mitoch.limits)
     mitoch.limits=.checkLimits(mitoch.limits)
-    
+    mad.mitoch.limits=mad.mitoch.limits%>%round(digits=2)
+    mitoch.limits=mitoch.limits%>%round(digits=2)
     
     mitochPer.filter= ((so@meta.data$percent.mt >= 
                           max(mitoch.limits[1],mad.mitoch.limits[1])) &
@@ -462,7 +481,8 @@ filterQC <- function(object,
     mad.complexity.limits=.madCalc(so,'log10GenesPerUMI',mad.complexity.limits)
     mad.complexity.limits=.checkLimits(mad.complexity.limits)
     complexity.limits=.checkLimits(complexity.limits)
-    
+    mad.complexity.limits=mad.complexity.limits%>%round(digits=2)
+    complexity.limits=complexity.limits%>%round(digits=2)
     
     complexity.filter= ((so@meta.data$log10GenesPerUMI >= 
                            max(complexity.limits[1],mad.complexity.limits[1])) &
@@ -471,20 +491,21 @@ filterQC <- function(object,
     )
     
     
-    ## Top 20 Filter
+    ## Top N Filter
     #  mad.topNgenes.limits = c(NA,5)
     # topNgenes.limits=c(NA,20)
     mad.topNgenes.limits=
-      .madCalc(so,'pct_counts_in_top_20_genes',mad.topNgenes.limits)
+      .madCalc(so,'pct_counts_in_top_N_genes',mad.topNgenes.limits)
     mad.topNgenes.limits=
       .checkLimits(mad.topNgenes.limits)
     topNgenes.limits=
       .checkLimits(topNgenes.limits)
+    mad.topNgenes.limits=mad.topNgenes.limits%>%round(digits=2)
+    topNgenes.limits=topNgenes.limits%>%round(digits=2)
     
-    
-    top20.filter= ((so@meta.data$pct_counts_in_top_20_genes >= 
+    topN.filter= ((so@meta.data$pct_counts_in_top_N_genes >= 
                       max(topNgenes.limits[1],mad.topNgenes.limits[1])) &
-                     (so@meta.data$pct_counts_in_top_20_genes <= 
+                     (so@meta.data$pct_counts_in_top_N_genes <= 
                         min(topNgenes.limits[2], mad.topNgenes.limits[2]))
     )    
     
@@ -502,7 +523,7 @@ filterQC <- function(object,
       nfeature.filter & 
       mitochPer.filter & 
       complexity.filter & 
-      top20.filter & 
+      topN.filter & 
       doublets.fitler
     filterIndex=as.data.frame(filterIndex)
     rownames(filterIndex) = rownames(so@meta.data)
@@ -511,7 +532,7 @@ filterQC <- function(object,
                            nfeature.filter,
                            mitochPer.filter,
                            complexity.filter,
-                           top20.filter,
+                           topN.filter,
                            doublets.fitler)
     rownames(filter_matrix)=rownames(so@meta.data)
     
@@ -530,24 +551,85 @@ filterQC <- function(object,
     print(colSums(filter_matrix==F))
     cat("\n\n")
     
-    
-    
+    ## create Filter resutls table
+    filtSum=matrix(nrow=1,ncol=3)
+    colnames(filtSum)=c("Cells before Filtering",
+                        "Cells after all Filters",
+                        "Percent Remaining")
+      filtSum[,"Cells before Filtering"]=nrow(filter_matrix)
+      filtSum[,"Cells after all Filters"]=sum(filterIndex)
+      filtSum[,"Percent Remaining"]=perc.remain
+    topN.filterRename=paste0('%counts in top',n.topgnes,' Genes filter')
+    filtTbl=colSums(filter_matrix==F)%>%t()%>%as.data.frame()
+    filtTbl=rename(filtTbl,
+                   'UMI Count (nCount_RNA)' = 'ncounts.filter',
+                   'Gene Count (nFeature_RNA)' ='nfeature.filter',
+                   'Mitochondrial (percent.mt)'='mitochPer.filter',
+                   'Complexity (log10GenesPerUMI)'='complexity.filter',
+                   'DoubletFinder (scDblFinder)'='doublets.fitler',
+                   !!topN.filterRename :='topN.filter')
+        colnames(filtTbl)=paste('Cells removed by ' ,colnames(filtTbl))
+        
+        filtSum=cbind(filtSum,filtTbl)
+        rownames(filtSum)=i
+        # tableGrob(filtSum)%>%plot
+        
+    ########################################################## #    
+    ## create Filter Limits table
+        topN.filterRename=paste0('%counts in top',n.topgnes,' Genes')
     cat('Minimum Cells per Gene: ',min.cells,'\n')
-    cat('nfeature Limits: ',nfeature.limits,'\n')
-    cat('MAD nfeature Limits: ',mad.nfeature.limits,'\n')
-    cat('ncounts Limits: ',ncounts.limits,'\n')
-    cat('MAD ncounts Limits: ',mad.ncounts.limits,'\n')
-    cat('Percent of Mitochondrial reads per Cell Limits: ',mitoch.limits,'\n')
-    cat('MAD Percent of Mitochondrial reads per Cell Limits: ',
-        mad.mitoch.limits,'\n')
-    cat('Cell Complexity limits: ',complexity.limits,'\n')
-    cat('MAD Cell Complexity limits: ',mad.complexity.limits,'\n')
-    cat('percent counts in top ',n.topgnes,' genes: ',topNgenes.limits,'\n')
-    cat('MAD percent counts in top' ,n.topgnes,' genes: ',
-        mad.topNgenes.limits,'\n')
+    cat('UMI Count (nCount_RNA) Limits: ',ncounts.limits,'\n')
+    cat('MAD UMI Count (nCount_RNA) Limits: ',mad.ncounts.limits,'\n')
+    cat('Gene Count (nFeature_RNA) Limits: ',nfeature.limits,'\n')
+    cat('MAD Gene Count (nFeature_RNA) Limits: ',mad.nfeature.limits,'\n')
+    cat('Mitochondrial (percent.mt) Limits: ',mitoch.limits,'\n')
+    cat('MAD Mitochondrial (percent.mt) Limits: ', mad.mitoch.limits,'\n')
+    cat('Complexity (log10GenesPerUMI) Limits: ',complexity.limits,'\n')
+    cat('MAD Complexity (log10GenesPerUMI) Limits: ',mad.complexity.limits,'\n')
+    cat(topN.filterRename,' Limits: ',topNgenes.limits,'\n')
+    cat('MAD ',topN.filterRename,' Limits: ',mad.topNgenes.limits,'\n')
     cat('Doublets Filter: ',do.doublets.fitler,'\n')
     
     
+    ## create Filter Limits table
+    FiltLmts=matrix(nrow=1,ncol=12)
+    colnames(FiltLmts)=c("Minimum Cells per Gene",
+                        "UMI Count (nCount_RNA)",
+                        "MAD UMI Count (nCount_RNA)",
+                        "Gene Count (nFeature_RNA)",
+                        "MAD Gene Count (nFeature_RNA)",
+                        "Mitochondrial (percent.mt)",
+                        "MAD Mitochondrial (percent.mt)",
+                        "Complexity (log10GenesPerUMI)",
+                        "MAD Complexity (log10GenesPerUMI)",
+                        paste0(topN.filterRename,"") ,
+                        paste0('MAD ',topN.filterRename,'') ,
+                        "DoubletFinder (scDblFinder)"
+                        )
+
+    FiltLmts[,'Minimum Cells per Gene']=min.cells
+    FiltLmts[,'UMI Count (nCount_RNA)']=
+      paste0(c("Low:","High:"),ncounts.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'MAD UMI Count (nCount_RNA)']=
+      paste0(c("Low:","High:"),mad.ncounts.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'Gene Count (nFeature_RNA)']=
+      paste0(c("Low:","High:"),nfeature.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'MAD Gene Count (nFeature_RNA)']=
+      paste0(c("Low:","High:"),mad.nfeature.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'Mitochondrial (percent.mt)']=
+      paste0(c("Low:","High:"),mitoch.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'MAD Mitochondrial (percent.mt)']=
+      paste0(c("Low:","High:"),mad.mitoch.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'Complexity (log10GenesPerUMI)']=
+      paste0(c("Low:","High:"),complexity.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'MAD Complexity (log10GenesPerUMI)']=
+      paste0(c("Low:","High:"),mad.complexity.limits)%>%paste(collapse = "\n")
+    FiltLmts[,paste0(topN.filterRename,'')]=
+      paste0(c("Low:","High:"),topNgenes.limits)%>%paste(collapse = "\n")
+    FiltLmts[,paste0('MAD ',topN.filterRename,'')]=
+      paste0(c("Low:","High:"),mad.topNgenes.limits)%>%paste(collapse = "\n")
+    FiltLmts[,'DoubletFinder (scDblFinder)']=do.doublets.fitler
+    rownames(FiltLmts)=i
     
     ### Apply Filters ####
     
@@ -571,15 +653,21 @@ filterQC <- function(object,
     
     so2.list <- list(Filtered=so,
                      FilteringMeta=so.nf@meta.data,
+                     FiltLmts=FiltLmts,
+                     filtSum=filtSum,
                      TSNEfilter=gtsne.all
     )
     }else{
       so2.list <- list(Filtered=so,
-                       FilteringMeta=so.nf@meta.data) 
+                       FilteringMeta=so.nf@meta.data,
+                       FiltLmts=FiltLmts,
+                       filtSum=filtSum) 
       
     }
     
     return(so2.list)
+    
+           
   }
   
   
@@ -614,21 +702,27 @@ filterQC <- function(object,
   names(so.nf.list)=names(object)
   
   
-  
-  
   ### Run Filtering Function ####
+
   so.f.out <- lapply(names(so.nf.list), 
                      function(i){.seuratObject(so.nf.list,i)})
   names(so.f.out)=names(so.nf.list)
+
   
   #### Get Filtered SO
   so.f.list <- lapply(so.f.out,function(x) {x[['Filtered']]})
   
-  
-  
+  #### Get Cell filtering Metadata
   so.nf.list.meta=lapply(names(so.f.out),
                          function(x){so.f.out[[x]][['FilteringMeta']]})
   names(so.nf.list.meta)=names(so.f.out)
+  
+  #### Get filtering Summary Tables
+  
+  filtSum=lapply(so.f.out, `[[`, 'filtSum')%>%do.call(rbind, .)%>%as.data.frame()
+  FiltLmts=lapply(so.f.out, `[[`, 'FiltLmts')%>%do.call(rbind, .)%>%as.data.frame()
+  
+  
   
   
   ### Collect QC figures ####
@@ -676,9 +770,12 @@ filterQC <- function(object,
   
   features=c("orig.ident",
              "nCount_RNA","nFeature_RNA",
-             "percent.mt","log10GenesPerUMI")
+             "percent.mt","log10GenesPerUMI",
+             "pct_counts_in_top_N_genes","Doublet")
   v=features[features%in%c('nCount_RNA','nFeature_RNA',
                            'percent.mt','log10GenesPerUMI')]
+  
+  
   
   #### Combine meta.data tables ####
   filtTable.all=data.frame()
@@ -702,6 +799,22 @@ filterQC <- function(object,
   table.meta$nFeature_RNA=as.numeric(table.meta$nFeature_RNA)
   table.meta$filt=factor(table.meta$filt,levels = c('raw','filt'))
   
+  
+  
+  table.meta=rename(table.meta,
+                    'UMI Count (nCount_RNA)' = 'nCount_RNA',
+                    'Gene Count (nFeature_RNA)' ='nFeature_RNA',
+                    '% Mitochondrial Genes (percent.mt)'='percent.mt',
+                    'Complexity (log10GenesPerUMI)'='log10GenesPerUMI',
+                    '% counts in TopN Genes'='pct_counts_in_top_N_genes'
+  )
+  
+  v=c('UMI Count (nCount_RNA)' ,
+      'Gene Count (nFeature_RNA)',
+      '% Mitochondrial Genes (percent.mt)',
+      'Complexity (log10GenesPerUMI)',
+      '% counts in TopN Genes')
+  
   #### Create Filter QC Plots ####
   
   ### Violin Plots
@@ -723,9 +836,9 @@ filterQC <- function(object,
   ### Scatter Plots
   
   ### scatter Plots for each meta.data metric  
-  scatter.list=lapply(v[!v%in%'nCount_RNA'],
+  scatter.list=lapply(v[!v%in%'UMI Count (nCount_RNA)'],
                       function(x){.plotScatter2(table.meta,x)})
-  names(scatter.list)=v[!v%in%'nCount_RNA']
+  names(scatter.list)=v[!v%in%'UMI Count (nCount_RNA)']
   
   ### Combine scatter Plots
   scatter.list.mod=.combinePlots(scatter.list)
@@ -744,7 +857,7 @@ filterQC <- function(object,
   ### Post Filter Summary - Scatter
   
   scatter.allsamples=lapply(v,
-                      function(y){.plotScatterPost2(qc.df.post,'nCount_RNA',y)})
+                      function(y){.plotScatterPost2(qc.df.post,'UMI Count (nCount_RNA)',y)})
   names(scatter.allsamples)=v
   
   scatter.allsamples.grob=ggarrange(plotlist=scatter.allsamples,
@@ -775,7 +888,7 @@ filterQC <- function(object,
                                    legend = 'right')
   
   violin.allsamples.grob=annotate_figure(violin.allsamples.grob, 
-                                       top = text_grob("Post Filter - Summary ", 
+                                       top = text_grob("Filtered QC Summary", 
                                                    face = "bold", size = 14))
   
   
@@ -793,7 +906,7 @@ filterQC <- function(object,
     suppressMessages()%>%suppressWarnings()
   
   postFilter.grobs=annotate_figure(postFilter.grobs, 
-                                   top = text_grob("Post Filter - Summary ", 
+                                   top = text_grob("Filtered QC Summary", 
                                                    face = "bold", size = 14))
   
   
@@ -820,7 +933,11 @@ filterQC <- function(object,
   
   ### Output ####
   out=list(object=so.f.list,
-       FilteringMeta=so.nf.list.meta,
+       FilteringTables=list(
+         FilteringMeta=so.nf.list.meta,
+         FilteringCounts=filtSum,
+         FilteringLimits=FiltLmts
+       ),
        plots=list(
          ViolinPlotCombine=violin.grob,
          ViolinPlot=violin.list,
