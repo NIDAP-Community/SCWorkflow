@@ -8,3 +8,7 @@ Build and Deployment Log:
 Datetime: 2024-01-31 23:08:51, Version:  r-scworkflow-1.0.0-r41_0.tar.bz2
 <br>[View Commit Log](Commit_Log_r-scworkflow-1.0.0-r41_0.log)
 <br>Deployment Status: Success
+
+Datetime: 2024-02-01 15:04:08, Version:  r-scworkflow-1.0.0-r41_0.tar.bz2
+<br>[View Commit Log](Commit_Log_r-scworkflow-1.0.0-r41_0.log)
+<br>Deployment Status: Artifacts:WriteArtifactPermissionDenied
