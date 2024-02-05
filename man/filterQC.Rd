@@ -29,6 +29,7 @@ filterQC(
   high.cut.disp = 1e+05,
   selection.method = "vst",
   npcs = 30,
+  vars_to_regress = NULL,
   seed.for.PCA = 42,
   seed.for.TSNE = 1,
   seed.for.UMAP = 42
@@ -76,7 +77,7 @@ greater than the median. (Default: c(5,5))}
 exceed the selected lower or upper limits.
 Usage c(lower limit, Upper Limit). E.g. setting to c(0,8) will not set the
 lower limit and removes cells with more than 8\% mitochondrial RNA.
-(Default: c(NA,8))}
+(Default: c(NA,25))}
 
 \item{mad.mitoch.limits}{Set filter limits based on how many Median Absolute
 Deviations an outlier cell will have. Calculated from the Median percentage
@@ -140,6 +141,6 @@ to evaluate data before and after filtering.
 \details{
 This is Step 2 in the basic Single-Cell RNA-seq workflow. Multiple
 cell and gene filters can be selected to remove poor quality data and noise.
-Returns data as a Seurat Object, and a variaty of figues to evaluate the
-quality of data and the effect of applied filters.
+Workflows can use this downstream of any Seurat Object. This tool is
+typically the second step in the Single Cell Workflow.
 }
