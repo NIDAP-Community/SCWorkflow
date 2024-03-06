@@ -250,8 +250,8 @@ filterQC <- function(object,
                                      pattern=',',2)%>%as.data.frame
     rownames(count.df.lim_cut)=count.df.lim$Sample
     colnames(count.df.lim_cut)=c('Low','High') 
-    count.df.lim_cut$Low=as.numeric(count.df.lim_cut$Low)
-    count.df.lim_cut$High=as.numeric(count.df.lim_cut$High)
+    count.df.lim_cut$Low=as.numeric(count.df.lim_cut$Low)%>%suppressWarnings()
+    count.df.lim_cut$High=as.numeric(count.df.lim_cut$High)%>%suppressWarnings()
     count.df.lim$Low=.rowMaxs(cbind(count.df.lim_cut[,'Low'],
                                    count.df.lim_MAD[,'Low']))#,na.rm=T)
     count.df.lim[count.df.lim$Low<0,'Low']=0
@@ -288,7 +288,7 @@ filterQC <- function(object,
                             guide = guide_legend(override.aes = 
                                                    list(color = c("grey"),
                                                         size=2)))+
-      facet_wrap(~Sample,nrow=1)
+      facet_wrap(~Sample,nrow=1)%>%suppressWarnings()
   
     return(g)
   }
@@ -402,7 +402,7 @@ filterQC <- function(object,
                             guide = guide_legend(override.aes = 
                                                    list(color = c("grey"),
                                                         size=2)))+
-      facet_wrap(~Sample,nrow=1,)
+      facet_wrap(~Sample,nrow=1,)%>%suppressWarnings()
     
     return(g)
   }
@@ -459,7 +459,7 @@ filterQC <- function(object,
       ggtitle(paste(name,"\n",var)) +
       scale_color_manual(values = c("grey","red")) +
   #scale_colour_gradient2(midpoint = mid[i],low="blue",mid="grey",high="red") + 
-      theme(legend.title=element_blank())
+      theme(legend.title=element_blank())%>%suppressWarnings()
   }
   
   #### Post Filter plots ####
@@ -477,7 +477,7 @@ filterQC <- function(object,
             legend.title=element_blank()) + 
       guides(colour = guide_legend(override.aes = list(size=5))) +
       scale_color_manual(values = col2) +
-      labs( x = xlab, y = ylab)
+      labs( x = xlab, y = ylab)%>%suppressWarnings()
     
     return(g)
   }
@@ -528,7 +528,7 @@ filterQC <- function(object,
       geom_violin(aes(fill=as.factor(Sample))) +  
       scale_fill_manual(values = col2) +
       geom_boxplot(width=0) +
-      scale_x_discrete(limits = as.vector(axis.lab)) 
+      scale_x_discrete(limits = as.vector(axis.lab))%>%suppressWarnings() 
     return(g)
     
   }
@@ -586,13 +586,18 @@ filterQC <- function(object,
     
     ### Gene Filters ####    
     ### Remove VDJ genes 
+    VDJgenesOut=c()
     if (filter.vdj.genes==TRUE) {
       allGenes = rownames(so)
       VDJgenes = c("TRBV","TRAV","TRBD","TRAJ","TRBJ")
       print("Removing VDJ genes. Genes removed...")
+      print(length(allGenes))
       for (j in VDJgenes) {
-        print(allGenes[grepl(j, allGenes)])
-        allGenes = allGenes[!grepl(j, allGenes)]  
+        j=toupper(j)
+        print(allGenes[grepl(j, toupper(allGenes))])
+        VDJgenesOut=c(VDJgenesOut,allGenes[grepl(j, toupper(allGenes))])
+        
+        allGenes = allGenes[!grepl(j, toupper(allGenes))]  
       }
       so <- subset(so,features = allGenes)
     }    
@@ -748,12 +753,14 @@ filterQC <- function(object,
         colnames(filtTbl)=paste('Cells removed by ' ,colnames(filtTbl))
         
         filtSum=cbind(filtSum,filtTbl)
+        filtSum[,"VDJ Genes Removed"]=VDJgenesOut%>%length
         rownames(filtSum)=i
         # tableGrob(filtSum)%>%plot
         
     ########################################################## #    
     ## create Filter Limits table
         topN.filterRename=paste0('% Counts in Top',n.topgnes,' Genes')
+  cat('VDJ Genes Removed: ',length(VDJgenesOut), '\n')      
   cat('Minimum Cells per Gene: ',min.cells,'\n')
   cat('UMI Count (nCount_RNA) Limits: ',ncounts.limits,'\n')
   cat('MAD UMI Count (nCount_RNA) Limits: ',mad.ncounts.limits,'\n')
@@ -766,6 +773,7 @@ filterQC <- function(object,
   cat(topN.filterRename,' Limits: ',topNgenes.limits,'\n')
   cat('MAD ',topN.filterRename,' Limits: ',mad.topNgenes.limits,'\n')
   cat('Doublets Filter: ',do.doublets.fitler,'\n')
+  
     
     
     ## create Filter Limits table
