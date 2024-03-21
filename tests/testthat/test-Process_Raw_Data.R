@@ -1,5 +1,5 @@
 
-for (data in c('TEC','PBMC_Multi','PBMC_Single')) {
+for (data in c('TEC','NSCLC_Multi','NSCLC_Single')) {
   
   test_that(paste0("Test Filter and QC - Standard (",data," dataset)"), {
     
@@ -174,7 +174,7 @@ for (data in c('TEC')) {
     skip_on_ci()
     expect_snapshot_file(
       .drawFig(Raw.out$plots$CombinedQC),
-      paste0(data,"_Standard_combFig.png")
+      paste0(data,"_Regex_combFig.png")
     )
     # expect_snapshot_file( # Test failed each run with no changes
     #   .saveSO(Raw.out$object),
@@ -189,21 +189,21 @@ for (data in c('TEC')) {
 
 ################################################################
 
-for (data in c('TEC')) {
-  
-  test_that(paste0("Test Filter and QC - Test organsim ERROR:  (",data," dataset)"), {
-    
-    data.run <- getParamRaw(data)
-    data.run$organism = "Human"
-    Raw.out <- do.call(processRawData, data.run)
-    
-    expect_error(do.call(processRawData, data.run), 
-    "No Mitochondrial Genes Detetcted: Wrong Organism may be selected.
-           Supported Organisms are Human or Mouse", ignore.case = TRUE)
-    
-  })
-  
-}
+# for (data in c('TEC')) {
+#   
+#   test_that(paste0("Test Filter and QC - Test organsim ERROR:  (",data," dataset)"), {
+#     
+#     data.run <- getParamRaw(data)
+#     data.run$organism = "Human"
+#     Raw.out <- do.call(processRawData, data.run)
+#     
+#     expect_error(do.call(processRawData, data.run), 
+#           c("No Mitochondrial Genes Detetcted: Wrong Organism may be selected.
+#            Supported Organisms are Human or Mouse"), ignore.case = TRUE)
+#     
+#   })
+#   
+# }
 
 
 

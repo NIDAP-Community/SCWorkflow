@@ -130,6 +130,20 @@ getParamRaw <- function(data){
     split.h5=T
     
     
+  } else if (data == "ccbr1256") {
+    
+  
+    
+    input=list.files(
+      test_path(paste0("fixtures/",data,"/")),"",full.names = T)
+    # input=list.files(
+    #   test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
+    organism = "Mouse"
+    sample.metadata.table=NULL
+    split.h5=F
+    
+    
+    
   }
   
   return(list("input" = input, 

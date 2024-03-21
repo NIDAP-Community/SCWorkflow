@@ -1,12 +1,11 @@
 #' @title Process Raw Data
-#' @description Creates Seurat Objects from h5 files for individual or
-#' merged samples. Will log normalize and produce QC figures for 
-#' individual samples
+#' @description Creates a list of Seurat Objects from h5 files. Will log 
+#' normalize and produce QC figures for individual samples
 #' @details This is Step 1 in the basic Single-Cell RNA-seq workflow.
 #'  Returns data as a Seurat Object, the basic data structure for 
 #'  Seurat Single Cell analysis.
 #'   
-#' @param input Input can be a vector of scRNA-Seq .h5 files, or a list of 
+#' @param input Input can be a vector of .h5 files, or a list of 
 #'  seurat objects for each sample. TCRseq Metadata .csv files can also be 
 #'  included and will be added to the corrisponding sample seurat object.  
 #'  Vector of files should include entire file path.
@@ -24,7 +23,8 @@
 #'  If FALSE, remove files when pattern is found in sample name.
 #'  The pattern is set in the file.filter.regex parameter (below).
 #' @param file.filter.regex Pattern or regular expression in sample 
-#' name. Use the 'keep' parameter to keep or remove files that contain pattern.
+#' name. Use the 'keep' parameter to keep or remove fi
+#' les that contain pattern.
 #' If samples have been renamed set regular expression based on new names
 #' @param split.h5 If TRUE, split H5 into individual files. (Default: FALSE)
 #' @param cell.hash If TRUE, dataset contains cell hashtags. (Default: FALSE)
@@ -150,8 +150,8 @@ processRawData <- function(input,
     
     
     ## Detect & Normalize CITEseq 
-    if ("protein" %in% names(so.nf)){
-      so.nf <- NormalizeData(so.nf, assay = "protein",
+    if ("Protein" %in% names(so.nf)){
+      so.nf <- NormalizeData(so.nf, assay = "Protein",
                              normalization.method = "CLR")
     }
     
@@ -204,7 +204,7 @@ processRawData <- function(input,
     
     
     #filter down to only high confidence,productive contigs with 
-    #sequencable proteins
+    #sequencable Proteins
     df <-df[which(df$high_confidence==T & df$cdr3!="None" & df$productive==T ),]
     
     #collapse beta reads
@@ -365,7 +365,7 @@ processRawData <- function(input,
   ### Process files h5, rds ####
   
   ### Create SO object depending on class of input SOs. 
-  if(class(input)=='character'|'list'){
+  if(class(input)%in%c('character','list')){
     if (sum(grepl('*rds$|*Rds$',input))==1) {
       ## Log output.
       cat("1. Reading Seurat Object from dataset: seurat_object.rds\n\n")
@@ -423,6 +423,7 @@ processRawData <- function(input,
   
   
   if (length(input.tcr)>0) {
+    print("TCR seq data detected")
     names(tcr.list) <- lapply(input.tcr, basename)
     names(tcr.list) <- sapply(names(tcr.list), 
                               function(x) gsub("_filtered(\\w+)?.csv","", x))
@@ -439,6 +440,8 @@ processRawData <- function(input,
   ### Create Seurat Object ####
   so.orig.nf <- list()
   for(i in seq_along(names(obj.list))){
+    print(' ')
+    print(names(obj.list)[i])
     ## From dgCMatrix
     if (class(obj.list[[i]]) == "dgCMatrix"){
       so.orig.nf[[i]] <- CreateSeuratObject(counts = obj.list[[i]], 
@@ -448,6 +451,9 @@ processRawData <- function(input,
     }else{
       ## From gene Expression Matrix
       k <- names(obj.list[[i]])
+      print(paste0('Matricies Present in .h5 file'))
+      print(k)
+      
       for(j in 1:length(k)){
         if(names(obj.list[[i]][j]) == "Gene Expression"){
           so.orig.nf[[i]] = CreateSeuratObject(counts = obj.list[[i]][k][[j]], 
@@ -456,25 +462,43 @@ processRawData <- function(input,
                                                min.cells = 0)
           
         }else if(names(obj.list[[i]][j]) == "Antibody Capture"){
+          ## determine if Slot contains CITEseq or HTO data
           ## CITEseq data and HTO data
-          protein <- rownames(
-            obj.list[[i]][k][[j]])[
-              !grepl("HTO*",rownames(obj.list[[i]][k][[j]]))]
-          HTO <- rownames(
-            obj.list[[i]][k][[j]])[
-              grepl("HTO*",rownames(obj.list[[i]][k][[j]]))]
+          print('Antibody Capture Matrix detected')
+          if (any(grepl("HTO*",rownames(obj.list[[i]][k][[j]])))) {
+            print("HTO matrix detected")
+            
+            ## Extract HTO matrix
+            HTO <- rownames(
+              obj.list[[i]][k][[j]])[
+                grepl("HTO*",rownames(obj.list[[i]][k][[j]]))]
+            # ## Remove HTO matrix
+            # obj.list[[i]][k][[j]]=obj.list[[i]][k][[j]][
+            #                         rownames(obj.list[[i]][k][[j]])%in%HTO==F,]
+            # 
+              contains.HTO=TRUE
+              so.orig.nf[[i]][['HTO']] = 
+                CreateAssayObject(counts=obj.list[[i]][k][[j]][HTO, 
+                                                               colnames(
+                                                                 so.orig.nf[[i]]
+                                                               )])
+              
+            
+          } else if ( any(grepl("HTO*",rownames(obj.list[[i]][k][[j]]))==F) ){ 
+            ## If any names do not contain HTO assume to be CITE-seq
+            ## extract Protein matrix
+            print("Protein matrix detected")
+            
+            protein <- rownames(
+              obj.list[[i]][k][[j]])[
+                !grepl("HTO02_*",rownames(obj.list[[i]][k][[j]]))]
+            
+                so.orig.nf[[i]][["Protein"]] <- 
+                CreateAssayObject(obj.list[[i]][k][[j]][protein, 
+                                                        colnames(so.orig.nf[[i]]
+                                                        )])}
+            
           
-          so.orig.nf[[i]][["protein"]] <- 
-            CreateAssayObject(obj.list[[i]][k][[j]][protein, 
-                                                    colnames(so.orig.nf[[i]]
-                                                    )])
-          
-          if(length(HTO)>0){
-            so.orig.nf[[i]][['HTO']] = 
-              CreateAssayObject(counts=obj.list[[i]][k][[j]][HTO, 
-                                                             colnames(
-                                                               so.orig.nf[[i]]
-                                                             )])}
         }else{
           ## Error Report if h5 not correctly formated
           print(paste(names(obj.list[[i]][j]),"found, not stored"))
