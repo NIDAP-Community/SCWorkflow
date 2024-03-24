@@ -610,7 +610,13 @@ filterQC <- function(object,
     # CreateSeuratObject
     
     gene.cell.count=apply(so@assays$RNA@counts,1,function(x){sum(x>0)})
-    so=subset(so, features=names(gene.cell.count)[(gene.cell.count>=min.cells)])
+    
+    if ('Protein'%in%names(so@assays)==T) {
+      genes=c(names(gene.cell.count)[(gene.cell.count>=min.cells)],
+              rownames(so@assays$Protein))%>%unique()
+    }else{ genes=names(gene.cell.count)[(gene.cell.count>=min.cells)]}
+    
+    so=subset(so, features=genes)
     
     
     ### Cell filters  ####
