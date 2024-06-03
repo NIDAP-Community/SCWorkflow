@@ -64,207 +64,122 @@ violinPlot <- function(object,
                        jitter.dot.size = 0.5, 
                        print.outliers = TRUE){
   
-  # Error Messages
-  gene.filter <- genes.of.interest %in% rownames(GetAssayData(
-    object = object, slot = slot, assay = assay))
-  missing.genes <- genes.of.interest[!gene.filter]
-  genes.of.interest <- genes.of.interest[gene.filter]
-  
-  if(length(missing.genes) > 0){
-    print(paste("The following genes are missing from the dataset:", 
-                missing.genes, sep = " "))
-  }
-  
-  if(length(genes.of.interest) == 0){
-    stop("No query genes were found in the dataset.")
-  }
-  
-  if(!group.by %in% colnames(object@meta.data)){
-    colnames(object@meta.data) <- gsub("\\.","_",colnames(object@meta.data))
-    if(!group.by %in% colnames(object@meta.data)){
-      stop("Unable to find ident of interest in metadata.")
+  if (!assay %in% Assays(object)) {
+    stop("expression data type was not found in Seurat object")
+  } else if (!slot %in% slotNames(object[[assay]])) {
+    stop("slot not found in Seurat[[assay]]")
+  } else if (all(!genes %in% rownames(object[[assay]]))) {
+    stop("no genes were found in Seurat object")
+  } else if (!group %in% colnames(object@meta.data)) {
+    stop("grouping parameter was not found in Seurat object")
+  } else if (!is.null(facet_by)) {
+    if (!facet_by %in% colnames(object@meta.data)) {
+      stop("facet parameter was not found in Seurat object")
     }
   }
   
-  group.filter <- group.subset %in% object@meta.data[[group.by]]
-  group.subset <- group.subset[group.filter]
-  missing.groups <- group.subset[!group.filter]
-  if(length(missing.groups) > 0){
-    cat("The following groups are missing from the selected ident:\n")
-    print(missing.groups)
+  # Scale to non-negative for visualization
+  gene_mtx <- as.matrix(GetAssayData(object, assay = assay, slot = slot))
+  #gene_mtx <- scales::rescale(gene_mtx, to = c(0,1))
+  
+  print(paste0(genes[!genes %in% rownames(gene_mtx)], 
+               " not found and will not be displayed"))
+  
+  genes.present <- genes[genes %in% rownames(gene_mtx)]
+  
+  meta_sub <- object@meta.data[,c(group,facet_by)]
+  
+  for (col in genes.present) {
+    meta_sub[[col]] <- gene_mtx[col,]
   }
   
-  if(rename.ident %in% c("Gene","Expression","scaled")){
-    stop("New ident name cannot be one of Gene, Expression, or scaled.")
-  }
+  data_df <- meta_sub %>% pivot_longer(genes.present, names_to = "Gene", values_to = "Expression")
   
-  # Helper Functions
-  # splitFacet helper function comes from https://stackoverflow.com/questions/30510898/split-facet-plot-into-list-of-plots/52225543
-  .splitFacet <- function(x){
-    facet_vars <- names(x$facet$params$facets)         # 1
-    x$facet    <- ggplot2::ggplot()$facet              # 2
-    datasets   <- split(x$data, x$data[facet_vars])    # 3
-    new_plots  <- lapply(datasets,function(new_data) { # 4
-      x$data <- new_data
-      x})
-  }
   
-  # from rapportools
-  .isEmpty <- function(x, trim = TRUE, ...) {
-    if (length(x) <= 1) {
-      if (is.null(x))
-        return (TRUE)
-      if (length(x) == 0)
-        return (TRUE)
-      if (is.na(x) || is.nan(x))
-        return (TRUE)
-      if (is.character(x) && nchar(ifelse(trim, .trimSpace(x), x)) == 0)
-        return (TRUE)
-      if (is.logical(x) && !isTRUE(x))
-        return (TRUE)
-      if (is.numeric(x) && x == 0)
-        return (TRUE)
-      return (FALSE)
-    } else
-      sapply(x, .isEmpty, trim = trim, ...)
-  }
+  # set Gene as factor in data_df, so faceted plots will not be alphabetical 
+  data_df$Gene <- factor(data_df$Gene, levels = genes.present)
   
-  # from rapportools
-  .trimSpace <- function(x, what = c('both', 'leading', 'trailing', 'none'), 
-                         space.regex = '[:space:]', ...){
-    if (missing(x))
-      stop('nothing to trim spaces to =(')
-    re <- switch(match.arg(what),
-                 both     = sprintf('^[%s]+|[%s]+$', space.regex, space.regex),
-                 leading  = sprintf('^[%s]+', space.regex),
-                 trailing = sprintf('[%s]+$', space.regex),
-                 none     = {
-                   return (x)
-                 })
-    .vgsub(re, '', x, ...)
-  }
+  unique_facets <- unique(object@meta.data[,facet_by])
+  available_linetypes <- c("solid", "dashed", "dotted", "dotdash", "longdash", "twodash")
   
-  # from rapportools
-  .vgsub <- function(pattern, replacement, x, ...){
-    for(i in 1:length(pattern))
-      x <- gsub(pattern[i], replacement[i], x, ...)
-    x
-  }
+  # If you have more unique values than available linetypes, this will recycle them
+  linetype_mapping <- rep(available_linetypes, length.out = length(unique_facets))
   
-  .removeOutliers <- function(x, na.rm = TRUE){
-    qnt <- quantile(x, probs=c(outlier.low.lim,outlier.up.lim), na.rm = na.rm)
-    H <- 1.5*IQR(x, na.rm = na.rm)
-    y <- x
-    y[x < (qnt[1] - H)] <- NA
-    y[x > (qnt[2] + H)] <- NA
-    y
-  }
+  available_colors <- c("#E41A1C", "#377EB8", "#4DAF4A", "#984EA3", 
+                        "#FF7F00", "#FFFF33", "#A65628", "#F781BF", "#999999", 
+                        "#66C2A5", "#FC8D62", "#8DA0CB", "#E78AC3", 
+                        "#A6D854", "#FFD92F", "#E5C494", "#B3B3B3",
+                        "#76B7B2", "#FF9D9A", "#B07AA1", "#D4A518", 
+                        "#DE77AE", "#77AADD", "#EE8866", "#E4CDA7")
   
-  # Main Code Block
-  # deal with limits
-  if(ylimit == 0){
-    ylimit <- NULL
-  }
+  # Map the colors to the unique values
+  # If there are more unique sets than available colors, this will recycle the colors
+  color_mapping <- setNames(rep(available_colors, length.out = length(unique_facets)), unique_facets)
   
-  Idents(object) <- object@meta.data[[group.by]]
-  if(!is.null(group.subset)){
-  object.sub <- subset(object, idents = group.subset)
-  } else {
-    object.sub <- object
-  }
-  
-  DefaultAssay(object = object) <- assay
-  data <- FetchData(object = object.sub, vars = genes.of.interest, slot = slot)
-  
-  append <- object.sub@meta.data[[group.by]]
-  data[[group.by]] <- append[match(rownames(data),colnames(object.sub))]
-  
-  df.melt <- reshape2::melt(data)
-  
-  if(!.isEmpty(rename.ident)){
-    group.by <- rename.ident
-  }
-  colnames(df.melt) <- c(group.by,"Gene","Expression")
-  
-  #check to see if ident of interest looks numeric
-  if(suppressWarnings(all(!is.na(as.numeric(as.character(df.melt[[
-    group.by]])))))){
-    ident.values <- strtoi(df.melt[[group.by]])
-    ident.levels <- unique(ident.values)[order(unique(ident.values))]
-    df.melt[[group.by]] <- factor(ident.values, levels = ident.levels)
-  }else if(reorder.ident){
-    # if non-numeric, place in order of groups of interests
-    if(!is.null(group.subset)){
-    df.melt[[group.by]] <- factor(df.melt[[group.by]], 
-                                  levels = group.subset)
-    } else {
-      df.melt[[group.by]] <- factor(df.melt[[group.by]])
-    }        
-  }
-  
-  # Filter outliers
-  if(filter.outliers){
-    for(gene in genes.of.interest){
-      for(group in group.subset){
-        current.ind <- which(df.melt[["Gene"]] == gene & df.melt[[
-          group.by]] == group)
-        df.melt[current.ind,"Expression"] <- .removeOutliers(df.melt[
-          current.ind,"Expression", drop = TRUE])
-      }
-    }
-  }
-  
-  # Scale data to y limit
-  if(scale.data){
-    expression.data = "scaled"
-    axis.title.y = "Expression (scaled)"
-    ylimit <- ylimit %||% 1
-    df.melt <- df.melt %>% group_by(Gene) %>% mutate(
-      scaled = scales::rescale(Expression, to=c(0,ylimit)))
-  }else{
-    expression.data <- axis.title.y <- "Expression"
-  }
-  
-  g <- ggplot(df.melt, aes_string(x=group.by, y=expression.data)) +
-    geom_violin(aes_string(fill = group.by), scale="width", 
-                trim = FALSE, show.legend = FALSE) + 
+  # Set up the common elements of the plot
+  g <- ggplot(data_df, aes(x = .data[[group]], y = Expression, fill = .data[[facet_by]])) + 
+    geom_violin(scale = "width", position = position_dodge(width = 0.9), trim = TRUE) +
+    geom_boxplot(width = 0.2, position = position_dodge(width = 0.9), outlier.shape = NA) +
+    # scale_fill_brewer(palette = "Set1") + 
+    # scale_linetype_manual(values = linetype_mapping) + 
+    scale_fill_manual(values = color_mapping) +
+    facet_wrap(~ Gene, scales = "free_y", ncol = 3, strip.position = "left") + 
     theme_classic() + 
-    labs(y=axis.title.y) +
-    theme(strip.text.y = element_text( 
-      color="blue", face="bold.italic", angle = -90))
+    theme(legend.position = "bottom", 
+          axis.text.x = element_text(angle = 90, hjust = 1),
+          strip.background = element_blank(),
+          strip.text.x = element_text(size = 14, color = "black", face = "bold"),
+          strip.text.y = element_text(size = 14, color = "black", face = "bold"),
+          strip.placement = "outside")
   
-  if(!is.null(ylimit)){
-    g <- g + ylim(0,ylimit)
+  # Add jitter points conditionally
+  if (jitter_points) {
+    g <- g + geom_jitter(size = jitter_dot_size, shape = 1, position = position_dodge(width = 0.9), alpha = 0.5)
   }
   
-  if(jitter.points){
-    g <- g + geom_jitter(height = 0, width = jitter.width, size=jitter.dot.size)
+  # Function to calculate p-values for a single gene within a cell type
+  calculate_p_values <- function(data, data_group, data_gene) {
+    # Subset data for the specific cell type and gene
+    data_sub <- data[data[,group] == data_group & data[,"Gene"] == data_gene,]
+    
+    # Perform ANOVA and Tukey HSD
+    fit <- aov(as.formula(paste("Expression ~", facet_by)), data = data_sub)
+    tukey_result <- TukeyHSD(fit)
+    
+    # Tidy up the results and add metadata
+    tidy_tukey_result <- tidy(tukey_result)
+    tidy_tukey_result$gene <- data_gene
+    tidy_tukey_result$group <- data_group
+    
+    return(tidy_tukey_result)
   }
   
-  if(log.scale.data){
-    g <- g + scale_y_log10()
+  # List unique cell types
+  unique_groups <- unique(data_df[[group]])
+  
+  # Filter out 
+  facet_df <- table(data_df[[group]], data_df[[facet_by]])
+  
+  # Find rows with more than one non-zero column
+  count_non_zero <- function(row) {
+    sum(row != 0)
+  }
+  non_zero_counts <- apply(facet_df, 1, count_non_zero)
+  
+  # Use rownames whose values are in more than 1 column 
+  unique_groups <- names(non_zero_counts)[non_zero_counts > 1]
+  
+  # Calculate p-values for each cell type and gene
+  p_values_list <- list()
+  for (indv_group in unique_groups) {
+    p_values_list[[indv_group]] <- do.call(rbind, lapply(genes.present, function(gene) calculate_p_values(data_df, data_group = indv_group, data_gene = gene)))
   }
   
-  # Plot after jitter if wanted
-  g <- g + geom_boxplot(width=0.1, fill="white", outlier.shape = 
-                          ifelse(print.outliers,19,NA))
+  # Combine the results into a single data frame
+  p_values_df <- do.call(rbind, p_values_list)
   
-  # Plot styles
-  ncol = ceiling(length(unique(df.melt$Gene))^0.5)
-  nrow = ceiling(length(unique(df.melt$Gene)) / ncol)
-  if(plot.style == "rows"){
-    g <- g + facet_grid(rows = vars(Gene))
-  }else{
-    g <- g + facet_wrap(~Gene, nrow = nrow, ncol = ncol)
-    if(plot.style == "labeled"){
-      plots <- .splitFacet(g)
-      plots <- lapply(seq_along(plots), function(i) plots[[i]] + 
-                        ggtitle(genes.of.interest[i]) + 
-                        theme(plot.title = element_text(hjust = 0.5)) )
-      g <- plot_grid(plotlist = plots, nrow = nrow, ncol = ncol, 
-                     labels = LETTERS[seq( from = 1, to = length(plots) )])
-    }
-  }
+  final_res <- list(fig = g, stat = p_values_df)
   
-  return(g)
+  return(final_res)
 }
+
