@@ -52,214 +52,96 @@ colorByMarkerTable <- function(object,
                                point.shape = 16,
                                cite.seq = FALSE) {
 
-  # Error Messages
-  if (!assay %in% Assays(object)) {
-    stop("assay type not found in seurat")
-  } else if (!reduction.type %in% Reductions(object)) {
-    stop("reduction type not found in seurat")
-  }
-  
-  # Functions
   .plotMarkers <- function(markers) {
     if (is.na(markers) == TRUE) {
       g <- ggplot() + theme_void()
       return(g)
     } else {
-      markers.mat = object.sub[[assay]]@scale.data[markers, ]
-      markers.quant = quantile(markers.mat[markers.mat > 1], probs = c(.1, .5, .90))
+      markers.mat = GetAssayData(object, assay = assay, slot = slot)[markers, ]
+      markers.quant = quantile(markers.mat[markers.mat > 
+                                             1], probs = c(0.1, 0.5, 0.9))
       markers.mat[markers.mat > markers.quant[3]] = markers.quant[3]
       markers.mat[markers.mat < markers.quant[1]] = 0
-      
       if (!(cite.seq)) {
         if (reduction.type == "tsne") {
-          p1 <- DimPlot(object.sub, reduction = "tsne", group.by = "ident")
-          clusmat = data.frame(
-            umap1 = p1$data$tSNE_1,
-            umap2 = p1$data$tSNE_2,
-            markers = markers.mat,
-            ident = as.factor(p1$data$ident)
-          )
+          p1 <- DimPlot(object, reduction = "tsne", 
+                        group.by = "ident")
+          clusmat = data.frame(umap1 = p1$data$tSNE_1, 
+                               umap2 = p1$data$tSNE_2, markers = markers.mat, 
+                               ident = as.factor(p1$data$ident))
+        } else if (reduction.type == "umap") {
+          p1 <- DimPlot(object, reduction = "umap", 
+                        group.by = "ident")
+          clusmat = data.frame(umap1 = p1$data$UMAP_1, 
+                               umap2 = p1$data$UMAP_2, markers = markers.mat, 
+                               ident = as.factor(p1$data$ident))
+        } else {
+          p1 <- DimPlot(object, reduction = "pca", 
+                        group.by = "ident")
+          clusmat = data.frame(umap1 = p1$data$PC_1, 
+                               umap2 = p1$data$PC_2, markers = markers.mat, 
+                               ident = as.factor(p1$data$ident))
         }
-        else if (reduction.type == "umap") {
-          p1 <- DimPlot(object.sub, reduction = "umap", group.by = "ident")
-          clusmat = data.frame(
-            umap1 = p1$data$UMAP_1,
-            umap2 = p1$data$UMAP_2,
-            markers = markers.mat,
-            ident = as.factor(p1$data$ident)
-          )
-        }
-        else{
-          p1 <- DimPlot(object.sub, reduction = "pca", group.by = "ident")
-          clusmat = data.frame(
-            umap1 = p1$data$PC_1,
-            umap2 = p1$data$PC_2,
-            markers = markers.mat,
-            ident = as.factor(p1$data$ident)
-          )
-        } #if CITEseq is chosen then:
       } else {
         if (reduction.type == "tsne") {
-          p1 <-
-            DimPlot(object.sub, reduction = "protein_tsne", group.by = "ident")
-          clusmat = data.frame(
-            umap1 = p1$data$protein_tsne_1,
-            umap2 = p1$data$protein_tsne_2,
-            markers = markers.mat,
-            ident = as.factor(p1$data$ident)
-          )
-        }
-        else if (reduction.type == "umap") {
-          p1 <-
-            DimPlot(object.sub, reduction = "protein_umap", group.by = "ident")
-          clusmat = data.frame(
-            umap1 = p1$data$protein_umap_1,
-            umap2 = p1$data$protein_umap_2,
-            markers = markers.mat,
-            ident = as.factor(p1$data$ident)
-          )
-        }
-        else{
-          p1 <- DimPlot(object.sub, reduction = "protein_pca", 
+          p1 <- DimPlot(object, reduction = "protein_tsne", 
                         group.by = "ident")
-          clusmat = data.frame(
-            umap1 = p1$data$protein_pca_1,
-            umap2 = p1$data$protein_pca_2,
-            markers = markers.mat,
-            ident = as.factor(p1$data$ident)
-          )
+          clusmat = data.frame(umap1 = p1$data$protein_tsne_1, 
+                               umap2 = p1$data$protein_tsne_2, markers = markers.mat, 
+                               ident = as.factor(p1$data$ident))
+        } else if (reduction.type == "umap") {
+          p1 <- DimPlot(object, reduction = "protein_umap", 
+                        group.by = "ident")
+          clusmat = data.frame(umap1 = p1$data$protein_umap_1, 
+                               umap2 = p1$data$protein_umap_2, markers = markers.mat, 
+                               ident = as.factor(p1$data$ident))
+        } else {
+          p1 <- DimPlot(object, reduction = "protein_pca", 
+                        group.by = "ident")
+          clusmat = data.frame(umap1 = p1$data$protein_pca_1, 
+                               umap2 = p1$data$protein_pca_2, markers = markers.mat, 
+                               ident = as.factor(p1$data$ident))
         }
       }
       
-      # Samples caption
-      samples.caption <-
-        paste(samples.to.display,
-              sep = "",
-              collapse = "\n")
-      final_caption <-
-        paste(
-          "Samples Displayed: ",
-          samples.caption,
-          sep = "",
-          collapse = "\n"
-        )
+      g <- ggplot(clusmat, aes(x = umap1, y = umap2, 
+                               group = ident)) + theme_bw() + theme(legend.title = element_blank()) + 
+        ggtitle(markers) + geom_point(aes(color = markers, 
+                                          shape = ident), alpha = point.transparency, 
+                                      shape = point.shape, size = 1) + theme(panel.grid.major = element_blank(), 
+                                                                             panel.grid.minor = element_blank(), panel.background = element_blank(), 
+                                                                             legend.text = element_text(size = rel(0.5)), plot.background=element_rect(fill="white", colour="white"), rect = element_rect(fill = 'white')) +
+        scale_color_gradient(limits = c(0, markers.quant[3]), 
+                             low = "lightgrey", high = "red") + xlab("umap-1") + 
+        ylab("umap-2")
+      return(g)
       
-      clusmat <-
-        mutate(clusmat,
-               sample.markers = clusmat$markers * grepl(paste(
-                 samples.to.display, collapse = "|"), clusmat$ident))
-      
-      clusmat %>% dplyr::arrange(sample.markers) -> clusmat
-      if (grepl("_neg", markers) == TRUE) {
-        clusmat %>% dplyr::arrange(desc(sample.markers)) -> clusmat
-        g <- ggplot(clusmat, aes(
-          x = umap1,
-          y = umap2,
-          group = ident
-        )) +
-          theme_bw() +
-          theme(legend.title = element_blank()) +
-          ggtitle(markers) +
-          geom_point(
-            aes(color = sample.markers, shape = ident),
-            alpha = point.transparency,
-            shape = point.shape,
-            size = 1
-          ) +
-          theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(),
-            legend.text = element_text(size = rel(0.5))
-          ) +
-          scale_color_gradient(
-            limits = c(0, markers.quant[3]),
-            low = "lightgrey",
-            high = "red"
-          ) +
-          xlab("umap-1") + ylab("umap-2")
-        return(g)
-      } else {
-        clusmat %>% dplyr::arrange(sample.markers) -> clusmat
-        g <- ggplot(clusmat, aes(
-          x = umap1,
-          y = umap2,
-          group = ident
-        )) +
-          theme_bw() +
-          theme(legend.title = element_blank()) +
-          ggtitle(markers) +
-          geom_point(
-            aes(color = sample.markers, shape = ident),
-            alpha = point.transparency,
-            shape = point.shape,
-            size = 1
-          ) +
-          theme(
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank(),
-            panel.background = element_blank(),
-            legend.text = element_text(size = rel(0.5))
-          ) +
-          scale_color_gradient(
-            limits = c(0, markers.quant[3]),
-            low = "lightgrey",
-            high = "red"
-          ) +
-          xlab("umap-1") + ylab("umap-2")
-        return(g)
-      }
     }
   }
   
-  # Main Code Block
-  if (length(samples.subset) == 0) {
-    samples.subset = unique(object@meta.data$sample.name)
-  }
-  
-  if ("active.ident" %in% slotNames(object)) {
-    sample.name = as.factor(object@meta.data$orig.ident)
-    names(sample.name) = names(object@active.ident)
-    object@active.ident <- as.factor(vector())
-    object@active.ident <- sample.name
-    object.sub = subset(object, ident = samples.subset)
-  } else {
-    sample.name = as.factor(object@meta.data$orig.ident)
-    names(sample.name) = names(object@active.ident)
-    object@active.ident <- as.factor(vector())
-    object@active.ident <- sample.name
-    object.sub = subset(object, ident = samples.subset)
-  }
-  
   marker.table <- marker.table[cells.of.interest]
-  
-  # Remove columns with all missing values
   present.marker.ls <- list()
-  
   for (celltype in colnames(marker.table)) {
     print(names(marker.table[celltype]))
-    present = lapply(marker.table[[celltype]], function(x)
-      x %in% rownames(object.sub$SCT@scale.data))
-    absent.genes = unlist(marker.table[[celltype]])[present == FALSE]
-    present.genes = unlist(marker.table[[celltype]])[present == TRUE]
-    print(paste0("Genes not present: ", paste0(absent.genes, collapse = ",")))
-    print(paste0("Genes present: ", paste0(present.genes, collapse = ",")))
-    
+    present = lapply(marker.table[[celltype]], function(x) x %in% 
+                       rownames(GetAssayData(object, assay = assay, slot = slot)))
+    absent.genes = unlist(marker.table[[celltype]])[present == 
+                                                      FALSE]
+    present.genes = unlist(marker.table[[celltype]])[present == 
+                                                       TRUE]
+    print(paste0("Genes not present: ", paste0(absent.genes, 
+                                               collapse = ",")))
+    print(paste0("Genes present: ", paste0(present.genes, 
+                                           collapse = ",")))
     if (length(present.genes) == 0) {
-      print(paste0(
-        names(marker.table[celltype]),
-        " genes were not found in object and will not be analyzed"
-      ))
+      print(paste0(names(marker.table[celltype]), " genes were not found in object and will not be analyzed"))
     } else {
       present.marker.ls[[celltype]] <- present.genes
     }
   }
   
-  # Padd processed list containing only the present genes
-  padded.ls <- lapply(present.marker.ls, `length<-`, 
-                      max(lengths(present.marker.ls)))
+  padded.ls <- lapply(present.marker.ls, `length<-`, max(lengths(present.marker.ls)))
   markers.from.list <- do.call(cbind, padded.ls)
-  
   markers.present = unlist(markers.from.list)
   
   if (!length(markers.present) > 0) {
@@ -267,29 +149,49 @@ colorByMarkerTable <- function(object,
     return(NULL)
   }
   
-  # Create list for storing color by gene plots of each celltype column
-  gg.storage <- list()
-  
-  for (cell in colnames(markers.from.list)) {
-    title <- cell
+  # Plot manual genes if not empty
+  if(!is.null(manual.genes)){
     
-    markers.to.analyze <- as.character(markers.from.list[, cell])
+    # Str-spit and use only present genes
+    manual.genes.processed <- str_split(manual.genes, pattern = "[^a-zA-Z0-9]+")[[1]]
+    manual.genes.processed <- manual.genes.processed[manual.genes.processed %in% rownames(GetAssayData(object, assay = assay, slot = slot))]
     
-    grob <- lapply(markers.to.analyze, function(x) .plotMarkers(x))
-    
-    gg.storage[[cell]] <-
-      gridExtra::arrangeGrob(
-        grobs = grob,
-        ncol = 1,
-        newpage = F,
-        as.table = F,
-        top = text_grob(title, size = 15, face = "bold")
-      )
-    
+    tryCatch({
+      manual.grob <- lapply(manual.genes.processed, function(x) .plotMarkers(x))
+      manual.arranged <- gridExtra::arrangeGrob(grobs = manual.grob, newpage = F, as.table = F, top = ggpubr::text_grob("Manual Genes", size = 15, face = "bold"))
+      plot(manual.arranged)
+      grid.newpage()}, error = function(e) {
+        cat(e$message, "\n", "Possible Reason: No manual genes were found in expression matrix")
+      })
   }
   
-  final.figures <-
-    do.call(arrangeGrob, c(gg.storage, ncol = ncol(markers.from.list)))
+  # Store images for making consolidated figure
+  cons.gg.storage <- list()
   
-  return(final.figures)
+  # Plot arranged figures with padding
+  for (cell in colnames(markers.from.list)) {
+    title <- cell
+    markers.to.analyze <- as.character(markers.from.list[, 
+                                                         cell])
+    grob <- lapply(markers.to.analyze, function(x) .plotMarkers(x))
+    arranged <- gridExtra::arrangeGrob(grobs = grob, newpage = F, as.table = F, top = ggpubr::text_grob(title, size = 15, face = "bold"))
+    
+    cons.gg.storage[[cell]] <- arranged
+    
+    # Manually specify background 
+    background <- rectGrob(gp = gpar(fill = "white", col = NA)) 
+    # Combine the background with the arranged plots
+    combined <- grobTree(background, arranged)
+    # Draw the combined grob with background
+    grid.draw(combined)
+    grid.newpage()
+  }
+  
+  if(consolidate.marker.fig == TRUE){
+    cons.fig <- do.call(arrangeGrob, c(cons.gg.storage, ncol = ncol(markers.from.list)))
+    cons.fig.bkgrd <- grobTree(background, cons.fig)
+    grid.draw(cons.fig.bkgrd)
+  }
+  
+  return(NULL)
 }
