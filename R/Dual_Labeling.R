@@ -106,74 +106,91 @@ dualLabeling <- function(object,
   if (!(marker.2.type %in% names(object@assays))) {
     stop(sprintf("%s slot is not found in dataset", marker.2.type))
   }
-  
+  if (data.reduction=='both') {
+    if(sum(c('tsne','umap')%in%names(object@reductions))<2){
+      rdctns=names(object@reductions)[names(object@reductions)%in%c('umap','tsne')]
+      stop(sprintf("Object does not contain both umap and tsne reductions.
+       Change Data Reduction parameter to %s",
+                   paste(rdctns,collapse=' or ')
+      )
+      )
+    }
+  }else{ 
+    if (data.reduction%in%names(object@reductions)==F){
+      stop(sprintf("Object does not contain %s reduction. \n    ",
+                   data.reduction),
+           sprintf("Change Data Reduction parameter to %s",
+                   c('tsne','umap')[c('tsne','umap')%in%names(object@reductions)])
+      )
+    }
+  }
   #### Functions ####
   
   #Function for drawing overlay images for umap/tsne:
-  .ggOverlay <- function(so.sub, df, marker.1, marker.2) {
+  .ggOverlay <- function(so.sub, df, marker.1, marker.2,reduction) {
     df <- df %>% arrange(mark1.scale)
     
     xmin <- min(df$dr1) - 0.1 * min(df$dr1)
     xmax <- max(df$dr1) + 0.1 * min(df$dr1)
     
     #ggplot for umap/tsne (marker 1)
-    gg.z1 <- ggplot(df, aes(dr1, dr2)) +
+    gg.z1 <- ggplot(df, aes(dr1, dr2)) + 
       geom_point(
         color = rgb(
-          red = df$mark1.scale,
-          green = 0,
+          red = df$mark1.scale, 
+          green = 0, 
           blue = 0
-        ),
-        shape = point.shape,
-        size = point.size,
+        ), 
+        shape = point.shape, 
+        size = point.size, 
         alpha = point.transparency
-      ) +
-      theme_classic() +
-      xlab(paste0(data.reduction, "-1")) +
-      ylab(paste0(data.reduction, "-2")) +
-      ggtitle(marker.1) +
+      ) + 
+      theme_classic() + 
+      xlab(paste0(reduction, "-1")) + 
+      ylab(paste0(reduction, "-2")) + 
+      ggtitle(marker.1) + 
       coord_fixed()
     
     df <- df %>% arrange(mark2.scale)
     
     #ggplot for umap/tsne (marker 2)
-    gg.z2 <- ggplot(df, aes(dr1, dr2)) +
+    gg.z2 <- ggplot(df, aes(dr1, dr2)) + 
       geom_point(
         color = rgb(
-          red = 0,
-          green = df$mark2.scale,
+          red = 0, 
+          green = df$mark2.scale, 
           blue = 0
-        ),
-        shape = point.shape,
-        size = point.size,
+        ), 
+        shape = point.shape, 
+        size = point.size, 
         alpha = point.transparency
-      ) +
-      theme_classic() +
-      xlab(paste0(data.reduction, "-1")) +
-      ylab(paste0(data.reduction, "-2")) +
-      ggtitle(marker.2) +
+      ) + 
+      theme_classic() + 
+      xlab(paste0(reduction, "-1")) + 
+      ylab(paste0(reduction, "-2")) + 
+      ggtitle(marker.2) + 
       coord_fixed()
     
-    df <- df %>%
-      mutate(avg = mark2.scale + mark1.scale) %>%
+    df <- df %>% 
+      mutate(avg = mark2.scale + mark1.scale) %>% 
       arrange(avg)
     
     #ggplot for umap/tsne (marker 1 & marker 2)
-    gg <- ggplot(df, aes(dr1, dr2)) +
+    gg <- ggplot(df, aes(dr1, dr2)) + 
       geom_point(
         color = rgb(
-          red = df$mark1.scale,
-          green = df$mark2.scale,
+          red = df$mark1.scale, 
+          green = df$mark2.scale, 
           blue = 0
-        ),
-        shape = point.shape,
-        size = point.size,
+        ), 
+        shape = point.shape, 
+        size = point.size, 
         alpha = point.transparency
-      ) +
-      theme_classic() +
-      xlab(paste0(data.reduction, "-1")) +
-      ylab(paste0(data.reduction, "-2")) +
-      ggtitle("Combined") +
+      ) + 
+      theme_classic() + 
+      xlab(paste0(reduction, "-1")) + 
+      ylab(paste0(reduction, "-2")) + 
+      ggtitle("Combined") + 
       coord_fixed()
     
     return(list(gg.z1, gg.z2, gg))
@@ -181,21 +198,21 @@ dualLabeling <- function(object,
   
   #Function for plotting expression data in xy overlay format:
   .ggOverlay2 <- function(so.sub, df, marker.1, marker.2) {
-    df %>% arrange(mark1.scale) -> df
+    df <- df %>% arrange(mark1.scale)
     # Create unscaled axis labels
     
     if (display.unscaled.values == TRUE) {
-      label1.min <- paste("unscaled min:", round(min(mark1), digits = 2))
-      label1.max <-
-        paste("unscaled max:", round(max(mark1), digits = 2))
-      label1 <-
+      label1.min <- 
+        paste("unscaled min:", round(min(mark1),digits = 2))
+      label1.max <- paste("unscaled max:", round(max(mark1), digits = 2))
+      label1 <- 
         paste(as.character(marker.1), label1.min, label1.max, sep = "\n")
       
-      label2.min <-
+      label2.min <- 
         paste("unscaled min:", round(min(mark2), digits = 2))
-      label2.max <-
+      label2.max <- 
         paste("unscaled max:", round(max(mark2), digits = 2))
-      label2 <-
+      label2 <- 
         paste(as.character(marker.2), label2.min, label2.max, sep = "\n")
     } else {
       label1 <- as.character(marker.1)
@@ -203,68 +220,68 @@ dualLabeling <- function(object,
     }
     
     #ggplot for scatter plot (marker 1)
-    gg.z1 <- ggplot(df, aes(mark1.scale, mark2.scale)) +
+    gg.z1 <- ggplot(df, aes(mark1.scale, mark2.scale)) + 
       geom_point(
         color = rgb(
-          red = df$mark1.scale,
-          green = 0,
+          red = df$mark1.scale, 
+          green = 0, 
           blue = 0
-        ),
-        shape = 20,
+        ), 
+        shape = 20, 
         size = point.size
-      ) +
-      theme_classic() +
-      xlab(label1) +
-      ylab(label2) +
+      ) + 
+      theme_classic() + 
+      xlab(label1) + 
+      ylab(label2) + 
       coord_fixed()
     
     df <- df %>% arrange(mark2.scale)
     
     #ggplot for scatter plot (marker 2)
-    gg.z2 <- ggplot(df, aes(mark1.scale, mark2.scale)) +
+    gg.z2 <- ggplot(df, aes(mark1.scale, mark2.scale)) + 
       geom_point(
         color = rgb(
-          red = 0,
-          green = df$mark2.scale,
+          red = 0, 
+          green = df$mark2.scale, 
           blue = 0
-        ),
-        shape = 20,
+        ), 
+        shape = 20, 
         size = point.size
-      ) +
-      theme_classic() +
-      xlab(label1) +
-      ylab(label2) +
+      ) + 
+      theme_classic() + 
+      xlab(label1) + 
+      ylab(label2) + 
       coord_fixed()
     
-    df <- df %>%
-      mutate(avg = mark2.scale + mark1.scale) %>%
+    df <- df %>% 
+      mutate(avg = mark2.scale + mark1.scale) %>% 
       arrange(avg)
     
     #ggplot for scatter plot (marker 1 & marker.2)
-    gg <- ggplot(df, aes(mark1.scale, mark2.scale)) +
+    gg <- ggplot(df, aes(mark1.scale, mark2.scale)) + 
       geom_point(
         color = rgb(
-          red = df$mark1.scale,
-          green = df$mark2.scale,
+          red = df$mark1.scale, 
+          green = df$mark2.scale, 
           blue = 0
-        ),
-        shape = 20,
+        ), 
+        shape = 20, 
         size = point.size
-      ) +
-      theme_classic() +
-      xlab(label1) +
-      ylab(label2) +
+      ) + 
+      theme_classic() + 
+      xlab(label1) + 
+      ylab(label2) + 
       coord_fixed()
     
     if (add.marker.thresholds == TRUE) {
-      gg.z1 <- gg.z1 +
-        geom_vline(xintercept = t1, linetype = "dashed") +
+      gg.z1 <- gg.z1 + 
+        geom_vline(xintercept = t1, linetype = "dashed") + 
         geom_hline(yintercept = t2, linetype = "dashed")
-      gg.z2 <- gg.z2 +
-        geom_vline(xintercept = t1, linetype = "dashed") +
+      gg.z2 <- gg.z2 + 
+        geom_vline(xintercept = t1, linetype = "dashed") + 
         geom_hline(yintercept = t2, linetype = "dashed")
-      gg <- gg +
-        geom_vline(xintercept = t1, linetype = "dashed") +
+      gg <- gg + 
+        geom_vline(xintercept = t1, linetype = "dashed") + 
         geom_hline(yintercept = t2, linetype = "dashed")
     }
     
@@ -290,12 +307,17 @@ dualLabeling <- function(object,
     object@active.ident <- sample.name
     so.sub <- subset(object, ident = samples)
   }
-  
   t1 <- marker.1.threshold
   t2 <- marker.2.threshold
   
+  
   #Select marker 1 values and scale:
-  mark1 <- so.sub@assays[[marker.1.type]]@scale.data[marker.1,]
+  # use data slot for Spatial assay
+  if(marker.1.type == "Spatial"){
+    mark1 <- so.sub@assays[[marker.1.type]]@data[marker.1,]
+  } else {
+    mark1 <- so.sub@assays[[marker.1.type]]@scale.data[marker.1,]
+  }
   if (trim.marker.1 == TRUE) {
     q1 <- quantile(mark1, pre.scale.trim)
     q0 <- quantile(mark1, 1 - pre.scale.trim)
@@ -305,7 +327,12 @@ dualLabeling <- function(object,
   mark1.scale <- rescale(mark1, to = c(0, 1))
   
   #Select marker 2 values and scale:
-  mark2 <- so.sub@assays[[marker.2.type]]@scale.data[marker.2,]
+  if(marker.2.type == "Spatial"){
+    mark2 <- so.sub@assays[[marker.2.type]]@data[marker.2, ]
+  } else {
+    mark2 <- so.sub@assays[[marker.2.type]]@scale.data[marker.2, ]
+  }
+  
   if (trim.marker.2 == TRUE) {
     q1 <- quantile(mark2, pre.scale.trim)
     q0 <- quantile(mark2, 1 - pre.scale.trim)
@@ -314,82 +341,138 @@ dualLabeling <- function(object,
   }
   mark2.scale <- rescale(mark2, to = c(0, 1))
   
-  #Draw Plots:
-  df <- data.frame(
-    cbind(
-      dr1 = so.sub@reductions[[data.reduction]]@cell.embeddings[, 1],
-      dr2 = so.sub@reductions[[data.reduction]]@cell.embeddings[, 2],
-      mark1.scale,
-      mark2.scale
-    )
-  )
-  gg.list <- .ggOverlay(so.sub, df, marker.1, marker.2)
-  gg.list2 <- .ggOverlay2(so.sub, df, marker.1, marker.2)
   
-  if (density.heatmap == TRUE) {
-    x = df$mark1.scale
-    y = df$mark2.scale
+  
+  if (data.reduction=='tsne'|data.reduction=='umap') {
     
-    df_heatmap <- data.frame(
-      x = x,
-      y = y,
-      d <- densCols(
-        x,
-        y,
-        nbin = 1000,
-        bandwidth = 1,
-        colramp <-
-          colorRampPalette(rev(rainbow(10, end = 4 / 6)))
+    #Draw Plots:
+    df <- data.frame(
+      cbind(
+        dr1 = so.sub@reductions[[data.reduction]]@cell.embeddings[,1], 
+        dr2 = so.sub@reductions[[data.reduction]]@cell.embeddings[,2], 
+        mark1.scale, 
+        mark2.scale
       )
     )
     
-    p <- ggplot(df_heatmap) +
-      geom_point(aes(x, y, col = d), size = 1) +
-      scale_color_identity() + xlab(marker.1) + ylab(marker.2) +
-      theme_bw() +
-      geom_vline(xintercept = t1, linetype = "dashed") +
-      geom_hline(yintercept = t2, linetype = "dashed")
+    gg.list <- .ggOverlay(so.sub, df, marker.1, marker.2,data.reduction)
+    gg.list2 <- .ggOverlay2(so.sub, df, marker.1, marker.2)
     
-    
-    grob <-
-      arrangeGrob(gg.list[[1]],
-                  gg.list[[2]],
+    grob <- 
+      arrangeGrob(gg.list[[1]], 
+                  gg.list[[2]], 
                   gg.list[[3]],
-                  gg.list2[[1]],
-                  gg.list2[[2]],
-                  gg.list2[[3]],
-                  p,
+                  gg.list2[[1]], 
+                  gg.list2[[2]], 
+                  gg.list2[[3]], 
                   ncol = 3)
+    
+    
+  } else if (data.reduction=='both'){
+    
+    #Draw Plots:
+    df.u <- data.frame(
+      cbind(
+        dr1 = so.sub@reductions[['umap']]@cell.embeddings[,1], 
+        dr2 = so.sub@reductions[['umap']]@cell.embeddings[,2], 
+        mark1.scale, 
+        mark2.scale
+      )
+    )
+    gg.list.u <- .ggOverlay(so.sub, df.u, marker.1, marker.2,'umap')
+    
+    
+    #Draw Plots:
+    df.t <- data.frame(
+      cbind(
+        dr1 = so.sub@reductions[['tsne']]@cell.embeddings[,1], 
+        dr2 = so.sub@reductions[['tsne']]@cell.embeddings[,2], 
+        mark1.scale, 
+        mark2.scale
+      )
+    )
+    gg.list.t <- .ggOverlay(so.sub, df.t, marker.1, marker.2,'tsne')
+    
+    
+    ## df.u being used is arbitrary. only difference between df.u and df.t is 
+    ## reduction columns which are not being used by ggOverlay2
+    df=df.u[,colnames(df.u)%in%c('dr1','dr2')==F]
+    
+    gg.list2 <- .ggOverlay2(so.sub, df, marker.1, marker.2)
+    
+    
+    grob.u <- 
+      arrangeGrob(gg.list.u[[1]], 
+                  gg.list.u[[2]], 
+                  gg.list.u[[3]],
+                  gg.list2[[1]], 
+                  gg.list2[[2]], 
+                  gg.list2[[3]], 
+                  ncol = 3)
+    grob.t <- 
+      arrangeGrob(gg.list.t[[1]], 
+                  gg.list.t[[2]], 
+                  gg.list.t[[3]],
+                  gg.list2[[1]], 
+                  gg.list2[[2]], 
+                  gg.list2[[3]], 
+                  ncol = 3)
+    
   } else {
-    grob <-
-      arrangeGrob(gg.list[[1]],
-                  gg.list[[2]],
-                  gg.list[[3]],
-                  gg.list2[[1]],
-                  gg.list2[[2]],
-                  gg.list2[[3]],
-                  ncol = 3)
+    stop("Incorrect selection for data.reduction: use either umap,tsne or both")
   }
   
+  x = df$mark1.scale
+  y = df$mark2.scale
+  
+  df_heatmap <- data.frame(
+    x = x, 
+    y = y, 
+    d <- densCols(
+      x, 
+      y, 
+      nbin = 1000, 
+      bandwidth = 1, 
+      colramp <- 
+        colorRampPalette(rev(rainbow(10, end = 4/6)))
+    )
+  )
+  
+  p <- ggplot(df_heatmap) + 
+    geom_point(aes(x, y, col = d), size = 1) + 
+    scale_color_identity() + xlab(marker.1) + ylab(marker.2) + 
+    theme_bw() + 
+    geom_vline(xintercept = t1, linetype = "dashed") + 
+    geom_hline(yintercept = t2, linetype = "dashed") 
+  
+  p2 <- ggMarginal(p, df_heatmap, x = marker.1, y = marker.2, type = "density")
+  
+  
+  grobHM <- 
+    arrangeGrob(p2,ncol=1,nrow=1)
+  
+  
   #Applying Filters to Data using Thresholds:
-  if (filter.data == TRUE && (apply.filter.1 == TRUE | apply.filter.2 == TRUE)) {
-    df <- df %>% mutate(sample = so.sub@meta.data$orig.ident) %>%
+  if (filter.data == TRUE && 
+      (apply.filter.1 == TRUE | apply.filter.2 == TRUE)
+  ){
+    df <- df %>% mutate(sample = so.sub@meta.data$orig.ident) %>% 
       mutate(cellbarcode = rownames(so.sub@meta.data))
     
-    if (M1.filter.direction == "greater than") {
-      ind1 <- df$`mark1.scale` > t1
+    if (marker.1.filter.direction == "greater than") {
+      ind1 <- df$mark1.scale > t1
     } else {
-      ind1 <- df$`mark1.scale` < t1
+      ind1 <- df$mark1.scale < t1
     }
     
     cat("\n")
     print("Marker 1 filter:")
     print(sum(ind1))
     
-    if (M2.filter.direction == "greater than") {
-      ind2 <- df$`mark2.scale` > t2
+    if (marker.2.filter.direction == "greater than") {
+      ind2 <- df$mark2.scale > t2
     } else {
-      ind2 <- df$`mark2.scale` < t2
+      ind2 <- df$mark2.scale < t2
     }
     
     cat("\n")
@@ -399,16 +482,16 @@ dualLabeling <- function(object,
     if (apply.filter.1 == TRUE) {
       if (apply.filter.2 == TRUE) {
         if (filter.condition == TRUE) {
-          df <- df[c(ind1 & ind2),]
+          df <- df[c(ind1 & ind2), ]
         } else {
-          df <- df[c(ind1 | ind2),]
+          df <- df[c(ind1 | ind2), ]
         }
       } else {
-        df <- df[ind1,]
+        df <- df[ind1, ]
       }
     } else {
       if (apply.filter.2) {
-        df <- df[ind2,]
+        df <- df[ind2, ]
       }
     }
     
@@ -417,17 +500,17 @@ dualLabeling <- function(object,
     # marker 2 and for either intersection or union of 2 thresholds:
     
     colnames(df)[3:4] <- c(marker.1, marker.2)
-    so.sub.df <- so.sub@meta.data %>%
+    so.sub.df <- so.sub@meta.data %>% 
       mutate(x = case_when(
-        rownames(so.sub@meta.data) %in% df$cellbarcode ~ TRUE,
+        rownames(so.sub@meta.data) %in% df$cellbarcode ~ TRUE, 
         TRUE ~ FALSE
       ))
     
-    colnames(so.sub.df) <- sub("x", parameter.name,
+    colnames(so.sub.df) <- sub("x", parameter.name, 
                                colnames(so.sub.df))
     
-    data.filt <-
-      as.data.frame.matrix(table(so.sub.df[[parameter.name]],
+    data.filt <- 
+      as.data.frame.matrix(table(so.sub.df[[parameter.name]], 
                                  so.sub.df$orig.ident))
     data.filt$Total <- rowSums(data.filt)
     data.filt <- data.filt %>% rownames_to_column("Passed Filter")
@@ -442,37 +525,37 @@ dualLabeling <- function(object,
     if (apply.filter.1 == TRUE) {
       if (apply.filter.2 == TRUE) {
         titlename <- paste(
-          "Number of cells that pass filters:\n",
-          marker.1,
-          M1.filter.direction,
-          marker.1.threshold,
-          cond,
-          marker.2,
-          M2.filter.direction,
+          "Number of cells that pass filters:\n", 
+          marker.1, 
+          marker.1.filter.direction, 
+          marker.1.threshold, 
+          cond, 
+          marker.2, 
+          marker.2.filter.direction, 
           marker.2.threshold
         )
       } else {
         titlename <- paste(
-          "Number of cells that pass filter:\n",
-          marker.1,
-          M1.filter.direction,
+          "Number of cells that pass filter:\n", 
+          marker.1, 
+          marker.1.filter.direction, 
           marker.1.threshold
         )
       }
     } else {
       titlename <- paste(
         "Number of cells that pass filter:\n",
-        marker.2,
-        M2.filter.direction,
+        marker.2, 
+        marker.2.filter.direction, 
         marker.2.threshold
       )
     }
     
-    title <-
+    title <- 
       textGrob(
         titlename,
         y = 1,
-        vjust = 1,
+        vjust = 1, 
         gp = gpar(fontsize = 15)
       )
     grid.table <- tableGrob(data.filt, rows = NULL)
@@ -485,9 +568,25 @@ dualLabeling <- function(object,
     g <- textGrob("No filtering thresholds applied")
   }
   
-  result.list <- list("object" = so.sub,
-                      "plot" = grob,
-                      "plot2" = g)
+  
+  if (data.reduction=='tsne'|data.reduction=='umap') {
+    
+    result.list <- list(object = so.sub, 
+                        plot = grob,
+                        plot_densityHM = grobHM,
+                        plot_table = g)
+    
+    
+  } else if (data.reduction=='both'){
+    
+    result.list <- list(object = so.sub, 
+                        plot_tsne = grob.t,
+                        plot_umap = grob.u,
+                        plot_densityHM = grobHM,
+                        plot_table = g)
+  }
+  
   
   return(result.list)
 }
+
