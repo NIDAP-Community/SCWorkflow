@@ -128,7 +128,6 @@ combineNormalize <- function(object,
   ## Error Messages ##
   ## -------------- ##
   
-  
   ## --------- ##
   ## Functions ####
   ## --------- ##
@@ -221,9 +220,6 @@ combineNormalize <- function(object,
     }
     
   }
-
-  
-  
   
   
   .plotElbow <- function(so,sample){
@@ -292,7 +288,7 @@ combineNormalize <- function(object,
   }
   
   ## --------------- ##
-  ## Main Code Block ####
+  # Main Code Block ====
   ## --------------- ##
   
   
@@ -311,15 +307,27 @@ combineNormalize <- function(object,
     object <- object[!names(object)%in%exclude.sample]
   }
   
+  # Remove all assays except RNA
+  if(reduce.so==T){
+    smpls=names(object)
+    object2=sapply(smpls,function(x){
+      so=object[[x]]
+      DefaultAssay(so)='RNA'
+      so=DietSeurat(object = so,
+                    assays = c('RNA','Protein')
+      )
+      return(so)
+    })
+  }
   
-  ### Auto detect number of cells and turn on Conserve memory ####
+  ## Auto detect number of cells and turn on Conserve memory ====
   
   ## Calculate total number of cells in input SO.
   cell.count <- sum(unlist((lapply(object, function(x) dim(x)[2]))))
   
   ## Setting a limit for cell numbers
-  # if (dim(object)[2] < 35000) {
-  if (cell.count < 35000) {
+  # if (dim(object)[2] < cell.count.limit) {
+  if (cell.count < cell.count.limit) {
     too.many.cells <- FALSE
   } else {
     too.many.cells <- TRUE
@@ -333,11 +341,14 @@ combineNormalize <- function(object,
   }
   
   
-  ### Normalize Data ####
+  ## Normalize Data ====
   
   if (SCT.level=="Merged") {
-    #### Merge and SCTransform ####
-    ### Merge Samples ====
+    # samples -> merge -> SCTransform -> 
+    #  PrepSCTFindMarkers -> Find Variable Features   
+    
+    ### Merge and SCTransform ====
+    #### Merge Samples ====
     dat = vector()
     if (length(object) > 1) {
       for(i in 2:length(object)){dat=c(dat,object[[i]]) }
@@ -354,23 +365,17 @@ combineNormalize <- function(object,
       allgenes <- rownames(object.merge)
     }
     
-    #### SCTransform ####
+    #### SCTransform ====
     object.merge <-SCTransform(object.merge,
                                do.correct.umi = TRUE,
                                vars.to.regress=vars.to.regress, 
                                conserve.memory = conserve.memory, 
                                return.only.var.genes = only.var.genes)
     
-    if(is.null(vars.to.regress)==F){
-      object.merge.nr <-SCTransform(object.merge,
-                                    do.correct.umi = TRUE,
-                                    conserve.memory = conserve.memory, 
-                                    return.only.var.genes = only.var.genes)
-    }
-    #### rescaling to lowest median SCT score accross samples ====
+    #### rescaling to lowest median SCT score across samples ====
     object.merge=PrepSCTFindMarkers(object.merge)
     
-    
+    #### FindVariableFeatures using options ====
     object.merge<-FindVariableFeatures(
       object = object.merge, 
       nfeatures = nfeatures, 
@@ -379,9 +384,36 @@ combineNormalize <- function(object,
       selection.method = selection.method, 
       verbose = FALSE)
     
+    
+    if(is.null(vars.to.regress)==F& pca.reg.plot==T){
+      
+      object.merge.nr <-SCTransform(object.merge,
+                                    do.correct.umi = TRUE,
+                                    vars.to.regress=vars.to.regress, 
+                                    conserve.memory = conserve.memory, 
+                                    return.only.var.genes = only.var.genes)
+      
+      #### rescaling to lowest median SCT score across samples ====
+      object.merge.nr=PrepSCTFindMarkers(object.merge.nr)
+      
+      #### FindVariableFeatures using options ====
+      object.merge.nr<-FindVariableFeatures(
+        object = object.merge.nr, 
+        nfeatures = nfeatures, 
+        mean.cutoff = c(low.cut, high.cut), 
+        dispersion.cutoff=c(low.cut.disp,high.cut.disp), 
+        selection.method = selection.method, 
+        verbose = FALSE)
+      
+    }
+    
+    
   } else if (SCT.level=="Sample"){
-    #### SCTransform and merge ####
-    #### SCTransform ####
+    # Samples -> SCTransform -> 
+    # SelectIntegrationFeatures(set as Variable Features) ->
+    # merge -> PrepSCTFindMarkers -> Set Variable Features
+    ### SCTransform and merge ====
+    #### SCTransform ====
     object.merge <- lapply(object,function(x){
       SCTransform(x,
                   do.correct.umi = TRUE,
@@ -391,7 +423,7 @@ combineNormalize <- function(object,
     })
     
     
-    #### Integration features to set as Varable Features ####
+    #### Integration features to set as Variable Features ####
     integ.features <- SelectIntegrationFeatures(
       object.list = object.merge, 
       nfeatures = nfeatures, 
@@ -416,17 +448,17 @@ combineNormalize <- function(object,
       allgenes <- rownames(object.merge)
     }
     
-    #### rescaling to lowest median SCT score accross samples ####
+    #### rescaling to lowest median SCT score across samples ====
     object.merge=PrepSCTFindMarkers(object.merge)
     
     
-    #### Set Variable Features ####
+    #### Set Variable Features ====
     VariableFeatures(object.merge) = integ.features
     
     
     
     ### non-Regression Test
-    if(is.null(vars.to.regress)==F){
+    if(is.null(vars.to.regress)==F& pca.reg.plot==T){
       #### Merge
       object.merge.nr <- lapply(object,function(x){
         SCTransform(x,
@@ -458,7 +490,7 @@ combineNormalize <- function(object,
         allgenes.nr <- rownames(object.merge.nr)
       }
       
-      #### rescaling to lowest median SCT score accross samples ####
+      #### rescaling to lowest median SCT score accross samples ====
       object.merge.nr=PrepSCTFindMarkers(object.merge.nr)
       
       
@@ -467,29 +499,35 @@ combineNormalize <- function(object,
       
     }
     
-    
-    
   } else {stop("SCT method should be either Merged or Sample")}
   
-  
-  ### QC samples ####
+  ### QC plots ====
   grobsList = list()  
   
+  ## Internal Error Check
+  ## Turn off pca.reg.plot if no regression variables selected.
+  if(is.null(vars.to.regress)&pca.reg.plot==T){
+    pca.reg.plot==F
+    print('pca.reg.plot set to false because no 
+          Regression Variables were selected')
+  }
   
-  #### PCA on individual samples ####
-  object.merge.split=SplitObject(object.merge, split.by = "orig.ident")
+  if ('none'%in%methods.pca==F|pca.reg.plot==T|jackstraw==T) {
+    
+    #### PCA on individual samples ====
+    object.merge.split=SplitObject(object.merge, split.by = "orig.ident")
     n=names(object.merge.split)
-  object.merge.split=lapply(n,function(x){
-                                RunPCA(object = object.merge.split[[x]],
-                                       npcs = (npcs+10), verbose = FALSE,
-                                       seed.use = seed.for.pca)})
-  names(object.merge.split)=n
+    object.merge.split=lapply(n,function(x){
+      RunPCA(object = object.merge.split[[x]],
+             npcs = (npcs+10), verbose = FALSE,
+             seed.use = seed.for.pca)})
+    names(object.merge.split)=n
+    
+  } else {"No PCA plots created"}
   
   
-  
-  
-  #### Create PCA regression plots  ####
-  if (is.null(vars.to.regress)==F) {
+  #### Create PCA regression plots ====
+  if (pca.reg.plot==T) {
     
     object.merge.nr.split=SplitObject(object.merge.nr, split.by = "orig.ident")
     nr=names(object.merge.nr.split)
@@ -502,73 +540,74 @@ combineNormalize <- function(object,
     
     k <- 1
     pca.grob=list()
-  for (i in 1:length(vars.to.regress)){
-    v=vars.to.regress[i]
-    print(v)
-    r <- lapply(names(object.merge.split), 
-                function(x){.plotPCA(object.merge.split[[x]],v,x)})
-    nr <- lapply(names(object.merge.nr.split), 
-                 function(x){.plotPCA(object.merge.nr.split[[x]],v,x)})
-
-    grob = ggarrange(plotlist=r,ncol=1,
-                     common.legend = F,
-                     legend = 'right')%>%
-      annotate_figure(top=text_grob(paste0(v,' Regression'), 
-                                    face = "bold", size = 20),
-                      fig.lab.size = 20,
-                      fig.lab.face = 'bold',
-                      fig.lab.pos='top')    
-    grob.nr = ggarrange(plotlist=nr
-                        ,ncol=1,
-                        common.legend = F,
-                        legend = 'right')%>%
-      annotate_figure(top=text_grob('No Regression', 
-                                    face = "bold", size = 20),
-                      fig.lab.size = 20,
-                      fig.lab.face ='bold',
-                      fig.lab.pos='top')
+    for (i in 1:length(vars.to.regress)){
+      v=vars.to.regress[i]
+      print(v)
+      r <- lapply(names(object.merge.split), 
+                  function(x){.plotPCA(object.merge.split[[x]],v,x)})
+      nr <- lapply(names(object.merge.nr.split), 
+                   function(x){.plotPCA(object.merge.nr.split[[x]],v,x)})
+      
+      grob = ggarrange(plotlist=r,ncol=1,
+                       common.legend = F,
+                       legend = 'right')%>%
+        annotate_figure(top=text_grob(paste0(v,' Regression'), 
+                                      face = "bold", size = 20),
+                        fig.lab.size = 20,
+                        fig.lab.face = 'bold',
+                        fig.lab.pos='top')    
+      grob.nr = ggarrange(plotlist=nr
+                          ,ncol=1,
+                          common.legend = F,
+                          legend = 'right')%>%
+        annotate_figure(top=text_grob('No Regression', 
+                                      face = "bold", size = 20),
+                        fig.lab.size = 20,
+                        fig.lab.face ='bold',
+                        fig.lab.pos='top')
+      
+      pca.grob=ggarrange(grob,grob.nr)
+      
+      grobsList[['Regression Plots']][[v]] =pca.grob
+      
+    }
     
-    pca.grob=ggarrange(grob,grob.nr)
-  
-    grobsList[['Regression Plots']][[v]] =pca.grob
-    
-  }
   } else {
-    print("Regression not prefomred")
+    print("PCA regression plots not created")
   }
   
+  ### Determin # of PCs ====
+  #### create Elbow plot ====
+  if ('none'%in%methods.pca==F) {
+    
+    elbow.grob=lapply(names(object.merge.split),function(x){
+      gg=
+        .plotElbow(object.merge.split[[x]],sample=x)
+      return(gg+ylab("")+xlab(""))
+    } 
+    )  
+    elbow.comb=ggarrange(plotlist=elbow.grob,ncol =1) %>%
+      annotate_figure(left=text_grob("Standard deviation",size=16,rot=90),
+                      bottom=text_grob("PC",size=16))
+    
+    grobsList[["Elbow Plot"]]=elbow.comb
+    grobsList[["Elbow Plot Individual"]]=elbow.grob
+    
+  }  
   
-  
-  #### create Elbow plot ####
-
-  elbow.grob=lapply(names(object.merge.split),function(x){
-    gg=
-      .plotElbow(object.merge.split[[x]],sample=x)
-    return(gg+ylab("")+xlab(""))
-  } 
-  )  
-  elbow.comb=ggarrange(plotlist=elbow.grob,ncol =1) %>%
-    annotate_figure(left=text_grob("Standard deviation",size=16,rot=90),
-                    bottom=text_grob("PC",size=16))
-  
-  grobsList[["Elbow Plot"]]=elbow.comb
-  grobsList[["Elbow Plot Individual"]]=elbow.grob
-  
-  
-  
-  #### Create Jackstraw plot  ####
+  #### Create Jackstraw plot ====
   ## Jackstraw does not work with SCT data so create ScaleData
-  if (jackstraw) {
+  if (jackstraw==T) {
     # jackstraw.dims = (npcs+10)
     js <-lapply(names(object.merge.split), function(x){ 
       jso=object.merge.split[[x]]
       DefaultAssay(jso)="RNA"
       jso=ScaleData(jso)%>%
-          FindVariableFeatures(nfeatures = nfeatures, 
-                                mean.cutoff = c(low.cut, high.cut), 
-                                dispersion.cutoff=c(low.cut.disp,high.cut.disp), 
-                                selection.method = selection.method, 
-                                verbose = F)%>%
+        FindVariableFeatures(nfeatures = nfeatures, 
+                             mean.cutoff = c(low.cut, high.cut), 
+                             dispersion.cutoff=c(low.cut.disp,high.cut.disp), 
+                             selection.method = selection.method, 
+                             verbose = F)%>%
         RunPCA(npcs = (npcs+10), 
                verbose = FALSE,
                seed.use = seed.for.pca)%>%
@@ -578,19 +617,19 @@ combineNormalize <- function(object,
                   prop.freq = 0.01,
                   verbose = F,
                   maxit = 1000)%>%suppressWarnings()
-        })
+    })
     names(js)=names(object.merge.split)
     js <- lapply(names(js), function(x) ScoreJackStraw(js[[x]],
-                                                      dims = 1:jackstraw.dims))
+                                                       dims = 1:jackstraw.dims))
     names(js )=names(object.merge.split)
     
     grob4 <- lapply(names(js), function(x) {JackStrawPlot(js[[x]],
-                                                     dims = 1:jackstraw.dims)+
+                                                          dims = 1:jackstraw.dims)+
         ggtitle(x)+
         ylab("")+xlab("")+
         theme(plot.title = element_text(size=16,face='bold'),
               axis.title=element_text(size=16))
-      })
+    })
     names(grob4 )=names(object.merge.split)
     
     js.comb=ggarrange(plotlist=grob4,ncol =1) %>%
@@ -602,37 +641,11 @@ combineNormalize <- function(object,
   }
   
   
-  
-  #### Detect Citeseq ####
-  
-  #initialize Citeseq functionality as false, 
-  #later the template will check for a Protein assay and run if it finds it
-  
-  do.cite.seq <- FALSE
-  
-  if ("Protein" %in% names(object.merge@assays)){
-    do.cite.seq <-TRUE
-  }
-  
-  
-  ### HTO ####
-  if(cell.hashing.data){
-    object.merge <- ScaleData(object.merge, assay = "HTO")
-  }
-  
-  
-  
-  ### Dimension reduction ####
+  ## Dimension reduction ====
   
   object.merge <- RunPCA(object = object.merge, 
                          npcs = npcs, verbose = FALSE,
                          seed.use = seed.for.pca)
-  if(is.null(vars.to.regress)==F){
-    object.merge.nr <- RunPCA(object = object.merge.nr, 
-                              npcs = npcs, verbose = FALSE,
-                              seed.use = seed.for.pca)
-  }
-  
   object.merge <- RunUMAP(object = object.merge, 
                           reduction = "pca", 
                           dims = 1:npcs, 
@@ -644,46 +657,87 @@ combineNormalize <- function(object,
                           seed.use = seed.for.tsne)
   object.merge <- FindNeighbors(object.merge, dims = 1:npcs)
   
+  ### non-Regression Test
+  if(is.null(vars.to.regress)==F& pca.reg.plot==T){
+    object.merge.nr <- RunPCA(object = object.merge.nr, 
+                              npcs = npcs, verbose = FALSE,
+                              seed.use = seed.for.pca)
+  }
   
-  ### Citeseq ####
+  ### HTO scale merged ====
+  if(cell.hashing.data){
+    object.merge <- ScaleData(object.merge, assay = "HTO")
+  }  
   
-  #check for CITE-seq data and if so, run reductions
+  ## Process Citeseq ====
+  #   Original Workflow
+  #   https://satijalab.org/seurat/archive/v3.2/multimodal_vignette.html
+  #   from SeuratV4 workflow is the same
+  #   https://satijalab.org/seurat/archive/v4.3/weighted_nearest_neighbor_analysis
+  
+  ### Detect Citeseq
+  #initialize Citeseq functionality as false, 
+  #later the template will check for a Protein assay and run if it finds it
+  
+  do.cite.seq <- FALSE
+  if ("Protein" %in% names(object.merge@assays)){
+    do.cite.seq <-TRUE
+  }
+  
   if(do.cite.seq) {
-    object.merge <- ScaleData(object.merge, assay = "Protein")
+    print("finding Protein variable features...")
     
-    print("finding protein variable features...")
-    VariableFeatures(object.merge,assay="Protein") <- 
+    #### Normalize -> scale -> PCA - Citeseq ====
+    
+    VariableFeatures(object.merge,assay="Protein") <-
       rownames(object.merge$Protein)
     
-    #Support for partial
-    if(all(sapply(seq.along(object),
+    if(all(sapply(seq_along(object),
                   function(i) "Protein" %in% names(object[[i]]@assays)))){
-      print("running protein pca...")
+      object.merge = NormalizeData(object.merge,
+                                   assay = "Protein",
+                                   normalization.method = "CLR")
+      
       object.merge = ScaleData(object.merge, 
                                assay = 'Protein',
                                verbose = FALSE) 
+      print("running Protein pca...")
+      
+      p.npcs=min(nrow(object.merge$Protein),npcs)
       object.merge <- RunPCA(object = object.merge, 
                              assay="Protein",
-                             npcs = npcs,
-                             reduction.name="protein.pca",
-                             seed.use = seed.for.pca,
-                             verbose = FALSE)
+                             npcs = p.npcs,
+                             reduction.name="protein_pca",
+                             reduction.key ="proteinPC_"
+      )
+      
+      ### FindMultiModalNeighbors - Citeseq ====
+      
+      object.merge <- FindMultiModalNeighbors(
+        object.merge, 
+        reduction.list = list("pca", "protein_pca"),
+        dims.list = list(1:npcs, 1:(p.npcs-1)),
+        modality.weight.name = "RNA.weight"
+      )
+      ### Dimension Reduction - Citeseq ====
+      
       object.merge <- RunUMAP(object = object.merge, 
                               assay="Protein", 
+                              nn.name = "weighted.nn", 
+                              reduction.name = "protein_umap",
+                              reduction.key = "ProteinUMAP_",
                               features=rownames(object.merge$Protein), 
-                              reduction.name="protein.umap",
                               seed.use=seed.for.umap)
       object.merge <- RunTSNE(object = object.merge, 
                               assay="Protein", 
+                              nn.name = "weighted.nn", 
+                              reduction.name="protein_tsne",
+                              reduction.key ="ProteinTSNE_",
                               features=rownames(object.merge$Protein),
                               seed.use = seed.for.tsne,
-                              reduction.name="protein.tsne",
                               check.duplicates=F)
-      object.merge <- FindNeighbors(object.merge, assay="Protein",
-                                    graph.name="Protein.snn",
-                                    features=rownames(object.merge$Protein))
     }else{
-      do.cite.seq <- FALSE #set to false so we don't cluster protein
+      do.cite.seq <- FALSE #set to false so we don't cluster Protein
     }
     
   } else {
@@ -691,18 +745,24 @@ combineNormalize <- function(object,
   }
   
   
-  ## Cluster ####
+  ## Cluster ====
   
   for (i in seq(clust.res.low,clust.res.high,clust.res.bin)){
-    object.merge <- FindClusters(object.merge, resolution = i, algorithm = 1)
+    ## Clustr RNAseq
+    object.merge <- FindClusters(object.merge, 
+                                 resolution = i, 
+                                 algorithm = 1)
     if(do.cite.seq==TRUE){
       object.merge <- FindClusters(object.merge, 
-                                   graph.name="Protein_snn",
+                                   graph.name="wsnn",
                                    resolution = i, 
-                                   algorithm = 1)
+                                   algorithm = 1, 
+                                   verbose = FALSE)
     }
   }
   print("Clustering successful!")
+  
+  
   
   
   ## create plots ####
@@ -794,11 +854,8 @@ combineNormalize <- function(object,
     
   }
   
-  
-
-    return(list(object=object.merge,
-                plots=grobsList))
+  return(list(object=object.merge,
+              plots=grobsList))
 }
-
 
 
