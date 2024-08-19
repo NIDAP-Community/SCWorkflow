@@ -58,10 +58,10 @@ for (data in c('Chariou')) {
     # plot slot contains data
     expect( object.size(filter.qc.out$plots),'> 0' )
     # Check if VDJ genes are removed
-    expect(length(
-      sum(filter.qc.out$FilteringTables$FilteringCounts$`VDJ Genes Removed`>0)
-    ),'==5')
-    
+    expect(
+     sum(filter.qc.out$FilteringTables$FilteringCounts$`VDJ Genes Removed`>0),
+     '==5')
+
     
     skip_on_ci()
     expect_snapshot_file(

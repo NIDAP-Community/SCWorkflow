@@ -20,7 +20,7 @@ getParam3D <- function(data) {
     label.variable = "BP_encode_main"
     
   } else if (data == "BRCA") {
-    object <- select_crobject("BRCA")
+    object <- selectCRObject("BRCA")
     color.variable = "orig.ident"
     label.variable = "SCT_snn_res.0.4"
     

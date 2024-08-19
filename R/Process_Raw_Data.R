@@ -621,7 +621,7 @@ processRawData <- function(input,
 
           ## Move original sample name column to second position in so metadata
           so.orig.nf[[i]]@meta.data=relocate(so.orig.nf[[i]]@meta.data,
-                                             {{sample.name.column}}, 
+                                             sample.name.column, 
                                              .after = orig.ident)
 
           ## change orig.ident col to new name
