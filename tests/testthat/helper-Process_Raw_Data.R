@@ -5,7 +5,8 @@ getParamRaw <- function(data){
     data.table(Sample_Name=c('5_ABSC_E13_5_TEC','6_ABSC_Newborn_cTEC',
                               '7_ABSC_Adult_cTEC','8_ABSC_E15_cTEC'),
                Gender=c('M','F','N','F'),
-               Rename=c("1_Embryo_13_5","3_Newborn","4_Adult","2_Embryo_15"))%>%
+               Rename=c("S1_Embryo_13_5","S3_Newborn",
+                        "S4_Adult","S2_Embryo_15"))%>%
       write.table(
       test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
       sep = '\t')
@@ -46,7 +47,7 @@ getParamRaw <- function(data){
     
   } else if (data == "NSCLC_Single") {
     
-    data.table(Sample_Name=c('PBMC_20k_3p_HT_nextgem_Chromium_X'),
+    data.table(Sample_Name=c('20k_PBMC_3p_HT_nextgem_Chromium_X'),
                Rename=c("PBMC_Single"))%>%
       write.table(
         test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
@@ -129,6 +130,20 @@ getParamRaw <- function(data){
     split.h5=T
     
     
+  } else if (data == "ccbr1256") {
+    
+  
+    
+    input=list.files(
+      test_path(paste0("fixtures/",data,"/")),"",full.names = T)
+    # input=list.files(
+    #   test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
+    organism = "Mouse"
+    sample.metadata.table=NULL
+    split.h5=F
+    
+    
+    
   }
   
   return(list("input" = input, 
@@ -140,3 +155,16 @@ getParamRaw <- function(data){
               
               ))  
 }
+
+
+.drawFig <- function(x, width = 10, height = 10){
+  path <- tempfile(fileext = ".png")
+  ggsave(path, x, width = 10, height = 10)
+  print(path)
+}
+.saveSO <- function(x, width = 10, height = 10){
+  path <- tempfile(fileext = ".rds")
+  saveRDS(x, file = path)
+  print(path)
+}
+

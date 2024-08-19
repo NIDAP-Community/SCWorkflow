@@ -14,12 +14,15 @@ processRawData(
   file.filter.regex = c(),
   split.h5 = F,
   cell.hash = F,
+  tcr.summarize.topN = 10,
   do.normalize.data = T
 )
 }
 \arguments{
 \item{input}{Input can be a vector of scRNA-Seq .h5 files, or a list of
-seurat objects for each sample. vector should include file path.}
+seurat objects for each sample. TCRseq Metadata .csv files can also be
+included and will be added to the corrisponding sample seurat object.
+Vector of files should include entire file path.}
 
 \item{sample.metadata.table}{A table of sample metadata that you want to
 append to the already-existing metadata within the input Seurat Object(s).
@@ -39,14 +42,17 @@ samples name (optional).}
 If FALSE, remove files when pattern is found in sample name.
 The pattern is set in the file.filter.regex parameter (below).}
 
-\item{file.filter.regex}{Pattern or regular expression in file
-name. Use the keep parameter (above) to keep or remove files
-that contain pattern. If samples have been renamed set
-regular expression based on new names}
+\item{file.filter.regex}{Pattern or regular expression in sample
+name. Use the 'keep' parameter to keep or remove files that contain pattern.
+If samples have been renamed set regular expression based on new names}
 
 \item{split.h5}{If TRUE, split H5 into individual files. (Default: FALSE)}
 
 \item{cell.hash}{If TRUE, dataset contains cell hashtags. (Default: FALSE)}
+
+\item{tcr.summarize.topN}{Select number of top most identified TCR clonotypes
+to be included in summary column. Any clonotypes below the top N most
+populated will be classified as "Other". (Default: 10)}
 
 \item{do.normalize.data}{If TRUE counts table will be log2 normalized. If
 input contains counts that are already normalzed set to FALSE.

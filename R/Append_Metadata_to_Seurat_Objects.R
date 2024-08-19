@@ -14,7 +14,7 @@
 #' @param sample.name.column The column of the input metadata.to.append table
 #' that contains sample names matching the orig.idents in the input object(s).
 #'
-#' @import Seurat
+#' @importFrom Seurat AddMetaData
 #'
 #' @export
 #' @return Function returns a Seurat Object or Objects with additional metadata
