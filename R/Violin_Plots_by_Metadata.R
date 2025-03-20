@@ -55,6 +55,13 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
   
   facet_data = facet_by != ""
   
+  # for handling orig ident
+  if (group == "orig.ident" | group == "orig_ident"){
+    
+    # grab orig ident, however it is presented in seurat metadata
+    group <- colnames(object@meta.data)[grepl("origident",gsub('\\W',"",colnames(object@meta.data)))]
+  }
+  
   if (!assay %in% Assays(object)) {
     stop("expression data type was not found in Seurat object")
   } else if (!slot %in% slotNames(object[[assay]])) {

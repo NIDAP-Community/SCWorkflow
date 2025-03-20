@@ -5,12 +5,12 @@ test_that("Violin plot works for TEC data", {
   
   skip_on_ci()
   expect_snapshot_file(
-    .drawViolin(violin_test),
+    .drawViolin(violin_test$fig),
     "tec_violin.png"
   )
   
   expected_elements = c("gg", "ggplot")
-  expect_setequal(class(violin_test), expected_elements)
+  expect_setequal(class(violin_test$fig), expected_elements)
   
 })
 
