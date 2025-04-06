@@ -3,28 +3,22 @@ getModuleScoreParam <- function(data){
   if(data == "tec"){
     
       object = selectCRObject("TEC")
-      samples.subset = unique(object$orig.ident)
-      sample.to.display = unique(object$orig.ident)
       marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
-      celltypes = colnames(marker.table)[1:3]
-      general.class = celltypes
-      lvl.df = read.csv(test_path("fixtures", "MS_Levels_demo.csv"))
+      ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+      general.class = colnames(marker.table)[1:3]
+      #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
 
   } else if (data == "chariou") {
     
       object = selectCRObject("Chariou")
-      samples.subset = unique(object$orig.ident)
-      sample.to.display = unique(object$orig.ident)
       marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
-      celltypes = colnames(marker.table)[1:3]
-      general.class = celltypes
-      lvl.df = read.csv(test_path("fixtures", "MS_Levels_demo.csv"))
+      ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+      general.class = colnames(marker.table)[1:3]
+      #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
       
   } else if (data == "pbmc.single") {
     
     object = selectCRObject("pbmc-single")
-    samples.subset = unique(object$orig.ident)
-    sample.to.display = unique(object$orig.ident)
     set.seed(114)
     marker.table = data.frame(rand_type1 = sample(rownames(object), 5, 
                                                   replace = FALSE),
@@ -32,15 +26,13 @@ getModuleScoreParam <- function(data){
                                                   replace = FALSE),
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
-    celltypes = colnames(marker.table)
-    general.class = celltypes
-    lvl.df = read.csv(test_path("fixtures", "MS_Levels_demo.csv"))
+    ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    general.class = colnames(marker.table)
+    #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
     
   } else if (data == "nsclc.multi") {
 
     object = selectCRObject("nsclc-multi")
-    samples.subset = unique(object$orig.ident)
-    sample.to.display = unique(object$orig.ident)
     set.seed(214)
     marker.table = data.frame(rand_type1 = sample(rownames(object), 5, 
                                                   replace = FALSE),
@@ -48,15 +40,13 @@ getModuleScoreParam <- function(data){
                                                   replace = FALSE),
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
-    celltypes = colnames(marker.table)
-    general.class = celltypes
-    lvl.df = read.csv(test_path("fixtures", "MS_Levels_demo.csv"))
+    ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    general.class = colnames(marker.table)
+    #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
 
   } else if (data == "brca") {
 
     object = selectCRObject("BRCA")
-    samples.subset = unique(object$orig.ident)
-    sample.to.display = unique(object$orig.ident)
     set.seed(314)
     marker.table = data.frame(rand_type1 = sample(rownames(object), 5, 
                                                   replace = FALSE),
@@ -64,19 +54,17 @@ getModuleScoreParam <- function(data){
                                                   replace = FALSE),
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
-    celltypes = colnames(marker.table)
-    general.class = celltypes
-    lvl.df = read.csv(test_path("fixtures", "MS_Levels_demo.csv"))
+    ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    general.class = colnames(marker.table)
+    #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
     
   }
   
   return(list("object" = object, 
-              "samples.subset"= samples.subset, 
-              "sample.to.display" = sample.to.display, 
+              "ms.threshold"= ms.threshold, 
+              "lvl.vec" = lvl.vec, 
               "marker.table" = marker.table, 
-              "celltypes" = celltypes,
-              "general.class" = general.class,
-              "lvl.df" = lvl.df
+              "general.class" = general.class
               ))  
 }
 

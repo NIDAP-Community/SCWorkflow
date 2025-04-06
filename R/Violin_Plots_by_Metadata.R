@@ -44,7 +44,17 @@
 
 #' @return violin ggplot2 object
 
-violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter_points, jitter_dot_size) 
+violinPlot_mod <- function (object, 
+                            assay, 
+                            slot, 
+                            genes, 
+                            group, 
+                            facet_by = "", 
+                            filter_outliers = F,
+                            outlier_low = 0.05,
+                            outlier_high = 0.95,
+                            jitter_points, 
+                            jitter_dot_size) 
 {
   library(Seurat)
   library(ggplot2)
@@ -59,7 +69,7 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
   if (group == "orig.ident" | group == "orig_ident"){
     
     # grab orig ident, however it is presented in seurat metadata
-    group <- colnames(object@meta.data)[grepl("origident",gsub('\\W',"",colnames(object@meta.data)))]
+    group <- colnames(object@meta.data)[grepl("origident",gsub('\\W|_',"",colnames(object@meta.data)))]
   }
   
   if (!assay %in% Assays(object)) {
@@ -76,8 +86,10 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
   gene_mtx <- as.matrix(GetAssayData(object, assay = assay, slot = slot))
   gene_mtx <- scales::rescale(gene_mtx, to = c(0,1))
   
-  print(paste0(genes[!genes %in% rownames(gene_mtx)], 
-               " not found and will not be displayed"))
+  if(length(genes[!genes %in% rownames(gene_mtx)]) > 0){
+    print(paste0(genes[!genes %in% rownames(gene_mtx)], 
+                 " not found and will not be displayed"))
+  }
   
   genes.present <- genes[genes %in% rownames(gene_mtx)]
   if(facet_data){
@@ -87,7 +99,7 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
   }
   
   for (col in genes.present) {
-    meta_sub[[col]] <- gene_mtx[col,]
+    meta_sub[[col]] <- gene_mtx[col,][match(rownames(meta_sub),names(gene_mtx[col,]))]
   }
   
   data_df <- meta_sub %>% pivot_longer(genes.present, names_to = "Gene", values_to = "Expression")
@@ -109,6 +121,24 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
                         "#76B7B2", "#FF9D9A", "#B07AA1", "#D4A518", 
                         "#DE77AE", "#77AADD", "#EE8866", "#E4CDA7")
   
+  # Define the outlier removal function
+  .removeOutliers <- function(x, na.rm = TRUE){
+    qnt <- quantile(x, probs = c(outlier_low, outlier_high), na.rm = na.rm)
+    H <- 1.5 * IQR(x, na.rm = na.rm)
+    x[x < (qnt[1] - H) | x > (qnt[2] + H)] <- NA
+    x
+  }
+  
+  # Apply only if filtering is enabled
+  if (filter_outliers) {
+    group_vars <- colnames(data_df)[colnames(data_df) != 'Expression']
+    
+    data_df <- data_df %>%
+      group_by(across(all_of(group_vars))) %>%
+      mutate(Expression = .removeOutliers(Expression)) %>%
+      ungroup()
+  }
+  
   if(facet_data){
     # Map the colors to the unique values
     # If there are more unique sets than available colors, this will recycle the colors
@@ -119,11 +149,13 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
       geom_violin(scale = "width", position = position_dodge(width = 0.9), trim = TRUE) +
       geom_boxplot(width = 0.2, position = position_dodge(width = 0.9), outlier.shape = NA) +
       scale_fill_manual(values = color_mapping) +
-      facet_wrap(~ Gene, scales = "free_y", ncol = 3, strip.position = "left") + 
+      facet_wrap(~ Gene, scales = "free_y", ncol = 1, strip.position = "left") + 
       theme_classic() + 
       theme(legend.position = "bottom", 
             axis.text.x = element_text(angle = 90, hjust = 1),
             strip.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
             strip.text.x = element_text(size = 14, color = "black", face = "bold"),
             strip.text.y = element_text(size = 14, color = "black", face = "bold"),
             strip.placement = "outside")
@@ -131,11 +163,14 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
     g <- ggplot(data_df, aes(x = .data[[group]], y = Expression, fill = .data[[group]])) + 
       geom_violin(scale = "width", position = position_dodge(width = 0.9), trim = TRUE) +
       geom_boxplot(width = 0.2, position = position_dodge(width = 0.9), outlier.shape = NA) +
+      facet_wrap(~ Gene, scales = "free_y", ncol = 1, strip.position = "left") +
       scale_fill_brewer(palette = "Set1") +
       theme_classic() + 
       theme(legend.position = "bottom", 
             axis.text.x = element_text(angle = 90, hjust = 1),
             strip.background = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
             strip.text.x = element_text(size = 14, color = "black", face = "bold"),
             strip.text.y = element_text(size = 14, color = "black", face = "bold"),
             strip.placement = "outside")
@@ -146,53 +181,5 @@ violinPlot <- function (object, assay, slot, genes, group, facet_by = "", jitter
     g <- g + geom_jitter(size = jitter_dot_size, shape = 1, position = position_dodge(width = 0.9), alpha = 0.5)
   }
   
-  # anova for subgroups if facet_data is on
-  p_values_df <- NULL
-  if(facet_data){
-    # Function to calculate p-values for a single gene within a cell type
-    calculate_p_values <- function(data, data_group, data_gene) {
-      # Subset data for the specific cell type and gene
-      data_sub <- data[data[,group] == data_group & data[,"Gene"] == data_gene,]
-      
-      # Perform ANOVA and Tukey HSD
-      fit <- aov(as.formula(paste("Expression ~", facet_by)), data = data_sub)
-      tukey_result <- TukeyHSD(fit)
-      
-      # Tidy up the results and add metadata
-      tidy_tukey_result <- tidy(tukey_result)
-      tidy_tukey_result$gene <- data_gene
-      tidy_tukey_result$group <- data_group
-      
-      return(tidy_tukey_result)
-    }
-    
-    # List unique cell types
-    unique_groups <- unique(data_df[[group]])
-    
-    # Filter out 
-    facet_df <- table(data_df[[group]], data_df[[facet_by]])
-    
-    # Find rows with more than one non-zero column
-    count_non_zero <- function(row) {
-      sum(row != 0)
-    }
-    non_zero_counts <- apply(facet_df, 1, count_non_zero)
-    
-    # Use rownames whose values are in more than 1 column 
-    unique_groups <- names(non_zero_counts)[non_zero_counts > 1]
-    
-    # Calculate p-values for each cell type and gene
-    p_values_list <- list()
-    for (indv_group in unique_groups) {
-      p_values_list[[indv_group]] <- do.call(rbind, lapply(genes.present, function(gene) calculate_p_values(data_df, data_group = indv_group, data_gene = gene)))
-    }
-    
-    # Combine the results into a single data frame
-    p_values_df <- do.call(rbind, p_values_list)
-  }
-  
-  final_res <- list(fig = g, stat = p_values_df)
-  
-  return(final_res)
-  
+  return(g)
 }
