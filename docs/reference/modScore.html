@@ -48,15 +48,10 @@ ModuleScores and Likely_CellType calls</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">modScore</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
-<span>  <span class="va">samples.subset</span>,</span>
-<span>  <span class="va">sample.to.display</span>,</span>
 <span>  <span class="va">marker.table</span>,</span>
-<span>  cite.seq <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">celltypes</span>,</span>
-<span>  threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
+<span>  <span class="va">ms.threshold</span>,</span>
 <span>  <span class="va">general.class</span>,</span>
-<span>  multi.lvl <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  <span class="va">lvl.df</span>,</span>
+<span>  lvl.vec <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  reduction <span class="op">=</span> <span class="st">"tsne"</span>,</span>
 <span>  nbins <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  gradient.ft.size <span class="op">=</span> <span class="fl">6</span>,</span>
@@ -71,50 +66,14 @@ ModuleScores and Likely_CellType calls</p>
 <dd><p>Seurat-class object</p></dd>
 
 
-<dt>samples.subset</dt>
-<dd><p>List of samples to subset the data by</p></dd>
-
-
-<dt>sample.to.display</dt>
-<dd><p>List of samples to depict on dimension plot,
-samples not in the list would be colored gray in
-the background</p></dd>
-
-
 <dt>marker.table</dt>
 <dd><p>Table of marker genes for each celltype
 (column names of the table), append "_prot" or
 "_neg" for proteins or negative markers</p></dd>
 
 
-<dt>cite.seq</dt>
-<dd><p>Set to TRUE if there are CITE-seq markers in
-marker.table (Default: FALSE)</p></dd>
-
-
-<dt>celltypes</dt>
-<dd><p>Vector of celltypes from marker.table to
-screen for</p></dd>
-
-
-<dt>threshold</dt>
-<dd><p>Specify bimodal thresholds for cell classification,
-should be of the same length as celltypes
-vector</p></dd>
-
-
 <dt>general.class</dt>
 <dd><p>Base population of cells to classify</p></dd>
-
-
-<dt>multi.lvl</dt>
-<dd><p>Toggle to TRUE if there are subpopulations of cells
-you want to screen for (Default: FALSE)</p></dd>
-
-
-<dt>lvl.df</dt>
-<dd><p>Table of subpopulation levels and parent-child
-information (e.g. Tcells-CD4, Tcells-CD8)</p></dd>
 
 
 <dt>reduction</dt>
@@ -139,6 +98,32 @@ ModuleScore distribution (Default: 6)</p></dd>
 
 <dt>step.size</dt>
 <dd><p>Set step size of distribution plots (Default: 0.1)</p></dd>
+
+
+<dt>cite.seq</dt>
+<dd><p>Set to TRUE if there are CITE-seq markers in
+marker.table (Default: FALSE)</p></dd>
+
+
+<dt>celltypes</dt>
+<dd><p>Vector of celltypes from marker.table to
+screen for</p></dd>
+
+
+<dt>threshold</dt>
+<dd><p>Specify bimodal thresholds for cell classification,
+should be of the same length as celltypes
+vector</p></dd>
+
+
+<dt>multi.lvl</dt>
+<dd><p>Toggle to TRUE if there are subpopulations of cells
+you want to screen for (Default: FALSE)</p></dd>
+
+
+<dt>lvl.df</dt>
+<dd><p>Table of subpopulation levels and parent-child
+information (e.g. Tcells-CD4, Tcells-CD8)</p></dd>
 
 </dl></div>
     <div id="value">

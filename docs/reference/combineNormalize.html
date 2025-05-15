@@ -66,11 +66,14 @@ runs Dimensional Reduction, Clusters, and returns a combined Seurat Object.</p>
 <span>  clust.res.low <span class="op">=</span> <span class="fl">0.2</span>,</span>
 <span>  clust.res.high <span class="op">=</span> <span class="fl">1.2</span>,</span>
 <span>  clust.res.bin <span class="op">=</span> <span class="fl">0.2</span>,</span>
-<span>  methods.pca <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Elbow"</span>, <span class="st">"Marchenko-Pastur"</span><span class="op">)</span>,</span>
+<span>  methods.pca <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  var.threshold <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>  pca.reg.plot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  jackstraw <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  jackstraw.dims <span class="op">=</span> <span class="fl">5</span>,</span>
-<span>  exclude.sample <span class="op">=</span> <span class="st">""</span>,</span>
+<span>  exclude.sample <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cell.count.limit <span class="op">=</span> <span class="fl">35000</span>,</span>
+<span>  reduce.so <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  project.name <span class="op">=</span> <span class="st">"scRNAProject"</span>,</span>
 <span>  cell.hashing.data <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -136,7 +139,9 @@ Options: vst, mean.var.plot, dispersion. (Default: 'vst')</p></dd>
 <dt>only.var.genes</dt>
 <dd><p>If dataset is larger than ~40k filtered cells,
 set to TRUE. If TRUE, only variable genes will be available for
-downstream analysis. (Default: FALSE)</p></dd>
+downstream analysis. If dataset is larger than the number of cells set in
+"Conserve Memory Max Cell Limit" "Only Variable Genes" is automatically
+set to TRUE. (Default: FALSE)</p></dd>
 
 
 <dt>draw.umap</dt>
@@ -182,12 +187,20 @@ at resolutions of 0.2, 0.4 and 0.6. (Default: 0.2)</p></dd>
 <dd><p>Methods available: Marchenko-Pastur: use eigenvalue
 null upper bound from URD, Elbow: Find threshold where percent change
 in variation between consecutive PCs is less than X% (set in var.threshold).
-(Default: c('Elbow','Marchenko-Pastur'))</p></dd>
+If none is selected (regardless of other selections) the plot will not be
+generated. (Default: 'none')</p></dd>
 
 
 <dt>var.threshold</dt>
 <dd><p>For Elbow method, set percent change threshold
 in variation between consecutive PCs. (Default: 0.1)</p></dd>
+
+
+<dt>pca.reg.plot</dt>
+<dd><p>Opt to visualize the effect of your regression variables
+on in a PCA plot. This plot will create PCA plots with and without
+regression variables applied and can be used to help determine if
+regression is necessary to properly normalize your data. (Default: FALSE)</p></dd>
 
 
 <dt>jackstraw</dt>
@@ -203,7 +216,20 @@ process and may not be suitable for larger datasets. (Default: FALSE)</p></dd>
 <dt>exclude.sample</dt>
 <dd><p>Exclude unwanted samples from the merge step.
 Include sample names to be removed. If you want to exclude several samples,
-separate each sample number by comma (e.g. sample1,sample2,sample3,sample4).</p></dd>
+separate each sample number by comma (e.g. sample1,sample2,sample3,sample4).
+(Default: NULL)</p></dd>
+
+
+<dt>cell.count.limit</dt>
+<dd><p>If total number of cell exceeds this limit conserve
+memory option of SCTransform will be used and return only Variable Genes.
+(Default: 35000)</p></dd>
+
+
+<dt>reduce.so</dt>
+<dd><p>Remove any additional assays from input Seurat Objects
+except for the original RNA Assay. This option should be used if input
+Seurat Object was created outside of the NIDAP pipeline. (Default: FALSE)</p></dd>
 
 
 <dt>project.name</dt>

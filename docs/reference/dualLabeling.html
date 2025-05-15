@@ -62,24 +62,23 @@ using manually set expression thresholds.</p>
 <span>  <span class="va">marker.2</span>,</span>
 <span>  marker.1.type <span class="op">=</span> <span class="st">"SCT"</span>,</span>
 <span>  marker.2.type <span class="op">=</span> <span class="st">"SCT"</span>,</span>
-<span>  data.reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
+<span>  data.reduction <span class="op">=</span> <span class="st">"both"</span>,</span>
 <span>  point.size <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  point.shape <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>  point.transparency <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  add.marker.thresholds <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  add.marker.thresholds <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  marker.1.threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  marker.2.threshold <span class="op">=</span> <span class="fl">0.5</span>,</span>
-<span>  filter.data <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  M1.filter.direction <span class="op">=</span> <span class="st">"greater than"</span>,</span>
-<span>  M2.filter.direction <span class="op">=</span> <span class="st">"greater than"</span>,</span>
+<span>  filter.data <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  marker.1.filter.direction <span class="op">=</span> <span class="st">"greater than"</span>,</span>
+<span>  marker.2.filter.direction <span class="op">=</span> <span class="st">"greater than"</span>,</span>
 <span>  apply.filter.1 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  apply.filter.2 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  filter.condition <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  parameter.name <span class="op">=</span> <span class="st">"Marker"</span>,</span>
-<span>  trim.marker.1 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  trim.marker.2 <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  parameter.name <span class="op">=</span> <span class="st">"My_CoExp"</span>,</span>
+<span>  trim.marker.1 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  trim.marker.2 <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  pre.scale.trim <span class="op">=</span> <span class="fl">0.99</span>,</span>
-<span>  density.heatmap <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  display.unscaled.values <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -114,7 +113,7 @@ using manually set expression thresholds.</p>
 
 <dt>data.reduction</dt>
 <dd><p>Dimension Reduction method to use for image. Options
-are "umap" or "tsne" (default is "umap")</p></dd>
+are umap, tsne, or both (default is "umap")</p></dd>
 
 
 <dt>point.size</dt>
@@ -146,13 +145,13 @@ are "umap" or "tsne" (default is "umap")</p></dd>
 marker thresholds are applied (default is TRUE)</p></dd>
 
 
-<dt>M1.filter.direction</dt>
+<dt>marker.1.filter.direction</dt>
 <dd><p>Annotate cells that have gene expression levels
 for marker 1 using the marker 1 threshold. Choices are "greater than"
 or "less than" (default is "greater than")</p></dd>
 
 
-<dt>M2.filter.direction</dt>
+<dt>marker.2.filter.direction</dt>
 <dd><p>Annotate cells that have gene expression levels
 for marker 2 using the marker 2 threshold. Choices are "greater than"
 or "less than" (default is "greater than")</p></dd>
@@ -173,28 +172,23 @@ intersection. If FALSE, apply both filters and take the union.</p></dd>
 
 <dt>parameter.name</dt>
 <dd><p>Name for metadata column for new marker filters
-(Default is "Marker")</p></dd>
+(Default is "My_CoExp")</p></dd>
 
 
 <dt>trim.marker.1</dt>
 <dd><p>Trim top and bottom percentile of marker 1 signal to
 pre-scale trim values (below) to remove extremely low and high values
-(Default is TRUE)</p></dd>
+(Default is FALSE)</p></dd>
 
 
 <dt>trim.marker.2</dt>
 <dd><p>Trim top and bottom percentile of marker 2 signal to
 pre-scale trim values (below) to remove extremely low and high values
-(Default is TRUE)</p></dd>
+(Default is FALSE)</p></dd>
 
 
 <dt>pre.scale.trim</dt>
 <dd><p>Set trimming percentile values (Defalut is 0.99)</p></dd>
-
-
-<dt>density.heatmap</dt>
-<dd><p>Creates a additional heatmap showing the density
-distribution of cells. (Default is FALSE)</p></dd>
 
 
 <dt>display.unscaled.values</dt>

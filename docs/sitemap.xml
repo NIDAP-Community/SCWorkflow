@@ -7,6 +7,9 @@
     <loc>/CHANGELOG.html</loc>
   </url>
   <url>
+    <loc>/LICENSE-text.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -76,6 +79,6 @@
     <loc>/reference/tSNE3D.html</loc>
   </url>
   <url>
-    <loc>/reference/violinPlot.html</loc>
+    <loc>/reference/violinPlot_mod.html</loc>
   </url>
 </urlset>
