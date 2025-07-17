@@ -1,4 +1,4 @@
-{% set version = '<CURRENT_VERSION>' %}
+{% set version = '1.0.2' %}
 
 {% set posix = 'm2-' if win else '' %}
 {% set native = 'm2w64-' if win else '' %}
@@ -12,10 +12,7 @@ channels:
   - bioconda
 
 source:
-
-  git_url: https://github.com/NIDAP-Community/SCWorkflow
-  git_tag: continuous_deployment
-
+  path: /rstudio-files/ccbr-data/users/RH/ccbr-projects/SCWorkflow_Pacakge_management/SC1_0_2_env_update/SCWorkflow
 build:
   merge_build_host: True  # [win]
   # If this is a new build for the same version, increment the build number.
@@ -149,7 +146,6 @@ requirements:
     - r-viridislite >=0.4.0
     - r-xfun >=0.32
     - r-zip >=2.2.0
-    - r-harmony >=1.1.0
 test:
   commands:
     # You can put additional test commands to be run here.
