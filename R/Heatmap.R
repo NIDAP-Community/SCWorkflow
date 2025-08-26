@@ -51,6 +51,7 @@ heatmapSC <- function(object,
                       sample.names,
                       metadata,
                       transcripts,
+                      use_assay = 'SCT',
                       proteins = NULL,
                       heatmap.color = "Bu Yl Rd",
                       plot.title = "Heatmap",
@@ -309,16 +310,27 @@ heatmapSC <- function(object,
   }
   
   
-  #collect transcript expression data from SCT slot
+  #collect transcript expression data from SCT / Harmony slot
   df.mat1 = NULL
   if (length(transcripts) > 0) {
     if (length(transcripts) == 1) {
-      df.mat1 <-
-        vector(mode = "numeric",
-               length = length(object$SCT@scale.data[transcripts,]))
-      df.mat1 <- object$SCT@scale.data[transcripts,]
+      if(use_assay == 'SCT'){
+        df.mat1 <-
+          vector(mode = "numeric",
+                 length = length(object$SCT@scale.data[transcripts,]))
+        df.mat1 <- object$SCT@scale.data[transcripts,]
+      } else if (use_assay == 'Harmony'){
+        df.mat1 <-
+          vector(mode = "numeric",
+                 length = length(object$Harmony@scale.data[transcripts,]))
+        df.mat1 <- object$Harmony@scale.data[transcripts,]
+        }
     } else {
-      df.mat1 <- as.matrix(object$SCT@scale.data[transcripts,])
+      if(use_assay == 'SCT'){
+        df.mat1 <- as.matrix(object$SCT@scale.data[transcripts,])
+      } else if (use_assay == 'Harmony'){
+        df.mat1 <- as.matrix(object$Harmony@scale.data[transcripts,])
+        }
     }
   }
   

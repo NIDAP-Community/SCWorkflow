@@ -60,7 +60,7 @@
 #'         distribution of cell marker gene, Seurat Object with cell 
 #'         classification metadata
 
-modScore <- function(object, marker.table, ms.threshold, 
+modScore <- function(object, marker.table, ms.threshold, use_assay = "SCT",
                      general.class, lvl.vec = c(), reduction = "tsne", 
                      nbins = 10, gradient.ft.size = 6, 
                      violin.ft.size = 6, step.size = 0.1) 
@@ -155,7 +155,8 @@ modScore <- function(object, marker.table, ms.threshold,
   # Calculate MS, make density plots
   for (celltype_name in names(marker.list)) {
     object = AddModuleScore(object, marker.list[celltype_name], 
-                            name = celltype_name, nbin = nbins, assay = "SCT")
+                            name = celltype_name, nbin = nbins, 
+                            assay = use_assay)
     m = paste0(celltype_name, "1")
     object@meta.data[[m]] <- scales::rescale(object@meta.data[[m]], 
                                              to = c(0, 1))
