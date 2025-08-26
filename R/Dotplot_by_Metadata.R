@@ -29,6 +29,7 @@ dotPlotMet <- function(object,
                        metadata,
                        cells,
                        markers,
+                       use_assay = "SCT",
                        plot.reverse = FALSE,
                        cell.reverse.sort = FALSE,
                        dot.color = "darkblue") {
@@ -113,7 +114,7 @@ dotPlotMet <- function(object,
   
   #Run Seurat Dotplot function
   dp <- DotPlot(object,
-                assay = "SCT",
+                assay = use_assay,
                 features = markers,
                 dot.scale = 4,
                 cols = c("lightgrey", dot.color)

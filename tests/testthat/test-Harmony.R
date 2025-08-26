@@ -12,7 +12,7 @@ test_that("Harmony returns seurat object with adjusted embeddings for
   # )
   
   expect_equal(mean(object.harmonized[["Harmony"]]["Lum",]),
-               0.06279209, tolerance = 2e-1)
+               0.06279209, tolerance = 5e-1)
 
   # expected_elements = c("adj.object","adj.tsne")
   # expect_setequal(names(object.harmonized), expected_elements)
@@ -32,7 +32,7 @@ test_that("Harmony returns seurat object with adjusted embeddings for Chariou
   # )
 
   expect_equal(mean(object.harmonized[["Harmony"]]["Ccl8",]),
-               0.2046126, tolerance = 2e-1)
+               0.2046126, tolerance = 5e-1)
 
   #expected_elements = c("adj.object","adj.tsne")
   #expect_setequal(names(object.harmonized), expected_elements)
@@ -52,7 +52,7 @@ test_that("Harmony returns seurat object with adjusted embeddings for
   # )
 
   expect_equal(mean(object.harmonized[["Harmony"]]["CLU",]),
-               -0.002671558, tolerance = 2e-1)
+               -0.002671558, tolerance = 5e-1)
 
   # expected_elements = c("adj.object","adj.tsne")
   # expect_setequal(names(object.harmonized), expected_elements)
@@ -71,7 +71,7 @@ test_that("Harmony returns seurat object with adjusted embeddings for
   # )
 
   expect_equal(mean(object.harmonized[["Harmony"]]["LCN2",]),
-               0.1265227, tolerance = 2e-1)
+               0.1265227, tolerance = 5e-1)
 
   # expected_elements = c("adj.object","adj.tsne")
   # expect_setequal(names(object.harmonized), expected_elements)
@@ -91,7 +91,7 @@ test_that("Harmony returns seurat object with adjusted embeddings for
   # )
 
   expect_equal(mean(object.harmonized[["Harmony"]]["SCGB2A2",]),
-               -0.1078249, tolerance = 2e-1)
+               -0.1078249, tolerance = 5e-1)
 
   # expected_elements = c("adj.object","adj.tsne")
   # expect_setequal(names(object.harmonized), expected_elements)

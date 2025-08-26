@@ -112,6 +112,7 @@ colorByGene <- function(object,
           p1 <- DimPlot(object.sub,
                         reduction = "tsne",
                         group.by = "ident")
+          colnames(p1$data) <- gsub("tsne_","tSNE_",colnames(p1$data))
           clus.mat = data.frame(
             umap1 = p1$data$tSNE_1,
             umap2 = p1$data$tSNE_2,
@@ -122,6 +123,7 @@ colorByGene <- function(object,
           p1 <- DimPlot(object.sub,
                         reduction = "umap",
                         group.by = "ident")
+          colnames(p1$data) <- gsub("umap_","UMAP_",colnames(p1$data))
           clus.mat = data.frame(
             umap1 = p1$data$UMAP_1,
             umap2 = p1$data$UMAP_2,
@@ -131,6 +133,7 @@ colorByGene <- function(object,
           p1 <- DimPlot(object.sub,
                         reduction = "pca",
                         group.by = "ident")
+          colnames(p1$data) <- gsub("pc_","PC_",colnames(p1$data))
           clus.mat = data.frame(
             umap1 = p1$data$PC_1,
             umap2 = p1$data$PC_2,
