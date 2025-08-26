@@ -9,6 +9,7 @@ heatmapSC(
   sample.names,
   metadata,
   transcripts,
+  use_assay = "SCT",
   proteins = NULL,
   heatmap.color = "Bu Yl Rd",
   plot.title = "Heatmap",

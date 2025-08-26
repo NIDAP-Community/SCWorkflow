@@ -8,6 +8,7 @@ modScore(
   object,
   marker.table,
   ms.threshold,
+  use_assay = "SCT",
   general.class,
   lvl.vec = c(),
   reduction = "tsne",
