@@ -46,9 +46,6 @@
     <loc>/reference/filterSeuratObjectByMetadata.html</loc>
   </url>
   <url>
-    <loc>/reference/harmonyBatchCorrect.html</loc>
-  </url>
-  <url>
     <loc>/reference/heatmapSC.html</loc>
   </url>
   <url>
@@ -59,6 +56,9 @@
   </url>
   <url>
     <loc>/reference/nameClusters.html</loc>
+  </url>
+  <url>
+    <loc>/reference/object.html</loc>
   </url>
   <url>
     <loc>/reference/palantir_api_call.html</loc>
