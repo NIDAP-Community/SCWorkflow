@@ -1,4 +1,6 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_tSNE3D.rds"
+    "object_output_rds": "SCWorkflowObject_tSNE3D.rds",
+    "color.variable": "TODO",
+    "label.variable": "TODO",
 }

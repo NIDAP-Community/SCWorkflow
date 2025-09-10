@@ -1,4 +1,11 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_violinPlot_mod.rds"
+    "object_output_rds": "SCWorkflowObject_violinPlot_mod.rds",
+    "assay": "TODO",
+    "slot": "TODO",
+    "genes": [
+        "TODO",
+        "TODO"
+    ],
+    "group": "TODO"
 }

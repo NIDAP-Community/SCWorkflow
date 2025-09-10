@@ -1,4 +1,9 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_colorByGene.rds"
+    "object_output_rds": "SCWorkflowObject_colorByGene.rds",
+    "samples.to.include": [
+        "TODO1",
+        "TODO2"
+    ],
+    "gene": "TODO"
 }

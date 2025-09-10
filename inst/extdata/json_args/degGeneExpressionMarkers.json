@@ -1,4 +1,6 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_degGeneExpressionMarkers.rds"
+    "object_output_rds": "SCWorkflowObject_degGeneExpressionMarkers.rds",
+    "samples": "TODO",
+    "contrasts": "TODO"
 }

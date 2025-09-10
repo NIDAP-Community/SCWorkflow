@@ -1,4 +1,5 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_reclusterFilteredSeuratObject.rds"
+    "object_output_rds": "SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "old.columns.to.save": null
 }

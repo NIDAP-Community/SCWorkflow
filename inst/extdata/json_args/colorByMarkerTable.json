@@ -1,4 +1,8 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_colorByMarkerTable.rds"
+    "object_output_rds": "SCWorkflowObject_colorByMarkerTable.rds",
+    "samples.subset": "TODO",
+    "samples.to.display": "TODO",
+    "marker.table": "TODO",
+    "cells.of.interest": "TODO"
 }

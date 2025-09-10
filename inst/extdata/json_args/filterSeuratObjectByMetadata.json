@@ -1,4 +1,8 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_filterSeuratObjectByMetadata.rds"
+    "object_output_rds": "SCWorkflowObject_filterSeuratObjectByMetadata.rds",
+    "samples.to.include": "TODO",
+    "sample.name": "TODO",
+    "category.to.filter": "TODO",
+    "values.to.filter": "TODO"
 }

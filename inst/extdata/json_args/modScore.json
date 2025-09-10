@@ -1,4 +1,7 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_modScore.rds"
+    "object_output_rds": "SCWorkflowObject_modScore.rds",
+    "marker.table": "TODO",
+    "ms.threshold": "TODO",
+    "general.class": "TODO"
 }

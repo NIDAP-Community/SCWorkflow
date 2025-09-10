@@ -1,4 +1,5 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_harmonyBatchCorrect.rds"
+    "object_output_rds": "SCWorkflowObject_harmonyBatchCorrect.rds",
+    "group.by.var": "TODO"
 }

@@ -1,4 +1,7 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_dualLabeling.rds"
+    "object_output_rds": "SCWorkflowObject_dualLabeling.rds",
+    "samples": "TODO",
+    "marker.1": "TODO",
+    "marker.2": "TODO"
 }

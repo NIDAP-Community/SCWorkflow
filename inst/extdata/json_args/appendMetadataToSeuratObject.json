@@ -1,4 +1,6 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_appendMetadataToSeuratObject.rds"
+    "object_output_rds": "SCWorkflowObject_appendMetadataToSeuratObject.rds",
+    "metadata.to.append": "TODO",
+    "sample.name.column": "Sample_Name"
 }

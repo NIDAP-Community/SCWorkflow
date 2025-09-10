@@ -1,4 +1,8 @@
 {
     "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_nameClusters.rds"
+    "object_output_rds": "SCWorkflowObject_nameClusters.rds",
+    "cluster.numbers": "TODO",
+    "cluster.names": "TODO",
+    "cluster.column": "TODO",
+    "labels.column": "TODO"
 }
