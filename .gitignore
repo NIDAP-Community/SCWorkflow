@@ -1,4 +1,4 @@
-# For SCWorkflow dev
+.DS_Store
 .nfs*
 *.png
 Rcheck.txt
