@@ -1,5 +1,7 @@
-# These functions were inspired by and adapted from renv:
+# These functions were first inspired by and adapted from renv:
 #   https://github.com/rstudio/renv/blob/d0eb86349d35679eb6920ca59072bd7369fe620f/R/cli.R
+# and implemented in MOSuite:
+#   https://github.com/CCBR/MOSuite/blob/671da78ab50f8cb4b5738bda4f62142e7d9eca36/R/cli.R
 
 #' Execute SCWorkflow from the CLI
 #'
@@ -13,7 +15,7 @@ cli_exec_impl <- function(clargs) {
   # check for tool called without arguments, or called with '--help'
   usage <-
     length(clargs) == 0 ||
-      clargs[1L] %in% c("help", "--help")
+    clargs[1L] %in% c("help", "--help")
 
   if (usage) {
     return(cli_usage())
@@ -39,10 +41,13 @@ cli_exec_impl <- function(clargs) {
   # begin building call
   # if --json in arguments, call cli_from_json()
   if (any(stringr::str_detect(clargs, "^--json"))) {
-    args <- list(call(":::", as.symbol("SCWorkflow"), as.symbol("cli_from_json")),
-      method = method
-    )
-  } else { # otherwise call the method directly
+    args <- list(call(
+      ":::",
+      as.symbol("SCWorkflow"),
+      as.symbol("cli_from_json")
+    ), method = method)
+  } else {
+    # otherwise call the method directly
     args <- list(call("::", as.symbol("SCWorkflow"), as.symbol(method)))
   }
 
@@ -156,7 +161,10 @@ cli_parse <- function(text) {
 
   # parse the expression
   value <- parse(text = text)[[1L]]
-  if (is.language(value)) text else value
+  if (is.language(value))
+    text
+  else
+    value
 }
 
 #' Call an SCWorkflow function with arguments specified in a json file
@@ -181,16 +189,22 @@ cli_from_json <- function(method, json, debug = FALSE) {
   # if needed, get object from object_input_rds
   accepted_args <- formals(method, envir = getNamespace("SCWorkflow"))
   first_arg <- names(formals(method, envir = getNamespace("SCWorkflow")))[1]
-  if (stringr::str_detect(first_arg, "^object$")) {
-    assertthat::assert_that("object_input_rds" %in% names(json_args),
-      msg = glue::glue("object_input_rds must be included in the JSON because `object` is required for {method}()")
+  if (stringr::str_detect(first_arg, glue::glue("^object$"))) {
+    assertthat::assert_that(
+      "object_input_rds" %in% names(json_args),
+      msg = glue::glue(
+        "object_input_rds must be included in the JSON because `object` is required for {method}()"
+      )
     )
-    # most SCWorkflow functions return a list containing an "object" element plus a list of plots
-    # here we extract only the object to pass to the next function
-    fcn_args[[first_arg]] <- readr::read_rds(json_args[["object_input_rds"]])[["object"]]
+    # most SCWorkflow functions return a list containing an "object" element plus a list of plots or other output.
+    # here we extract only the "object" element to pass as the first argument to this function.
+    object_list <- readr::read_rds(json_args[["object_input_rds"]])
+    if (!("object" %in% names(object_list))) {
+      stop('Expected `object_input_rds` to contain an element with the name "object".')
+    }
+    fcn_args[[first_arg]] <- object_list[["object"]]
   }
   # all other json keys should be arguments for the method
-  # TODO convert lists to vectors
   fcn_args <- c(fcn_args, json_args[!stringr::str_detect(names(json_args), "object_.*_rds")])
 
   # invoke method with parsed arguments from json
