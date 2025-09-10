@@ -1,0 +1,13 @@
+{
+    "input": [
+        "chariou/h5files/SCAF1713_1_1_filtered_feature_bc_matrix.h5",
+        "chariou/h5files/SCAF1714_2_1_filtered_feature_bc_matrix.h5",
+        "chariou/h5files/SCAF1715_3_1_filtered_feature_bc_matrix.h5",
+        "chariou/h5files/SCAF1716_4_1_filtered_feature_bc_matrix.h5",
+        "chariou/h5files/SCAF1717_5_1_filtered_feature_bc_matrix.h5"
+    ],
+    "organism": "Human",
+    "sample.metadata.table": "chariou/Chariou_metadata.txt",
+    "sample.name.column": "Sample_Name",
+    "object_output_rds": "SCWorkflow_processRawData.rds"
+}

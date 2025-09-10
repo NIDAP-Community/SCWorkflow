@@ -185,7 +185,9 @@ cli_from_json <- function(method, json, debug = FALSE) {
     assertthat::assert_that("object_input_rds" %in% names(json_args),
       msg = glue::glue("object_input_rds must be included in the JSON because `object` is required for {method}()")
     )
-    fcn_args[[first_arg]] <- readr::read_rds(json_args[["object_input_rds"]])
+    # most SCWorkflow functions return a list containing an "object" element plus a list of plots
+    # here we extract only the object to pass to the next function
+    fcn_args[[first_arg]] <- readr::read_rds(json_args[["object_input_rds"]])[["object"]]
   }
   # all other json keys should be arguments for the method
   # TODO convert lists to vectors
