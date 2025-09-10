@@ -51,9 +51,9 @@
 #' @return Seurat Object and QC plots
 
 processRawData <- function(input,
+                           organism,
                            sample.metadata.table=NULL,
                            sample.name.column=NULL,
-                           organism,
                            rename.col=NULL,
                            keep=T,
                            file.filter.regex=c(),
@@ -62,7 +62,8 @@ processRawData <- function(input,
                            do.normalize.data=T                
 ){          
   
-  
+ message("HELOOOOOOOOOOO")
+ message(class(input))
   ## --------- ##
   ## Functions ####
   ## --------- ##
@@ -347,7 +348,10 @@ processRawData <- function(input,
   ### Process files h5, rds ####
   
   ### Create SO object depending on class of input SOs. 
-  if(class(input)=='RFilePaths'){
+
+  if( any(sapply(c('RFilePaths'), \(x) inherits(input, x)))) {
+  #class(input)=='RFilePaths')
+  
     print(paste0('File Type: ',class(input)))
     input.dat <- input$value[grepl("*h5$",input$value)]
     input.tcr <- input$value[grepl("*csv$",input$value)]
@@ -357,6 +361,15 @@ processRawData <- function(input,
     tcr.list = lapply(input.tcr, 
                       function(x){return(read.csv(x, header = T))})
     
+  }else if( any(sapply(c('list'), \(x) inherits(input, x)))){
+    input.dat <- input[grepl("*h5$",input)]
+    input.tcr <- input[grepl("*csv$",input)]
+    
+    obj.list = lapply(input.dat, 
+                      function(x){ return(Read10X_h5(x, use.names=TRUE)) })
+    tcr.list = lapply(input.tcr, 
+                      function(x){return(read.csv(x, header = T))})
+
   }else if(class(input)=='FoundryTransformInput'){
     print(paste0('File Type: ',class(input)))
     
@@ -546,7 +559,13 @@ processRawData <- function(input,
                     collapse = "\n"
                   ),
                   "
-                  in Metadata table"
+                  in Metadata table.\n",
+                  "H5 files are: ",
+                   paste(
+                    paste0("'",names(so.orig.nf),"'" ),
+                    sep="",
+                    collapse = "\n"
+                  )
       ))
     }
   } else { print("No Metadata provided")}

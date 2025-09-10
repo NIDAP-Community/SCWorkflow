@@ -2,6 +2,8 @@
 
 export(annotateCellTypes)
 export(appendMetadataToSeuratObject)
+export(cli_exec)
+export(cli_from_json)
 export(colorByGene)
 export(colorByMarkerTable)
 export(combineNormalize)

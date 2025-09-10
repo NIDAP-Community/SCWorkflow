@@ -1,7 +1,7 @@
 Package: SCWorkflow
 Title: SCWorkflow from NIDAP
 Version: 1.0.2
-Authors@R:  c(person("Maggie", "Cam", email = "maggie.cam@nih.gov", role = "aut", comment = c(ORCID = "0000-0001-8190-9766")), 
+Authors@R: c(person("Maggie", "Cam", email = "maggie.cam@nih.gov", role = "aut", comment = c(ORCID = "0000-0001-8190-9766")), 
     person("Thomas", "Meyer", email = "thomas.meyer@nih.gov", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-7185-5597")), 
     person("Jing", "Bian", email = "bianjh@nih.gov", role = "aut", comment = c(ORCID = "0000-0001-7109-716X")), 
     person("Alexandra", "Michalowski", email = "michaloa@mail.nih.gov", role = "aut", comment = c(ORCID = "0000-0001-9259-6101")),
@@ -18,7 +18,7 @@ Description: A set of functions for analyzing single-cell RNA-seq data using the
 License: MIT
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)
 Depends:
@@ -86,4 +86,5 @@ Imports:
     tidyr,
     htmlwidgets,
     scDblFinder
+biocViews:
 Config/testthat/edition: 3
