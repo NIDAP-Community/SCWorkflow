@@ -1,0 +1,6 @@
+"Sample_Name"	"Rename"
+"SCAF1713_1_1"	"PBS"
+"SCAF1714_2_1"	"ENT"
+"SCAF1715_3_1"	"NHSIL12"
+"SCAF1716_4_1"	"Combo"
+"SCAF1717_5_1"	"CD8dep"
