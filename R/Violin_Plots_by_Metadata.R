@@ -53,8 +53,8 @@ violinPlot_mod <- function (object,
                             filter_outliers = F,
                             outlier_low = 0.05,
                             outlier_high = 0.95,
-                            jitter_points, 
-                            jitter_dot_size) 
+                            jitter_points = TRUE, 
+                            jitter_dot_size = 1) 
 {
   library(Seurat)
   library(ggplot2)

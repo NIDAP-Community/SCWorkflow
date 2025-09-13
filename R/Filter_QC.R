@@ -77,12 +77,12 @@
 #' Usage c(lower limit, Upper Limit). E.g. setting to c(5,5) will remove all 
 #' cells with more than 5 absolute deviations greater than or 5 absolute 
 #' deviations less than the median percentage. (Default: c(5,5))
-#' @param n.topgnes Select the number of top highly expressed genes used to 
+#' @param n.topgenes Select the number of top highly expressed genes used to 
 #' calculate the percentage of reads found in these genes. 
 #' E.g. a value of 20 calculates the percentage of reads found in the top 20 
 #' most highly expressed Genes.
 #' (Default: 20)
-#' @param do.doublets.fitler Use scDblFinder to identify and remove doublet 
+#' @param do.doublets.filter Use scDblFinder to identify and remove doublet 
 #' cells. Doublets are defined as two cells that are sequenced under the same 
 #' cellular barcode, for example, if they were captured in the same droplet.
 #' (Default: TRUE)
@@ -118,9 +118,9 @@ filterQC <- function(object,
                      mad.complexity.limits = c(5,NA),
                      topNgenes.limits = c(NA,NA),
                      mad.topNgenes.limits = c(5,5),
-                     n.topgnes=20,
-                     do.doublets.fitler=T,
-                     
+                     n.topgenes=20,
+                     do.doublets.filter=T,
+
                      ## dim Reduction settings
                      plot.outliers="FALSE",
                      group.column = NA,
@@ -152,7 +152,7 @@ filterQC <- function(object,
   
   ### Helper Functions #####
   
-  .perCountsTop20Genes <- function(so,n.topgnes) {
+  .perCountsTop20Genes <- function(so,n.topgenes) {
     ##Extract counts table
     counts_matrix = GetAssayData(so, slot="counts")
     
@@ -160,7 +160,7 @@ filterQC <- function(object,
     tbl=  apply(counts_matrix,2,function(i){
       cnts=i[order(i,decreasing=T)]
       
-      t20=sum(cnts[1:n.topgnes])
+      t20=sum(cnts[1:n.topgenes])
       total=sum(cnts)
       
       pertop20=(t20/total)*100
@@ -415,7 +415,7 @@ filterQC <- function(object,
     # CreateSeuratObject also calcs nfeature and nCounts. Testing showed that 
     # nfeature and nCounts calculations are not effected by min.cells when using 
     # CreateSeuratObject
-    
+
     gene.cell.count=apply(so@assays$RNA@counts,1,function(x){sum(x>0)})
     so=subset(so, features=names(gene.cell.count)[(gene.cell.count>=min.cells)])
     
@@ -424,7 +424,7 @@ filterQC <- function(object,
     ## Caluclate filter Metrics
     
     ## calculate Counts in top 20 Genes
-    so=.perCountsTop20Genes(so,n.topgnes)
+    so=.perCountsTop20Genes(so,n.topgenes)
     
     ## Counts(umi) Filter 
     mad.ncounts.limits=.madCalc(so,'nCount_RNA',mad.ncounts.limits)
@@ -494,7 +494,7 @@ filterQC <- function(object,
     )    
     
     ## doublets Filter
-    if(do.doublets.fitler==T){
+    if(do.doublets.filter==T){
       doublets.fitler <- so@meta.data$Doublet%in%"singlet"
     }else{
       doublets.fitler=rep(TRUE,nrow(so@meta.data))
@@ -519,10 +519,9 @@ filterQC <- function(object,
                            top20.filter,
                            doublets.fitler)
     rownames(filter_matrix)=rownames(so@meta.data)
-    
+
     so.nf=AddMetaData(so.nf,filter_matrix,colnames(filter_matrix))
-    
-    
+
     ## print Filter resutls
     cat("\n\n")
     cat(i,":\n")
@@ -547,10 +546,10 @@ filterQC <- function(object,
         mad.mitoch.limits,'\n')
     cat('Cell Complexity limits: ',complexity.limits,'\n')
     cat('MAD Cell Complexity limits: ',mad.complexity.limits,'\n')
-    cat('percent counts in top ',n.topgnes,' genes: ',topNgenes.limits,'\n')
-    cat('MAD percent counts in top' ,n.topgnes,' genes: ',
+    cat('percent counts in top ',n.topgenes,' genes: ',topNgenes.limits,'\n')
+    cat('MAD percent counts in top' ,n.topgenes,' genes: ',
         mad.topNgenes.limits,'\n')
-    cat('Doublets Filter: ',do.doublets.fitler,'\n')
+    cat('Doublets Filter: ',do.doublets.filter,'\n')
     
     
     
@@ -559,7 +558,7 @@ filterQC <- function(object,
     so <- subset(so, cells = 
                    rownames(filterIndex[which(filterIndex[,1]==T), ,drop=F])
     )
-    
+
     ## Select filters that remove cells
     filter_matrix=
       filter_matrix[,is.na(apply(
@@ -595,18 +594,19 @@ filterQC <- function(object,
   ## make sure that plot.outliers is character not boolean 
   plot.outliers =as.character(plot.outliers)
   
+
   ## Caluclate filter Metrics
   so.nf.list=lapply(names(object), function(i){
     so=object[[i]]
     
     ## calculate Counts in top 20 Genes
     ##calculated after min.cell filter as well
-    so=.perCountsTop20Genes(so,n.topgnes)
+    so=.perCountsTop20Genes(so,n.topgenes)
     
     ## Annotate Doublets: ####
     ## Gene filter does not effect doublet ident and so not recalculated
     
-    if( do.doublets.fitler==T){
+    if( do.doublets.filter==T){
       sce <- as.SingleCellExperiment(so)
       set.seed(123)
       sce.dbl <- scDblFinder(sce)%>%suppressWarnings()

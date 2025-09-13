@@ -323,9 +323,9 @@ plotMetadata <- function(#Basic Parameters:
       clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1),
                                                  umap2.mean = mean(umap2)) -> umap.pos
       title = as.character(m)
-      print(environmentName(environment(arrange)))
+      #print(environmentName(environment(arrange)))
       clusmat %>% dplyr::arrange(clusid) -> clusmat
-      print(environmentName(environment(arrange)))
+      #print(environmentName(environment(arrange)))
       g <- ggplot(clusmat, aes(x = umap1, y = umap2)) +
         theme_bw() +
         theme(legend.title = element_blank()) +
@@ -358,7 +358,12 @@ plotMetadata <- function(#Basic Parameters:
     summarize.cut.off <- min(summarization.cut.off, 20)
     
     # checking for samples included:
+    if(any(grepl('c\\(|\\[\\]',samples.to.include))) {
     samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+    }else{
+      samples=samples.to.include
+    }
+
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
       samples = unique(object@meta.data$sample_name)
@@ -408,9 +413,15 @@ plotMetadata <- function(#Basic Parameters:
     
     # converting dots to underscores in column names:
     colnames(object.sub@meta.data) = gsub("\\.", "_", colnames(object.sub@meta.data))
-    
+    metadata.to.plot=gsub("\\.", "_", metadata.to.plot)
+
     # checking metadata for sanity
+    if(any(grepl('c\\(|\\[\\]',metadata.to.plot))) {
     m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
+    }else{
+      m=metadata.to.plot
+    }
+
     m = m[!grepl("Barcode", m)]
     if (length(m) == 0) {
       print("No metadata columns specified.
@@ -430,8 +441,12 @@ plotMetadata <- function(#Basic Parameters:
     }
     
     # Checking for content of "Columns to Summarize"
-    cols.to.summarize <-
-      eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
+    if(any(grepl('c\\(|\\[\\]',columns.to.summarize))) {
+    cols.to.summarize = eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
+    }else{
+      cols.to.summarize=columns.to.summarize
+    }
+
     m = unique(c(m, cols.to.summarize))
     
     if (length(cols.to.summarize) > 0) {
@@ -440,7 +455,7 @@ plotMetadata <- function(#Basic Parameters:
         col <- meta.df[[i]]
         val.count <- length(unique(col))
         
-        if ((val.count >= summarizeCutOff) &
+        if ((val.count >= summarize.cut.off) &
             (i != 'Barcode') &
             (!is.element(class(meta.df[[i]][1]), c("numeric", "integer")))) {
           freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarize.cut.off]

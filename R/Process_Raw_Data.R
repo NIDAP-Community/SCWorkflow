@@ -62,8 +62,6 @@ processRawData <- function(input,
                            do.normalize.data=T                
 ){          
   
- message("HELOOOOOOOOOOO")
- message(class(input))
   ## --------- ##
   ## Functions ####
   ## --------- ##
@@ -349,10 +347,10 @@ processRawData <- function(input,
   
   ### Create SO object depending on class of input SOs. 
 
+    print(paste0('File Type: ',class(input)))
   if( any(sapply(c('RFilePaths'), \(x) inherits(input, x)))) {
   #class(input)=='RFilePaths')
   
-    print(paste0('File Type: ',class(input)))
     input.dat <- input$value[grepl("*h5$",input$value)]
     input.tcr <- input$value[grepl("*csv$",input$value)]
     
@@ -371,7 +369,6 @@ processRawData <- function(input,
                       function(x){return(read.csv(x, header = T))})
 
   }else if(class(input)=='FoundryTransformInput'){
-    print(paste0('File Type: ',class(input)))
     
     input.dat=nidapGetFiles(input,'*h5$')
     input.tcr=nidapGetFiles(input,'*csv$')
@@ -525,7 +522,7 @@ processRawData <- function(input,
   }else{
     print('Did not run Normalization, Input data is already Log Normalized')
   }   
-  
+
   ### Calculate metrics ####
   so.orig.nf <- lapply(seq_along(so.orig.nf), .calcMetrics)
   names(so.orig.nf)=sample.names
@@ -596,7 +593,7 @@ processRawData <- function(input,
     names(so.orig.nf)=sample.names
   }
   
-  
+
   
   
   ### Rename Samples ####
@@ -781,8 +778,9 @@ processRawData <- function(input,
                                             face = "bold", size = 14))
   
   
-  
   ### Output
+      print('Finished Process Raw Data')
+
   return(
     list(
       object=so.orig.nf,
@@ -794,7 +792,7 @@ processRawData <- function(input,
       )
     )
   )
-  
+
 }
 
 

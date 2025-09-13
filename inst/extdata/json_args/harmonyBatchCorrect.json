@@ -1,5 +1,5 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_harmonyBatchCorrect.rds",
-    "group.by.var": "TODO"
+    "object_input_rds": "../../../SCWorkflowObject_appendMetadataToSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_harmonyBatchCorrect.rds",
+    "group.by.var": "orig.ident"
 }

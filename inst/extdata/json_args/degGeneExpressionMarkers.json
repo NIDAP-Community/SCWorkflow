@@ -1,6 +1,6 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_degGeneExpressionMarkers.rds",
-    "samples": "TODO",
-    "contrasts": "TODO"
+    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_degGeneExpressionMarkers.rds",
+    "samples": ["CD8dep","NHSIL12"],
+    "contrasts": "CD8dep-NHSIL12"
 }

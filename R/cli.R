@@ -105,26 +105,27 @@ Additionally, the JSON file can contain the following keys:
 Use `scworkflow [function] --help` for more information about the associated function.
 
 Main functions:
-  scworkflow tSNE3D
+  scworkflow processRawData
+  scworkflow filterQC
+  scworkflow combineNormalize
   scworkflow annotateCellTypes
   scworkflow appendMetadataToSeuratObject
-  scworkflow colorByGene
-  scworkflow colorByMarkerTable
-  scworkflow diff_countscombineNormalize
-  scworkflow combineNormalize
-  scworkflow dotPlotMet
-  scworkflow dualLabeling
-  scworkflow filterQC
   scworkflow filterSeuratObjectByMetadata
-  scworkflow harmonyBatchCorrect
-  scworkflow heatmapSC
-  scworkflow modScore
-  scworkflow nameClusters
-  scworkflow plotMetadata
-  scworkflow processRawData
   scworkflow reclusterFilteredSeuratObject
   scworkflow reclusterSeuratObject
+  scworkflow degGeneExpressionMarkers
+  scworkflow modScore
+  scworkflow nameClusters
+  scworkflow colorByGene
+  scworkflow colorByMarkerTable
+  scworkflow plotMetadata
+  scworkflow dotPlotMet
   scworkflow violinPlot_mod
+  scworkflow heatmapSC
+  scworkflow tSNE3D
+  scworkflow dualLabeling
+
+  scworkflow harmonyBatchCorrect
 "
   writeLines(usage, con = con)
 }
@@ -182,6 +183,7 @@ cli_parse <- function(text) {
 #'
 cli_from_json <- function(method, json, debug = FALSE) {
   # begin building function call
+  print(message(paste0("Building function call for SCWorkflow: ", method)))
   fcn_args <- list(call("::", as.symbol("SCWorkflow"), as.symbol(method)))
   # get function arguments from json
   json_args <- jsonlite::read_json(json)
@@ -189,6 +191,8 @@ cli_from_json <- function(method, json, debug = FALSE) {
   # if needed, get object from object_input_rds
   accepted_args <- formals(method, envir = getNamespace("SCWorkflow"))
   first_arg <- names(formals(method, envir = getNamespace("SCWorkflow")))[1]
+
+
   if (stringr::str_detect(first_arg, glue::glue("^object$"))) {
     assertthat::assert_that(
       "object_input_rds" %in% names(json_args),
@@ -199,16 +203,38 @@ cli_from_json <- function(method, json, debug = FALSE) {
     # most SCWorkflow functions return a list containing an "object" element plus a list of plots or other output.
     # here we extract only the "object" element to pass as the first argument to this function.
     object_list <- readr::read_rds(json_args[["object_input_rds"]])
-    if (!("object" %in% names(object_list))) {
-      stop('Expected `object_input_rds` to contain an element with the name "object".')
+    print(paste0("Input List Names: ",paste(names(object_list), collapse = ", ")))
+
+    if (!(any(grepl("object|Object", names(object_list))))) {
+      message('Expected `object_input_rds` to contain an element with the name "object".')
+      object_list[["object"]] <- object_list
     }
     fcn_args[[first_arg]] <- object_list[["object"]]
   }
+
+  ## If any arguments end in .txt, read them in as tables
+  ## This is a bit hacky, but allows us to pass tables as arguments via json
+  ## Adding logic to unlist parameters that should be vectors ( such as sample names)
+  
+  for(x in names(json_args)){
+    if(any(stringr::str_detect(json_args[[x]], glue::glue(".txt$")))){
+      json_args[[x]]=read.delim(json_args[[x]])
+    }else if(any(stringr::str_detect(json_args[[x]], glue::glue(".csv$")))){  
+      json_args[[x]]=read.delim(json_args[[x]], sep=",")
+    }
+    if(class(json_args[[x]])=='list'){
+      json_args[[x]] <- unlist(json_args[[x]])
+    }
+  }
+
   # all other json keys should be arguments for the method
   fcn_args <- c(fcn_args, json_args[!stringr::str_detect(names(json_args), "object_.*_rds")])
 
   # invoke method with parsed arguments from json
   expr <- as.call(fcn_args)
+    message("Finished processing JSON: ")
+    print(fcn_args)
+
   if (isFALSE(debug)) {
     result <- eval(expr = expr, envir = globalenv())
 

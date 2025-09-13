@@ -1,9 +1,8 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_colorByGene.rds",
+    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_colorByGene.rds",
     "samples.to.include": [
-        "TODO1",
-        "TODO2"
+        "CD8dep","NHSIL12"
     ],
-    "gene": "TODO"
+    "gene": "Cxcl3"
 }

@@ -34,12 +34,11 @@ appendMetadataToSeuratObject <- function(object,
   ## --------------- ##
   ## Main Code Block ##
   ## --------------- ##
-  
+
   ## Get the columns of input sample metadata table you want.
   rownames(metadata.to.append) <- metadata.to.append[[sample.name.column]]
   metacols <- colnames(metadata.to.append)
   metacols <- metacols[metacols != sample.name.column]
-  
   
   ## Check if sample number is same input SOs and metadata table.
 
@@ -70,12 +69,16 @@ appendMetadataToSeuratObject <- function(object,
          of samples as you have Seurat objects.")
   }
     
+    # Preserve rownames before merge
+    original_rownames <- rownames(object@meta.data)
     object@meta.data=merge(object@meta.data,metadata.to.append,
                            by.x='orig.ident',
                            by.y=sample.name.column,
                            all.x=T)
+    # Restore original rownames
+    rownames(object@meta.data) <- original_rownames
 
-    if(sum(metacols%in%colnames(object@meta.data))==length(metacols)){
+    if(sum(metacols%in%colnames(object@meta.data))!=length(metacols)){
       stop(
         cat("ERROR: Not all Metadata was added to Seurat Object. Make sure that 
             metadata column names are not named: \n",

@@ -1,4 +1,4 @@
 {
-    "object_input_rds": "SCWorkflow_processRawData.rds",
-    "object_output_rds": "SCWorkflowObject_filterQC.rds"
+    "object_input_rds": "../../../SCWorkflow_processRawData.rds",
+    "object_output_rds": "../../../SCWorkflowObject_filterQC.rds"
 }

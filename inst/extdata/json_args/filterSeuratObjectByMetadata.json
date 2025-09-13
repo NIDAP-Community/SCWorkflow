@@ -1,8 +1,8 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_filterSeuratObjectByMetadata.rds",
-    "samples.to.include": "TODO",
-    "sample.name": "TODO",
-    "category.to.filter": "TODO",
-    "values.to.filter": "TODO"
+    "object_input_rds": "../../../SCWorkflowObject_appendMetadataToSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_filterSeuratObjectByMetadata.rds",
+    "samples.to.include": ["CD8dep","NHSIL12"],
+    "sample.name": "orig.ident",
+    "category.to.filter": "immgen_main",
+    "values.to.filter": "Macrophages"
 }

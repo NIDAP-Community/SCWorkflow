@@ -1,7 +1,7 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_plotMetadata.rds",
-    "samples.to.include": "TODO",
-    "metadata.to.plot": "TODO",
-    "columns.to.summarize": ""
+    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_plotMetadata.rds",
+    "samples.to.include": ["CD8dep","NHSIL12"],
+    "metadata.to.plot": ["orig.ident","pct_counts_in_top_20_genes"],
+    "columns.to.summarize": null
 }

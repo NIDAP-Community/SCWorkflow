@@ -1,11 +1,8 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_violinPlot_mod.rds",
-    "assay": "TODO",
-    "slot": "TODO",
-    "genes": [
-        "TODO",
-        "TODO"
-    ],
-    "group": "TODO"
+    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_violinPlot_mod.rds",
+    "assay": "SCT",
+    "slot": "scale.data",
+    "genes": ["Il1b","Cxcr3"],
+    "group": "orig.ident"
 }

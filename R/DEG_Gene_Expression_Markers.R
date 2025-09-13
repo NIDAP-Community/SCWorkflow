@@ -106,8 +106,13 @@ degGeneExpressionMarkers <- function(object,
   
   # Getting metadata and checking sample names:
   metadata.table <- object@meta.data
-  samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
   
+  if(any(grepl('c\\(|\\[\\]',samples))) {
+    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
+  }else{
+    samples=samples
+  }
+
   if (length(samples) == 0) {
     samples = unique(object@meta.data$sample_name)
   }

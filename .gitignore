@@ -5,4 +5,4 @@ Rcheck.txt
 *.pdf
 tests/testthat/otherData/
 .Rproj.user
-*.txt
+

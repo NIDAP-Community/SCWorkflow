@@ -1,7 +1,7 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_dotPlotMet.rds",
-    "metadata": "TODO",
-    "cells": "TODO",
-    "markers": "TODO"
+    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_dotPlotMet.rds",
+    "metadata": "orig.ident",
+    "cells": ["CD8dep","NHSIL12"],
+    "markers": ["Il1b","Cxcr3"]
 }

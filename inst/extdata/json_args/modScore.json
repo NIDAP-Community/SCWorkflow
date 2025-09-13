@@ -1,7 +1,11 @@
 {
-    "object_input_rds": "SCWorkflow_INPUT.rds",
-    "object_output_rds": "SCWorkflowObject_modScore.rds",
-    "marker.table": "TODO",
-    "ms.threshold": "TODO",
-    "general.class": "TODO"
+    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "../../../SCWorkflowObject_modScore.rds",
+    "marker.table": "../../tests/testthat/fixtures/Marker_Table_demo.csv",
+    "ms.threshold": ["CD8_T 0","CD4_T 0","Tregs 0","Macrophages 0",
+                     "M1 0","M2 0","Neutrophils 0","Monocytes 0",
+                     "cDCs 0","pDC 0","B_cells 0","NKs 0"],
+    "general.class": ["CD8_T","CD4_T","Tregs","Macrophages","M1",
+                      "M2","Neutrophils","Monocytes","cDCs","pDC",
+                      "B_cells","NKs"]
 }
