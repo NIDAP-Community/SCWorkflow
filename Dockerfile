@@ -28,31 +28,7 @@ RUN conda config --add channels conda-forge \
 # install conda packages
 RUN mamba install -y -c conda-forge \
     r-base=${R_VERSION} \
-    r-devtools r-testthat \
-    r-anndata \
-    r-callr r-colorspace r-cowplot \
-    r-data.table r-dendextend r-dendsort r-digest r-dplyr \
-    r-future r-future.apply \
-    r-gargle r-gdata r-ggExtra r-ggplot2 r-ggpubr r-ggrepel r-globals r-glue r-gridBase r-gridExtra r-gtable \
-    r-harmony r-hdf5r r-htmlwidgets r-httpuv r-httr \
-    r-jsonlite \
-    r-leiden \
-    r-magrittr r-markdown \
-    r-pheatmap r-plotly r-plyr r-png r-progressr r-pryr r-purrr \
-    r-quantmod \
-    r-RColorBrewer r-reshape2 r-reticulate r-rlang \
-    r-scales r-Seurat r-statmod r-stringr r-svglite \
-    r-tibble r-tidyr r-tidyverse \
-    r-viridisLite \
-    r-xfun \
-    r-zip \
-    bioconductor-celldex bioconductor-ComplexHeatmap \
-    bioconductor-edger \
-    bioconductor-limma \
-    bioconductor-MAST \
-    bioconductor-scDblFinder bioconductor-SingleR \
-    bioconductor-genomicranges \
-    bioconductor-summarizedexperiment \
+    r-devtools \
   && conda clean -afy
 
 # install R package
