@@ -28,17 +28,30 @@ RUN conda config --add channels conda-forge \
 # install conda packages
 RUN mamba install -y -c conda-forge \
     r-base=${R_VERSION} \
-    r-devtools \
-    r-ggplot2 \
-    r-ggrepel r-viridis r-upsetr r-patchwork r-plotly \
-    r-matrix r-mgcv r-survival \
+    r-devtools r-testthat \
+    r-anndata \
+    r-callr r-colorspace r-cowplot \
+    r-data.table r-dendextend r-dendsort r-digest r-dplyr \
+    r-future r-future.apply \
+    r-gargle r-gdata r-ggExtra r-ggplot2 r-ggpubr r-ggrepel r-globals r-glue r-gridBase r-gridExtra r-gtable \
+    r-harmony r-hdf5r r-htmlwidgets r-httpuv r-httr \
+    r-jsonlite \
+    r-leiden \
+    r-magrittr r-markdown r-MAST r-methods \
+    r-pheatmap r-plotly r-plyr r-png r-progressr r-pryr r-purrr \
+    r-quantmod \
+    r-RColorBrewer r-reshape2 r-reticulate r-rlang \
+    r-scales r-Seurat r-statmod r-stringr r-svglite \
+    r-tibble r-tidyr r-tidyverse \
+    r-viridisLite \
+    r-xfun \
+    r-zip \
+    bioconductor-celldex bioconductor-ComplexHeatmap \
+    bioconductor-edger \
+    bioconductor-limma \
+    bioconductor-scDblFinder bioconductor-SingleR \
     bioconductor-genomicranges \
     bioconductor-summarizedexperiment \
-    bioconductor-delayedarray \
-    bioconductor-s4arrays \
-    bioconductor-annotationdbi \
-    bioconductor-annotate \
-    bioconductor-keggrest \
   && conda clean -afy
 
 # install R package
@@ -51,7 +64,7 @@ ENV PATH="$PATH:/opt2/conda/lib/R/library/SCWorkflow/exec"
 RUN scworkflow --help
 
 # copy example script & json to data
-COPY ./inst/extdata/example_script.sh /data2/
+COPY ./inst/extdata/TestRunjson.sh /data2/
 COPY ./inst/extdata/json_args/ /data2/json_args/
 
 # Save Dockerfile in the docker
