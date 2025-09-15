@@ -1,0 +1,322 @@
+{
+	"codeTemplate": "Heatmap_CellTypes <- function({{{Seurat_Object}}}, {{{Sample_Names_Table}}},{{{Metadata_Table}}}) {\n    # image: png\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(c(\"SCWorkflow\",\"dplyr\",\"Seurat\"))\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n    \n    #Primary Inputs:\n    seurat_object <- {{{Seurat_Object}}}\n    metadata_table <- {{{Metadata_Table}}}\n    sample_names <- {{{Sample_Names}}}\n\n    #Basic Paramters:\n    transcripts = {{{Transcripts}}}\n    proteins = {{{Proteins}}}\n\n    #Annotation Parameters:\n    metadata_to_plot <- {{{Metadata_to_Plot}}}\n    add_gene_or_protein_annotation_tracks <- {{{Add_Gene_or_Protein_Annotation_Tracks}}}\n    rna_annotations = {{{RNA_Annotations}}}\n    protein_annotations = {{{Protein_Annotations}}}\n    arrange_by_metadata_annotations <- {{{Arrange_by_Metadata_Annotations}}}\n    \n    #Visualization Parameters:\n    plot_title <- \"{{{Plot_Title}}}\"\n    heatmap_color <- \"{{{Heatmap_Color}}}\" \n    set_seed_for_colors <- {{{Set_Seed_for_Colors}}}\n    row_height <- {{{Row_Height}}} \n    add_row_names <- {{{Add_Row_Names}}}\n    row_font_size <- {{{Row_Font_Size}}} \n    order_heatmap_rows <- {{{Order_Heatmap_Rows}}}\n    row_order = {{{Row_Order}}}  \n    add_column_names <- {{{Add_Column_Names}}}\n    column_font_size <- {{{Column_Font_Size}}} \n    legend_font_size <- {{{Legend_Font_Size}}}\n\n    #Advanced Parameters: \n    scale_data <- {{{Scale_Data_by_Rows}}}\n    trim_outliers <- {{{Trim_Outliers}}}\n    trim_outliers_percentage <- {{{Trim_Outliers_Percentage}}}\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n    \n\n    ## -------------------------------- ##\n    ## Parameter Misspecifation Errors  ##\n    ## -------------------------------- ##\n\n    if(add_gene_or_protein_annotation_tracks == FALSE & (!is.null(protein_annotations) | !is.null(rna_annotations))) {\n       stop(\"Error: You should choose to add gene or protein annotation tracks if you add protein or rna annotations\")\n    }\n\n    if(is.null(metadata_to_plot)){\n        stop(\"Error: You should choose at least one annotation track under metadata_to_plot\")\n    }\n    \n    ## -------------------------------- ##\n    ## Functions                        ##\n    ## -------------------------------- ##\n    \n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    so <- readRDS(path)\n\nprint(so%>%Cells%>%length)\nif(so%>%Cells%>%length>15000){\n    stop('Too many Cells Selected (>15,000) to render Figure. Consider Filtering before creating Heatmap')\n}\n\n\n    ## Function changes here:\n    library(dplyr)\n    if(\"orig.ident\" %in% colnames(so@meta.data)){\n        print(\"orig.ident found in metadata\")\n        } else if (\"orig_ident\" %in% colnames(so@meta.data)){\n            so@meta.data=dplyr::rename(so@meta.data, orig.ident=orig_ident)\n        } else {\n            print(\"orig.ident or orig_ident not found\")\n        }\n   \n\n    results <- heatmapSC(object = so,\n                      sample.names = sample_names,\n                      metadata = metadata_to_plot,\n                      transcripts = transcripts,\n                      proteins = proteins,\n                      heatmap.color = heatmap_color,\n                      plot.title = plot_title,\n                      add.gene.or.protein = add_gene_or_protein_annotation_tracks,\n                      protein.annotations = protein_annotations,\n                      rna.annotations = rna_annotations,\n                      arrange.by.metadata = arrange_by_metadata_annotations,\n                      add.row.names = add_row_names,\n                      add.column.names = add_column_names,\n                      row.font = row_font_size,\n                      col.font = column_font_size,\n                      legend.font = legend_font_size,\n                      row.height = row_height,\n                      set.seed = set_seed_for_colors,\n                      scale.data = scale_data,\n                      trim.outliers = trim_outliers,\n                      trim.outliers.percentage = trim_outliers_percentage,\n                      order.heatmap.rows = order_heatmap_rows,\n                      row.order = row_order) \n\n    print(results$plot)\n    return(results$data)\n\n}\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# Functions defined here will be available to call in\n# the code for any table.\n\n\n",
+	"columns": [
+		{
+			"key": "Sample_Names",
+			"displayName": "Sample Names",
+			"description": "Samples to include in the heatmap",
+			"paramGroup": "Basic",
+			"sourceDataset": "Sample_Names_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "Metadata_to_Plot",
+			"displayName": "Metadata to Plot",
+			"description": "Metadata to add on the annotation track on top of the heatmap.  Add at least one and if more than one, in the order of appearance on annotation track from bottom up.  If \"arrange by metadata annotations\" is TRUE, sorting will also be from bottom up.",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "From a Seurat Object, draw a heatmap for individual genes and proteins for single cell data and optionally add metadata and/or gene or protein expression annotation tracks. The rows and columns can be ordered in an unsupervised manner using hierarchical clustering or ordered manually by sample annotations or genes or protein expression. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.049d0982-4653-4be8-b6d1-392bd8d3f0b9)",
+	"externalId": "Heatmap_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Select an input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Sample_Names_Table",
+			"displayName": "Sample Names Table",
+			"description": "Select a dataset that contains sample names for the input Seurat Object. These sample names should match the orig.idents in the input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Select the metadata table for the input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Transcripts",
+			"displayName": "Transcripts",
+			"description": "Add transcripts for plotting in the heatmap",
+			"paramType": "VECTOR",
+			"paramGroup": "Basic",
+			"paramValues": null,
+			"defaultValue": "c(\"GAPDH\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Proteins",
+			"displayName": "Proteins",
+			"description": "Add proteins for plotting in the heatmap.",
+			"paramType": "VECTOR",
+			"paramGroup": "Basic",
+			"paramValues": null,
+			"defaultValue": "c(\"\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Add_Gene_or_Protein_Annotation_Tracks",
+			"displayName": "Add Gene or Protein Annotation Tracks",
+			"description": "If TRUE, add expression values of individual transcripts and/or proteins as part of annotation track.  Default is FALSE",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Annotation",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "RNA_Annotations",
+			"displayName": "RNA Annotations",
+			"description": "Add Genes (transcripts) expression values to annotation track",
+			"paramType": "VECTOR",
+			"paramGroup": "Annotation",
+			"paramValues": null,
+			"defaultValue": null,
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Protein_Annotations",
+			"displayName": "Protein Annotations",
+			"description": "Add Protein expression to annotation track",
+			"paramType": "VECTOR",
+			"paramGroup": "Annotation",
+			"paramValues": null,
+			"defaultValue": null,
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Arrange_by_Metadata_Annotations",
+			"displayName": "Arrange by Metadata Annotations",
+			"description": "If TRUE, sort columns by metadata tracks.  Otherwise, use unsupervised clustering.  Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Annotation",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Plot_Title",
+			"displayName": "Plot Title",
+			"description": "Add Plot title",
+			"paramType": "STRING",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "Heatmap",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Heatmap_Color",
+			"displayName": "Heatmap Color",
+			"description": "Heatmap color scheme",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"Cyan to Mustard",
+				"Blue to Red",
+				"Red to Vanilla",
+				"Violet to Pink",
+				"Bu Yl Rd",
+				"Bu Wt Rd"
+			],
+			"defaultValue": "Bu Yl Rd",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Set_Seed_for_Colors",
+			"displayName": "Set Seed for Colors",
+			"description": "Set different seed to change colors randomly",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "6",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Row_Height",
+			"displayName": "Row Height",
+			"description": "Heatmap row height.  Default is 15.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "15",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Add_Row_Names",
+			"displayName": "Add Row Names",
+			"description": "If TRUE, add row names  Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Row_Font_Size",
+			"displayName": "Row Font Size",
+			"description": "Font size used for rows. Default is 5.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Order_Heatmap_Rows",
+			"displayName": "Order Heatmap Rows",
+			"description": "If TRUE, order rows by specific order (set below, Row Order).  Default is FALSE",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Row_Order",
+			"displayName": "Row Order",
+			"description": "List genes in order of appearance on heatmap (top to bottom)",
+			"paramType": "VECTOR",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "c(\"\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Add_Column_Names",
+			"displayName": "Add Column Names",
+			"description": "Add column names (Barcodes) to heatmap.  Default is FALSE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Column_Font_Size",
+			"displayName": "Column Font Size",
+			"description": "Font size for columns.  Default is 5.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Legend_Font_Size",
+			"displayName": "Legend Font Size",
+			"description": "Font size for legends. Default is 10.",
+			"paramType": "STRING",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "10",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Scale_Data_by_Rows",
+			"displayName": "Scale Data by Rows",
+			"description": "If TRUE, scale data by rows.  Otherwise, plot normalized values. Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Trim_Outliers",
+			"displayName": "Trim Outliers",
+			"description": "If TRUE, trim outliers to improve data range for visualization. Default is TRUE",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Trim_Outliers_Percentage",
+			"displayName": "Trim Outliers Percentage",
+			"description": "Percent of data to trim to improve heatmap colors (usually 1-5%, or 0.01-0.05)",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "0.01",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Name of RDS file containing Seurat Object.  Default is seurat_object.rds",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Heatmap [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

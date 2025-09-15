@@ -1,0 +1,194 @@
+{
+	"codeTemplate": "unnamed_1 <- function({{{Seurat_Object}}},{{{Sample_Table}}}, {{{Marker_List}}}) {\n    \n    #image: png\n    \n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    #Input Parameters:\n    seurat_object <- {{{Seurat_Object}}}\n    marker_list = {{{Marker_List}}}\n\n    #Basic Parameters:\n    manual_genes <- {{{Manual_Genes}}}\n    cells_of_interest <- {{{Cells_of_Interest}}}\n    protein_presence <- {{{Protein_Presence}}}\n\n    #Plot Parameters:\n    assay_to_plot <- \"{{{Assay}}}\"\n    slot_to_plot <- \"{{{Slot}}}\"\n    reduction_type = \"{{{Reduction_Type}}}\"\n    point_transparency <- {{{Point_Transparency}}}\n    point_shape <- {{{Point_Shape}}}\n    cite_seq <- {{{CITEseq_Plot}}}\n    consolidated_marker_fig <- TRUE\n\n    #Filesave Parameters:\n    save_the_entire_dataset <- {{{Save_the_Entire_Dataset}}}\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    so <- readRDS(path)\n\n    colorByMarkerTable(object = so,\n                        manual.genes = manual_genes,\n                        marker.table = marker_list,\n                        cells.of.interest = cells_of_interest,\n                        protein.presence = protein_presence,\n                        assay = assay_to_plot,\n                        slot = slot_to_plot,\n                        reduction.type = reduction_type,\n                        point.transparency = point_transparency,\n                        point.shape = point_shape,\n                        cite.seq = FALSE)\n\nreturn(NULL)\n}\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\ncolorByMarkerTable <- function (object, samples.subset, samples.to.display, \n    manual.genes = c(), marker.table, \n    cells.of.interest, protein.presence = FALSE, assay = \"SCT\", slot = \"scale.data\",\n    reduction.type = \"umap\", point.transparency = 0.5, point.shape = 16, \n    cite.seq = FALSE){ \n\n        library(ggplot2)\n        library(Seurat)\n        library(stringr)\n        library(grid)\n        library(gridExtra)\n        \n        .plotMarkers <- function(markers) {\n            if (is.na(markers) == TRUE) {\n                g <- ggplot() + theme_void()\n                return(g)\n            } else {\n                markers.mat = GetAssayData(object, assay = assay, slot = slot)[markers, ]\n                markers.quant = quantile(markers.mat[markers.mat > \n                    1], probs = c(0.1, 0.5, 0.9))\n                markers.mat[markers.mat > markers.quant[3]] = markers.quant[3]\n                markers.mat[markers.mat < markers.quant[1]] = 0\n                if (!(cite.seq)) {\n                    if (reduction.type == \"tsne\") {\n                    p1 <- DimPlot(object, reduction = \"tsne\", \n                        group.by = \"ident\")\n                    clusmat = data.frame(umap1 = p1$data$tSNE_1, \n                        umap2 = p1$data$tSNE_2, markers = markers.mat, \n                        ident = as.factor(p1$data$ident))\n                    } else if (reduction.type == \"umap\") {\n                    p1 <- DimPlot(object, reduction = \"umap\", \n                        group.by = \"ident\")\n                    clusmat = data.frame(umap1 = p1$data$UMAP_1, \n                        umap2 = p1$data$UMAP_2, markers = markers.mat, \n                        ident = as.factor(p1$data$ident))\n                    } else {\n                    p1 <- DimPlot(object, reduction = \"pca\", \n                        group.by = \"ident\")\n                    clusmat = data.frame(umap1 = p1$data$PC_1, \n                        umap2 = p1$data$PC_2, markers = markers.mat, \n                        ident = as.factor(p1$data$ident))\n                    }\n                } else {\n                    if (reduction.type == \"tsne\") {\n                    p1 <- DimPlot(object, reduction = \"protein_tsne\", \n                        group.by = \"ident\")\n                    clusmat = data.frame(umap1 = p1$data$protein_tsne_1, \n                        umap2 = p1$data$protein_tsne_2, markers = markers.mat, \n                        ident = as.factor(p1$data$ident))\n                    } else if (reduction.type == \"umap\") {\n                    p1 <- DimPlot(object, reduction = \"protein_umap\", \n                        group.by = \"ident\")\n                    clusmat = data.frame(umap1 = p1$data$protein_umap_1, \n                        umap2 = p1$data$protein_umap_2, markers = markers.mat, \n                        ident = as.factor(p1$data$ident))\n                    } else {\n                    p1 <- DimPlot(object, reduction = \"protein_pca\", \n                        group.by = \"ident\")\n                    clusmat = data.frame(umap1 = p1$data$protein_pca_1, \n                        umap2 = p1$data$protein_pca_2, markers = markers.mat, \n                        ident = as.factor(p1$data$ident))\n                    }\n                }\n                \n                g <- ggplot(clusmat, aes(x = umap1, y = umap2, \n                group = ident)) + theme_bw() + theme(legend.title = element_blank()) + \n                ggtitle(markers) + geom_point(aes(color = markers, \n                shape = ident), alpha = point.transparency, \n                shape = point.shape, size = 1) + theme(panel.grid.major = element_blank(), \n                panel.grid.minor = element_blank(), panel.background = element_blank(), \n                legend.text = element_text(size = rel(0.5)), plot.background=element_rect(fill=\"white\", colour=\"white\"), rect = element_rect(fill = 'white')) +\n                scale_color_gradient(limits = c(0, markers.quant[3]), \n                    low = \"lightgrey\", high = \"red\") + xlab(\"umap-1\") + \n                ylab(\"umap-2\")\n                return(g)\n                \n            }\n        }\n        \n        marker.table <- marker.table[cells.of.interest]\n        present.marker.ls <- list()\n        for (celltype in colnames(marker.table)) {\n            print(names(marker.table[celltype]))\n            present = lapply(marker.table[[celltype]], function(x) x %in% \n                rownames(GetAssayData(object, assay = assay, slot = slot)))\n            absent.genes = unlist(marker.table[[celltype]])[present == \n                FALSE]\n            present.genes = unlist(marker.table[[celltype]])[present == \n                TRUE]\n            print(paste0(\"Genes not present: \", paste0(absent.genes, \n                collapse = \",\")))\n            print(paste0(\"Genes present: \", paste0(present.genes, \n                collapse = \",\")))\n            if (length(present.genes) == 0) {\n                print(paste0(names(marker.table[celltype]), \" genes were not found in object and will not be analyzed\"))\n            } else {\n                present.marker.ls[[celltype]] <- present.genes\n            }\n        }\n        \n        padded.ls <- lapply(present.marker.ls, `length<-`, max(lengths(present.marker.ls)))\n        markers.from.list <- do.call(cbind, padded.ls)\n        markers.present = unlist(markers.from.list)\n\n        if (!length(markers.present) > 0) {\n            print(\"No markers found in dataset\")\n            return(NULL)\n        }\n\n        # Store images for making consolidated figure\n        cons.gg.storage <- list()\n\n         # Plot arranged figures with padding\n        for (cell in colnames(markers.from.list)) {\n            title <- cell\n            markers.to.analyze <- as.character(markers.from.list[, \n                cell])\n            grob <- lapply(markers.to.analyze, function(x) .plotMarkers(x))\n\n            arranged <- gridExtra::arrangeGrob(grobs = grob, ncol = 1, newpage = F, as.table = F, top = ggpubr::text_grob(title, size = 15, face = \"bold\"))\n            \n            cons.gg.storage[[cell]] <- arranged\n        }\n        # Manually specify background \n        background <- rectGrob(gp = gpar(fill = \"white\", col = NA)) \n        \n        cons.fig <- do.call(grid.arrange, c(cons.gg.storage, ncol = ncol(markers.from.list)))\n        cons.fig.bkgrd <- grobTree(background, cons.fig)\n        grid.draw(cons.fig.bkgrd)\n        grid.newpage()\n\n        # Plot individual arranged figures with padding\n        for (cell in colnames(markers.from.list)) {\n            title <- cell\n            markers.to.analyze <- as.character(markers.from.list[, \n                cell])\n            grob <- lapply(markers.to.analyze, function(x) .plotMarkers(x))\n            arranged <- gridExtra::arrangeGrob(grobs = grob, newpage = F, as.table = F, top = ggpubr::text_grob(title, size = 15, face = \"bold\"))\n\n            # Combine the background with the arranged plots\n            combined <- grobTree(background, arranged)\n            # Draw the combined grob with background\n            grid.draw(combined)\n            grid.newpage()\n        }\n\n        # Plot manual genes if not empty\n        if(!is.null(manual.genes)){\n\n            # Str-spit and use only present genes\n            manual.genes.processed <- str_split(manual.genes, pattern = \"[^a-zA-Z0-9]+\")[[1]]\n            manual.genes.processed <- manual.genes.processed[manual.genes.processed %in% rownames(GetAssayData(object, assay = assay, slot = slot))]\n\n            tryCatch({\n            manual.grob <- lapply(manual.genes.processed, function(x) .plotMarkers(x))\n            manual.arranged <- gridExtra::arrangeGrob(grobs = manual.grob, newpage = F, as.table = F, top = ggpubr::text_grob(\"Manual Genes\", size = 15, face = \"bold\"))\n            plot(manual.arranged)\n            grid.newpage()}, error = function(e) {\n            cat(e$message, \"\\n\", \"Possible Reason: No manual genes were found in expression matrix\")\n})\n        }\n        \n        return(NULL)\n    }",
+	"columns": [
+		{
+			"key": "Cells_of_Interest",
+			"displayName": "Cells of Interest",
+			"description": "Select markers from specific celltype column to display",
+			"paramGroup": null,
+			"sourceDataset": "Marker_List",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "Color by Gene Template that doesn't require manual input of genes. Also allows users to select which samples they want to display. Final Potomac Compatible Version: v91. Final Sugarloaf V1: v104. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.332935bb-811c-4e62-a093-02002d8e3823)",
+	"externalId": "Color_by_Gene_Lists_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Select your combined Seurat object from which to plot your gene expression heat map. Recommended to use output from the SingleR annotated template (Step 5 of pipeline).",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": [
+				"ri.compass.main.tag.b39e053b-128a-49b6-996a-d867e2daa67d",
+				"ri.compass.main.tag.411a3dbf-07f6-498a-86d7-0180caa1abf2"
+			]
+		},
+		{
+			"key": "Sample_Table",
+			"displayName": "Sample Table",
+			"description": "Please select the dataset that contains your sample names. This should be the outputs from the Get Sample Names template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": [
+				"ri.compass.main.tag.b39e053b-128a-49b6-996a-d867e2daa67d",
+				"ri.compass.main.tag.411a3dbf-07f6-498a-86d7-0180caa1abf2"
+			]
+		},
+		{
+			"key": "Marker_List",
+			"displayName": "Marker List",
+			"description": "Marker Table\nA table of lists of gene/protein markers for the categories of cells you want to detect. The table should be formatted with cell type(s) as the column names, and marker(s) as the entries in each column. Protein markers should be designated with \"_prot\" (e.g. CD8_prot).",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Manual_Genes",
+			"displayName": "Manual Genes",
+			"description": "Copy - paste any space or comma separated gene list for visualization.",
+			"paramType": "VECTOR",
+			"paramGroup": null,
+			"paramValues": null,
+			"defaultValue": "c()",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Protein_Presence",
+			"displayName": "Protein Presence",
+			"description": "Toggle on/off if there is protein data embedded within the seurat object",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Cite-seq",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Assay",
+			"displayName": "Assay",
+			"description": "Select Assay to Plot.",
+			"paramType": "SELECT",
+			"paramGroup": "Plot",
+			"paramValues": [
+				"SCT",
+				"RNA",
+				"integrated"
+			],
+			"defaultValue": "SCT",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Slot",
+			"displayName": "Slot",
+			"description": "Specific slot within Assay to plot",
+			"paramType": "SELECT",
+			"paramGroup": "Plot",
+			"paramValues": [
+				"data",
+				"scale.data"
+			],
+			"defaultValue": "scale.data",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Reduction_Type",
+			"displayName": "Reduction Type",
+			"description": "Please select the kind of clustering visualization you want to use. UMAP is best for visualization global differences across samples, while TSNE is better for local differences.",
+			"paramType": "SELECT",
+			"paramGroup": "Plot",
+			"paramValues": [
+				"umap",
+				"tsne",
+				"pca"
+			],
+			"defaultValue": "umap",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Transparency",
+			"displayName": "Point Transparency",
+			"description": "Customize how transparent/opaque you want to make points on your visualization",
+			"paramType": "NUMBER",
+			"paramGroup": "Plot",
+			"paramValues": null,
+			"defaultValue": "0.5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Shape",
+			"displayName": "Point Shape",
+			"description": "",
+			"paramType": "SELECT",
+			"paramGroup": "Plot",
+			"paramValues": [
+				"16",
+				"19",
+				"20"
+			],
+			"defaultValue": "16",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "CITEseq_Plot",
+			"displayName": "CITEseq Plot",
+			"description": "Generate reduction plot based on CITEseq (Protein Expression) cell embeddings",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Cite-seq",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Save_the_Entire_Dataset",
+			"displayName": "Save the Entire Dataset",
+			"description": "If you want to continue analyzing/filtering from here, toggle TRUE to save the Seurat Object to the output dataset. If you toggle FALSE, it will only save the output image (saving time). Keep FALSE for faster performance.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Filesave",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Name of RDS file containing Seurat Object.  Default is seurat_object.rds",
+			"paramType": "STRING",
+			"paramGroup": "Filesave",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Color by Gene Lists [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

@@ -1,0 +1,175 @@
+{
+	"codeTemplate": "ColorByMeta_CellTypes <- function({{{seurat_object}}},{{{sample_table}}},{{{metadata_table}}}) {\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n    library(grid)\n    library(gridExtra)\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n    \n    # Input Parameters:\n    Seurat_Object <- {{{seurat_object}}}\n    Sample_Table <- {{{sample_table}}}\n    Metadata_Table <- {{{metadata_table}}}\n    \n    # Samples and Metadata Parameters\n    Samples_to_Include <- '{{{samples_to_include}}}'\n    Metadata_to_Plot <- '{{{metadata_to_plot}}}'\n\n    # Visualization Parameters:\n    Number_of_Columns_for_Final_Image <- {{{Number_of_Columns_for_Final_Image}}}\n    Show_Labels <- {{{show_labels_}}}\n    Dot_Size <- {{{Dot_Size}}}\n   \n    # Legend Parameters\n    Legend_Text_Size <- {{{Legend_Text_Size}}}\n    Legend_Position <- \"{{{Legend_Position}}}\"\n\n    # Summarization Parameters\n    Columns_to_Summarize <- {{{Columns_to_Summarize}}}\n    Summarization_Cut_Off <- {{{Summarization_Cut_Off}}}\n\n    # Advanced Parameters:\n    Save_the_Entire_Dataset <- {{{Save_the_Entire_Dataset}}}\n    Use_CITE_seq <- {{{Use_CITE_seq}}}\n\n   \n\n\n\n\n    ##--------------- ##\n    ## Error Messages ##\n    ## -------------- ##\n\n    \n    ## --------- ##\n    ## Functions ##\n    ## --------- ##\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n## Load SO \n    cat(\"Reading Seurat Object from dataset: seurat_object.rds\\n\\n\")\n    fs <- Seurat_Object$fileSystem()\n    path <- fs$get_path(\"seurat_object.rds\", 'r')\n    SO <- readRDS(path)\n    print(SO)\n\n\nAll_Reduction_Types <- c(\"umap\", \"tsne\", \"pca\")\nfor(Reduction_Type in All_Reduction_Types){\n\nresults <- plotMetadata(object = SO,\n  samples.to.include = Samples_to_Include,\n  metadata.to.plot = Metadata_to_Plot,\n  columns.to.summarize = Columns_to_Summarize,\n  summarization.cut.off = Summarization_Cut_Off,\n  reduction.type = Reduction_Type,\n  use.cite.seq = Use_CITE_seq,\n  show.labels = Show_Labels,\n  legend.text.size = Legend_Text_Size,\n  legend.position = Legend_Position,\n  dot.size = Dot_Size\n  ) \n\n## Print Graphic output\n\nmatched_commas <- gregexpr(\",\", Metadata_to_Plot, fixed = TRUE)\nn_commas <- length(matched_commas[[1]])\n    if (Number_of_Columns_for_Final_Image == 0) {\n        n = ceiling((n_commas+1)^0.5)\n    } else {\n        n = Number_of_Columns_for_Final_Image\n    }\n do.call(\"grid.arrange\", c(results$plot, ncol=n))\n\n}\n\n\n## Save dataset if requested\n\nif (Save_the_Entire_Dataset){\n    output <- new.output()\n    output_fs <- output$fileSystem()\n    saveRDS(results$object, output_fs$get_path(\"seurat_object.rds\", 'w'))\n    return(NULL)\n    } else {\n    return(results$object@meta.data)\n    }\n}",
+	"columns": [
+		{
+			"key": "samples_to_include",
+			"displayName": "Samples to Include",
+			"description": "Please select which samples you would like to include. You may \"Add all\" to add all samples and then deselect those you wish to exclude from visualization.",
+			"paramGroup": "Samples and Metadata",
+			"sourceDataset": "sample_table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "metadata_to_plot",
+			"displayName": "Metadata to Plot",
+			"description": "Please select the metadata columns from your Metadata table you would like to plot. This template will make one plot from each column you select.",
+			"paramGroup": "Samples and Metadata",
+			"sourceDataset": "metadata_table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "Columns_to_Summarize",
+			"displayName": "Columns to Summarize",
+			"description": "Select the columns you would like to summarize. For example, selecting \"annot\" will give you the top X most common cell annotations, while plotting the rest as other. See \"Summarization Cut-off\" below for details.",
+			"paramGroup": "Summarization",
+			"sourceDataset": "metadata_table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "Use this template to color your dimensionality reduction (TSNE & UMAP) with different columns from your Metadata Table. You can select one or more columns from the Metadata Table, and for each column selected, this template will produce a plot (t-SNE & UMAP) using the data in that column to color the cells. Final Potomac Compatible Version: v146. Sugarloaf V1: v155. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.cbaef5d8-18cf-4481-88a8-9bee8a50740a)",
+	"externalId": "Color_by_Metadata_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "seurat_object",
+			"displayName": "Seurat Object",
+			"description": "Please input a combined Seurat Object with metadata to plot. Recommended to use a SingleR annotated Seurat Objet (output of Step 5 of the basic Single Cell workflow).",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "sample_table",
+			"displayName": "Sample Table",
+			"description": "Please input the dataset containing your sample names. This should be the output dataset from Get Sample Names template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "metadata_table",
+			"displayName": "Metadata Table",
+			"description": "Please select the input dataset containing your metadata. This should be the output dataset of the Metadata Table template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Number_of_Columns_for_Final_Image",
+			"displayName": "Number of Columns for Final Image",
+			"description": "Please select the number of columns you would like to arrange your visualization plots by. For example, if you have 10 plots you want to make, and you want to arrange them into 5 columns of 2, input 5.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "0",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "show_labels_",
+			"displayName": "Show Labels?",
+			"description": "Choose whether to add labels or not to your reduction map. Default is false.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Dot_Size",
+			"displayName": "Dot Size",
+			"description": "Select your Dot Size here",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "0.01",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Legend_Text_Size",
+			"displayName": "Legend Text Size",
+			"description": "Customize the size of the legend text in your charts. Default is 1, but 0.5 should be reasonable if you have a lot of categories in your legend.",
+			"paramType": "NUMBER",
+			"paramGroup": "Legend",
+			"paramValues": null,
+			"defaultValue": "1",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Legend_Position",
+			"displayName": "Legend Position",
+			"description": "Select how you want to align your legend. Recommended top.",
+			"paramType": "SELECT",
+			"paramGroup": "Legend",
+			"paramValues": [
+				"top",
+				"bottom",
+				"right",
+				"left",
+				"none"
+			],
+			"defaultValue": "right",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Summarization_Cut_Off",
+			"displayName": "Summarization Cut-Off",
+			"description": "Select the number of categories you want to display, while marking all other cells as \"other.\" For example, inputting 5 while show you the top five most common categories in your sample, while showing all other categories as \"Other.\" Max categories displayable is 20.",
+			"paramType": "NUMBER",
+			"paramGroup": "Summarization",
+			"paramValues": null,
+			"defaultValue": "5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Save_the_Entire_Dataset",
+			"displayName": "Save the Entire Dataset",
+			"description": "Toggle true to save your Seurat Object to the output dataset, rather than just save the output image.. This will allow you to continue further analysis off of this template's output dataset, but will take additional time to save when running.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Use_CITE_seq",
+			"displayName": "Use CITE-seq",
+			"description": "Toggle TRUE if you would like to plot Antibody clusters from CITEseq instead of scRNA",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Color by Metadata [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

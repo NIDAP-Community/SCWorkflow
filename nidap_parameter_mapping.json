@@ -1,0 +1,302 @@
+{
+  "description": "Mapping between NIDAP JSON template parameters and SCWorkflow R function parameters",
+  "version": "1.0",
+  "mappings": {
+    "Combine_Normalize_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "combineNormalize",
+      "parameters": {
+        "SCT_Level": "SCT.level",
+        "Variables_to_Regress": "vars.to.regress",
+        "Number_of_Features": "nfeatures",
+        "Mean_Low_Cutoff": "low.cut",
+        "Mean_High_Cutoff": "high.cut",
+        "Dispersion_Low_Cutoff": "low.cut.disp",
+        "Dispersion_High_Cutoff": "high.cut.disp",
+        "Selection_Method": "selection.method",
+        "Only_Variable_Genes": "only.var.genes",
+        "Conserve_Memory_Max_Cell_Limit": "cell.count.limit",
+        "Number_of_PC_s_for_PCA_UMAP_t_SNE": "npcs",
+        "draw_umap": "draw.umap",
+        "draw_t_sne": "draw.tsne",
+        "Seed_for_PCA": "seed.for.pca",
+        "Seed_for_TSNE": "seed.for.tsne",
+        "Seed_for_UMAP": "seed.for.umap",
+        "Cluster_Resolution_High_Range": "clust.res.high",
+        "Cluster_Resolution_Low_Range": "clust.res.low",
+        "Cluster_Resolution_Range_Bins": "clust.res.bin",
+        "Method_for_Finding_Significant_PCs": "methods.pca",
+        "Change_in_Variation_Threshold": "var.threshold",
+        "Draw_JackStraw_Plot": "jackstraw",
+        "Number_of_Dimensions_for_JackStraw": "jackstraw.dims",
+        "Draw_PCA_Regression_Plot": "pca.reg.plot",
+        "Exclude_Sample": "exclude.sample",
+        "Project_Name": "project.name",
+        "Cell_Hashing_Data": "cell.hashing.data",
+        "Reduce_Object": "reduce.so"
+      }
+    },
+    "Color_by_Genes_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "colorByGene",
+      "parameters": {
+        "samples_to_include": "samples.to.include",
+        "Gene": "gene",
+        "reduction_type": "reduction.type",
+        "Number_of_Rows": "number.of.rows",
+        "Color": "color",
+        "Point_Size": "point.size",
+        "Point_Shape": "point.shape",
+        "Point_Transparency": "point.transparency",
+        "Save_the_Entire_Dataset": "return.seurat.object",
+        "Use_CITE_seq_Data": "use.cite.seq.data",
+        "Assay": "assay"
+      }
+    },
+    "Process_Input_Data_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "processRawData",
+      "parameters": {
+        "Experimental_Method": "data.type",
+        "Cell_Multiplexing_Technology": "multiplexing.method",
+        "Genome_Build": "reference",
+        "Filter_Data": "filter",
+        "Min_Cell_per_Feature": "min.cells",
+        "Min_Features_per_Cell": "min.features",
+        "Doublet_Finder": "doubletFinder",
+        "DF_Percentage": "pN",
+        "Cell_Hashing_Data": "cell.hashing.data",
+        "Sample_Names": "sample.names"
+      }
+    },
+    "Filter_Low_Quality_Cells_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "filterQC",
+      "parameters": {
+        "Number_of_Genes_Min": "nFeature_RNA_min",
+        "Number_of_Genes_Max": "nFeature_RNA_max",
+        "Number_of_Reads_Min": "nCount_RNA_min",
+        "Number_of_Reads_Max": "nCount_RNA_max",
+        "Mitochondrial_Gene_Percentage_Max": "percent.mt_max",
+        "Cell_Cycle_Regress": "cell.cycle",
+        "Filter_for_specific_sample": "Filter.for.specific.sample",
+        "Reduction_Type": "reduction.type",
+        "Marker_Genes": "marker.genes",
+        "Number_of_Rows": "number.of.rows",
+        "Point_Transparency": "point.transparency",
+        "Point_Size": "point.size",
+        "Violin_Plot": "violin.plot",
+        "Scatter_Plot": "scatter.plot",
+        "Keep_Sex_Chromosomes": "keep.sex.chromosomes",
+        "Keep_Mitochondrial_Features": "keep.mitochondrial.features",
+        "Keep_Ribosomal_Features": "keep.ribosomal.features"
+      }
+    },
+    "Cell_Type_Annotation_with_SingleR_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "annotateCellTypes",
+      "parameters": {
+        "Reference_Database": "refdata",
+        "Cell_Ontology_Labels": "label.main",
+        "Assay": "assay",
+        "Save_the_Entire_Dataset": "return.seurat.object",
+        "Reduction_Type": "reduction.type",
+        "Point_Size": "point.size",
+        "Point_Transparency": "point.transparency",
+        "Number_of_Rows": "number.of.rows"
+      }
+    },
+    "Recluster_Seurat_Object_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "reclusterSeuratObject",
+      "parameters": {
+        "Cluster_Resolution": "cluster.resolution",
+        "Algorithm": "algorithm",
+        "Assay": "assay",
+        "Method": "method",
+        "Reduction_Type": "reduction.type",
+        "Point_Size": "point.size",
+        "Point_Transparency": "point.transparency",
+        "Number_of_Rows": "number.of.rows"
+      }
+    },
+    "Subset_Seurat_Object_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "filterSeuratObjectByMetadata",
+      "parameters": {
+        "Metadata_Column_to_Filter": "metadata.column.name",
+        "Values_to_Include": "values.to.include",
+        "Filter_Type": "filter.type",
+        "Reduction_Type": "reduction.type",
+        "Point_Size": "point.size",
+        "Point_Transparency": "point.transparency",
+        "Number_of_Rows": "number.of.rows"
+      }
+    },
+    "DE_with_Find_Markers_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "degGeneExpressionMarkers",
+      "parameters": {
+        "Metadata_Column": "metadata.column.name",
+        "Group1": "group1",
+        "Group2": "group2",
+        "Test_Method": "test.use",
+        "Minimum_Percentage": "min.pct",
+        "Log_Fold_Change_Threshold": "logfc.threshold",
+        "Assay": "assay",
+        "Slot": "slot",
+        "Pseudocount": "pseudocount.use",
+        "Max_Cells_Per_Ident": "max.cells.per.ident",
+        "Random_Seed": "random.seed",
+        "Latent_Variables": "latent.vars",
+        "Min_Cells_Feature": "min.cells.feature",
+        "Min_Cells_Group": "min.cells.group",
+        "Mean_Function": "mean.fxn",
+        "FC_Function": "fc.name",
+        "Base": "base"
+      }
+    },
+    "Heatmap_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "heatmapSC",
+      "parameters": {
+        "Gene_List": "gene.list",
+        "Group_By": "group.by",
+        "Assay": "assay",
+        "Slot": "slot",
+        "Reduction_Type": "reduction.type",
+        "Features_Plot": "features.plot",
+        "Cells_Highlight": "cells.highlight",
+        "Cols_Highlight": "cols.highlight",
+        "Pt_Size": "pt.size",
+        "Order": "order",
+        "Label": "label",
+        "Repel": "repel",
+        "Label_Size": "label.size",
+        "Stroke": "stroke",
+        "Alpha": "alpha",
+        "Shape": "shape",
+        "Combine": "combine"
+      }
+    },
+    "Violin_Plot_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "violinPlot_mod",
+      "parameters": {
+        "Features": "features",
+        "Group_By": "group.by",
+        "Split_By": "split.by",
+        "Assay": "assay",
+        "Slot": "slot",
+        "Adjust": "adjust",
+        "Y_Max": "y.max",
+        "Same_Y_Lims": "same.y.lims",
+        "Log": "log",
+        "Ncol": "ncol",
+        "Split_Plot": "split.plot",
+        "Stack": "stack",
+        "Combine": "combine",
+        "Fill_By": "fill.by",
+        "Flip": "flip",
+        "Add_Noise": "add.noise",
+        "Raster": "raster"
+      }
+    },
+    "Dot_Plot_of_Genes_by_Metadata_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "dotPlotMet",
+      "parameters": {
+        "Features": "features",
+        "Group_By": "group.by",
+        "Split_By": "split.by",
+        "Assay": "assay",
+        "Cols": "cols",
+        "Col_Min": "col.min",
+        "Col_Max": "col.max",
+        "Dot_Min": "dot.min",
+        "Dot_Scale": "dot.scale",
+        "Scale": "scale",
+        "Scale_By": "scale.by",
+        "Scale_Min": "scale.min",
+        "Scale_Max": "scale.max",
+        "Cluster_Idents": "cluster.idents"
+      }
+    },
+    "Plot_3D_Dimensionality_Reduction_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "tSNE3D",
+      "parameters": {
+        "Dimensions": "dims",
+        "Reduction": "reduction",
+        "Group_By": "group.by",
+        "pt_size": "pt.size",
+        "filename": "filename",
+        "title": "title",
+        "theta": "theta",
+        "phi": "phi"
+      }
+    },
+    "Cell_Annotation_with_Module_Scores_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "modScore",
+      "parameters": {
+        "Gene_Lists": "gene.list",
+        "Pool": "pool",
+        "Nbin": "nbin",
+        "Ctrl": "ctrl",
+        "K": "k",
+        "Assay": "assay",
+        "Name": "name",
+        "Seed": "seed",
+        "Search": "search"
+      }
+    },
+    "Rename_Clusters_by_Cell_Type_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "nameClusters",
+      "parameters": {
+        "Cluster_Column": "cluster.column",
+        "New_Names": "new.names",
+        "Order_Names": "order.names"
+      }
+    },
+    "Add_External_Cell_Annotation_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "appendMetadataToSeuratObject",
+      "parameters": {
+        "Metadata_Column_for_Matching": "metadata.column.for.matching",
+        "External_Column_for_Matching": "external.column.for.matching",
+        "External_Columns_to_Add": "external.columns.to.add",
+        "New_Column_Names": "new.column.names"
+      }
+    },
+    "Batch_Correction_with_Harmony_CCBR_scRNA_seq_": {
+      "SCWorkflow_function": "runHarmony",
+      "parameters": {
+        "Group_By_Variables": "group.by.vars",
+        "Lambda": "lambda",
+        "Sigma": "sigma",
+        "Theta": "theta",
+        "Nclust": "nclust",
+        "Tau": "tau",
+        "Block_Size": "block.size",
+        "Max_Iter_Harmony": "max.iter.harmony",
+        "Max_Iter_Cluster": "max.iter.cluster",
+        "Epsilon_Cluster": "epsilon.cluster",
+        "Epsilon_Harmony": "epsilon.harmony",
+        "Reduction": "reduction",
+        "Dims_Use": "dims.use",
+        "Assay": "assay",
+        "Project_Dim": "project.dim",
+        "Plot_Convergence": "plot_convergence",
+        "Verbose": "verbose",
+        "Reference_Values": "reference_values",
+        "Reduction_Save": "reduction.save",
+        "Kmeans_Init_Nstart": "kmeans_init_nstart",
+        "Kmeans_Init_Iter_Max": "kmeans_init_iter_max"
+      }
+    }
+  },
+  "notes": {
+    "data_types": {
+      "BOOLEAN": "Logical TRUE/FALSE values",
+      "NUMBER": "Numeric values",
+      "STRING": "Character strings",
+      "SELECT": "Single selection from predefined options",
+      "MULTISELECT": "Multiple selections from predefined options",
+      "VECTOR": "R vector of values (often c() format)"
+    },
+    "special_handling": {
+      "Variables_to_Regress": "When empty, defaults to c() or NULL",
+      "Exclude_Sample": "When empty, defaults to c(\"\") but processed to remove empty strings",
+      "Method_for_Finding_Significant_PCs": "Defaults to c(\"none\") when no method selected"
+    },
+    "template_pattern": "NIDAP templates use {{{Parameter_Name}}} syntax to inject parameter values into R code",
+    "function_calls": "Each NIDAP template calls its corresponding SCWorkflow function with mapped parameters"
+  }
+}

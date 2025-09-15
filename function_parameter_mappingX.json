@@ -1,0 +1,806 @@
+{
+  "description": "Mapping of SCWorkflow R function parameters to standardized JSON keys for Galaxy CLI integration",
+  "version": "1.0",
+  "created": "2025-09-13",
+  "functions": {
+    "filterSeuratObjectByMetadata": {
+      "function_file": "Filter_Seurat_Object_by_Metadata.R",
+      "json_template": "filterSeuratObjectByMetadata.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file", 
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "samples.to.include": {
+          "r_param": "samples.to.include",
+          "type": "array",
+          "description": "Select which samples to include",
+          "required": true
+        },
+        "sample.name": {
+          "r_param": "sample.name",
+          "type": "string",
+          "description": "Sample Name Column",
+          "default": "orig.ident",
+          "required": true
+        },
+        "category.to.filter": {
+          "r_param": "category.to.filter",
+          "type": "string",
+          "description": "Metadata column to subset by",
+          "required": true
+        },
+        "values.to.filter": {
+          "r_param": "values.to.filter",
+          "type": "string_or_array",
+          "description": "One or more values to filter",
+          "required": true
+        },
+        "keep.or.remove": {
+          "r_param": "keep.or.remove",
+          "type": "boolean",
+          "description": "TRUE to filter down to selected values, FALSE to filter out",
+          "default": true
+        },
+        "greater.less.than": {
+          "r_param": "greater.less.than",
+          "type": "string",
+          "description": "For numeric filters: greater than or less than",
+          "default": "greater than"
+        },
+        "seed": {
+          "r_param": "seed",
+          "type": "integer",
+          "description": "Random seed for colors",
+          "default": 10
+        },
+        "cut.off": {
+          "r_param": "cut.off",
+          "type": "number",
+          "description": "Cut-off for greater/less than filter",
+          "default": 0.5
+        },
+        "legend.position": {
+          "r_param": "legend.position",
+          "type": "string",
+          "description": "Legend position",
+          "default": "top"
+        },
+        "reduction": {
+          "r_param": "reduction",
+          "type": "string",
+          "description": "Clustering visualization type",
+          "default": "umap"
+        },
+        "plot.as.interactive.plot": {
+          "r_param": "plot.as.interactive.plot",
+          "type": "boolean",
+          "description": "TRUE for interactive, FALSE for static",
+          "default": false
+        },
+        "dot.size": {
+          "r_param": "dot.size",
+          "type": "number",
+          "description": "Size of dots on projection plot",
+          "default": 0.1
+        },
+        "use.cite.seq.data": {
+          "r_param": "use.cite.seq.data",
+          "type": "boolean",
+          "description": "TRUE to plot Antibody clusters from CITEseq",
+          "default": false
+        }
+      }
+    },
+    "appendMetadataToSeuratObject": {
+      "function_file": "Append_Metadata_to_Seurat_Objects.R",
+      "json_template": "appendMetadataToSeuratObject.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path", 
+          "required": true
+        },
+        "metadata.to.append": {
+          "r_param": "metadata.to.append",
+          "type": "file",
+          "description": "Metadata table file to append",
+          "required": true
+        },
+        "sample.name.column": {
+          "r_param": "sample.name.column",
+          "type": "string",
+          "description": "Column containing sample names",
+          "required": true
+        }
+      }
+    },
+    "combineNormalize": {
+      "function_file": "Combine_and_Normalize.R",
+      "json_template": "combineNormalize.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "npcs": {
+          "r_param": "npcs",
+          "type": "integer",
+          "description": "Number of principal components",
+          "default": 50
+        },
+        "vars.to.regress": {
+          "r_param": "vars.to.regress",
+          "type": "array",
+          "description": "Variables to regress out",
+          "default": null
+        },
+        "clust.res.low": {
+          "r_param": "clust.res.low",
+          "type": "number",
+          "description": "Low clustering resolution",
+          "default": 0.2
+        },
+        "clust.res.high": {
+          "r_param": "clust.res.high",
+          "type": "number",
+          "description": "High clustering resolution",
+          "default": 1.2
+        },
+        "only.var.genes": {
+          "r_param": "only.var.genes",
+          "type": "boolean",
+          "description": "Use only variable genes",
+          "default": true
+        }
+      }
+    },
+    "processRawData": {
+      "function_file": "Process_Raw_Data.R",
+      "json_template": "processRawData.json",
+      "parameters": {
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "input": {
+          "r_param": "input",
+          "type": "array",
+          "description": "Input file paths",
+          "required": true
+        },
+        "sample.names": {
+          "r_param": "sample.names",
+          "type": "array",
+          "description": "Sample names",
+          "required": true
+        },
+        "min.cells": {
+          "r_param": "min.cells",
+          "type": "integer",
+          "description": "Minimum cells per gene",
+          "default": 3
+        },
+        "min.features": {
+          "r_param": "min.features",
+          "type": "integer",
+          "description": "Minimum features per cell",
+          "default": 200
+        }
+      }
+    },
+    "filterQC": {
+      "function_file": "Filter_QC.R",
+      "json_template": "filterQC.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "mad.mitoch.limits": {
+          "r_param": "mad.mitoch.limits",
+          "type": "array",
+          "description": "MAD mitochondrial limits",
+          "default": [null, 3]
+        },
+        "mitoch.limits": {
+          "r_param": "mitoch.limits",
+          "type": "array",
+          "description": "Mitochondrial percentage limits",
+          "default": [null, 25]
+        },
+        "mad.gene.limits": {
+          "r_param": "mad.gene.limits",
+          "type": "array",
+          "description": "MAD gene limits",
+          "default": [3, 3]
+        },
+        "gene.limits": {
+          "r_param": "gene.limits",
+          "type": "array",
+          "description": "Gene count limits",
+          "default": [200, null]
+        }
+      }
+    },
+    "colorByGene": {
+      "function_file": "Color_by_Gene.R",
+      "json_template": "colorByGene.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "samples.to.include": {
+          "r_param": "samples.to.include",
+          "type": "array",
+          "description": "Samples to include",
+          "required": true
+        },
+        "gene": {
+          "r_param": "gene",
+          "type": "array",
+          "description": "Genes to color by",
+          "required": true
+        },
+        "reduction": {
+          "r_param": "reduction",
+          "type": "string",
+          "description": "Reduction method",
+          "default": "umap"
+        },
+        "use.cite.seq.data": {
+          "r_param": "use.cite.seq.data",
+          "type": "boolean",
+          "description": "Use CITE-seq data",
+          "default": false
+        }
+      }
+    },
+    "colorByMarkerTable": {
+      "function_file": "Color_by_Genes_Automatic.R",
+      "json_template": "colorByMarkerTable.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "samples.subset": {
+          "r_param": "samples.subset",
+          "type": "array",
+          "description": "Samples to subset",
+          "required": true
+        },
+        "samples.to.display": {
+          "r_param": "samples.to.display",
+          "type": "array",
+          "description": "Samples to display",
+          "required": true
+        },
+        "marker.table": {
+          "r_param": "marker.table",
+          "type": "file",
+          "description": "Marker table file",
+          "required": true
+        },
+        "cells.of.interest": {
+          "r_param": "cells.of.interest",
+          "type": "array",
+          "description": "Cell types of interest",
+          "required": true
+        }
+      }
+    },
+    "plotMetadata": {
+      "function_file": "Plot_Metadata.R", 
+      "json_template": "plotMetadata.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "samples.to.include": {
+          "r_param": "samples.to.include",
+          "type": "array",
+          "description": "Samples to include",
+          "required": true
+        },
+        "metadata.to.plot": {
+          "r_param": "metadata.to.plot",
+          "type": "array",
+          "description": "Metadata columns to plot",
+          "required": true
+        },
+        "columns.to.summarize": {
+          "r_param": "columns.to.summarize",
+          "type": "array",
+          "description": "Columns to summarize",
+          "default": []
+        },
+        "reduction": {
+          "r_param": "reduction",
+          "type": "string",
+          "description": "Reduction method",
+          "default": "umap"
+        }
+      }
+    },
+    "annotateCellTypes": {
+      "function_file": "Annotate_Cell_Types.R",
+      "json_template": "annotateCellTypes.json", 
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output", 
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "species": {
+          "r_param": "species",
+          "type": "string",
+          "description": "Species (Mouse or Human)",
+          "required": true
+        },
+        "use.clusters": {
+          "r_param": "use.clusters",
+          "type": "string",
+          "description": "Cluster column to use",
+          "default": null
+        }
+      }
+    },
+    "degGeneExpressionMarkers": {
+      "function_file": "DEG_Gene_Expression_Markers.R",
+      "json_template": "degGeneExpressionMarkers.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file", 
+          "description": "Output results file path",
+          "required": true
+        },
+        "samples": {
+          "r_param": "samples",
+          "type": "array",
+          "description": "Samples to include",
+          "required": true
+        },
+        "parameter.to.test": {
+          "r_param": "parameter.to.test",
+          "type": "string",
+          "description": "Parameter to test for DEG",
+          "required": true
+        },
+        "contrasts": {
+          "r_param": "contrasts",
+          "type": "array",
+          "description": "Contrasts to perform",
+          "required": true
+        }
+      }
+    },
+    "dotPlotMet": {
+      "function_file": "Dotplot_by_Metadata.R",
+      "json_template": "dotPlotMet.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "genes": {
+          "r_param": "genes",
+          "type": "array",
+          "description": "Genes to plot",
+          "required": true
+        },
+        "group": {
+          "r_param": "group",
+          "type": "string", 
+          "description": "Grouping variable",
+          "required": true
+        },
+        "assay": {
+          "r_param": "assay",
+          "type": "string",
+          "description": "Assay to use",
+          "default": "SCT"
+        }
+      }
+    },
+    "dualLabeling": {
+      "function_file": "Dual_Labeling.R",
+      "json_template": "dualLabeling.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "samples": {
+          "r_param": "samples",
+          "type": "array",
+          "description": "Samples to include",
+          "required": true
+        },
+        "marker.1": {
+          "r_param": "marker.1",
+          "type": "string",
+          "description": "First marker gene",
+          "required": true
+        },
+        "marker.2": {
+          "r_param": "marker.2",
+          "type": "string",
+          "description": "Second marker gene",
+          "required": true
+        },
+        "data.reduction": {
+          "r_param": "data.reduction",
+          "type": "string",
+          "description": "Reduction method",
+          "default": "umap"
+        }
+      }
+    },
+    "heatmapSC": {
+      "function_file": "Heatmap.R",
+      "json_template": "heatmapSC.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "transcripts": {
+          "r_param": "transcripts",
+          "type": "array",
+          "description": "Transcripts/genes to plot",
+          "required": true
+        },
+        "metadata.to.plot": {
+          "r_param": "metadata.to.plot",
+          "type": "array",
+          "description": "Metadata columns to plot",
+          "default": []
+        },
+        "use_assay": {
+          "r_param": "use_assay",
+          "type": "string",
+          "description": "Assay to use",
+          "default": "SCT"
+        }
+      }
+    },
+    "modScore": {
+      "function_file": "ModuleScore.R",
+      "json_template": "modScore.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "marker.table": {
+          "r_param": "marker.table",
+          "type": "file",
+          "description": "Marker table file",
+          "required": true
+        },
+        "ms.threshold": {
+          "r_param": "ms.threshold",
+          "type": "array",
+          "description": "Module score thresholds",
+          "required": true
+        },
+        "use_assay": {
+          "r_param": "use_assay",
+          "type": "string",
+          "description": "Assay to use",
+          "default": "SCT"
+        }
+      }
+    },
+    "nameClusters": {
+      "function_file": "Name_Clusters_by_Enriched_Cell_Type.R",
+      "json_template": "nameClusters.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "cluster.by": {
+          "r_param": "cluster.by",
+          "type": "string",
+          "description": "Cluster column to use",
+          "required": true
+        },
+        "group.by": {
+          "r_param": "group.by",
+          "type": "string",
+          "description": "Group by column",
+          "required": true
+        }
+      }
+    },
+    "reclusterSeuratObject": {
+      "function_file": "Recluster_Seurat_Object.R",
+      "json_template": "reclusterSeuratObject.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "resolutions": {
+          "r_param": "resolutions",
+          "type": "array",
+          "description": "Clustering resolutions",
+          "default": [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+        },
+        "npcs": {
+          "r_param": "npcs",
+          "type": "integer",
+          "description": "Number of principal components",
+          "default": 50
+        }
+      }
+    },
+    "reclusterFilteredSeuratObject": {
+      "function_file": "Recluster_Filtered_Seurat_Object.R",
+      "json_template": "reclusterFilteredSeuratObject.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "resolutions": {
+          "r_param": "resolutions",
+          "type": "array",
+          "description": "Clustering resolutions",
+          "default": [0.2, 0.4, 0.6, 0.8, 1.0, 1.2]
+        },
+        "npcs": {
+          "r_param": "npcs",
+          "type": "integer",
+          "description": "Number of principal components",
+          "default": 50
+        }
+      }
+    },
+    "tSNE3D": {
+      "function_file": "3D_tSNE.R",
+      "json_template": "tSNE3D.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "samples.to.include": {
+          "r_param": "samples.to.include",
+          "type": "array",
+          "description": "Samples to include",
+          "required": true
+        },
+        "metadata.to.plot": {
+          "r_param": "metadata.to.plot",
+          "type": "string",
+          "description": "Metadata column to plot",
+          "required": true
+        }
+      }
+    },
+    "violinPlot_mod": {
+      "function_file": "Violin_Plots_by_Metadata.R",
+      "json_template": "violinPlot_mod.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "genes": {
+          "r_param": "genes",
+          "type": "array",
+          "description": "Genes to plot",
+          "required": true
+        },
+        "group": {
+          "r_param": "group",
+          "type": "string",
+          "description": "Grouping variable",
+          "required": true
+        },
+        "assay": {
+          "r_param": "assay",
+          "type": "string",
+          "description": "Assay to use",
+          "default": "SCT"
+        },
+        "filter_outliers": {
+          "r_param": "filter_outliers",
+          "type": "boolean",
+          "description": "Filter outliers",
+          "default": false
+        }
+      }
+    },
+    "harmonyBatchCorrect": {
+      "function_file": "Harmony.R",
+      "json_template": "harmonyBatchCorrect.json",
+      "parameters": {
+        "object_input_rds": {
+          "r_param": "object",
+          "type": "file",
+          "description": "Input Seurat object file path",
+          "required": true
+        },
+        "object_output_rds": {
+          "r_param": "output",
+          "type": "file",
+          "description": "Output Seurat object file path",
+          "required": true
+        },
+        "nvar": {
+          "r_param": "nvar",
+          "type": "integer",
+          "description": "Number of variable genes",
+          "default": 2000
+        },
+        "genes.to.add": {
+          "r_param": "genes.to.add",
+          "type": "array",
+          "description": "Additional genes to include",
+          "default": []
+        },
+        "group.by.var": {
+          "r_param": "group.by.var",
+          "type": "string",
+          "description": "Variable to group by for batch correction",
+          "required": true
+        },
+        "npc": {
+          "r_param": "npc",
+          "type": "integer",
+          "description": "Number of principal components",
+          "default": 30
+        }
+      }
+    }
+  }
+}

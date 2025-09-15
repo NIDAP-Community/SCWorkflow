@@ -1,0 +1,163 @@
+{
+	"codeTemplate": "ModuleScores_SO <- function({{{Seurat_Object}}},{{{Marker_Table}}},{{{Levels_Data_Frame}}}) {\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    #Primary Inputs:\n    seurat_object = {{{Seurat_Object}}}\n    marker_table <- {{{Marker_Table}}}\n    levels_data_frame <- {{{Levels_Data_Frame}}}\n\n    #Basic Parameters:\n    celltype_to_analyze <- {{{Celltypes_to_Analyze}}}\n    signature_threshold <- {{{Manual_Thresholds}}}\n    general_class <- {{{General_Class}}}\n    multi_level_class <- {{{Multi_Level_Classes}}}\n\n    #Plot Parameters:\n    reduction = \"{{{Reduction}}}\"\n    nbins <- {{{Nbins}}}\n    gradient_density_font_size <- {{{Gradient_Density_Font_Size}}}\n    violinplot_font_size <- {{{Violinplot_Font_Size}}}\n    step_size <- {{{Step_Size}}}\n    \n    #Advanced Parameters:\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    so <- readRDS(path)\n\n    MS_res <- modScore(object = so,\n             marker.table = marker_table,\n             use_columns = celltype_to_analyze,\n             ms_threshold = signature_threshold,\n             general.class = general_class,\n             multi.lvl = multi_level_class,\n             lvl.df = levels_data_frame,\n             reduction = reduction,\n             nbins = nbins,\n             gradient.ft.size = gradient_density_font_size,\n             violin.ft.size = violinplot_font_size,\n             step.size = step_size)\n\n    output <- new.output()\n    output_fs <- output$fileSystem()\n    saveRDS(MS_res, output_fs$get_path(\"seurat_object.rds\", 'w'))\n\n    return(NULL)\n}\n#################################################\n## Global imports and functions included below ##\n#################################################\n\nmodScore <- function(object, marker.table, ms_threshold, use_columns,\n    general.class, multi.lvl = FALSE, lvl.df, \n    reduction = \"tsne\", nbins = 10, gradient.ft.size = 6, \n    violin.ft.size = 6, step.size = 0.1) \n{\n    library(Seurat)\n    library(gridExtra)\n    library(grid)\n    library(dplyr)\n    library(stringr)\n    library(ggplot2)\n\n    # Function for separating and calling cells by bimodal thresholds\n    .modScoreCall <- function(ms.meta, numeric_threshold, reject) {\n        thres.ls <- list()\n        for (i in 1:ncol(ms.meta)) {\n            thres.ls[[i]] <- rep(numeric_threshold[i], nrow(ms.meta))\n        }\n        thres.df <- data.frame(matrix(unlist(thres.ls), nrow = nrow(ms.meta)))\n        thres.filter <- ms.meta > thres.df\n        ms.meta.filt <- ms.meta * thres.filter\n        max.col.vec <- max.col(ms.meta.filt)\n        zero.filt <- as.integer(!apply(ms.meta.filt, 1, function(find_zero_rows) all(find_zero_rows == 0)))\n        final.filt <- (max.col.vec * zero.filt) + 1\n        append.name <- c(reject, names(ms.meta))\n        dupl.data <- ms.meta\n        dupl.data[, \"MS_Celltype\"] <- append.name[final.filt]\n        return(dupl.data)\n    }\n\n    # Upstream processing\n    # String split celltype_thresholds - numeric portion\n    numeric_threshold <- sapply(stringr::str_split(ms_threshold, \" \"), function(x) as.numeric(x[2]))\n\n    if (!\"Barcode\" %in% colnames(object@meta.data)) {\n        object@meta.data$Barcode <- rownames(object@meta.data)\n    }\n    colnames(object@meta.data) <- gsub(\"orig_ident\", \"orig.ident\", \n        colnames(object@meta.data))\n    \n    # Marker table processing\n    marker.table <- marker.table[,use_columns]\n    marker.tab <- unlist(marker.table)\n    celltypes <- sapply(str_split(ms_threshold, \" \"), function(x) as.character(x[1]))\n\n    if (any(!celltypes %in% use_columns)){\n        unmatched_celltypes <- celltypes[!celltypes %in% use_columns]\n        celltype_mismatch_message <- paste0(\"Labels from thresholds does not match columns from marker table: \",paste(unmatched_celltypes, collapse = \", \"))\n        stop(celltype_mismatch_message) \n    }\n\n    marker = select(marker.table, celltypes)\n    marker.list = as.list(marker)\n    if (sum(unlist(marker.list) %in% rownames(object@assays$SCT@data)) == \n        0) {\n        stop(\"No genes from list was found in data\")\n    }\n    if (length(numeric_threshold) != length(celltypes)) {\n        if (sum(numeric_threshold) == 0) {\n            numeric_threshold <- rep(0, length(celltypes))\n            print(\"Module Score threshold set to zero - outputing preliminary data\")\n        } else {\n            stop(\"Threshold length does not match # celltypes to analyze\")\n        }\n    }\n\n    # For each celltype, print out present / nonpresent genes, calculate MS and generate plots\n    names(numeric_threshold) <- celltypes\n    figures <- list()\n    exclude_cells <- c()\n    h = 0\n    j = 1\n    for (h in seq_along(marker.list)) {\n        print(names(marker.list[h]))\n        present = lapply(marker.list[[h]], function(x) x %in% \n            rownames(object@assays$SCT@data))\n        absentgenes = unlist(marker.list[[h]])[present == FALSE]\n        absentgenes = absentgenes[is.na(absentgenes) == F]\n        presentgenes = unlist(marker.list[[h]])[present == TRUE]\n        presentgenes = presentgenes[is.na(presentgenes) == F]\n        print(paste0(\"Genes not present: \", paste0(absentgenes, \n            collapse = \",\")))\n        print(paste0(\"Genes present: \", paste0(presentgenes, \n            collapse = \",\")))\n        if (length(presentgenes) == 0) {\n            print(paste0(names(marker.list[h]), \" genes were not found in object and will not be analyzed\"))\n            exclude_cells[j] <- h\n            j = j + 1\n        }\n    }\n    # End of check present / absent genes\n\n    if (length(exclude_cells) > 0) {\n        marker.list <- marker.list[-exclude_cells]\n    } else {\n        marker.list <- marker.list\n    }\n\n    # Calculate MS, make density plots\n    for (celltype_name in names(marker.list)) {\n        object = AddModuleScore(object, marker.list[celltype_name], \n            name = celltype_name, nbin = nbins, assay = \"SCT\")\n        m = paste0(celltype_name, \"1\")\n        object@meta.data[[m]] <- scales::rescale(object@meta.data[[m]], \n            to = c(0, 1))\n\n        # Do plots for just general (parent) celltypes\n        if (celltype_name %in% general.class){\n        clusid = object@meta.data[[m]]\n        d <- density(clusid)\n\n        # Make dimension reduction tables and plots\n        if (reduction == \"tsne\") {\n            p1 <- DimPlot(object, reduction = \"tsne\", group.by = \"ident\")\n        } else if (reduction == \"umap\") {\n            p1 <- DimPlot(object, reduction = \"umap\", group.by = \"ident\")\n        } else {\n            p1 <- DimPlot(object, reduction = \"pca\", group.by = \"ident\")\n        }\n\n        if (reduction == \"tsne\") {\n            clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$tSNE_1, umap2 = p1$data$tSNE_2, clusid = as.numeric(object@meta.data[[m]]))\n            } else if (reduction == \"umap\") {\n            clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$UMAP_1, umap2 = p1$data$UMAP_2, clusid = as.numeric(object@meta.data[[m]]))\n            } else {\n            clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$PC_1, \n                umap2 = p1$data$PC_2, clusid = as.numeric(object@meta.data[[m]]))}\n\n        clusmat <- mutate(clusmat, sample_clusid = clusmat$clusid)\n        umap.pos <- clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1), umap2.mean = mean(umap2))\n        title = as.character(m)\n        clusmat <- clusmat %>% dplyr::arrange(clusid)\n        clusid.df <- data.frame(id = object@meta.data$orig.ident, \n            ModuleScore = object@meta.data[[m]])\n\n        g <- ggplot(clusmat, aes(x = umap1, y = umap2)) + theme_bw() + \n            theme(legend.title = element_blank()) + geom_point(aes(colour = sample_clusid), alpha = 0.5, shape = 20, size = 1) + scale_color_gradientn(colours = c(\"blue4\", \"lightgrey\", \"red\"), values = scales::rescale(c(0, \n            numeric_threshold[celltype_name]/2, numeric_threshold[celltype_name], (numeric_threshold[celltype_name] + 1)/2, \n            1), limits = c(0, 1))) + guides(colour = guide_legend(override.aes = list(size = 5, alpha = 1))) + theme(panel.grid.major = element_blank(), \n            panel.grid.minor = element_blank(), panel.background = element_blank()) + xlab(\"tsne-1\") + ylab(\"tsne-2\")\n\n        g1 <- RidgePlot(object, features = m, group.by = \"orig.ident\") + \n            theme(legend.position = \"none\", title = element_blank(), \n                axis.text.x = element_text(size = gradient.ft.size)) + \n            geom_vline(xintercept = numeric_threshold[celltype_name], linetype = \"dashed\", \n                color = \"red3\") + scale_x_continuous(breaks = seq(0, \n            1, step.size))\n\n        g2 <- ggplot(clusid.df, aes(x = id, y = ModuleScore)) + \n            geom_violin(aes(fill = id)) + theme_classic() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.title = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), legend.text = element_text(size = rel(0.8)), legend.position = \"top\", axis.text.y = element_text(size = violin.ft.size)) + \n            guides(colour = guide_legend(override.aes = list(size = 5, \n                alpha = 1))) + geom_hline(yintercept = numeric_threshold[celltype_name], \n            linetype = \"dashed\", color = \"red3\") + scale_y_continuous(breaks = seq(0, 1, step.size))\n\n        g3 <- ggplot(data.frame(x = d$x, y = d$y), aes(x, y)) + \n            xlab(\"ModuleScore\") + ylab(\"Density\") + geom_line() + \n            geom_segment(aes(xend = d$x, yend = 0, colour = x)) + \n            scale_y_log10() + scale_color_gradientn(colours = c(\"blue4\", \n            \"lightgrey\", \"red\"), values = scales::rescale(c(0, \n            numeric_threshold[celltype_name]/2, numeric_threshold[celltype_name], (numeric_threshold[celltype_name] + 1)/2, \n            1), limits = c(0, 1))) + geom_vline(xintercept = numeric_threshold[celltype_name], \n            linetype = \"dashed\", color = \"red3\") + geom_vline(xintercept = numeric_threshold[celltype_name], linetype = \"dashed\", color = \"red3\") + scale_x_continuous(breaks = seq(0, 1, step.size)) + theme(legend.title = element_blank(), \n            axis.text.x = element_text(size = 6))\n\n        figures[[celltype_name]] = arrangeGrob(g, g1, g2, g3, ncol = 2, top = textGrob(paste0(celltype_name,\" (General Class)\"), gp = gpar(fontsize = 14, fontface = \"bold\")))\n        }\n    }\n\n    # Rename MS columns - get rid of \"1\" at the end\n    colnames(object@meta.data)[colnames(object@meta.data) %in% \n        paste0(names(marker.list), 1)] <- names(marker.list)\n\n    # Heirarchical classification: general.class > subtypes\n    general.class <- general.class[general.class %in% colnames(object@meta.data)]\n    trunc.meta.gen <- object@meta.data[general.class]\n    gen.thrs.vec <- numeric_threshold[general.class]\n    call.res <- .modScoreCall(trunc.meta.gen, gen.thrs.vec, reject = \"unknown\")\n    call.res$Barcode <- rownames(call.res)\n\n    if (multi.lvl) {\n        for (k in 1:ncol(lvl.df)) {\n\n            sub.class.call <- list()\n            store.sub.class <- lvl.df[[k]][!is.na(lvl.df[[k]])]\n            parent.class <- unique(gsub(\"(.*)-(.*)\", \"\\\\1\", store.sub.class))\n\n            for (parent in parent.class) {\n                sub.class <- store.sub.class[grepl(parent, store.sub.class)]\n                children_class <- gsub(\"(.*)-(.*)\", \"\\\\2\", sub.class)\n                parents <- call.res$Barcode[call.res$MS_Celltype == \n                  parent]\n                trunc.meta.parent <- object@meta.data[parents, \n                  ] %>% select(children_class)\n\n                  gap_ind <- which(names(figures) == parent)\n\n                  # Stop hierarchical classification in case no parent cell can be called\n                  if (nrow(trunc.meta.parent) == 0){\n                      stop(paste0(\"No \",parent,\" can be called in \",\"level \",k-1,\" classification, try setting more lenient thresholds\"))}\n\n                for (child in children_class) {\n                  plot.title <- paste(\"Density plot for\", child, \n                    \"Module Scores within\", parent, \"population\", \n                    sep = \" \")\n\n                    figures <- append(figures, list(NA), after = gap_ind)\n\n                  figures[[gap_ind+1]] <- ggplot(trunc.meta.parent, aes_string(x = child)) + geom_density() + ggtitle(plot.title) + geom_vline(xintercept = numeric_threshold[child], linetype = \"dashed\", color = \"red3\") + theme_classic()\n                  names(figures)[gap_ind+1] <- child\n                  }\n\n                trunc.meta.no.parent <- call.res[!call.res$MS_Celltype == \n                  parent, ]\n                non.parent <- rownames(trunc.meta.no.parent)\n                child.thres.vec <- numeric_threshold[children_class]\n\n            sub.class.call[[match(parent, parent.class)]] <- .modScoreCall(trunc.meta.parent, child.thres.vec, reject = parent) %>% select(MS_Celltype)}\n\n            sub.class.call <- do.call(rbind, sub.class.call)\n            sub.class.call$Barcode <- rownames(sub.class.call)\n            call.res$temp.call <- sub.class.call$MS_Celltype[match(call.res$Barcode, sub.class.call$Barcode)]\n            call.res <- call.res %>% mutate(MS_Celltype = case_when(is.na(temp.call) ~ MS_Celltype, TRUE ~ temp.call))\n            call.res$temp.call <- NULL\n        }\n    }\n\n    object@meta.data$MS_Celltype <- call.res$MS_Celltype[match(object@meta.data$Barcode, call.res$Barcode)]\n\n    lapply(figures, plot)\n\n    return(object)\n}\n\n",
+	"columns": [
+		{
+			"key": "Celltypes_to_Analyze",
+			"displayName": "Celltypes to Analyze",
+			"description": "Select specific columns within Marker Table to analyze. Markers from unselected columns won't be included.",
+			"paramGroup": null,
+			"sourceDataset": "Marker_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "General_Class",
+			"displayName": "General Class",
+			"description": "Select which of the classes (i.e. which columns) in your Marker Table represent the General Classes. A general class is any class that is not a subtype of another class.",
+			"paramGroup": null,
+			"sourceDataset": "Marker_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "Screens data for cells based on user-specified cell markers. Outputs a seurat object with a metadata with averaged marker scores and annotated \"Likely_CellType\" column. Final Potomac Compatible Version: v165. Sugarloaf V1: v192. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.816e14fc-26b4-4a69-a051-f75b3ce7bf30)",
+	"externalId": "Cell_Annotation_with_Module_Scores_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Select an input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Marker_Table",
+			"displayName": "Marker Table",
+			"description": "A table of lists of gene/protein markers for the categories of cells you want to detect. The table should be formatted with cell type(s) as the column names, and marker(s) as the entries in each column. Requires SCT@data to be present within Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "Levels_Data_Frame",
+			"displayName": "Levels Data Frame",
+			"description": "Dataframe containing levels information as well as parent-children designation (E.g. Tcells-CD4). Required if Multi Level Classification is turned on.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Manual_Thresholds",
+			"displayName": "Manual Thresholds",
+			"description": "Allow user-specified module score thresholds. Provide one threshold for each Celltype you included in the \"Celltypes to Analyze\" parameter above. For each Celltype, provide the Celltype name, then a space, then type your threshold for that Celltype. This threshold must be a number between 0.0 and 1.0. E.g. \"Tcells 0.2\", \"Macrophages 0.37\". Click \"Add\" to add each subsequent threshold.\n\nFor best results, follow these steps: (1) Set thresholds at 0.0 for a preliminary view of data. (2) Use the resulting visualizations to estimate the correct thresholds for each Celltype. (3) Adjust your thresholds based on what you saw in the visualizations. (4) Re-run the template with the new thresholds. (5) Review the visualizations again and repeat Steps 1-5 if you think thresholds can be further improved.",
+			"paramType": "VECTOR",
+			"paramGroup": null,
+			"paramValues": null,
+			"defaultValue": "c()",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Multi_Level_Classes",
+			"displayName": "Multi-Level Classes",
+			"description": "Turn on if there are multiple subclasses of cells you would like to classify. Note: requires a manual entry table with columns specifying levels and comparisons. Each column of this table should represent one level of subclass within your General Classes. Each value within a column should be two Class names separated by a dash (-) showing the General-to-SubClass relationship.\n\nExample: To classify T-cells and then attempt to classify those T-cells further into either CD8 or CD4 T-cells, you would write a column named \"Level_1\", then add \"T_cell-CD8_T\" and \"T_cell-CD4_T\" to that column. Note that in this example, \"T_cell\" is a General Class and \"CD8_T\" and \"CD4_T\" are not.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced Classification",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Reduction",
+			"displayName": "Reduction",
+			"description": "Choose specific dimension reduction plot to display.",
+			"paramType": "SELECT",
+			"paramGroup": "Plot",
+			"paramValues": [
+				"tsne",
+				"umap",
+				"pca"
+			],
+			"defaultValue": null,
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Nbins",
+			"displayName": "Nbins",
+			"description": "Set number of bins to sort aggregated expression scores (Default 24).",
+			"paramType": "NUMBER",
+			"paramGroup": "Plot",
+			"paramValues": null,
+			"defaultValue": "24",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Gradient_Density_Font_Size",
+			"displayName": "Gradient Density Font Size",
+			"description": "Adjust the font size of the x-axis for the Gradient Density Plot.",
+			"paramType": "NUMBER",
+			"paramGroup": "Plot",
+			"paramValues": null,
+			"defaultValue": "6",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Violinplot_Font_Size",
+			"displayName": "Violinplot Font Size",
+			"description": "Adjust font size of the y-axis labels for the Violinplot.",
+			"paramType": "NUMBER",
+			"paramGroup": "Plot",
+			"paramValues": null,
+			"defaultValue": "6",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Step_Size",
+			"displayName": "Step Size",
+			"description": "Changes the step size of x and y-axis on displayed plot(s).",
+			"paramType": "NUMBER",
+			"paramGroup": "Plot",
+			"paramValues": null,
+			"defaultValue": "0.1",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Name of RDS file containing Seurat Object.  Default is seurat_object.rds.",
+			"paramType": "STRING",
+			"paramGroup": "Filesave",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Cell Annotation with Module Scores [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

@@ -1,0 +1,92 @@
+{
+	"codeTemplate": "HarmonyBatchCorr_SO <- function({{{Seurat_Object}}},{{{Metadata}}}) {\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    #Basic Parameters:\n    seurat_object <- {{{Seurat_Object}}}\n    group_by_var <- \"{{{Batch_Variable}}}\"\n    variable_features <- {{{Variable_Features}}}\n    genes_to_add <- {{{Genes_to_Add}}}\n    principal_components <- {{{Principal_Components}}}\n\n    #Advanced Parameters:\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    so <- readRDS(path)\n\n    # Account for NIDAP specific behavior\n    if(group_by_var == \"orig_ident\"){\n        group_by_var <- \"orig.ident\"\n    }\n\n    harmony_res <- harmonyBatchCorrect(object = so,\n                        nvar = variable_features,\n                        genes.to.add = genes_to_add,\n                        group.by.var = group_by_var,\n                        npc = principal_components)\n\n    output <- new.output()\n    output_fs <- output$fileSystem()\n    saveRDS(harmony_res, output_fs$get_path(\"seurat_object.rds\", 'w'))\n\n    return(NULL)\n}\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# Functions defined here will be available to call in\n# the code for any table.\n\nharmonyBatchCorrect <- function(object, \n                                nvar = 2000, \n                                genes.to.add = c(),\n                                group.by.var,\n                                npc = 30) {\n  \nlibrary(patchwork)  \nlibrary(harmony)\nlibrary(Seurat)\nlibrary(ggplot2)\nlibrary(RColorBrewer)\n\n  # Error and Warning Messages\n  if(is.null(genes.to.add)){\n    print(\"no genes will be added\")\n  } else if (all(!genes.to.add %in% rownames(object))){\n    warning(\"specified genes were not found and therefore cannot be added\")\n  }\n  \n  if (nvar > length(VariableFeatures(object))){\n    stop(\"nvar exceed total number of variable genes in the data\")\n  }\n  \n  ## Main Code Block\n  # Save original tSNE and UMAP for later comparison\n  n <- 60\n  qual.col.pals = brewer.pal.info[brewer.pal.info$category == 'qual',]\n  qual.col.pals = qual.col.pals[c(7,6,2,1,8,3,4,5),]\n  cols = unlist(mapply(brewer.pal, qual.col.pals$maxcolors, \n                       rownames(qual.col.pals)))\n\n  sdat.tsne.orig <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),\n                     as.vector(object@reductions$tsne@cell.embeddings[,2]),\n                     object@meta.data[eval(parse(text = \"group.by.var\"))])\n  names(sdat.tsne.orig) <- c(\"TSNE1\",\"TSNE2\",\"ident\")\n  \n  sdat.umap.orig <- data.frame(as.vector(object@reductions$umap@cell.embeddings[,1]),\n                          as.vector(object@reductions$umap@cell.embeddings[,2]),\n                          object@meta.data[eval(parse(text = \"group.by.var\"))])\n  names(sdat.umap.orig) <- c(\"UMAP1\",\"UMAP2\",\"ident\")\n\n  orig.tsne <- ggplot(sdat.tsne.orig, aes(x=TSNE1, y=TSNE2)) +\n    theme_bw() +\n    theme(legend.title=element_blank()) +\n    geom_point(aes(colour=ident),size=1) +\n    scale_color_manual(values=cols) +\n    theme(panel.grid.major = element_blank(), \n          panel.grid.minor = element_blank(), \n          legend.position=\"none\",\n          panel.background = element_blank(),\n          legend.text=element_text(size=rel(0.5))) +\n    guides(colour = guide_legend(override.aes = list(size=5, alpha = 1))) +\n  annotate(\"text\", x = Inf, y = -Inf, label = \"Original tSNE\", hjust = 1.1, vjust = -1, size = 5) \n  \n  orig.umap <- ggplot(sdat.umap.orig, aes(x=UMAP1, y=UMAP2)) +\n    theme_bw() +\n    theme(legend.title=element_blank()) +\n    geom_point(aes(colour=ident),size=1) +\n    scale_color_manual(values=cols) +\n    theme(panel.grid.major = element_blank(), \n          panel.grid.minor = element_blank(), \n          legend.position=\"none\",\n          panel.background = element_blank(),\n          legend.text=element_text(size=rel(0.5))) +\n    guides(colour = guide_legend(override.aes = list(size=5, alpha = 1))) +\n  annotate(\"text\", x = Inf, y = -Inf, label = \"Original UMAP\", hjust = 1.1, vjust = -1, size = 5)\n\n  # Adjusts SCT scale.data based on harmonized embedding\n  seur.SCT <- object@assays$SCT@scale.data\n  \n  # Add more genes to analyze - must be present in SCT scale.data\n  genes.to.add <- genes.to.add[\n    genes.to.add %in% rownames(object@assays$SCT@scale.data)]\n  \n  # Most variable features (mvf) with user added genes\n  mvf <- unique(c(VariableFeatures(object)[1:nvar], genes.to.add))\n  \n  # Double check that mvf genes are found in scale data genes\n  mvf <- mvf[mvf %in% rownames(seur.SCT)]\n  \n  # Subset SCT scale.data matrix by most variable features\n  seur.SCT <- seur.SCT[mvf,]\n  seur.SCT <- t(seur.SCT) \n  \n  # Singular Value Decomposition (SVD) on scaled counts\n  pppca <- svd(seur.SCT) \n\n  # pppca$u: matrix that contains the left singular values\n  # pppca$d: vector that contains singular values, sorted in descending order\n  ppembed <- pppca$u %*% diag(pppca$d)\n  pcnames <- vector(mode = \"character\")\n  for (i in 1:dim(ppembed)[2])pcnames[i] <- paste(\"PC\", i, sep = \"_\")\n  colnames(ppembed) <- pcnames\n  rownames(ppembed) <- rownames(seur.SCT)\n  \n  # pppca$v: matrix that contains the right singular values\n  ppldngs <- pppca$v\n  colnames(ppldngs) <- pcnames\n  rownames(ppldngs) <- mvf \n\n  # Redo pca embeddings based on SVD of gene expression values\n  object@reductions$pca@cell.embeddings <- ppembed\n  object@reductions$pca@feature.loadings <- ppldngs\n  object@reductions$pca@stdev <- pppca$d\n\n  # By default, Harmony corrects pca embeddings. \n  # Set do_pca to FALSE to use your own pca embeddings. \n  # Stores adjusted embeddings in harmony reduction slot\n \n  object <- RunHarmony(object, \n                   group.by.var,\n                   do_pca=FALSE,\n                   assay.use = \"SCT\",\n                   plot_convergence = FALSE,\n                   return_object=TRUE)\n  \n  object <- RunUMAP(object, reduction = \"harmony\", dims=1:npc)\n  object <- RunTSNE(object, reduction = \"harmony\", dims=1:npc)\n  \n  # Plot harmony embeddings annotated by variable to batch correct for\n  sdat.tsne <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),\n                     as.vector(object@reductions$tsne@cell.embeddings[,2]),\n                     object@meta.data[eval(parse(text = \"group.by.var\"))])\n  names(sdat.tsne) <- c(\"TSNE1\",\"TSNE2\",\"ident\")\n  \n  sdat.umap <- data.frame(as.vector(object@reductions$umap@cell.embeddings[,1]),\n                          as.vector(object@reductions$umap@cell.embeddings[,2]),\n                          object@meta.data[eval(parse(text = \"group.by.var\"))])\n  names(sdat.umap) <- c(\"UMAP1\",\"UMAP2\",\"ident\")\n  \n  harm.tsne <- ggplot(sdat.tsne, aes(x=TSNE1, y=TSNE2)) +\n    theme_bw() +\n    theme(legend.title=element_blank()) +\n    geom_point(aes(colour=ident),size=1) +\n    scale_color_manual(values=cols) +\n    theme(panel.grid.major = element_blank(), \n          panel.grid.minor = element_blank(), \n          legend.position=\"right\",\n          panel.background = element_blank(),\n          legend.text=element_text(size=rel(1.5))) +\n    guides(colour = guide_legend(override.aes = list(size=5, alpha = 1))) +\n  annotate(\"text\", x = Inf, y = -Inf, label = \"Harmonized tSNE\", hjust = 1.1, vjust = -1, size = 5)\n\n  harm.umap <- ggplot(sdat.umap, aes(x=UMAP1, y=UMAP2)) +\n    theme_bw() +\n    theme(legend.title=element_blank()) +\n    geom_point(aes(colour=ident),size=1) +\n    scale_color_manual(values=cols) +\n    theme(panel.grid.major = element_blank(), \n          panel.grid.minor = element_blank(), \n          legend.position=\"right\",\n          panel.background = element_blank(),\n          legend.text=element_text(size=rel(1.5))) +\n    guides(colour = guide_legend(override.aes = list(size=5, alpha = 1))) +\n  annotate(\"text\", x = Inf, y = -Inf, label = \"Harmonized UMAP\", hjust = 1.1, vjust = -1, size = 5)\n\n  print((orig.tsne + harm.tsne) + plot_layout(ncol = 2))\n\n  print((orig.umap + harm.umap) + plot_layout(ncol = 2))\n\n  # Calculate adjusted gene expression from embeddings\n  harm.embeds <- object@reductions$harmony@cell.embeddings\n  harm.lvl.backcalc <- harm.embeds %*% t(ppldngs)\n  \n  # Replace SCT scale.data expression with backcalculated data\n  object$SCT@scale.data <- t(harm.lvl.backcalc)\n  \n  #harm_res <- list(harm.object = object, harm.tsne = g1, harm.umap = g2)\n  \n  return(object)\n}\n\n\n",
+	"columns": [
+		{
+			"key": "Batch_Variable",
+			"displayName": "Batch Variable",
+			"description": "Account for this particular variable (within seurat metadata) when running batch correction",
+			"paramGroup": "Batch Correction",
+			"sourceDataset": "Metadata",
+			"defaultValue": null,
+			"columnType": null,
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "Perform batch correction on scRNA-seq data using the Harmony package. The resulting Seurat Object will contain the Batch Corrected data, and new t-SNE & UMAP visualizations will be produced. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.4e4e30bd-ff0d-4e82-af50-046675fe9a30)",
+	"externalId": "Batch_Correction_with_Harmony_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Input Seurat  Object containing gene expression data and meta.data with batch information",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata",
+			"displayName": "Metadata",
+			"description": "",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Variable_Features",
+			"displayName": "Variable Features",
+			"description": "Number of most variable genes to subset the gene expression data by",
+			"paramType": "NUMBER",
+			"paramGroup": "Batch Correction",
+			"paramValues": null,
+			"defaultValue": "2000",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Genes_to_Add",
+			"displayName": "Genes to Add",
+			"description": "Include genes that might not be found among variably expressed genes",
+			"paramType": "VECTOR",
+			"paramGroup": "Batch Correction",
+			"paramValues": null,
+			"defaultValue": "c(\"Epcam\",\"EPCAM\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Principal_Components",
+			"displayName": "Principal Components",
+			"description": "The number of principal components that the dimensional reductions (tSNE & UMAP) will use. We recommend using at least 30 PCs, but you can add more. However, please note that using more PCs will require more computational time to run -- sometimes significantly more.",
+			"paramType": "NUMBER",
+			"paramGroup": "Batch Correction",
+			"paramValues": null,
+			"defaultValue": "30",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Name of RDS file containing Seurat Object.  Default is seurat_object.rds",
+			"paramType": "STRING",
+			"paramGroup": "Filesave",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Batch Correction with Harmony [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}
