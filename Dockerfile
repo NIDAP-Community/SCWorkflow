@@ -46,9 +46,9 @@ COPY . /opt2/SCWorkflow
 RUN R -e "devtools::install_local('/opt2/SCWorkflow', dependencies = TRUE, repos='http://cran.rstudio.com')"
 
 # add scworkflow exec to the path
-# RUN chmod -R +x /opt2/conda/lib/R/library/SCWorkflow/exec
-# ENV PATH="$PATH:/opt2/conda/lib/R/library/SCWorkflow/exec"
-# RUN scworkflow --help
+RUN chmod -R +x /opt2/conda/lib/R/library/SCWorkflow/exec
+ENV PATH="$PATH:/opt2/conda/lib/R/library/SCWorkflow/exec"
+RUN scworkflow --help
 
 # copy example script & json to data
 COPY ./inst/extdata/example_script.sh /data2/
