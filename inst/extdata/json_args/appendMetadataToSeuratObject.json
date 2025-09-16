@@ -1,6 +1,6 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_annotateCellTypes.rds",
-    "object_output_rds": "../../../SCWorkflowObject_appendMetadataToSeuratObject.rds",
-    "metadata.to.append": "../../../Chariou_metadata_Add.txt",
+    "object_input_rds": "chariou/SCWorkflowObject_annotateCellTypes.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_appendMetadataToSeuratObject.rds",
+    "metadata.to.append": "chariou/Chariou_metadata_Add.txt",
     "sample.name.column": "Sample_Name"
 }

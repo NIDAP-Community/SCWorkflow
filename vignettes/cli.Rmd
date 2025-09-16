@@ -72,6 +72,8 @@ You can copy them to your working directory with R:
 file.copy(system.file("extdata", "TestRunjson.sh", package = "SCWorkflow"), to = "./")
 # copy the JSON files
 file.copy(system.file("extdata", "json_args", package = "SCWorkflow"), to = "./", recursive = TRUE)
+# copy the test data files
+file.copy(system.file("extdata", "chariou", package = "SCWorkflow"), to = "./", recursive = TRUE)
 ```
 
 Then run the script from the CLI:

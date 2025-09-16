@@ -1,5 +1,5 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_filterSeuratObjectByMetadata.rds",
-    "object_output_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_input_rds": "chariou/SCWorkflowObject_filterSeuratObjectByMetadata.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
     "old.columns.to.save": null
 }

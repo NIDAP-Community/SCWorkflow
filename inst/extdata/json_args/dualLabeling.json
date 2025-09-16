@@ -1,6 +1,6 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
-    "object_output_rds": "../../../SCWorkflowObject_dualLabeling.rds",
+    "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_dualLabeling.rds",
     "samples": ["CD8dep","NHSIL12"],
     "marker.1": "Il1b",
     "marker.2": "Cxcl3"

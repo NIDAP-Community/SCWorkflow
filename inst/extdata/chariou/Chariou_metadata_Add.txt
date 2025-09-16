@@ -1,0 +1,6 @@
+Sample_Name	Type
+PBS	Control
+ENT	Treated
+NHSIL12	Treated
+Combo	Treated
+CD8dep	Treated

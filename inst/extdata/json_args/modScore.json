@@ -1,7 +1,7 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
-    "object_output_rds": "../../../SCWorkflowObject_modScore.rds",
-    "marker.table": "../../tests/testthat/fixtures/Marker_Table_demo.csv",
+    "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_modScore.rds",
+    "marker.table": "chariou/Marker_Table_demo.csv",
     "ms.threshold": ["CD8_T 0","CD4_T 0","Tregs 0","Macrophages 0",
                      "M1 0","M2 0","Neutrophils 0","Monocytes 0",
                      "cDCs 0","pDC 0","B_cells 0","NKs 0"],

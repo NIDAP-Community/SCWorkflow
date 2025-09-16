@@ -1,10 +1,10 @@
 {
     "input": [
-        "../../tests/testthat/fixtures/Chariou/h5files/SCAF1713_1_1_filtered_feature_bc_matrix.h5",
-        "../../tests/testthat/fixtures/Chariou/h5files/SCAF1714_2_1_filtered_feature_bc_matrix.h5"
+        "chariou/h5files/SCAF1713_1_1_filtered_feature_bc_matrix.h5",
+        "chariou/h5files/SCAF1714_2_1_filtered_feature_bc_matrix.h5"
     ],
     "organism": "Human",
-    "sample.metadata.table": "../../../Chariou_metadata.txt",
+    "sample.metadata.table": "chariou/Chariou_metadata.txt",
     "sample.name.column": "Sample_Name",
-    "object_output_rds": "../../../SCWorkflow_processRawData.rds"
+    "object_output_rds": "chariou/SCWorkflow_processRawData.rds"
 }
