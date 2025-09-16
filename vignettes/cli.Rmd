@@ -1,0 +1,86 @@
+---
+title: "Calling SCWorkflow from the CLI"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Calling SCWorkflow from the CLI}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE
+)
+```
+
+SCWorkflow includes an executable file called `scworkflow`.
+Any user-facing function in the SCWorkflow R package can be called with
+`scworkflow [function]` from the unix CLI.
+Function arguments are passed in via a JSON file.
+In addition to arguments used by the function,
+the JSON file can contain the following keys:
+
+  - `object_input_rds` - file path to an existing object (Seurat object or SCWorkflow list) in RDS format. This is required if the SCWorkflow function has `object` as an argument (most user-facing functions do).
+  - `object_output_rds` - file path to write the result to.
+
+Run `scworkflow --help` to see the full CLI usage:
+
+```{r help, echo=FALSE, results='asis'}
+cat("```")
+SCWorkflow:::cli_usage(con = stdout())
+cat("```")
+```
+
+## Installing the SCWorkflow CLI
+
+
+### Installation on a personal computer
+
+After installing the R package, you can use `system.file()` to locate the
+`scworkflow` executable file with R:
+
+```{r install}
+# remotes::install_github("CCBR/MOSuite", dependencies = TRUE)
+system.file("exec", "scworkflow", package = "SCWorkflow")
+```
+
+You should add this executable to your `PATH` environment variable.
+
+```sh
+export PATH="$PATH:/path/to/exec/scworkflow"
+```
+
+## Example end-to-end script
+
+You can create a shell script to run the full SCWorkflow pipeline.
+This script assumes you have a directory `json_args/` with JSON files to set
+each function's arguments.
+
+```{r script_e2e, echo=FALSE, results='asis'}
+cat("```bash\n")
+cat(readr::read_lines(system.file("extdata", "example_script.sh", package = "MOSuite")), sep = "\n")
+cat("\n```")
+```
+
+The example script and accompanying JSON files are included in the package data.
+You can copy them to your working directory with R:
+
+```{r example_data_paths, eval=FALSE}
+# copy the example script
+file.copy(system.file("extdata", "TestRunjson.sh", package = "SCWorkflow"), to = "./")
+# copy the JSON files
+file.copy(system.file("extdata", "json_args", package = "SCWorkflow"), to = "./", recursive = TRUE)
+# copy the test data files
+file.copy(system.file("extdata", "chariou", package = "SCWorkflow"), to = "./", recursive = TRUE)
+```
+
+Then run the script from the CLI:
+
+```bash
+bash ./TestRunjson.sh
+```
+
+The .rds output for each function can be set in the corresponding .json file
+

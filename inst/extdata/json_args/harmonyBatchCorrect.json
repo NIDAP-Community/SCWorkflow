@@ -1,5 +1,5 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_appendMetadataToSeuratObject.rds",
-    "object_output_rds": "../../../SCWorkflowObject_harmonyBatchCorrect.rds",
+    "object_input_rds": "chariou/SCWorkflowObject_appendMetadataToSeuratObject.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_harmonyBatchCorrect.rds",
     "group.by.var": "orig.ident"
 }

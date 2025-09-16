@@ -1,5 +1,5 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_combineNormalize.rds",
-    "object_output_rds": "../../../SCWorkflowObject_annotateCellTypes.rds",
+    "object_input_rds": "chariou/SCWorkflowObject_combineNormalize.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_annotateCellTypes.rds",
     "species": "Mouse"
 }

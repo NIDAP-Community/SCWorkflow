@@ -1,8 +1,8 @@
 {
-    "object_input_rds": "../../../SCWorkflowObject_reclusterFilteredSeuratObject.rds",
-    "object_output_rds": "../../../SCWorkflowObject_colorByMarkerTable.rds",
+    "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_colorByMarkerTable.rds",
     "samples.subset": ["CD8dep","NHSIL12"],
     "samples.to.display": ["CD8dep","NHSIL12"],
-    "marker.table": "../../tests/testthat/fixtures/Marker_Table_demo.csv",
+    "marker.table": "chariou/Marker_Table_demo.csv",
     "cells.of.interest": ["CD8_T","CD4_T","Tregs","Macrophages","M1","M2","Neutrophils","Monocytes","cDCs","pDC","B_cells","NKs"]
 }
