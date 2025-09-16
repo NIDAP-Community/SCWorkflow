@@ -37,7 +37,7 @@ RUN mamba install -y -c conda-forge \
     r-harmony r-hdf5r r-htmlwidgets r-httpuv r-httr \
     r-jsonlite \
     r-leiden \
-    r-magrittr r-markdown r-MAST r-methods \
+    r-magrittr r-markdown \
     r-pheatmap r-plotly r-plyr r-png r-progressr r-pryr r-purrr \
     r-quantmod \
     r-RColorBrewer r-reshape2 r-reticulate r-rlang \
@@ -49,6 +49,7 @@ RUN mamba install -y -c conda-forge \
     bioconductor-celldex bioconductor-ComplexHeatmap \
     bioconductor-edger \
     bioconductor-limma \
+    bioconductor-MAST \
     bioconductor-scDblFinder bioconductor-SingleR \
     bioconductor-genomicranges \
     bioconductor-summarizedexperiment \
