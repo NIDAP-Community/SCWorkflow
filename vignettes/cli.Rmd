@@ -60,7 +60,7 @@ each function's arguments.
 
 ```{r script_e2e, echo=FALSE, results='asis'}
 cat("```bash\n")
-cat(readr::read_lines(system.file("extdata", "example_script.sh", package = "MOSuite")), sep = "\n")
+cat(readr::read_lines(system.file("extdata", "example_script.sh", package = "SCWorkflow")), sep = "\n")
 cat("\n```")
 ```
 
