@@ -82,6 +82,7 @@ Imports:
     scDblFinder,
     Seurat (== 4.3.0),
     SeuratObject (== 4.1.3),
+    Matrix (>= 1.6.1),
     SingleR (>= 1.8.1),
     statmod (>= 1.4.37),
     stringr (>= 1.4.1),
