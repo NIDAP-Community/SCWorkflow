@@ -124,7 +124,6 @@ Main functions:
   scworkflow heatmapSC
   scworkflow tSNE3D
   scworkflow dualLabeling
-
   scworkflow harmonyBatchCorrect
 "
   writeLines(usage, con = con)
@@ -200,35 +199,26 @@ cli_from_json <- function(method, json, debug = FALSE) {
         "object_input_rds must be included in the JSON because `object` is required for {method}()"
       )
     )
-    # most SCWorkflow functions return a list containing an "object" element plus a list of plots or other output.
-    # here we extract only the "object" element to pass as the first argument to this function.
-    object_list <- readr::read_rds(json_args[["object_input_rds"]])
-    print(paste0("Input List Names: ",paste(names(object_list), collapse = ", ")))
-
-    if (!(any(grepl("object|Object", names(object_list))))) {
-      message('Expected `object_input_rds` to contain an element with the name "object".')
-      object_list[["object"]] <- object_list
-    }
-    fcn_args[[first_arg]] <- object_list[["object"]]
+    fcn_args[[first_arg]] <- readr::read_rds(json_args[["object_input_rds"]])
   }
 
   ## If any arguments end in .txt, read them in as tables
   ## This is a bit hacky, but allows us to pass tables as arguments via json
   ## Adding logic to unlist parameters that should be vectors ( such as sample names)
-  
-  for(x in names(json_args)){
+  for(x in names(json_args)) {
     if(any(stringr::str_detect(json_args[[x]], glue::glue(".txt$")))){
-      json_args[[x]]=read.delim(json_args[[x]])
+      json_args[[x]] <- read.delim(json_args[[x]])
     }else if(any(stringr::str_detect(json_args[[x]], glue::glue(".csv$")))){  
-      json_args[[x]]=read.delim(json_args[[x]], sep=",")
+      json_args[[x]] <- read.delim(json_args[[x]], sep=",")
     }
-    if(class(json_args[[x]])=='list'){
+    if(class(json_args[[x]]) == 'list'){
       json_args[[x]] <- unlist(json_args[[x]])
     }
   }
 
-  # all other json keys should be arguments for the method
-  fcn_args <- c(fcn_args, json_args[!stringr::str_detect(names(json_args), "object_.*_rds")])
+  # remove object_input_rds, object_output_rds, and plot_output_rds.
+  # all other json keys should be arguments for the method.
+  fcn_args <- c(fcn_args, json_args[!stringr::str_detect(names(json_args), "object_.*_rds|plot_output_rds")])
 
   # invoke method with parsed arguments from json
   expr <- as.call(fcn_args)
@@ -240,7 +230,10 @@ cli_from_json <- function(method, json, debug = FALSE) {
 
     # save result to output_rds
     if ("object_output_rds" %in% names(json_args)) {
-      readr::write_rds(result, json_args[["object_output_rds"]])
+      readr::write_rds(result[['object']], json_args[["object_output_rds"]])
+    }
+    if ("plot_output_rds" %in% names(json_args)) {
+      readr::write_rds(result[['plot']], json_args[["plot_output_rds"]])
     }
   }
 
