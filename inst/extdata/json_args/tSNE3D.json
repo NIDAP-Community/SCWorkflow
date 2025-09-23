@@ -1,6 +1,7 @@
 {
     "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
     "object_output_rds": "chariou/SCWorkflowObject_tSNE3D.rds",
+    "plot_output_rds": "chariou/plots/tSNE3D.rds",
     "color.variable": "orig.ident",
     "label.variable": "orig.ident"
 }

@@ -1,4 +1,4 @@
-# scworkflow --help
+# scworkflow helps
 
     Code
       cli_exec("--help")

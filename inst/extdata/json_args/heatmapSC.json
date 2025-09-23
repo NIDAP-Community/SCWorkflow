@@ -1,6 +1,7 @@
 {
     "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
     "object_output_rds": "chariou/SCWorkflowObject_heatmapSC.rds",
+    "plot_output_rds": "chariou/plots/heatmapSC.rds",
     "sample.names": ["CD8dep","NHSIL12"],
     "metadata": ["orig.ident","immgen_main"],
     "transcripts": ["S100a8", "Il1b", "Cxcl3", "Lyz2", "Mmp12", "Cxcl10", "Ccl3", "Thy1", "Tmsb4x", "Cd8b1"]

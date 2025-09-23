@@ -2,6 +2,12 @@ name: docker
 
 on:
   workflow_dispatch:
+    inputs:
+      version_tag:
+        type: string
+        description: Container version tag. If not set, it will be created automatically based on the released version and commit hash.
+        required: false
+        default: ''
   release:
     types: [published]
 
@@ -9,6 +15,7 @@ env:
   IMAGE_NAME: "scworkflow" # must be lowercase
   CONTEXT: "./"
   NAMESPACE: "nciccbr"
+  USE_INPUT_TAG: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version_tag != '' }}
 
 permissions: read-all
 
@@ -23,9 +30,15 @@ jobs:
           echo "DATE=$(date +"%Y-%m-%d")" >> "$GITHUB_OUTPUT"
 
           if [ '${{ github.event_name }}' == 'release' ]; then
+            # include latest tag since this is a release
             VERSION=${{ github.ref_name }}
             DOCKER_TAGS=${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${VERSION},${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:latest
+          elif [ '${{ env.USE_INPUT_TAG }}' == 'true' ]; then
+            # use manual tag
+            VERSION=${{ github.event.inputs.version_tag }}
+            DOCKER_TAGS=${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${VERSION}
           else
+            # set tag from last release and current commit
             HASH=$(git rev-parse --short HEAD)
             VERSION="$(grep 'Version:' $CONTEXT/DESCRIPTION | sed 's/Version: /v/')_${HASH}"
             DOCKER_TAGS=${{ env.NAMESPACE }}/${{ env.IMAGE_NAME }}:${VERSION}
@@ -35,9 +48,9 @@ jobs:
 
       - name: debug
         run: |
-          echo "the github tag is ${{ github.ref_name }}"
-          echo "github event_name is ${{ github.event_name }}"
-          echo "the version tag is ${{ steps.vars.outputs.VERSION_TAG }}"
+          echo "Github tag: ${{ github.ref_name }}"
+          echo "Github event_name: ${{ github.event_name }}"
+          echo "Container version tag: ${{ steps.vars.outputs.VERSION_TAG }}"
 
       - name: Login to DockerHub
         if: ${{ github.event_name != 'pull_request' }}
@@ -49,11 +62,10 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.vars.outputs.DOCKER_TAGS }} # include 'latest' tag if this is a release
+          tags: ${{ steps.vars.outputs.DOCKER_TAGS }}
           context: ${{ env.CONTEXT }}
           file: ${{ env.CONTEXT }}/Dockerfile
           build-args: |
             BUILD_DATE=${{ steps.vars.outputs.DATE }}
             BUILD_TAG=${{ steps.vars.outputs.VERSION_TAG }}
             REPONAME=${{ env.IMAGE_NAME }}
-            R_VERSION=4.3.2

@@ -1,4 +1,4 @@
-FROM nciccbr/ccbr_ubuntu_22.04:v4
+FROM rocker/tidyverse:4.3.2
 
 # build time variables
 ARG BUILD_DATE="000000"
@@ -8,64 +8,129 @@ ENV BUILD_TAG=${BUILD_TAG}
 ARG REPONAME="000000"
 ENV REPONAME=${REPONAME}
 
-ARG R_VERSION=4.3.2
-ENV R_VERSION=${R_VERSION}
-
 SHELL ["/bin/bash", "-lc"]
 
-# Install conda and give write permissions to conda folder
-RUN echo 'export PATH=/opt2/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
-    wget --quiet "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" -O ~/miniforge3.sh && \
-    /bin/bash ~/miniforge3.sh -b -p /opt2/conda && \
-    rm ~/miniforge3.sh && chmod 777 -R /opt2/conda/
-ENV PATH="/opt2/conda/bin:$PATH"
+RUN chmod 777 /usr/local/lib/R/site-library /usr/local/lib/R/library
 
-# Pin channels and update
-RUN conda config --add channels conda-forge \
- && conda config --add channels bioconda \
- && conda config --set channel_priority strict
-
-# install conda packages
-RUN mamba install -y -c conda-forge \
-    r-base=${R_VERSION} \
-    r-devtools r-testthat \
-    r-anndata \
-    r-callr r-colorspace r-cowplot \
-    r-data.table r-dendextend r-dendsort r-digest r-dplyr \
-    r-future r-future.apply \
-    r-gargle r-gdata r-ggExtra r-ggplot2 r-ggpubr r-ggrepel r-globals r-glue r-gridBase r-gridExtra r-gtable \
-    r-harmony r-hdf5r r-htmlwidgets r-httpuv r-httr \
-    r-jsonlite \
-    r-leiden \
-    r-magrittr r-markdown r-MAST r-methods \
-    r-pheatmap r-plotly r-plyr r-png r-progressr r-pryr r-purrr \
-    r-quantmod \
-    r-RColorBrewer r-reshape2 r-reticulate r-rlang \
-    r-scales r-Seurat r-statmod r-stringr r-svglite \
-    r-tibble r-tidyr r-tidyverse \
-    r-viridisLite \
-    r-xfun \
-    r-zip \
-    bioconductor-celldex bioconductor-ComplexHeatmap \
-    bioconductor-edger \
-    bioconductor-limma \
-    bioconductor-scDblFinder bioconductor-SingleR \
-    bioconductor-genomicranges \
-    bioconductor-summarizedexperiment \
-  && conda clean -afy
+# https://github.com/Bioconductor/bioconductor_docker/blob/7335f85420199679432d2a328c3a59b551b6cfd0/bioc_scripts/install_bioc_sysdeps.sh
+RUN apt-get update && apt-get upgrade -y && \
+  apt-get install -y --no-install-recommends --allow-unauthenticated \
+	automake \
+	biber \
+	byacc \
+	cmake \
+	coinor-libcgl-dev \
+	coinor-libsymphony-dev \
+	coinor-libsymphony-doc \
+	curl \
+	default-jdk \
+	default-libmysqlclient-dev \
+	fortran77-compiler \
+	ggobi \
+	graphviz \
+	imagemagick \
+	jags \
+	libapparmor-dev \
+	libarchive-dev \
+	libarchive-extract-perl \
+	libavfilter-dev \
+	libboost-dev \
+	libbz2-dev \
+	libcairo2-dev \
+	libcgi-pm-perl \
+	libdbd-mysql-perl \
+	libdbi-perl \
+	libeigen3-dev \
+	libfftw3-dev \
+	libfile-copy-recursive-perl \
+	libfuse-dev \
+	libgdal-dev \
+	libgeos-dev \
+	libgit2-dev \
+	libgl1-mesa-dev \
+	libglpk-dev \
+	libglu1-mesa-dev \
+	libgmp3-dev \
+	libgsl0-dev \
+	libgslcblas0 \
+	libgtk2.0-dev \
+	libgtkmm-2.4-dev \
+	libhdf5-dev \
+	libhdf5-serial-dev \
+	libhiredis-dev \
+	libjpeg-dev \
+	libjpeg-turbo8-dev \
+	libjpeg8-dev \
+	liblapack-dev \
+	liblzma-dev \
+	libmagick++-dev \
+	libmodule-build-perl \
+	libmpfr-dev \
+	libmysqlclient-dev \
+	libncurses-dev \
+	libnetcdf-dev \
+	libopenbabel-dev \
+	libopenmpi-dev \
+	libpcre2-dev \
+	libperl-dev \
+	libpng-dev \
+	libpoppler-cpp-dev \
+	libpoppler-glib-dev \
+	libpq-dev \
+	libproj-dev \
+	libprotobuf-dev \
+	libprotoc-dev \
+	librdf0-dev \
+	libreadline-dev \
+	librtmp-dev \
+	libsasl2-dev \
+	libsbml5-dev \
+	libssl-dev \
+	libtiff5-dev \
+	libudunits2-dev \
+	libv8-dev \
+	libxml-simple-perl \
+	libxml2-dev \
+	libxpm-dev \
+	libxt-dev \
+	libz-dev \
+	libzmq3-dev \
+	mono-runtime \
+	mpi-default-bin \
+	ocl-icd-opencl-dev \
+	openmpi-bin \
+	openmpi-common \
+	openmpi-doc \
+	protobuf-compiler \
+	python3-pip \
+	sqlite3 \
+	tabix \
+	tcl8.6-dev \
+	tk-dev \
+	xfonts-100dpi \
+	xfonts-75dpi \
+ 	liblz4-dev \
+    automake \
+    cmake \
+    default-jre \
+    g++ \
+    gcc \
+    gdb \
+    gfortran \
+    libcurl4-gnutls-dev \
+    make \
+    pkg-config
 
 # install R package
 COPY . /opt2/SCWorkflow
-RUN R -e "devtools::install_local('/opt2/SCWorkflow', dependencies = TRUE, repos='http://cran.rstudio.com')"
+RUN R -e 'remotes::install_version("Seurat", version="4.3.0"); remotes::install_version("SeuratObject", version="4.1.3")' && \
+  R -e "remotes::install_local('/opt2/SCWorkflow', dependencies = TRUE, upgrade='never', repos='http://cran.rstudio.com'); library(SCWorkflow)" && \
+  R -s -e "readr::write_tsv(tibble::as_tibble(installed.packages()), '/mnt/r-packages.tsv')"
 
 # add scworkflow exec to the path
-RUN chmod -R +x /opt2/conda/lib/R/library/SCWorkflow/exec
-ENV PATH="$PATH:/opt2/conda/lib/R/library/SCWorkflow/exec"
+RUN chmod -R +x /usr/local/lib/R/site-library/SCWorkflow/exec
+ENV PATH="$PATH:/usr/local/lib/R/site-library/SCWorkflow/exec"
 RUN scworkflow --help
-
-# copy example script & json to data
-COPY ./inst/extdata/TestRunjson.sh /data2/
-COPY ./inst/extdata/json_args/ /data2/json_args/
 
 # Save Dockerfile in the docker
 COPY Dockerfile /opt2/Dockerfile_${REPONAME}.${BUILD_TAG}
