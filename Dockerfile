@@ -123,7 +123,7 @@ RUN apt-get update && apt-get upgrade -y && \
 
 # install R package
 COPY . /opt2/SCWorkflow
-RUN R -e 'remotes::install_version("Matrix", version="1.6.1"); remotes::install_version("Seurat", version="4.3.0"); remotes::install_version("SeuratObject", version="4.1.3")' && \
+RUN R -e 'remotes::install_version("Matrix", version="1.6.1"); remotes::install_version("Seurat", version="4.3.0", upgrade="never"); remotes::install_version("SeuratObject", version="4.1.3", upgrade="never")' && \
   R -e "remotes::install_local('/opt2/SCWorkflow', dependencies = TRUE, upgrade='never', repos='http://cran.rstudio.com'); library(SCWorkflow)" && \
   R -s -e "readr::write_tsv(tibble::as_tibble(installed.packages()), '/mnt/r-packages.tsv')"
 
