@@ -1,7 +1,6 @@
 {
     "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
     "object_output_rds": "chariou/SCWorkflowObject_dotPlotMet.rds",
-    "plot_output_rds": "chariou/plots/dotPlotMet.rds",
     "metadata": "orig.ident",
     "cells": ["CD8dep","NHSIL12"],
     "markers": ["Il1b","Cxcr3"]

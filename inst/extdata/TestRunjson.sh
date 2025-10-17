@@ -6,11 +6,11 @@ scworkflow=$(R -s -e "cat(system.file('exec','scworkflow', package='SCWorkflow')
 export PATH="$PATH:$(dirname $scworkflow)"
 
 ## run functions from SCWorkflow
-scworkflow processRawData --json=json_args/processRawData.json
-scworkflow filterQC --json=json_args/filterQC.json
-scworkflow combineNormalize --json=json_args/combineNormalize.json
-scworkflow annotateCellTypes --json=json_args/annotateCellTypes.json
-scworkflow appendMetadataToSeuratObject --json=json_args/appendMetadataToSeuratObject.json
+#scworkflow processRawData --json=json_args/processRawData.json
+#scworkflow filterQC --json=json_args/filterQC.json
+#scworkflow combineNormalize --json=json_args/combineNormalize.json
+#scworkflow annotateCellTypes --json=json_args/annotateCellTypes.json
+#scworkflow appendMetadataToSeuratObject --json=json_args/appendMetadataToSeuratObject.json
 scworkflow filterSeuratObjectByMetadata --json=json_args/filterSeuratObjectByMetadata.json
 scworkflow reclusterFilteredSeuratObject --json=json_args/reclusterFilteredSeuratObject.json
 scworkflow reclusterSeuratObject --json=json_args/reclusterSeuratObject.json

@@ -1,7 +1,6 @@
 {
     "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
     "object_output_rds": "chariou/SCWorkflowObject_colorByGene.rds",
-    "plot_output_rds": "chariou/plots/colorByGene.rds",
     "samples.to.include": ["CD8dep","NHSIL12"],
     "gene": "Cxcl3"
 }

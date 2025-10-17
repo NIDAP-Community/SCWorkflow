@@ -75,7 +75,7 @@ file.copy(system.file("extdata", "json_args", package = "SCWorkflow"), to = "./"
 # copy the test data files
 file.copy(system.file("extdata", "chariou", package = "SCWorkflow"), to = "./", recursive = TRUE)
 
-singularity shell --bind $(pwd):/mnt docker://nciccbr/scworkflow:v1.0.2-galaxy
+singularity shell --bind $(pwd):/mnt docker://nciccbr/scworkflow:v1.0.2-galaxy-5
 cd /mnt
 R -e 'file.copy(system.file("extdata", "TestRunjson.sh", package = "SCWorkflow"), to = "./")'
 R -e 'file.copy(system.file("extdata", "json_args", package = "SCWorkflow"), to = "./", recursive = TRUE)'
