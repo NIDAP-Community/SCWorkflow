@@ -5,12 +5,40 @@ Workflow Package for Analysis of Single Cell Data
 ```mermaid
 flowchart TD
     C["Import Data & Quality Control"]
-    D["Annotate Cells"]
+    n1["Cell Annotations"]
+    n2["Visualizations"]
+    n3["Subset and Recluster"]
+    n4["Diff. Expr"]
+    n1@{ shape: rect}
+    n2@{ shape: rect}
+    n3@{ shape: rect}
+    n4@{ shape: rect}
      C:::Peach
-     D:::Sky
+     C:::Class_05
+     n1:::Peach
+     n1:::Sky
+     n1:::Class_02
+     n2:::Peach
+     n2:::Sky
+     n2:::Class_01
+     n3:::Peach
+     n3:::Sky
+     n3:::Class_01
+     n3:::Class_04
+     n3:::Class_04
+     n4:::Peach
+     n4:::Sky
+     n4:::Class_01
+     n4:::Class_03
     classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
     classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
+    classDef Class_01 fill:#BBDEFB, stroke:#2962FF, color:#000000
+    classDef Class_02 color:#000000, fill:#E1BEE7, stroke:#000000
+    classDef Class_03 color:#000000, fill:#C8E6C9, stroke:#000000
+    classDef Class_04 color:#000000, fill:#FFF9C4, stroke:#000000
+    classDef Class_05 stroke:#000000, fill:#FFE0B2, color:#000000
     click C "https://github.com/NIDAP-Community/SCWorkflow/blob/GalaxyCLI/vignettes/Getting%20Started%20and%20Quality%20Control.html"
+
 ```
 
 
