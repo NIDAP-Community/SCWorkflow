@@ -1,0 +1,6 @@
+"Sample_Name"	"Rename"	"Treatment"
+"SCAF1713_1_1"	"PBS"	"WT"
+"SCAF1714_2_1"	"ENT"	"Entinostat"
+"SCAF1715_3_1"	"NHSIL12"	"NHS-IL12"
+"SCAF1716_4_1"	"Combo"	"Entinostat + NHS-IL12"
+"SCAF1717_5_1"	"CD8dep"	"Entinostat + NHS-IL12"
