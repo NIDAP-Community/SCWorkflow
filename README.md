@@ -2,6 +2,18 @@
 
 Workflow Package for Analysis of Single Cell Data
 
+```mermaid
+flowchart TD
+    C["Import Data & Quality Control"]
+    D["Annotate Cells"]
+     C:::Peach
+     D:::Sky
+    classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
+    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
+    click C "https://github.com/NIDAP-Community/SCWorkflow/blob/GalaxyCLI/vignettes/Getting%20Started%20and%20Quality%20Control.html"
+```
+
+
 [![Gitflow Action for R Package Development](https://github.com/NIDAP-Community/SCWorkflow/actions/workflows/gitflow-R-action.yml/badge.svg)](https://github.com/NIDAP-Community/SCWorkflow/actions/workflows/gitflow-R-action.yml)
 [![Version](https://img.shields.io/github/v/release/nidap-community/scworkflow)](https://github.com/NIDAP-Community/SCWorkflow/releases/latest)
 [![Docker Image Version](https://img.shields.io/docker/v/nciccbr/scworkflow?label=docker)](https://hub.docker.com/r/nciccbr/scworkflow)
