@@ -1,0 +1,15 @@
+pandoc: 3.8.2.1
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  cli: cli.html
+  README: README.html
+  SCWorkflow-Annotations: SCWorkflow-Annotations.html
+  SCWorkflow-DEG: SCWorkflow-DEG.html
+  SCWorkflow-Overview: SCWorkflow-Overview.html
+  SCWorkflow-SubsetReclust: SCWorkflow-SubsetReclust.html
+  SCWorkflow-Visualizations: SCWorkflow-Visualizations.html
+last_built: 2025-10-21T18:59Z
+urls:
+  reference: https://nidap-community.github.io/SCWorkflow/reference
+  article: https://nidap-community.github.io/SCWorkflow/articles

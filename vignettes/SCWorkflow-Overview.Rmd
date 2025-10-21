@@ -22,13 +22,15 @@ library(ggplot2)
 ```
 
 
-
+## load SCWorkflow
 ```{r setup}
 # install.packages("remotes")
 # remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)
 
 library(SCWorkflow)
 ```
+
+<br><br>
 
 ## Process Input Data
 
@@ -95,7 +97,6 @@ ggsave(SOlist$plots[[2]], filename = "./images/ProcessInputData2.png", width = 1
 
 ![](./images/ProcessInputData1.png){width=300} ![](./images/ProcessInputData2.png){width=300}
 
-1. Hao Y et al. Integrated analysis of multimodal single-cell data. Cell. 2021 Jun 24;184(13):3573-3587.e29. doi: 10.1016/j.cell.2021.04.048. Epub 2021 May 31. PMID: 34062119; PMCID: PMC8238499.
 
 
 ## Filter Low Quality Cells
@@ -154,10 +155,6 @@ ggsave(SO_filtered$plots$ScatterPlotCombine, filename = "./images/QC3.png", widt
 ![](./images/QC3.png){width=300}
 
 
-2. Heumos, L., Schaar, A.C., Lance, C. et al. Best practices for single-cell analysis across modalities. Nat Rev Genet (2023). https://doi.org/10.1038/s41576-023-00586-w
-
-3. Germain P, Lun A, Macnair W, Robinson M (2021). “Doublet identification in single-cell sequencing data using scDblFinder.” f1000research. doi:10.12688/f1000research.73600.1.
-
 ## Combine, Normalize, and Cluster Data
 
 This functions combines multiple sample level Seurat Objects into a single Seurat Object and normalizes the combined dataset. The multi-dimensionality of the data will be summarized into a set of "principal components" and visualized in both UMAP and tSNE projections.  A graph-based clustering approach will identify cell clusters with in the data.
@@ -215,3 +212,9 @@ ggsave(Comb_SO$plots$TSNE, filename = "./images/CN2.png", width = 10, height = 1
 
 ![](./images/CN1.png){width=300} ![](./images/CN2.png){width=300}
 
+
+
+<br><br>
+1. Hao Y et al. Integrated analysis of multimodal single-cell data. Cell. 2021 Jun 24;184(13):3573-3587.e29. doi: 10.1016/j.cell.2021.04.048. Epub 2021 May 31. PMID: 34062119; PMCID: PMC8238499.
+2. Heumos, L., Schaar, A.C., Lance, C. et al. Best practices for single-cell analysis across modalities. Nat Rev Genet (2023). https://doi.org/10.1038/s41576-023-00586-w
+3. Germain P, Lun A, Macnair W, Robinson M (2021). “Doublet identification in single-cell sequencing data using scDblFinder.” f1000research. doi:10.12688/f1000research.73600.1.
