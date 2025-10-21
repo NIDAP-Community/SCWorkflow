@@ -86,7 +86,7 @@
 #' cells. Doublets are defined as two cells that are sequenced under the same 
 #' cellular barcode, for example, if they were captured in the same droplet.
 #' (Default: TRUE)
-#' 
+#' @keywords ProcessQC
 #' 
 #' @importFrom Seurat CreateAssayObject Idents as.SingleCellExperiment AddMetaData
 #' @importFrom reshape2 melt

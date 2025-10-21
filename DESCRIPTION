@@ -14,7 +14,10 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-9883-4374")),
     person("Philip", "Homan", , "philip.homan@nih.gov", role = "aut",
            comment = c(ORCID = "0000-0002-3389-4931")),
-    person("Rui", "He", , "rui.he@nih.gov", role = "aut")
+    person("Rui", "He", , "rui.he@nih.gov", role = "aut"),
+    person("Kelly", "Sovacool", , "kelly.sovacool@nih.gov", role = c("aut"),
+           comment = c(ORCID = "0000-0003-3283-829X")),
+    person("CCR Collaborative Bioinformatics Resource", role = "cph")
   )
 Description: A set of functions for analyzing single-cell RNA-seq data
     using the Seurat workflow. The user provides H5 files containing the

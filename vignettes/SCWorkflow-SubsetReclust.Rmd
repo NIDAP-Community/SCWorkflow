@@ -2,12 +2,14 @@
 title: "Subset and Recluster"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{SCWorkflow-Overview}
+  %\VignetteIndexEntry{SCWorkflow-SubsetReclust}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",

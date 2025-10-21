@@ -58,7 +58,7 @@ You can create a shell script to run the full SCWorkflow pipeline.
 This script assumes you have a directory `json_args/` with JSON files to set
 each function's arguments.
 
-```{r script_e2e, echo=FALSE, results='asis'}
+```{r script_e2e, echo=FALSE, results='asis',eval=FALSE}
 cat("```bash\n")
 cat(readr::read_lines(system.file("extdata", "example_script.sh", package = "SCWorkflow")), sep = "\n")
 cat("\n```")
