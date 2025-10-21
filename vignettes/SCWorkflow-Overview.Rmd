@@ -1,5 +1,5 @@
 ---
-title: "Getting Started and Quality Control"
+title: "Import Data and Quality Control"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{SCWorkflow-Overview}
@@ -22,15 +22,7 @@ library(ggplot2)
 ```
 
 
-## load SCWorkflow
-```{r setup}
-# install.packages("remotes")
-# remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)
-
-library(SCWorkflow)
-```
-
-<br><br>
+<br>
 
 ## Process Input Data
 

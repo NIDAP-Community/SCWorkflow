@@ -12,6 +12,17 @@ template:
     btn-border-radius: 3px
     grid-gutter-width: 3rem
     pkgdown-nav-height: 78px
+
+navbar:
+  structure:
+    left: [getting-started, articles, reference]
+    right: [search, github]
+  components:
+    getting-started:
+      text: Getting Started
+      href: articles/SCWorkflow-Usage.html
+  
+
 footer:
   structure:
     left: [developed_by]
@@ -32,7 +43,7 @@ authors:
     text: "Created by the"
 
 articles:
-- title: Articles
+- title: Vignettes
   navbar: ~
   contents:
   - SCWorkflow-Overview
@@ -44,8 +55,16 @@ articles:
 - title: Developer
   desc: Developer documentation
   contents:
+  - SCWorkflow-Usage  
   - cli
   - README
 
+home:
+  sidebar:
+    structure: [links,citation, authors, license,  dev]
+  links:
+  - text: Browse code on GitHub
+    href: https://github.com/NIDAP-Community/SCWorkflow
+  strip_header: true
 
 

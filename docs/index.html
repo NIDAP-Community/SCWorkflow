@@ -33,11 +33,11 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/SCWorkflow-Usage.html">Getting Started</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/SCWorkflow-Overview.html">Getting Started and Quality Control</a></li>
+<li><a class="dropdown-item" href="articles/SCWorkflow-Overview.html">Import Data and Quality Control</a></li>
     <li><a class="dropdown-item" href="articles/SCWorkflow-Annotations.html">Annotations</a></li>
     <li><a class="dropdown-item" href="articles/SCWorkflow-DEG.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="articles/SCWorkflow-Visualizations.html">Visualizations</a></li>
@@ -46,6 +46,7 @@
     <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -58,31 +59,27 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
+  <main id="main" class="col-md-9"><div class="section level1">
+
+<p>R package for Single Cell analysis</p>
+<p><a href="https://github.com/NIDAP-Community/SCWorkflow/actions/workflows/gitflow-R-action.yml" class="external-link"><img src="https://github.com/NIDAP-Community/SCWorkflow/actions/workflows/gitflow-R-action.yml/badge.svg" alt="Gitflow Action for R Package Development"></a> <a href="https://github.com/NIDAP-Community/SCWorkflow/releases/latest" class="external-link"><img src="https://img.shields.io/github/v/release/nidap-community/scworkflow" alt="Version"></a> <a href="https://hub.docker.com/r/nciccbr/scworkflow" class="external-link"><img src="https://img.shields.io/docker/v/nciccbr/scworkflow?label=docker" alt="Docker Image Version"></a></p>
 <p><a href="https://lucid.app/lucidchart/c7b852ad-72dc-4821-90d5-e45bed0c4199/view" class="external-link"><img src="https://raw.githubusercontent.com/NIDAP-Community/SCWorkflow/GalaxyCLI/vignettes/SCWorkflow.png"></a></p>
 <center>
-<strong>Click Figure to Go to Navigate Workflow</strong>.
+<strong>Click Figure to Navigate Workflow</strong>.
 </center>
 <p><br><br></p>
 <p>The Single Cell Workflow streamlines the analysis of multimodal Single Cell RNA-Seq data produced from 10x Genomics. It can be run in a docker container, and for biologists, in user-friendly web-based interactive notebooks (NIDAP, Palantir Foundry). Much of it is based on the Seurat workflow in Bioconductor, and supports CITE-Seq data. It incorporates a cell identification step (ModScore) that utilizes module scores obtained from Seurat and also includes Harmony for batch correction.</p>
+<p><br></p>
 <p>For further documentation see our detailed <a href="https://nidap-community.github.io/SCWorkflow/">Docs Website</a></p>
-<div class="section level2">
-<h2 id="install-package">Install Package<a class="anchor" aria-label="anchor" href="#install-package"></a>
-</h2>
-<pre><code><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="co"># remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SCWorkflow</span><span class="op">)</span></span></code></pre>
-<p><br> Future Developments include addition of support for multiomics (TCR-Seq, ATAC-Seq) single cell data and integration with spatial transcriptomics data.</p>
+<p><br><br></p>
+<p>Future Developments include addition of support for multiomics (TCR-Seq, ATAC-Seq) single cell data and integration with spatial transcriptomics data.</p>
 </div>
-
-  </main><aside class="col-md-3"><div class="license">
-<h2 data-toc-skip>License</h2>
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a></li>
+<li><a href="https://github.com/NIDAP-Community/SCWorkflow" class="external-link">Browse code on GitHub</a></li>
 </ul>
 </div>
-
 
 <div class="citation">
 <h2 data-toc-skip>Citation</h2>
@@ -105,6 +102,13 @@
 <li>
 <a href="https://github.com/kelly-sovacool" class="external-link">Kelly Sovacool</a> <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3283-829X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li><a href="authors.html">More about authors...</a></li>
+</ul>
+</div>
+
+<div class="license">
+<h2 data-toc-skip>License</h2>
+<ul class="list-unstyled">
+<li><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a></li>
 </ul>
 </div>
 
