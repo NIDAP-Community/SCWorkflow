@@ -22,9 +22,6 @@ library(ggplot2)
 ```
 
 
-![](/SCWorkflow.pdf){width=300}
-
-
 
 ```{r setup}
 # install.packages("remotes")
