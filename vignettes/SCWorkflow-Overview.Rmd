@@ -206,6 +206,8 @@ Comb_SO=combineNormalize(
 ```
 
 ```{r,echo=F,eval=F}
+saveRDS(Comb_SO$object, file="./images/CN_SO.rds")
+
 ggsave(Comb_SO$plots$UMAP, filename = "./images/CN1.png", width = 10, height = 10)
 ggsave(Comb_SO$plots$TSNE, filename = "./images/CN2.png", width = 10, height = 10)
 

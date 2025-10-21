@@ -6,3 +6,5 @@ Rcheck.txt
 tests/testthat/otherData/
 .Rproj.user
 
+inst/doc
+inst/extdata/*

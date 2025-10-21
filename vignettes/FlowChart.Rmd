@@ -1,0 +1,85 @@
+
+
+
+```{r}
+mermaid(diagram = '
+diagram TD
+    n5["Process Raw Data"] --> n6["Filter &amp; QC"]
+    n6 --> n7["Combine &amp; Normalize"]
+    n7 --> n8["Batch Correction"]
+    C["<b>Import Data &amp; Quality Control<b></b></b>"]
+    n1["<b>Cell Annotations<b></b></b>"]
+    n2["<b>Visualizations<b></b></b>"]
+    n3["<b>Subset and Recluster<b></b></b>"]
+    n4["<b>Diff. Expr<b></b></b>"]
+    n9["SingleR Annotation"]
+    n10["Add External Cell Annotations"]
+    n11["Co-Expression"]
+    n12["Module Score"]
+    n5@{ shape: rect}
+    n6@{ shape: rect}
+    n7@{ shape: rect}
+    n8@{ shape: rect}
+    n1@{ shape: rect}
+    n2@{ shape: rect}
+    n3@{ shape: rect}
+    n4@{ shape: rect}
+    n9@{ shape: rect}
+    n10@{ shape: rect}
+    n11@{ shape: rect}
+    n12@{ shape: rect}
+     n5:::Peach
+     n5:::Class_05
+     n6:::Peach
+     n6:::Class_05
+     n7:::Peach
+     n7:::Class_05
+     n8:::Peach
+     n8:::Class_05
+     C:::big
+     C:::Peach
+     C:::Class_05
+     n1:::big
+     n1:::Peach
+     n1:::Sky
+     n1:::Class_02
+     n2:::big
+     n2:::Peach
+     n2:::Sky
+     n2:::Class_01
+     n2:::Class_01
+     n3:::big
+     n3:::Peach
+     n3:::Sky
+     n3:::Class_01
+     n3:::Class_04
+     n3:::Class_04
+     n4:::big
+     n4:::Peach
+     n4:::Sky
+     n4:::Class_01
+     n4:::Class_03
+     n9:::Peach
+     n9:::Class_05
+     n9:::Class_02
+     n10:::Peach
+     n10:::Class_05
+     n10:::Class_02
+     n11:::Peach
+     n11:::Class_05
+     n11:::Class_02
+     n12:::Peach
+     n12:::Class_05
+     n12:::Class_02
+    classDef Peach stroke-width:1px, stroke-dasharray:none, stroke:#FBB35A, fill:#FFEFDB, color:#8F632D
+    classDef Sky stroke-width:1px, stroke-dasharray:none, stroke:#374D7C, fill:#E2EBFF, color:#374D7C
+    classDef Class_03 color:#000000, fill:#C8E6C9, stroke:#000000
+    classDef Class_04 color:#000000, fill:#FFF9C4, stroke:#000000
+    classDef Class_05 stroke:#000000, fill:#FFE0B2, color:#000000
+    classDef Class_01 fill:#BBDEFB, stroke:#000000, color:#000000
+    classDef Class_02 color:#000000, fill:#E1BEE7, stroke:#000000
+    classDef big font-size:35px
+    click C "https://github.com/NIDAP-Community/SCWorkflow/blob/GalaxyCLI/vignettes/Getting%20Started%20and%20Quality%20Control.html"
+')
+
+```
