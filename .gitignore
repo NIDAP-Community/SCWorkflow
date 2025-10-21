@@ -2,7 +2,7 @@
 .nfs*
 #*.png
 Rcheck.txt
-*.pdf
+#*.pdf
 tests/testthat/otherData/
 .Rproj.user
 
