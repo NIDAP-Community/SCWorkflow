@@ -91,6 +91,8 @@
 #' @importFrom Seurat CreateAssayObject Idents as.SingleCellExperiment 
 #' @importFrom Seurat AddMetaData SCTransform FindVariableFeatures
 #' @importFrom Seurat RunPCA RunUMAP
+#' @importFrom BiocParallel SerialParam
+#' @importFrom stringr str_split_fixed 
 #' @importFrom reshape2 melt
 #' @importFrom magrittr %>%
 #' @importFrom dplyr arrange rename

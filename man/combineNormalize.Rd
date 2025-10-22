@@ -24,7 +24,7 @@ combineNormalize(
   clust.res.low = 0.2,
   clust.res.high = 1.2,
   clust.res.bin = 0.2,
-  methods.pca = NULL,
+  methods.pca = "none",
   var.threshold = 0.1,
   pca.reg.plot = FALSE,
   jackstraw = FALSE,
