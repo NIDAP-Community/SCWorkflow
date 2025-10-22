@@ -465,7 +465,7 @@ processRawData <- function(input,
           ## determine if Slot contains CITEseq or HTO data
           ## CITEseq data and HTO data
           print('Antibody Capture Matrix detected')
-          if (any(grepl("HTO*",rownames(obj.list[[i]][k][[j]])))) {
+          if (any(grepl("HTO.*",rownames(obj.list[[i]][k][[j]])))) {
             print("HTO matrix detected")
             
             ## Extract HTO matrix
@@ -621,7 +621,7 @@ processRawData <- function(input,
 
           ## Move original sample name column to second position in so metadata
           so.orig.nf[[i]]@meta.data=relocate(so.orig.nf[[i]]@meta.data,
-                                             sample.name.column, 
+                                             , 
                                              .after = orig.ident)
 
           ## change orig.ident col to new name
@@ -818,6 +818,7 @@ processRawData <- function(input,
   )
   
 }
+
 
 
 
