@@ -38,6 +38,7 @@
 #' custom cluster annotation and a plot
 
 nameClusters <- function(object,
+                         cluster.identities.table,
                          cluster.numbers,
                          cluster.names,
                          cluster.column,
@@ -47,30 +48,34 @@ nameClusters <- function(object,
                          interactive = FALSE)
 {
   
-  # Assign cluster numbers with custom cluster names 
-  cluster.numbers <- factor(cluster.numbers,
-                            str_sort(cluster.numbers, numeric = TRUE))
-  levels(cluster.numbers) <-
-    str_sort(cluster.numbers, numeric = TRUE)
-  names(cluster.names) <- as.character(cluster.numbers)
+  # # Assign cluster numbers with custom cluster names 
+  # cluster.numbers <- factor(cluster.numbers,
+  #                           str_sort(cluster.numbers, numeric = TRUE))
+  # levels(cluster.numbers) <-
+  #   str_sort(cluster.numbers, numeric = TRUE)
+  # # names(cluster.names) <- as.character(cluster.numbers)
+  
+  cluster.names= setNames(cluster.identities.table[[cluster.names]],cluster.identities.table[[cluster.numbers]])
+  
   
   # get metadata from object and get cluster column
   metadata.df <- object@meta.data
   colval <- metadata.df[[cluster.column]]
   
   
-  # If cluster numbers on input table match the cluster numbers in cluster 
-  # column in metadata, add new custom labels to seurat object
-  if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.numbers))) {
-    object <- AddMetaData(object,
-                          metadata = 
-                            deframe(tibble(metadata.df[[cluster.column]],
-                                        cluster.names[as.character(colval)])),
-                          col.name = "Clusternames")
-  } else{
-    stop("Cluster ID's have to match metadata column. Please check entry in
-           input table.")
-  }
+  # # If cluster numbers on input table match the cluster numbers in cluster 
+  # # column in metadata, add new custom labels to seurat object
+  # if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.numbers))) {
+  #   object =
+  #   AddMetaData(object,
+  #               metadata = 
+  #                 deframe(tibble(metadata.df[[cluster.column]],
+  #                                cluster.names[as.character(colval)])),
+  #                         col.name = "Clusternames")
+  # } else{
+  #   stop("Cluster ID's have to match metadata column. Please check entry in
+  #          input table.")
+  # }
   
   clus.num <-
     as.data.frame.matrix(table(object@meta.data$Clusternames,
@@ -108,7 +113,7 @@ nameClusters <- function(object,
       factor(clus.df$cluster, levels = order.clusters.by)
   } else {
     clus.df$cluster <- factor(clus.df$cluster,
-                              levels = str_sort(cluster.names, numeric = TRUE))
+                              levels = str_sort(unique(cluster.names), numeric = TRUE))
   }
   
   #For plot, optional if ordering by cell types
@@ -135,7 +140,11 @@ nameClusters <- function(object,
   
   clus.df <- clus.df %>%
     arrange(cluster, celltype)
-  
+
+  ## if % less then 5 do not plot (convert to NA)
+  clus.df[clus.df<5]=NA
+
+
   ## print clusters in log:
   clus <- clus.df %>%
     pull(cluster) %>%
@@ -153,6 +162,7 @@ nameClusters <- function(object,
   cat("celltypes:\n")
   cat(celltypes, sep = "\n")
   
+  
   # do plot (suppressMessages for ggplot2 scale replacemnt)
   g <- ggplot(clus.df,
               aes(
@@ -162,19 +172,19 @@ nameClusters <- function(object,
                 color = celltype,
                 label = number
               )) +
-        theme_classic() +
-        geom_point(alpha = 0.5) +
-        theme(axis.text.x = element_text(
-          angle = 90,
-          vjust = 0.5,
-          hjust = 1
-          )) +
-        ggtitle("Percentage of Cell Type within Clusters")
+    theme_classic() +
+    geom_point(alpha = 0.5) +
+    theme(axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )) +
+    ggtitle("Percentage of Cell Type within Clusters")
   
   if (interactive == TRUE) {
     g <- ggplotly(g)
   }
-  
+
   invisible(list(
     object = object,
     plot = g
