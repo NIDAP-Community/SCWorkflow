@@ -881,12 +881,15 @@ filterQC <- function(object,
     ## Annotate Doublets: ####
     ## Gene filter does not effect doublet ident and so not recalculated
     
+    
     if( do.doublets.fitler==T){
-      sce <- as.SingleCellExperiment(so)
+    sce <- as.SingleCellExperiment(so)
+      
       set.seed(123)
-      sce.dbl <- scDblFinder(sce)%>%suppressWarnings()
-      sce.class <- sce.dbl$scDblFinder.class
-      so <- AddMetaData(so,sce.class,"Doublet")
+      RNGkind("default", "default", "default")
+    sce.dbl <- scDblFinder(sce,BPPARAM=SerialParam(RNGseed = 123))%>%suppressWarnings()
+    sce.class <- sce.dbl$scDblFinder.class
+    so <- AddMetaData(so,sce.class,"Doublet")
     }else{ print('doublets Identification not Run')}
     return(so)
   })
