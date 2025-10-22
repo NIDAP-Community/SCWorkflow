@@ -9,7 +9,6 @@ dotPlotMet(
   metadata,
   cells,
   markers,
-  use_assay = "SCT",
   plot.reverse = FALSE,
   cell.reverse.sort = FALSE,
   dot.color = "darkblue"

@@ -7,10 +7,11 @@
 modScore(
   object,
   marker.table,
-  ms.threshold,
-  use_assay = "SCT",
+  ms_threshold,
+  use_columns,
   general.class,
-  lvl.vec = c(),
+  multi.lvl = FALSE,
+  lvl.df,
   reduction = "tsne",
   nbins = 10,
   gradient.ft.size = 6,
@@ -26,6 +27,12 @@ modScore(
 "_neg" for proteins or negative markers}
 
 \item{general.class}{Base population of cells to classify}
+
+\item{multi.lvl}{Toggle to TRUE if there are subpopulations of cells
+you want to screen for (Default: FALSE)}
+
+\item{lvl.df}{Table of subpopulation levels and parent-child
+information (e.g. Tcells-CD4, Tcells-CD8)}
 
 \item{reduction}{Choose among tsne, umap, and pca (Default: tsne)}
 
@@ -50,12 +57,6 @@ screen for}
 \item{threshold}{Specify bimodal thresholds for cell classification,
 should be of the same length as celltypes
 vector}
-
-\item{multi.lvl}{Toggle to TRUE if there are subpopulations of cells
-you want to screen for (Default: FALSE)}
-
-\item{lvl.df}{Table of subpopulation levels and parent-child
-information (e.g. Tcells-CD4, Tcells-CD8)}
 }
 \value{
 List containing annotated dimension plot with ModuleScore

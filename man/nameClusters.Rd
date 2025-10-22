@@ -7,6 +7,7 @@ provide plot with percentage of cell types}
 \usage{
 nameClusters(
   object,
+  cluster.identities.table,
   cluster.numbers,
   cluster.names,
   cluster.column,

@@ -56,6 +56,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot geom_point theme_classic xlab ylab geom_vline
+#' @importFrom ggExtra ggMarginal
 #'  geom_hline scale_color_identity theme_bw coord_fixed ggtitle aes
 #'
 #' @export
