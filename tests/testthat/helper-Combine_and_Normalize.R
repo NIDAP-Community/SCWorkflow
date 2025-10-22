@@ -37,7 +37,7 @@ getParamCN <- function(data){
     
   } else if (data == "NSCLC_Multi") {
     object <- readRDS(test_path(
-      paste0("fixtures/",data), paste0('NSCLCmulti','_Filtered_SO_downsample.rds')))
+      paste0("fixtures/",data), paste0('NSCLC_multi','_Filtered_SO_downsample.rds')))
     object=object
     
     npcs = 30
@@ -48,15 +48,15 @@ getParamCN <- function(data){
     
     
   } else if (data == "BRCA") {
-    object <- readRDS(test_path(
-      paste0("fixtures/",data), paste0('NSCLCmulti','_Filtered_SO_downsample.rds')))
-    object=object
-    
-    npcs = 30
-    vars.to.regress = NULL
-    clust.res.low=0.2
-    clust.res.high = 1.2
-    only.var.genes = TRUE 
+    # object <- readRDS(test_path(
+    #   paste0("fixtures/",data), paste0('NSCLCmulti','_Filtered_SO_downsample.rds')))
+    # object=object
+    # 
+    # npcs = 30
+    # vars.to.regress = NULL
+    # clust.res.low=0.2
+    # clust.res.high = 1.2
+    # only.var.genes = TRUE 
     
   }
   
