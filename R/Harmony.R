@@ -33,19 +33,19 @@
 
 object = readRDS('tests/testthat/fixtures/BRCA/BRCA_Combine_and_Renormalize_SO_downsample.rds')
 
-harmonyBatchCorrect <- function(object,
-                                nvar = 200,
+harmonyBatchCorrect <- function(object, 
+                                nvar = 2000, 
                                 genes.to.add = c(),
                                 group.by.var,
                                 return_lognorm = T,
                                 npc = 30) {
   
-  library(patchwork)  
-  library(harmony)
-  library(Seurat)
-  library(ggplot2)
-  library(RColorBrewer)
-  
+library(patchwork)  
+library(harmony)
+library(Seurat)
+library(ggplot2)
+library(RColorBrewer)
+
   # Error and Warning Messages
   if(is.null(genes.to.add)){
     print("no genes will be added")
@@ -68,7 +68,6 @@ harmonyBatchCorrect <- function(object,
   sdat.tsne.orig <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),
                                as.vector(object@reductions$tsne@cell.embeddings[,2]),
                                object@meta.data[eval(parse(text = "group.by.var"))])
-  
   names(sdat.tsne.orig) <- c("TSNE1","TSNE2","ident")
   
   sdat.umap.orig <- data.frame(as.vector(object@reductions$umap@cell.embeddings[,1]),
@@ -139,30 +138,30 @@ harmonyBatchCorrect <- function(object,
   object@reductions$pca@cell.embeddings <- ppembed
   object@reductions$pca@feature.loadings <- ppldngs
   object@reductions$pca@stdev <- pppca$d
-  
-  # Store original log-normalized data and scaling parameters for back-calculation
-  if (return_lognorm) {
-    library(Matrix)
-    # Get log-normalized data for the variable features
-    lognorm_data <- object@assays$SCT@data[mvf, , drop = FALSE]
-    print(str(object))
-    print("hello")
-    print(class(lognorm_data))
-    print(dim(lognorm_data))
-    
-    # Calculate scaling parameters from the original scaled data
-    #scale_center <- Matrix::rowMeans(lognorm_data)
-    scale_center <- Matrix::rowMeans(as.matrix(lognorm_data))
-    scale_scale <- apply(lognorm_data, 1, sd)
-    
-    # Store these for later reconstruction
-    scaling_params <- list(
-      center = scale_center,
-      scale = scale_scale,
-      genes = mvf
-    )
-  }
-  
+
+   # Store original log-normalized data and scaling parameters for back-calculation
+    if (return_lognorm) {
+      library(Matrix)
+      # Get log-normalized data for the variable features
+      lognorm_data <- object@assays$SCT@data[mvf, , drop = FALSE]
+      print(str(object))
+      print("hello")
+      print(class(lognorm_data))
+      print(dim(lognorm_data))
+      
+      # Calculate scaling parameters from the original scaled data
+      #scale_center <- Matrix::rowMeans(lognorm_data)
+      scale_center <- Matrix::rowMeans(as.matrix(lognorm_data))
+      scale_scale <- apply(lognorm_data, 1, sd)
+      
+      # Store these for later reconstruction
+      scaling_params <- list(
+        center = scale_center,
+        scale = scale_scale,
+        genes = mvf
+      )
+    }
+
   # By default, Harmony corrects pca embeddings. 
   # Set do_pca to FALSE to use your own pca embeddings. 
   # Stores adjusted embeddings in harmony reduction slot
@@ -171,7 +170,7 @@ harmonyBatchCorrect <- function(object,
                        do_pca=FALSE,
                        assay.use = "SCT",
                        plot_convergence = FALSE)
-  
+
   object <- RunUMAP(object, reduction = "harmony", dims = 1:npc)
   object <- RunTSNE(object, reduction = "harmony", dims = 1:npc)
   
@@ -222,27 +221,28 @@ harmonyBatchCorrect <- function(object,
   # Store batch-corrected scaled data in Harmony assay
   
   if (return_lognorm) {
-    # Fast conversion back to log-normalized space
-    # Direct vectorized operations on the transposed matrix
-    harm.lvl.backcalc.lognorm <- t(harm.lvl.backcalc.scaled) * scaling_params$scale[mvf] + scaling_params$center[mvf]
-    
-    print("Batch-corrected data stored in 'Harmony' assay:")
-    print("- Log-normalized data: object@assays$Harmony@data")
-    print("- Scaled data: object@assays$Harmony@scale.data")
-  } else {
-    print("Batch-corrected scaled data stored in object@assays$Harmony@scale.data")
-  }
+      # Fast conversion back to log-normalized space
+      # Direct vectorized operations on the transposed matrix
+      harm.lvl.backcalc.lognorm <- t(harm.lvl.backcalc.scaled) * scaling_params$scale[mvf] + scaling_params$center[mvf]
+      
+      print("Batch-corrected data stored in 'Harmony' assay:")
+      print("- Log-normalized data: object@assays$Harmony@data")
+      print("- Scaled data: object@assays$Harmony@scale.data")
+    } else {
+      print("Batch-corrected scaled data stored in object@assays$Harmony@scale.data")
+    }
   
-  # Insert back-calculated data into seurat
-  object[["Harmony"]] <- CreateAssayObject(data = harm.lvl.backcalc.lognorm)
-  object@assays$Harmony@scale.data <- t(harm.lvl.backcalc.scaled)
-  
-  object <- ScaleData(object, assay = "Harmony", verbose = FALSE)
-  
-  # re-run PCA on harmony embeddings using top variable genes (mvf)
-  object <- RunPCA(object, assay = "Harmony", verbose = FALSE, features = rownames(object))
-  
-  object <- FindNeighbors(object, reduction = "harmony", dims = 1:10, assay = "Harmony")
+   # Insert back-calculated data into seurat
+   object[["Harmony"]] <- CreateAssayObject(data = harm.lvl.backcalc.lognorm)
+   #object[["Harmony"]] <- CreateAssayObject(data = Matrix::Matrix(t(harm.lvl.backcalc.lognorm), sparse = TRUE))
+   object@assays$Harmony@scale.data <- t(harm.lvl.backcalc.scaled)
+
+   object <- ScaleData(object, assay = "Harmony", verbose = FALSE)
+
+   # re-run PCA on harmony embeddings using top variable genes (mvf)
+   object <- RunPCA(object, assay = "Harmony", verbose = FALSE, features = rownames(object))
+
+   object <- FindNeighbors(object, reduction = "harmony", dims = 1:10, assay = "Harmony")
   
   return(object)
 }
