@@ -1,10 +1,13 @@
 
 for (data in c('TEC','Chariou','NSCLC_Multi','NSCLC_Single')) {
   
+  
+  
   test_that(paste0("Test Filter and QC - Standard (",data," dataset)"), {
     
     
     data.run <- getParamRaw(data)
+    if(any(file.exists(data.run$input)==F)){next}
     Raw.out <- do.call(processRawData, data.run)
     
     # saveRDS(Raw.out$object, 
@@ -42,13 +45,15 @@ for (data in c('TEC','Chariou','NSCLC_Multi','NSCLC_Single')) {
 }
 
 for (data in c('BRCA')) {
-  
+
   test_that(paste0("Test Split h5 (",data," dataset)"), {
-    
-    
+
+
     data.run <- getParamRaw(data)
-    Raw.out <- do.call(processRawData, data.run)
+    if(any(file.exists(data.run$input)==F)){next}
     
+    Raw.out <- do.call(processRawData, data.run)
+
     # create output
     expected.elements = c("object","plots")
     expect_setequal(names(Raw.out), expected.elements)
@@ -61,7 +66,7 @@ for (data in c('BRCA')) {
     expect( object.size(Raw.out$object[[1]]@assays$RNA@counts),'> 0' )
     # plot slot contains data
     expect( object.size(Raw.out$plots),'= 0' )
-    
+
     # Check for Identical files
     skip_on_ci()
     expect_snapshot_file(
@@ -72,9 +77,9 @@ for (data in c('BRCA')) {
     #   .saveSO(Raw.out$object),
     #   paste0(data,"_Standard.rds")
     # )
-    
+
   })
-  
+
 }
 
 
@@ -87,6 +92,8 @@ for (data in c('Chariou')) {
     
     
     data.run <- getParamRaw(data)
+    if(any(file.exists(data.run$input)==F)){next}
+    
     Raw.out <- do.call(processRawData, data.run)
     
     # create output
