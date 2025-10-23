@@ -27,7 +27,9 @@ getParamCN <- function(data){
   } else if (data == "NSCLC_Single") {
     object <- readRDS(test_path(
       paste0("fixtures/",data), paste0('NSCLCsingle','_Filtered_SO_downsample.rds')))
-    
+    object=object$so
+    print('got data')
+    print(object)
     npcs = 30
     vars.to.regress = NULL
     clust.res.low=0.2
@@ -37,7 +39,7 @@ getParamCN <- function(data){
     
   } else if (data == "NSCLC_Multi") {
     object <- readRDS(test_path(
-      paste0("fixtures/",data), paste0('NSCLC_multi','_Filtered_SO_downsample.rds')))
+      paste0("fixtures/",data), paste0('NSCLC_Multi','_Filtered_SO_downsample.rds')))
     object=object
     
     npcs = 30
