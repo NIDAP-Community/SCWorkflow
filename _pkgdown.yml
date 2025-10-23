@@ -1,0 +1,70 @@
+url: https://nidap-community.github.io/SCWorkflow/
+template:
+  bootstrap: 5
+  bslib:
+    bootswatch: yeti
+    primary: "#296b7f"
+    secondary: "#7cc349"
+    base_font: {google: "Roboto"}
+    heading_font: {google: "Roboto"}
+    code_font: {google: "Roboto Mono"}
+    border-radius: 0
+    btn-border-radius: 3px
+    grid-gutter-width: 3rem
+    pkgdown-nav-height: 78px
+
+navbar:
+  structure:
+    left: [getting-started, articles, reference]
+    right: [search, github]
+  components:
+    getting-started:
+      text: Getting Started
+      href: articles/SCWorkflow-Usage.html
+  
+
+footer:
+  structure:
+    left: [developed_by]
+
+development:
+  mode: auto
+authors:
+  Kelly Sovacool:
+    href: "https://github.com/kelly-sovacool"
+  Philip Homan:
+    href: "https://github.com/phoman14"
+  Vishal Koparde:
+    href: "https://github.com/kopardev"
+  CCR Collaborative Bioinformatics Resource:
+    href: "https://github.com/CCBR"
+  footer:
+    roles: [cph, fnd]
+    text: "Created by the"
+
+articles:
+- title: Vignettes
+  navbar: ~
+  contents:
+  - SCWorkflow-Overview
+  - SCWorkflow-Annotations
+  - SCWorkflow-DEG
+  - SCWorkflow-Visualizations
+  - SCWorkflow-SubsetReclust
+ 
+- title: Developer
+  desc: Developer documentation
+  contents:
+  - SCWorkflow-Usage  
+  - cli
+  - README
+
+home:
+  sidebar:
+    structure: [links,citation, authors, license,  dev]
+  links:
+  - text: Browse code on GitHub
+    href: https://github.com/NIDAP-Community/SCWorkflow
+  strip_header: true
+
+
