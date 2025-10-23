@@ -60,6 +60,12 @@ selectSRObject <- function(dataset){
     input.object <- readRDS(test_path("fixtures/NSCLC_Multi", 
        "NSCLCmulti_Cell_Types_SingleR_SO_downsample.rds"))
   
-  } 
+  } else if (dataset == "BRCA"){
+    
+    print("selected BRCA dataset")
+    input.object <- readRDS(test_path("fixtures/BRCA", 
+                                      "BRCA_Combine_and_Renormalize_SO_downsample.rds"))
+    
+  }
 }
   
