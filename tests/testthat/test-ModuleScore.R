@@ -204,9 +204,9 @@ test_that("modScore detects when no genes are found in the data", {
   expect_error(suppressWarnings(modscore.demo <- modScore(
     object = chariou$object,
     marker.table = apply(chariou$marker.table,2, function(x) toupper(x)),
-    ms.threshold = chariou$ms_threshold,
+    ms_threshold = chariou$ms_threshold,
     general.class = chariou$general.class,
-    lvl.vec = chariou$lvl.vec,
+    ms_threshold = chariou$ms_threshold,
     nbins = 10), "No genes from list was found in data"))
 
 })
@@ -223,7 +223,7 @@ test_that("modScore detects when no genes are found in the data", {
 #     marker.table = chariou$marker.table,
 #     celltypes = chariou$celltypes,
 #     general.class = chariou$general.class,
-#     lvl.vec = chariou$lvl.vec,
+#     ms_threshold = chariou$ms_threshold,
 #     threshold = rep(0.1,5),
 #     nbins = 10),
 #     "Threshold length does not match # celltypes to analyze"))

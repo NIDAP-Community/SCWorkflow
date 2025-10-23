@@ -5,21 +5,52 @@
 #'          control features are randomly selected from each bin.
 #' 
 #' @param object Seurat-class object
-#' @param marker.table Table of marker genes for each celltype 
-#'                          (column names of the table), append "_prot" or 
-#'                          "_neg" for proteins or negative markers
-#' @param cite.seq Set to TRUE if there are CITE-seq markers in 
-#'                          marker.table (Default: FALSE)
-#' @param celltypes Vector of celltypes from marker.table to 
-#'                             screen for
-#' @param threshold Specify bimodal thresholds for cell classification, 
-#'                         should be of the same length as celltypes 
-#'                         vector
-#' @param general.class Base population of cells to classify
-#' @param multi.lvl Toggle to TRUE if there are subpopulations of cells 
-#'                          you want to screen for (Default: FALSE)
-#' @param lvl.df Table of subpopulation levels and parent-child 
-#'                         information (e.g. Tcells-CD4, Tcells-CD8)
+#' @param marker.table A table of lists of gene/protein markers for the 
+#'                      categories of cells you want to detect. 
+#'                      The table should be formatted with cell type(s) 
+#'                      as the column names, and marker(s) as the entries 
+#'                      in each column. 
+#'                      Requires SCT@data to be present within Seurat Object
+#' @param use_columns Select specific columns within Marker Table to analyze. 
+#'                      Markers from unselected columns won't be included.
+#' @param ms_threshold Allow user-specified module score thresholds. 
+#'                    Provide one threshold for each Celltype you included 
+#'                    in the "use_columns" parameter. 
+#'                    For each Celltype, provide the Celltype name, 
+#'                    then a space, then type your threshold for that Celltype. 
+#'                    This threshold must be a number between 0.0 and 1.0. 
+#'                    E.g. "Tcells 0.2", "Macrophages 0.37". 
+#'                    For best results, follow these steps: 
+#'                    (1) Set thresholds at 0.0 for a preliminary view of data. 
+#'                    (2) Use the resulting visualizations to estimate the 
+#'                    correct thresholds for each Celltype. 
+#'                    (3) Adjust your thresholds based on what you saw in the 
+#'                    visualizations. 
+#'                    (4) Re-run the template with the new thresholds. 
+#'                    (5) Review the visualizations again and 
+#'                    repeat Steps 1-5 if you think thresholds can be 
+#'                    further improved.
+#' @param general.class Select which of the classes (i.e. which columns) 
+#'                      in your Marker Table represent the General Classes. 
+#'                      A general class is any class that is not a subtype of 
+#'                      another class.
+#' @param multi.lvl set True if there are multiple subclasses of cells you 
+#'                  would like to classify. 
+#'                  Note: requires a manual entry table with columns specifying 
+#'                  levels and comparisons. Each column of this table should 
+#'                  represent one level of subclass within your General Classes.
+#'                  Each value within a column should be two Class names 
+#'                  separated by a dash (-) showing the General-to-SubClass 
+#'                  relationship. 
+#'                  Example: To classify T-cells and then attempt to classify 
+#'                  those T-cells further into either CD8 or CD4 T-cells, 
+#'                  you would write a column named 
+#'                  "Level_1", then add "T_cell-CD8_T" and "T_cell-CD4_T" to 
+#'                  that column. Note that in this example, "T_cell" 
+#'                  is a General Class and "CD8_T" and "CD4_T" are not.
+#' @param lvl.df Dataframe containing levels information as well as 
+#'               parent-children designation (E.g. Tcells-CD4). 
+#'               Required if Multi Level Classification is turned on.#'                         
 #' @param reduction Choose among tsne, umap, and pca (Default: tsne)
 #' @param nbins Number of bins for storing control features and analyzing 
 #'              average expression (Default: 10)
@@ -40,17 +71,17 @@
 #' @importFrom dplyr select
 #'   
 #' @export
-#' @example Do not run: moduleScore(object = seurat,
+#' @example Do not run: moduleScore(object = seuratObject,
 #'                                  marker.table = immuneCellMarkers,
 #'                                  celltypes = c("CD4_T","Treg",Monocytes"),
-#'                                  threshold = c(0.1,0.4, 0.3),
+#'                                  ms_threshold = c("CD4_T 0.1","Treg 0.4", "Monocytes 0.3"),
 #'                                  multi.lvl = FALSE
 #'                                  )
 #'                                  
-#' @example Do not run: moduleScore(object = seurat,
+#' @example Do not run: moduleScore(object = seuratObject,
 #'                                  marker.table = immuneCellMarkers,
 #'                                  celltypes = c("CD4_T","Treg",Monocytes"),
-#'                                  threshold = c(0.1,0.4, 0.3),
+#'                                  ms_threshold = c("CD4_T 0.1","Treg 0.4", "Monocytes 0.3"),
 #'                                  general.class = c("CD_T","Monocytes"),
 #'                                  multi.lvl = TRUE,
 #'                                  lvl.df = parentChildTable
@@ -60,10 +91,18 @@
 #'         distribution of cell marker gene, Seurat Object with cell 
 #'         classification metadata
 
-modScore <- function(object, marker.table, ms_threshold, use_columns,
-    general.class, multi.lvl = FALSE, lvl.df, 
-    reduction = "tsne", nbins = 10, gradient.ft.size = 6, 
-    violin.ft.size = 6, step.size = 0.1) 
+modScore <- function(object, 
+                     marker.table, 
+                     use_columns,
+                     ms_threshold, 
+                     general.class, 
+                     multi.lvl = FALSE, 
+                     lvl.df=NULL,
+                     reduction = "tsne", 
+                     nbins = 10, 
+                     gradient.ft.size = 6,
+                     violin.ft.size = 6, 
+                     step.size = 0.1) 
 {
     library(Seurat)
     library(gridExtra)
