@@ -1,0 +1,8 @@
+{
+    "object_input_rds": "chariou/SCWorkflowObject_appendMetadataToSeuratObject.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_filterSeuratObjectByMetadata.rds",
+    "samples.to.include": ["CD8dep","NHSIL12"],
+    "sample.name": "orig.ident",
+    "category.to.filter": "immgen_main",
+    "values.to.filter": "Macrophages"
+}

@@ -1,0 +1,4 @@
+{
+    "object_input_rds": "chariou/SCWorkflow_processRawData.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_filterQC.rds"
+}

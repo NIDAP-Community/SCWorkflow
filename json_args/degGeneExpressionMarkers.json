@@ -1,0 +1,6 @@
+{
+    "object_input_rds": "chariou/SCWorkflowObject_reclusterFilteredSeuratObject.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_degGeneExpressionMarkers.rds",
+    "samples": ["CD8dep","NHSIL12"],
+    "contrasts": "CD8dep-NHSIL12"
+}

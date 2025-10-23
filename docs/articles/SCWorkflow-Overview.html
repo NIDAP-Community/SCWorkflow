@@ -72,16 +72,7 @@
 
     
     
-<div class="section level2">
-<h2 id="load-scworkflow">load SCWorkflow<a class="anchor" aria-label="anchor" href="#load-scworkflow"></a>
-</h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="co"># remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)</span></span>
-<span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">SCWorkflow</span><span class="op">)</span></span></code></pre></div>
-<p><br><br></p>
-</div>
+<p><br></p>
 <div class="section level2">
 <h2 id="process-input-data">Process Input Data<a class="anchor" aria-label="anchor" href="#process-input-data"></a>
 </h2>
@@ -142,7 +133,7 @@ based on newnames</p>
 <p>The final Seurat Object will contain an assay slot with log2
 normalized counts. QC figures for individual samples will also be
 produced to help evaluate samples quality.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">SampleMetadataTable</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"./images/Sample_Metadata.txt"</span>,  sep <span class="op">=</span> <span class="st">'\t'</span>,header <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span><span class="va">files</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span>path<span class="op">=</span><span class="st">"../tests/testthat/fixtures/Chariou/h5files"</span>,full.names <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
@@ -194,7 +185,7 @@ parameters) [3]</li>
 showing metrics before and after filtering. These figures can be used to
 help evaluate the effects of filtering criteria and whether filtering
 limits need to be adjusted.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">SO_filtered</span><span class="op">=</span><span class="fu"><a href="../reference/filterQC.html">filterQC</a></span><span class="op">(</span>object<span class="op">=</span><span class="va">SOlist</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>                     <span class="co">## Filter Genes</span></span>
@@ -228,7 +219,7 @@ multi-dimensionality of the data will be summarized into a set of
 “principal components” and visualized in both UMAP and tSNE projections.
 A graph-based clustering approach will identify cell clusters with in
 the data.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">Comb_SO</span><span class="op">=</span><span class="fu"><a href="../reference/combineNormalize.html">combineNormalize</a></span><span class="op">(</span></span>
 <span>                         object<span class="op">=</span><span class="va">SO_filtered</span><span class="op">$</span><span class="va">object</span>,</span>

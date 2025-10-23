@@ -1,0 +1,5 @@
+{
+    "object_input_rds": "chariou/SCWorkflowObject_filterSeuratObjectByMetadata.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_reclusterSeuratObject.rds",
+    "old.columns.to.save": null
+}

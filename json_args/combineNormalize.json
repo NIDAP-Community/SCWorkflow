@@ -1,0 +1,4 @@
+{
+    "object_input_rds": "chariou/Chariou_Filtered_SO_downsample.rds",
+    "object_output_rds": "chariou/SCWorkflowObject_combineNormalize.rds"
+}
