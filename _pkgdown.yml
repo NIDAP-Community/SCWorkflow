@@ -56,7 +56,6 @@ articles:
   desc: Developer documentation
   contents:
   - SCWorkflow-Usage  
-  - cli
   - README
 
 home:
