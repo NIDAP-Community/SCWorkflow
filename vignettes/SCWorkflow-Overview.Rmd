@@ -9,6 +9,7 @@ vignette: >
 
 ```{r, include = FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
+run_Chunks=FALSE
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -32,7 +33,7 @@ This tool supports standard scRNAseq, CITE-Seq, and TCR-Seq assays. Samples prep
 
 A corresponding Metadata table can be used to add sample level information to the Seurat object. The table format should have Sample names in the first Column and any  sample metadata in additional columns. The Metadata table can also be used to rename samples by including an alternative sample name Column in the metadata table.
 
-```{r,echo=F}
+```{r,echo=F,eval=run_Chunks}
 # data.table(My_Sample_Names=c('CID3586','CID3921',
 #                              'CID4066','CID4290A',
 #                              'CID4398','CID4471',
@@ -63,7 +64,7 @@ Samples can also be excluded from the final Seurat object using a REGEX strategy
 
 The final Seurat Object will contain an assay slot with log2 normalized counts. QC figures for individual samples will also be produced to help evaluate samples quality.
 
-```{r,eval=F,echo=T,results='hide'}
+```{r,eval=run_Chunks,echo=T,results='hide'}
 
 SampleMetadataTable <- read.table(file = "./images/Sample_Metadata.txt",  sep = '\t',header = T)
 files=list.files(path="../tests/testthat/fixtures/Chariou/h5files",full.names = T)
@@ -81,7 +82,7 @@ SOlist=processRawData(input=files,
 )
 ```
 
-```{r,echo=F,eval=F}
+```{r,echo=F,eval=run_Chunks}
 ggsave(SOlist$plots[[1]], filename = "./images/ProcessInputData1.png", width = 10, height = 10)
 ggsave(SOlist$plots[[2]], filename = "./images/ProcessInputData2.png", width = 10, height = 10)
 
@@ -109,7 +110,7 @@ The individual filtering criteria used in this tool are listed below.
 The function will return a filtered Seurat Object and various figures showing metrics before and after filtering. These figures can be used to help evaluate the effects of filtering criteria and whether filtering limits need to be adjusted. 
 
 
-```{r,eval=F,echo=T,results='hide'}
+```{r,eval=run_Chunks,echo=T,results='hide'}
 
 SO_filtered=filterQC(object=SOlist$object,
                      ## Filter Genes
@@ -135,7 +136,7 @@ SO_filtered=filterQC(object=SOlist$object,
 
 ```
 
-```{r,echo=F,eval=F}
+```{r,echo=F,eval=run_Chunks}
 ggsave(SO_filtered$plots$PostFilterCombined, filename = "./images/QC1.png", width = 10, height = 10)
 ggsave(SO_filtered$plots$ViolinPlotCombine, filename = "./images/QC2.png", width = 10, height = 10)
 ggsave(SO_filtered$plots$ScatterPlotCombine, filename = "./images/QC3.png", width = 10, height = 10)
@@ -151,7 +152,7 @@ ggsave(SO_filtered$plots$ScatterPlotCombine, filename = "./images/QC3.png", widt
 
 This functions combines multiple sample level Seurat Objects into a single Seurat Object and normalizes the combined dataset. The multi-dimensionality of the data will be summarized into a set of "principal components" and visualized in both UMAP and tSNE projections.  A graph-based clustering approach will identify cell clusters with in the data.
 
-```{r,eval=F,echo=T,results='hide'}
+```{r,eval=run_Chunks,echo=T,results='hide'}
 
 Comb_SO=combineNormalize(
                          object=SO_filtered$object,
@@ -194,7 +195,7 @@ Comb_SO=combineNormalize(
 
 ```
 
-```{r,echo=F,eval=F}
+```{r,echo=F,eval=run_Chunks}
 saveRDS(Comb_SO$object, file="./images/CN_SO.rds")
 
 ggsave(Comb_SO$plots$UMAP, filename = "./images/CN1.png", width = 10, height = 10)
