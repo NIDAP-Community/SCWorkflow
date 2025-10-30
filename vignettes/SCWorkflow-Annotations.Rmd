@@ -7,7 +7,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE,eval=run_Chunks}
+
+
+
+```{r, include = FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
 
 knitr::opts_chunk$set(
@@ -21,9 +24,13 @@ library(dplyr)
 library(ggplot2)
 library(tibble)
 
-Comb_SO=readRDS("./images/CN_SO.rds")
+run_Chunks=FALSE
 ```
 
+```{r,include=F,echo=F,eval=run_Chunks}
+Comb_SO=readRDS("./images/CN_SO.rds")
+
+```
 
 ## Cell Type Annotation with SingleR
 
