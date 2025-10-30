@@ -10,7 +10,7 @@ R package for Single Cell analysis
 [![](https://raw.githubusercontent.com/NIDAP-Community/SCWorkflow/GalaxyCLI/vignettes/SCWorkflow.png)](https://lucid.app/lucidchart/c7b852ad-72dc-4821-90d5-e45bed0c4199/view)
 
 
-<center>**Click Figure to Navigate Workflow**.</center>
+<center>**Click Figure to Navigate Workflow**</center>
 
 <br>
 <br>
