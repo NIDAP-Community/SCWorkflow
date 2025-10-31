@@ -92,15 +92,19 @@ FigOut=tSNE3D(
 
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-saveRDS(FigOut$plot,"./images/Vis_3D.rds")
+# saveRDS(FigOut$plot,"./images/Vis_3D.rds")
+
+saveWidget(as_widget(FigOut$plot), file = "./images/Vis_3D.html")
 ```
 
 ```{r,eval=T,echo=F,out.width="100%"}
-
-readRDS("./images/Vis_3D.rds")
-
-
+library(rvest)
+library(htmltools)
+# readRDS("./images/Vis_3D.rds")
+# htmltools::includeHTML('./images/Vis_3D.html')
+# shiny::includeHTML('./images/Vis_3D.html')
 ```
+
 
 <br>
 

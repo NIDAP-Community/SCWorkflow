@@ -72,30 +72,39 @@
 
     
     
+<p><br></p>
 <div class="section level2">
 <h2 id="subset-seurat-object">Subset Seurat Object<a class="anchor" aria-label="anchor" href="#subset-seurat-object"></a>
 </h2>
 <p>This function subsets your Seurat object. Select a metadata column
 and values matching the cells to pass forward in your analysis.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/filterSeuratObjectByMetadata.html">filterSeuratObjectByMetadata</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">so</span>,</span>
-<span>                                     samples.to.include <span class="op">=</span> <span class="va">samples_to_include</span>,</span>
-<span>                                     sample.name <span class="op">=</span> <span class="va">sample_name</span>,</span>
-<span>                                     category.to.filter <span class="op">=</span> <span class="va">category_to_filter</span>,</span>
-<span>                                     values.to.filter <span class="op">=</span> <span class="va">values_to_filter</span>,</span>
-<span>                                     keep.or.remove <span class="op">=</span> <span class="va">keep_or_remove</span>,</span>
-<span>                                     greater.less.than <span class="op">=</span> <span class="va">greater_less_than</span>,</span>
-<span>                                     seed <span class="op">=</span> <span class="va">seed</span>,</span>
-<span>                                     cut.off <span class="op">=</span> <span class="va">cut_off</span>,</span>
-<span>                                     legend.position <span class="op">=</span> <span class="va">legend_position</span>,</span>
-<span>                                     reduction <span class="op">=</span> <span class="va">reduction</span>,</span>
-<span>                                     plot.as.interactive.plot <span class="op">=</span> <span class="va">plot_as_interactive_plot</span>,</span>
-<span>                                     legend.symbol.size <span class="op">=</span> <span class="va">legend_symbol_size</span>,</span>
-<span>                                     colors <span class="op">=</span> <span class="va">colors</span>,</span>
-<span>                                     dot.size <span class="op">=</span> <span class="va">dot_size</span>,</span>
-<span>                                     number.of.legend.columns <span class="op">=</span> <span class="va">number_of_legend_columns</span>,</span>
-<span>                                     dot.size.highlighted.cells <span class="op">=</span> <span class="va">dot_size_highlighted_cells</span>,</span>
-<span>                                     use.cite.seq.data <span class="op">=</span> <span class="va">use_cite_seq_data</span><span class="op">)</span> </span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span><span class="va">filter_SO</span><span class="op">=</span><span class="fu"><a href="../reference/filterSeuratObjectByMetadata.html">filterSeuratObjectByMetadata</a></span><span class="op">(</span></span>
+<span>                   object <span class="op">=</span> <span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
+<span>                   samples.to.include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>,<span class="st">"Combo"</span>,<span class="st">"CD8dep"</span><span class="op">)</span>,</span>
+<span>                   sample.name <span class="op">=</span> <span class="st">'orig.ident'</span>,</span>
+<span>                   category.to.filter <span class="op">=</span> <span class="st">'immgen_main'</span>,</span>
+<span>                   values.to.filter <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Monocytes'</span>,<span class="st">'Macrophages'</span>,<span class="st">'DC'</span><span class="op">)</span>,</span>
+<span>                   keep.or.remove <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                   greater.less.than <span class="op">=</span> <span class="st">"greater than"</span>,</span>
+<span>                   colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>                     <span class="st">"aquamarine3"</span>,</span>
+<span>                     <span class="st">"salmon1"</span>,</span>
+<span>                     <span class="st">"lightskyblue3"</span><span class="op">)</span>,</span>
+<span>                   seed <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>                   cut.off <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                   legend.position <span class="op">=</span> <span class="st">"right"</span>,</span>
+<span>                   reduction <span class="op">=</span> <span class="st">"umap"</span>,</span>
+<span>                   plot.as.interactive.plot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>                   legend.symbol.size <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>                   dot.size <span class="op">=</span> <span class="fl">0.1</span>,</span>
+<span>                   number.of.legend.columns <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>                   dot.size.highlighted.cells <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>                   use.cite.seq.data <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>                  <span class="op">)</span> </span></code></pre></div>
+<p><img src="images/SubRec_sub2.png" width="300"></p>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="recluster-seurat-object">Recluster Seurat Object<a class="anchor" aria-label="anchor" href="#recluster-seurat-object"></a>
@@ -115,8 +124,8 @@ containing the re-clustered Seurat object and the grid of clustering
 plots. This function can be helpful for experimenting with different
 clustering parameters especially after filtering and visually inspect
 the results.</p>
-<p><strong>Methodology</strong> This function uses methods from the
-Seurat package [1].<br>
+<p><strong>Methodology</strong><br>
+This function uses methods from the Seurat package [1].<br>
 Seurat uses a graph-based clustering method inspired by previous
 strategies, particularly those of Macosko et al [3]. It uses methods
 like SNN-Cliq and PhenoGraph [4.5], which represent cells in a graph
@@ -136,15 +145,21 @@ between 0.4 and 1.2, but larger datasets typically require a higher
 resolution.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="../reference/reclusterSeuratObject.html">reclusterSeuratObject</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">SO</span>,</span>
-<span>                              prepend.txt <span class="op">=</span> <span class="va">prepend_text</span>,</span>
-<span>                              old.columns.to.save <span class="op">=</span> <span class="va">old_columns_to_save</span>,</span>
-<span>                              number.of.pcs <span class="op">=</span> <span class="va">number_of_pcs</span>,</span>
-<span>                              cluster.resolution.low.range <span class="op">=</span> <span class="va">cluster_resolution_low_range</span>,</span>
-<span>                              cluster.resolution.high.range <span class="op">=</span> <span class="va">cluster_resolution_high_range</span>,</span>
-<span>                              cluster.resolution.range.bins <span class="op">=</span> <span class="va">cluster_resolution_range_bins</span>,</span>
-<span>                              reduction.type <span class="op">=</span> <span class="va">reduction</span></span>
+<span><span class="va">reClust_SO</span><span class="op">=</span><span class="fu"><a href="../reference/reclusterSeuratObject.html">reclusterSeuratObject</a></span><span class="op">(</span></span>
+<span>                  object <span class="op">=</span> <span class="va">filter_SO</span><span class="op">$</span><span class="va">object</span>,</span>
+<span>                  prepend.txt <span class="op">=</span> <span class="st">"old"</span>,</span>
+<span>                  old.columns.to.save<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"orig_ident"</span>,<span class="st">"Sample_Name"</span>,<span class="st">"nCount_RNA"</span>,<span class="st">"nFeature_RNA"</span>,<span class="st">"percent_mt"</span>,</span>
+<span>                                        <span class="st">"log10GenesPerUMI"</span>,<span class="st">"S_Score"</span>,<span class="st">"G2M_Score"</span>,<span class="st">"Phase"</span>,<span class="st">"CC_Difference"</span>,<span class="st">"Treatment"</span>,</span>
+<span>                                        <span class="st">"pct_counts_in_top_20_genes"</span>,<span class="st">"Doublet"</span>,<span class="st">"nCount_SCT"</span>,<span class="st">"nFeature_SCT"</span>,</span>
+<span>                                        <span class="st">"mouseRNAseq_main"</span>,<span class="st">"mouseRNAseq"</span>,<span class="st">"immgen_main"</span>,<span class="st">"immgen"</span> <span class="op">)</span>,</span>
+<span>                  number.of.pcs <span class="op">=</span> <span class="fl">50</span>,</span>
+<span>                  cluster.resolution.low.range <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>                  cluster.resolution.high.range <span class="op">=</span> <span class="fl">1.2</span>,</span>
+<span>                  cluster.resolution.range.bins <span class="op">=</span> <span class="fl">0.2</span>,</span>
+<span>                  reduction.type <span class="op">=</span> <span class="st">"umap"</span></span>
 <span>                              <span class="op">)</span></span></code></pre></div>
+<p><img src="images/SubRec_recl.png" width="600"></p>
+<p><br><br></p>
 <ol style="list-style-type: decimal">
 <li><p>Seurat Clustering method <a href="https://satijalab.org/seurat/articles/pbmc3k_tutorial.html" class="external-link uri">https://satijalab.org/seurat/articles/pbmc3k_tutorial.html</a></p></li>
 <li><p>Macosko EZ, Basu A, Satija R, Nemesh J, Shekhar K, Goldman M,
