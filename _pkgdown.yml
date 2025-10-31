@@ -48,9 +48,9 @@ articles:
   contents:
   - SCWorkflow-Overview
   - SCWorkflow-Annotations
-  - SCWorkflow-DEG
   - SCWorkflow-Visualizations
   - SCWorkflow-SubsetReclust
+  - SCWorkflow-DEG
  
 - title: Developer
   desc: Developer documentation

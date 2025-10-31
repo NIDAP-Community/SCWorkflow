@@ -37,9 +37,9 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/SCWorkflow-Overview.html">Import Data and Quality Control</a></li>
     <li><a class="dropdown-item" href="../articles/SCWorkflow-Annotations.html">Annotations</a></li>
-    <li><a class="dropdown-item" href="../articles/SCWorkflow-DEG.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/SCWorkflow-Visualizations.html">Visualizations</a></li>
     <li><a class="dropdown-item" href="../articles/SCWorkflow-SubsetReclust.html">Subset and Recluster</a></li>
+    <li><a class="dropdown-item" href="../articles/SCWorkflow-DEG.html">Differential Expression Analysis</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
@@ -110,6 +110,38 @@ The output will be a new Seurat Object with metadata that now includes
 the additional columns from the external table.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">CellType_Anno_Table</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"PerCell_Metadata.csv"</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Barcode</th>
+<th align="left">Cell Type</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">PBS_AAACCTGCAAGGTTTC-1</td>
+<td align="left">Monocytes</td>
+</tr>
+<tr class="even">
+<td align="left">PBS_AAACCTGGTCTAGCGC-1</td>
+<td align="left">Monocytes</td>
+</tr>
+<tr class="odd">
+<td align="left">PBS_AAACCTGTCACTTACT-1</td>
+<td align="left">Monocytes</td>
+</tr>
+<tr class="even">
+<td align="left">PBS_AAACCTGTCAGCTGGC-1</td>
+<td align="left">Macrophages</td>
+</tr>
+<tr class="odd">
+<td align="left">PBS_AAACCTGTCGGCTTGG-1</td>
+<td align="left">Macrophages</td>
+</tr>
+<tr class="even">
+<td align="left">PBS_AAACGGGAGATGCCAG-1</td>
+<td align="left">Monocytes</td>
+</tr>
+</tbody>
+</table>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">ExtAnno_SO</span><span class="op">=</span><span class="fu">ExternalAnnotation</span><span class="op">(</span>object <span class="op">=</span> <span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
