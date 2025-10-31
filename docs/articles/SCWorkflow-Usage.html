@@ -135,6 +135,33 @@ biowulf container you opened in step 3.</p>
 </div>
 </div>
 <div class="section level2">
+<h2 id="copy-files-from-rstuido-server-to-helix">Copy Files from Rstuido server to Helix<a class="anchor" aria-label="anchor" href="#copy-files-from-rstuido-server-to-helix"></a>
+</h2>
+<div class="section level4">
+<h4 id="log-into-helix">1. Log into Helix<a class="anchor" aria-label="anchor" href="#log-into-helix"></a>
+</h4>
+<pre><code>ssh username@helix.nih.gov</code></pre>
+</div>
+<div class="section level4">
+<h4 id="go-to-working-directory-for-project">2. Go to Working Directory for Project<a class="anchor" aria-label="anchor" href="#go-to-working-directory-for-project"></a>
+</h4>
+</div>
+<div class="section level4">
+<h4 id="connect-to-rstuido-server-to-copy-files-to-biowulf">3. connect to Rstuido Server to copy files to Biowulf<a class="anchor" aria-label="anchor" href="#connect-to-rstuido-server-to-copy-files-to-biowulf"></a>
+</h4>
+<pre><code>sftp username@ nciws-d2335-v.nci.nih.gov</code></pre>
+</div>
+<div class="section level4">
+<h4 id="copy-files-to-biowulf">4. copy files to biowulf<a class="anchor" aria-label="anchor" href="#copy-files-to-biowulf"></a>
+</h4>
+<p><strong>Examples:</strong></p>
+<p>All files:</p>
+<pre><code>mget -r *</code></pre>
+<p>Rscipts:</p>
+<pre><code><span><span class="va">mget</span> <span class="op">-</span><span class="va">r</span> <span class="op">*</span><span class="va">R</span></span></code></pre>
+</div>
+</div>
+<div class="section level2">
 <h2 id="install-package">Install Package<a class="anchor" aria-label="anchor" href="#install-package"></a>
 </h2>
 <p>for general use SCWorkflow can be installed into your Rlibrary</p>

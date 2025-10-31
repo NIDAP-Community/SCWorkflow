@@ -72,6 +72,7 @@
 
     
     
+<p><br></p>
 <div class="section level2">
 <h2 id="cell-type-annotation-with-singler">Cell Type Annotation with SingleR<a class="anchor" aria-label="anchor" href="#cell-type-annotation-with-singler"></a>
 </h2>
@@ -96,13 +97,7 @@ CellDex R package [2] are currently available.</p>
 <span>                  local.celldex <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                  use.clusters <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/Anno1.png" width="300"><img src="images/Anno2.png" width="300"></p>
-<ol style="list-style-type: decimal">
-<li><p>Aran, D., A. P. Looney, L. Liu, E. Wu, V. Fong, A. Hsu, S. Chak,
-et al. 2019. “Reference-based analysis of lung single-cell sequencing
-reveals a transitional profibrotic macrophage.” Nat. Immunol. 20 (2):
-163–72.</p></li>
-<li><p><a href="http://bioconductor.org/packages/release/data/experiment/html/celldex.html" class="external-link uri">http://bioconductor.org/packages/release/data/experiment/html/celldex.html</a></p></li>
-</ol>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="add-external-cell-annotations">Add External Cell Annotations<a class="anchor" aria-label="anchor" href="#add-external-cell-annotations"></a>
@@ -124,6 +119,7 @@ the additional columns from the external table.</p>
 <span>                    external_cols_to_add <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cell Type"</span><span class="op">)</span>,</span>
 <span>                    col_to_viz <span class="op">=</span> <span class="st">"Cell Type"</span></span>
 <span>                   <span class="op">)</span></span></code></pre></div>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="cell-annotation-with-co-expression">Cell Annotation with Co-Expression<a class="anchor" aria-label="anchor" href="#cell-annotation-with-co-expression"></a>
@@ -176,6 +172,7 @@ raw gene/protein expression values.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">DLAnno_SO</span><span class="op">$</span><span class="va">plot_densityHM</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">DLAnno_SO</span><span class="op">$</span><span class="va">plot_umap</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/DL1.png" width="300"><img src="images/DL2.png" width="300"></p>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="color-by-gene-lists">Color by Gene Lists<a class="anchor" aria-label="anchor" href="#color-by-gene-lists"></a>
@@ -220,6 +217,7 @@ identifying distinct groups of cells based on gene activity levels.</p>
 <span>                   <span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">FigOut</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/CBM1.png" width="600"></p>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="module-score-cell-classification">Module Score Cell Classification<a class="anchor" aria-label="anchor" href="#module-score-cell-classification"></a>
@@ -249,7 +247,7 @@ cell classification. <strong>Data Preparation:</strong> The program
 prepares the scRNA-seq object, assigns names to the samples, and selects
 data based on your specified samples. <strong>Module Score
 Calculation:</strong> The program calculates module scores, a measure of
-gene set activity or expression [1], for each cell type based on your
+gene set activity or expression [3], for each cell type based on your
 provided marker table. <strong>Visualization:</strong> Density
 distribution plots and colored reduction plots will be generated to help
 you visualize the module scores, their relationship with cell types, and
@@ -278,6 +276,7 @@ object with new cell type labels.</p>
 <span>                   <span class="op">)</span></span></code></pre></div>
 <p><img src="images/MS1.png" width="600"></p>
 <p><img src="images/MS2.png" width="300"><img src="images/MS3.png" width="300"></p>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="rename-clusters-by-cell-type">Rename Clusters by Cell Type<a class="anchor" aria-label="anchor" href="#rename-clusters-by-cell-type"></a>
@@ -298,17 +297,18 @@ comparison of dot sizes within a row may provide insights into that
 cluster’s primary Cell Type. A new metadata column named “Clusternames”
 is added to the output Seurat Object that contains the New Cluster
 Names.</p>
-<p>Methodology This function creates a dot plot visualization of cell
-types by metadata category (usually cluster number) from a given dataset
-implemented in the SCWorkflow package. The function allows you to update
-and organize biological data about cell clusters in a Seurat object. By
-changing the input labels, you can map custom names to the existing
-cluster IDs which will add these names to a new metadata column. It also
-generates a dot plot using Seurat’s Dotplot function [3], providing a
-visual representation of the percentage of various cell types within
-each cluster. Typically, a cluster can be more distinctively named by
-the predominant cell type as seen in the dotplot. The plot’s order can
-be customized for the clusters and cell types. If no specific order is
+<p><strong>Methodology</strong><br>
+This function creates a dot plot visualization of cell types by metadata
+category (usually cluster number) from a given dataset implemented in
+the SCWorkflow package. The function allows you to update and organize
+biological data about cell clusters in a Seurat object. By changing the
+input labels, you can map custom names to the existing cluster IDs which
+will add these names to a new metadata column. It also generates a dot
+plot using Seurat’s Dotplot function [4], providing a visual
+representation of the percentage of various cell types within each
+cluster. Typically, a cluster can be more distinctively named by the
+predominant cell type as seen in the dotplot. The plot’s order can be
+customized for the clusters and cell types. If no specific order is
 provided, the function uses a default order. An optional parameter
 allows the user to make the plot interactive. The function returns the
 updated Seurat object and the plot.</p>
@@ -329,12 +329,7 @@ updated Seurat object and the plot.</p>
 <span></span>
 <span><span class="fu">ggsave</span><span class="op">(</span><span class="va">RNC_object</span><span class="op">$</span><span class="va">plot</span>, filename <span class="op">=</span> <span class="st">"./images/RNC.png"</span>, width <span class="op">=</span> <span class="fl">9</span>, height <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></code></pre></div>
 <p><img src="images/RNC.png" width="600"></p>
-<ol start="3" style="list-style-type: decimal">
-<li>Hao Y et al. Integrated analysis of multimodal single-cell data.
-Cell. 2021 Jun 24;184(13):3573-3587.e29. doi:
-10.1016/j.cell.2021.04.048. Epub 2021 May 31. PMID: 34062119; PMCID:
-PMC8238499.</li>
-</ol>
+<p><br></p>
 </div>
 <div class="section level2">
 <h2 id="dot-plot-of-genes-by-metadata">Dot Plot of Genes by Metadata<a class="anchor" aria-label="anchor" href="#dot-plot-of-genes-by-metadata"></a>
@@ -353,22 +348,23 @@ gene while the color will reflect the average expression for the gene. A
 table showing values on the plot (either percentage of cells expressing
 gene, or average expression scaled) will be returned, as selected by
 user.</p>
-<p>Methodology This function creates a dot plot visualization of gene
-expression by metadata from a given dataset. It uses the Seurat package
-to create these plots. The size of the dot represents the percentage of
-cells expressing a particular gene (frequency), while the color of the
-dot indicates the average gene expression level. The function ensures
-that only unique and valid genes and categories are used. If some
-categories or genes are not found in the dataset, appropriate warnings
-are issued. The plot is then drawn with the option to reverse the x and
-y-axes and to reverse the order of metadata categories. The colors can
-also be customized. In addition to the plot, the function provides the
-tabular format of the dot plot data, which can be useful for further
-analysis or reporting. A choice of returning either the tables
-representing the percent of cells expressing a gene or the average
-expression level of the genes. This function can be useful for
-exploratory data analysis and visualizing the differences in gene
-expression across different conditions or groups of cells.</p>
+<p><strong>Methodology</strong><br>
+This function creates a dot plot visualization of gene expression by
+metadata from a given dataset. It uses the Seurat package to create
+these plots. The size of the dot represents the percentage of cells
+expressing a particular gene (frequency), while the color of the dot
+indicates the average gene expression level. The function ensures that
+only unique and valid genes and categories are used. If some categories
+or genes are not found in the dataset, appropriate warnings are issued.
+The plot is then drawn with the option to reverse the x and y-axes and
+to reverse the order of metadata categories. The colors can also be
+customized. In addition to the plot, the function provides the tabular
+format of the dot plot data, which can be useful for further analysis or
+reporting. A choice of returning either the tables representing the
+percent of cells expressing a gene or the average expression level of
+the genes. This function can be useful for exploratory data analysis and
+visualizing the differences in gene expression across different
+conditions or groups of cells.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/dotPlotMet.html">dotPlotMet</a></span><span class="op">(</span>object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
@@ -381,6 +377,19 @@ expression across different conditions or groups of cells.</p>
 <span>                   dot.color <span class="op">=</span> <span class="st">"darkblue"</span></span>
 <span>                  <span class="op">)</span></span></code></pre></div>
 <p><img src="images/DPM.png" width="600"></p>
+<p><br><br></p>
+<ol style="list-style-type: decimal">
+<li><p>Aran, D., A. P. Looney, L. Liu, E. Wu, V. Fong, A. Hsu, S. Chak,
+et al. 2019. “Reference-based analysis of lung single-cell sequencing
+reveals a transitional profibrotic macrophage.” Nat. Immunol. 20 (2):
+163–72.</p></li>
+<li><p><a href="http://bioconductor.org/packages/release/data/experiment/html/celldex.html" class="external-link uri">http://bioconductor.org/packages/release/data/experiment/html/celldex.html</a></p></li>
+<li><p><a href="https://satijalab.org/seurat/reference/addmodulescore" class="external-link uri">https://satijalab.org/seurat/reference/addmodulescore</a></p></li>
+<li><p>Hao Y et al. Integrated analysis of multimodal single-cell data.
+Cell. 2021 Jun 24;184(13):3573-3587.e29. doi:
+10.1016/j.cell.2021.04.048. Epub 2021 May 31. PMID: 34062119; PMCID:
+PMC8238499.</p></li>
+</ol>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
