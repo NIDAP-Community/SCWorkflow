@@ -34,7 +34,7 @@ This tool supports standard scRNAseq, CITE-Seq, and TCR-Seq assays. Samples prep
 
 A corresponding Metadata table can be used to add sample level information to the Seurat object. The table format should have Sample names in the first Column and any  sample metadata in additional columns. The Metadata table can also be used to rename samples by including an alternative sample name Column in the metadata table.
 
-```{r,echo=F,eval=run_Chunks}
+```{r,echo=F,eval=T}
 # data.table(My_Sample_Names=c('CID3586','CID3921',
 #                              'CID4066','CID4290A',
 #                              'CID4398','CID4471',
