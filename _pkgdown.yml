@@ -2,7 +2,6 @@ url: https://nidap-community.github.io/SCWorkflow/
 template:
   bootstrap: 5
   bslib:
-    bootswatch: yeti
     primary: "#296b7f"
     secondary: "#7cc349"
     base_font: {google: "Roboto"}

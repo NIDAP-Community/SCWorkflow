@@ -84,7 +84,7 @@ Imports:
     rlang (>= 1.0.6),
     scales,
     scDblFinder (== 1.8.0),
-    Seurat (== 4.1.1),
+    Seurat (>= 4.1.1),
     SeuratObject (== 4.1.1),
     SingleR (>= 1.8.1),
     statmod (>= 1.4.37),

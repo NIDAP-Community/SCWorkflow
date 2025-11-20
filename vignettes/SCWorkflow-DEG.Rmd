@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
   warning = FALSE, message = FALSE
 )
 
+library(Seurat)
 library(data.table)
 library(dplyr)
 library(ggplot2)
@@ -25,11 +26,9 @@ run_Chunks=F
 
 ```{r,include=F,echo=F,eval=run_Chunks}
 
-Anno_SO=readRDS("./images/Anno_SO.rds")
+Anno_SO=readRDS("./images/CN_SO.rds")
 
 ```
-
-
 
 ## DE with Find Markers 
 
@@ -41,14 +40,30 @@ This function takes a merged Seurat object [1] as input, expected to contain sin
 For best results, it is recommended to use this function with well-curated and preprocessed single-cell data, ensuring that the Seurat object contains relevant metadata and SingleR annotations. Users should carefully select the samples and contrasts based on their experimental design and research questions. Additionally, exploring different statistical algorithms and adjusting the threshold can fine-tune the DEG analysis and reveal more accurate gene expression markers.
 
 ```{r,eval=run_Chunks}
-DEG_SO=degGeneExpressionMarkers(object = Anno_SO$object,
-                                 samples = c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-                                 contrasts = c("0-1","0-all"),
-                                 parameter.to.test = "SCT_snn_res_2_8",
-                                 test.to.use = test_to_use,
-                                 log.fc.threshold = log_fc_threshold,
-                                 use.spark = use_spark,
-                                 assay.to.use = assay_to_use)
+
+
+          DEG_table=degGeneExpressionMarkers(object = Anno_SO,
+                                   samples = c("CD8dep","Combo","ENT","NHSIL12","PBS"),
+                                   contrasts = c("0-1"),
+                                   parameter.to.test = "SCT_snn_res_0_2",
+                                   test.to.use = "MAST",
+                                   log.fc.threshold = 0.25,
+                                   assay.to.use = "SCT",
+                                   use.spark = F)
+
+```
+```{r}
+if (eval_chunk==T) {
+  write.table(DEG_table$df  ,
+            file = "./images/DEG_Table.txt",
+            sep = '\t',
+            row.names = F)
+}else{
+  DEG_table=read.delim("./images/DEG_Table.txt")
+}
+
+  DEG_table%>%knitr::kable()
+
 ```
 
 1. https://satijalab.org/seurat/
