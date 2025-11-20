@@ -103,6 +103,9 @@ library(htmltools)
 # readRDS("./images/Vis_3D.rds")
 # htmltools::includeHTML('./images/Vis_3D.html')
 # shiny::includeHTML('./images/Vis_3D.html')
+
+html_content <- read_html('./images/Vis_3D.html')
+print(html_content)
 ```
 
 
