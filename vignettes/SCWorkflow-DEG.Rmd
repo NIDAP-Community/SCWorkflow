@@ -16,12 +16,17 @@ knitr::opts_chunk$set(
   warning = FALSE, message = FALSE
 )
 
-library(Seurat)
-library(data.table)
 library(dplyr)
-library(ggplot2)
+
 
 run_Chunks=F
+```
+
+```{r include=F,echo=F,eval=run_Chunks}
+library(Seurat)
+library(data.table)
+library(ggplot2)
+
 ```
 
 ```{r,include=F,echo=F,eval=run_Chunks}
@@ -52,8 +57,9 @@ For best results, it is recommended to use this function with well-curated and p
                                    use.spark = F)
 
 ```
+
 ```{r}
-if (eval_chunk==T) {
+if (run_Chunks==T) {
   write.table(DEG_table$df  ,
             file = "./images/DEG_Table.txt",
             sep = '\t',
