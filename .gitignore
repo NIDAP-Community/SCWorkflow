@@ -4,7 +4,14 @@
 Rcheck.txt
 #*.pdf
 tests/testthat/otherData/
+tests/testthat/_snaps
+tests/testthat/fixtures/
+tests/testthat/output/
+
 .Rproj.user
 
 inst/doc
 inst/extdata/*
+docs
+*.Rds
+*.rds
