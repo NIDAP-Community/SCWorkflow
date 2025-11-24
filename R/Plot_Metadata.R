@@ -358,7 +358,12 @@ plotMetadata <- function(#Basic Parameters:
     summarize.cut.off <- min(summarization.cut.off, 20)
     
     # checking for samples included:
-    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+    if(any(grepl('c\\(|\\[\\]',samples))) {
+      samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
+    }else{
+      samples=samples
+    }
+    
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
       samples = unique(object@meta.data$sample_name)
@@ -409,8 +414,15 @@ plotMetadata <- function(#Basic Parameters:
     # converting dots to underscores in column names:
     colnames(object.sub@meta.data) = gsub("\\.", "_", colnames(object.sub@meta.data))
     
+    
     # checking metadata for sanity
-    m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
+    if(any(grepl('c\\(|\\[\\]',samples))) {
+      m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
+    }else{
+      m=metadata.to.plot
+    }
+    m = gsub("\\.", "_", m)
+    
     m = m[!grepl("Barcode", m)]
     if (length(m) == 0) {
       print("No metadata columns specified.

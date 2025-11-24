@@ -19,33 +19,61 @@ knitr::opts_chunk$set(
 library(data.table)
 library(dplyr)
 library(ggplot2)
+run_Chunks=F
 ```
+
+```{r,include=F,echo=F,eval=run_Chunks}
+
+Anno_SO=readRDS("./images/Anno_SO.rds")
+
+```
+
+<br>
+
 
 ## Subset Seurat Object
 
 This  function subsets your Seurat object. Select a metadata column and values matching the cells to pass forward in your analysis. 
 
-```{r,eval=F}
-filterSeuratObjectByMetadata(object = so,
-                                     samples.to.include = samples_to_include,
-                                     sample.name = sample_name,
-                                     category.to.filter = category_to_filter,
-                                     values.to.filter = values_to_filter,
-                                     keep.or.remove = keep_or_remove,
-                                     greater.less.than = greater_less_than,
-                                     seed = seed,
-                                     cut.off = cut_off,
-                                     legend.position = legend_position,
-                                     reduction = reduction,
-                                     plot.as.interactive.plot = plot_as_interactive_plot,
-                                     legend.symbol.size = legend_symbol_size,
-                                     colors = colors,
-                                     dot.size = dot_size,
-                                     number.of.legend.columns = number_of_legend_columns,
-                                     dot.size.highlighted.cells = dot_size_highlighted_cells,
-                                     use.cite.seq.data = use_cite_seq_data) 
+```{r,eval=run_Chunks}
+
+filter_SO=filterSeuratObjectByMetadata(
+                   object = Anno_SO$object,
+                   samples.to.include = c("PBS","ENT","NHSIL12","Combo","CD8dep"),
+                   sample.name = 'orig.ident',
+                   category.to.filter = 'immgen_main',
+                   values.to.filter = c('Monocytes','Macrophages','DC'),
+                   keep.or.remove = FALSE,
+                   greater.less.than = "greater than",
+                   colors = c(
+                     "aquamarine3",
+                     "salmon1",
+                     "lightskyblue3"),
+                   seed = 10,
+                   cut.off = 0.5,
+                   legend.position = "right",
+                   reduction = "umap",
+                   plot.as.interactive.plot = FALSE,
+                   legend.symbol.size = 2,
+                   dot.size = 0.1,
+                   number.of.legend.columns = 1,
+                   dot.size.highlighted.cells = 0.5,
+                   use.cite.seq.data = FALSE
+                  ) 
 
 ```
+
+```{r,echo=F,eval=run_Chunks}
+saveRDS(filter_SO, file="./images/filter_SO.rds")
+
+ggsave(filter_SO$plot1, filename = "./images/SubRec_sub1.png", width = 10, height = 10)
+ggsave(filter_SO$plot2, filename = "./images/SubRec_sub2.png", width = 10, height = 10)
+
+```
+
+![](./images/SubRec_sub2.png){width=300}
+
+<br>
 
 ## Recluster Seurat Object
 
@@ -54,7 +82,7 @@ This  function provides a mechanism for re-clustering a filtered Seurat object, 
 The  function finds variable features and performs Principal Component Analysis (PCA). Next, dimensionality reduction is performed using UMAP and t-SNE based on PCA, followed by identification of nearest neighbors. It then performs clustering at different resolutions within the provided range, creating new clustering columns in the Seurat object. It also retains the old clustering information, plots the clusters for each resolution and returns a list containing the re-clustered Seurat object and the grid of clustering plots.
 This  function can be helpful for experimenting with different clustering parameters especially after filtering and visually inspect the results.
 
-**Methodology**
+**Methodology**  
 This  function uses methods from the Seurat package [1].  
 Seurat uses a graph-based clustering method inspired by previous strategies, particularly those of Macosko et al [3]. It uses methods like SNN-Cliq and PhenoGraph [4.5], which represent cells in a graph structure based on similarities in feature expression patterns. The aim is to divide this graph into highly connected communities or clusters.
 The process begins by building a K-nearest neighbor (KNN) graph using Euclidean distance in PCA space. The algorithm refines the edge weights between cells according to their local neighborhood overlap, calculated using the Jaccard similarity measure. This is performed using predefined dimensions of the dataset, such as the first 10 Principal Components (PCs).
@@ -62,18 +90,29 @@ To cluster cells, Seurat uses modularity optimization techniques like the Louvai
 
 ```{r,eval=F}
 
-reclusterSeuratObject(object = SO,
-                              prepend.txt = prepend_text,
-                              old.columns.to.save = old_columns_to_save,
-                              number.of.pcs = number_of_pcs,
-                              cluster.resolution.low.range = cluster_resolution_low_range,
-                              cluster.resolution.high.range = cluster_resolution_high_range,
-                              cluster.resolution.range.bins = cluster_resolution_range_bins,
-                              reduction.type = reduction
+reClust_SO=reclusterSeuratObject(
+                  object = filter_SO$object,
+                  prepend.txt = "old",
+                  old.columns.to.save=c("orig_ident","Sample_Name","nCount_RNA","nFeature_RNA","percent_mt",
+                                        "log10GenesPerUMI","S_Score","G2M_Score","Phase","CC_Difference","Treatment",
+                                        "pct_counts_in_top_N_genes","Doublet","nCount_SCT","nFeature_SCT",
+                                        "mouseRNAseq_main","mouseRNAseq","immgen_main","immgen" ),
+                  number.of.pcs = 50,
+                  cluster.resolution.low.range = 0.2,
+                  cluster.resolution.high.range = 1.2,
+                  cluster.resolution.range.bins = 0.2,
+                  reduction.type = "umap"
                               )
 ```
+```{r,echo=F,eval=run_Chunks}
+saveRDS(reClust_SO, file="./images/reClust_SO.rds")
 
+ggsave(reClust_SO$plot, filename = "./images/SubRec_recl.png", width = 18, height = 10)
 
+```
+![](./images/SubRec_recl.png){width=600}
+   
+<br><br>    
    
 1. Seurat Clustering method https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
  

@@ -16,9 +16,23 @@ knitr::opts_chunk$set(
   warning = FALSE, message = FALSE
 )
 
-library(data.table)
 library(dplyr)
+
+
+run_Chunks=F
+```
+
+```{r include=F,echo=F,eval=run_Chunks}
+library(Seurat)
+library(data.table)
 library(ggplot2)
+
+```
+
+```{r,include=F,echo=F,eval=run_Chunks}
+
+Anno_SO=readRDS("./images/CN_SO.rds")
+
 ```
 
 ## DE with Find Markers 
@@ -30,15 +44,32 @@ Differential expression analysis (DEG) is a fundamental technique in single-cell
 This function takes a merged Seurat object [1] as input, expected to contain single-cell data from multiple samples, along with relevant metadata and SingleR annotations, which provide information about cell identity. To perform the DEG analysis, the user can choose from various statistical algorithms, such as MAST [2], wilcox [3], bimod [4], and more, which accommodate different types of experimental designs and assumptions about the data. The user can control the sensitivity of the analysis by setting the minimum fold-change in gene expression between the groups to be considered significant. Additionally, users can specify the assay to be used for the analysis, whether it is the scaled data (SCT) or raw RNA counts.
 For best results, it is recommended to use this function with well-curated and preprocessed single-cell data, ensuring that the Seurat object contains relevant metadata and SingleR annotations. Users should carefully select the samples and contrasts based on their experimental design and research questions. Additionally, exploring different statistical algorithms and adjusting the threshold can fine-tune the DEG analysis and reveal more accurate gene expression markers.
 
+
 ```{r,eval=F}
-degGeneExpressionMarkers(object = SO,
-                         samples = samples,
-                         contrasts = contrasts,
-                         parameter.to.test = parameter_to_test,
-                         test.to.use = test_to_use,
-                         log.fc.threshold = log_fc_threshold,
-                         use.spark = use_spark,
-                         assay.to.use = assay_to_use)
+
+DEG_table=degGeneExpressionMarkers(object = Anno_SO,
+                                   samples = c("PBS", "ENT", "NHSIL12", "Combo", "CD8dep" ),
+                                   contrasts = c("0-1"),
+                                   parameter.to.test = "SCT_snn_res_0_2",
+                                   test.to.use = "MAST",
+                                   log.fc.threshold = 0.25,
+                                   assay.to.use = "SCT",
+                                   use.spark = F)
+
+```
+
+```{r echo=F}
+if (run_Chunks==T) {
+  write.table(DEG_table$df  ,
+            file = "./images/DEG_Table.txt",
+            sep = '\t',
+            row.names = F)
+}else{
+  DEG_table=read.delim("./images/DEG_Table.txt")
+}
+
+  DEG_table%>%head()%>%knitr::kable()
+
 ```
 
 1. https://satijalab.org/seurat/

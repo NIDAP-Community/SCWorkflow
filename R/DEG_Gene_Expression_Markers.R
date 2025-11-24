@@ -48,6 +48,11 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
     test.to.use = "MAST", log.fc.threshold = 0.25, use.spark = FALSE, 
     assay.to.use = "SCT") 
 {
+  
+  ## --------------- ##
+  ## Functions       ##
+  ## --------------- ##
+  
     .getDegTable <- function(n) {
         first.cluster <- unlist(n)[1]
         second.cluster <- unlist(n)[2]
@@ -64,11 +69,25 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
             first.cluster, "vs", second.cluster.name, sep = "_"))
         return(markers)
     }
+    
+    ## --------------- ##
+    ## Main Code Block ##
+    ## --------------- ##
+    
+    # Getting metadata and checking sample names:
     metadata.table <- object@meta.data
-    samples = eval(parse(text = gsub("\\[\\]", "c()", samples)))
+    
+    if(any(grepl('c\\(|\\[\\]',samples))) {
+      samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
+    }else{
+      samples=samples
+    }
+    
     if (length(samples) == 0) {
         samples = unique(object@meta.data$sample_name)
     }
+    
+    
     colnames(object@meta.data) <- gsub("orig_ident", "orig.ident", 
         colnames(object@meta.data))
     if ("active.ident" %in% slotNames(object)) {
@@ -88,12 +107,17 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
     print("selected samples:")
     print(object.sub)
     colnames(object.sub@meta.data) = gsub("\\.", "_", colnames(object.sub@meta.data))
+    
+    #define contrasts
     new.cont <- list()
     for (i in 1:length(contrasts)) {
         new.cont[[i]] <- c(paste(unlist(strsplit(contrasts[i], 
             "-"))))
     }
     contrasts <- new.cont
+    
+    #ERROR CATCHING
+    #collect valid names of valid columns
     valid.columns <- character()
     for (i in colnames(metadata.table)) {
         if (!any(is.na(metadata.table[[i]]))) {
@@ -101,6 +125,7 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
         }
     }
     param.to.test <- parameter.to.test
+    
     if (param.to.test == "") {
         mcols = colnames(object.sub@meta.data)
         param.to.test <- mcols[grepl("RNA_snn", mcols)][[1]]
@@ -110,6 +135,8 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
     contrast.type <- param.to.test
     contrast.counts = as.data.frame(table(contrast.target))
     valid.contrasts = subset(contrast.counts, Freq > 2)[[1]]
+    
+    #catch malformed contrasts
     for (i in contrasts) {
         if (!(i[[1]] %in% contrast.target)) {
             print(paste(i[[1]], "is not a valid contrast for contrast type:", 
@@ -143,6 +170,8 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
             stop("You have entered an invalid group to contrast against.")
         }
     }
+    
+    #print out contrast cell contrast.counts
     for (i in seq_along(contrasts)) {
         first.group <- contrasts[[i]][[1]]
         first.group.count <- subset(contrast.counts, contrast.target == 
@@ -181,6 +210,8 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
             i, " is:"))
         print(neg[1])
     }
+    
+    #Merge the deg tables together
     out.df <- NULL
     for (i in deg.tables) {
         if (is.null(out.df)) {

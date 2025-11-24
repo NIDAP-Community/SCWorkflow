@@ -7,6 +7,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+
+
+
 ```{r, include = FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
 
@@ -21,13 +24,16 @@ library(dplyr)
 library(ggplot2)
 library(tibble)
 
+run_Chunks=FALSE
+```
+
+```{r,include=F,echo=F,eval=run_Chunks}
 Comb_SO=list()
 Comb_SO$object=readRDS("./images/CN_SO.rds")
-evalChunk=F
-
 
 ```
 
+<br>
 
 ## Cell Type Annotation with SingleR
 
@@ -57,10 +63,8 @@ ggsave(Anno_SO$p2, filename = "./images/Anno2.png", width = 10, height = 10)
 
 ![](./images/Anno1.png){width=300} ![](./images/Anno2.png){width=300}
 
-1. Aran, D., A. P. Looney, L. Liu, E. Wu, V. Fong, A. Hsu, S. Chak, et al. 2019. “Reference-based analysis of lung single-cell sequencing reveals a transitional profibrotic macrophage.” Nat. Immunol. 20 (2): 163–72.
 
-2. http://bioconductor.org/packages/release/data/experiment/html/celldex.html
-
+<br>
 
 ## Add External Cell Annotations
 
@@ -223,6 +227,7 @@ ExtAnno_SO=ExternalAnnotation(object = Anno_SO$object,
 
 ```
 
+<br>
 
 ## Cell Annotation with Co-Expression
 
@@ -277,7 +282,7 @@ dev.off()
 ```
 ![](./images/DL1.png){width=300} ![](./images/DL2.png){width=300}
 
-
+<br>
 
 ## Color by Gene Lists
 
@@ -326,11 +331,9 @@ dev.off()
 
 ```
 
-<!-- ![](./images/CBM1.png){width=400} -->
-<p align="center" width="100%">
-    <img width="66%" src="./images/CBM1.png">
-</p>
+![](./images/CBM1.png){width=600}
 
+<br>
 
 ## Module Score Cell Classification
 
@@ -340,19 +343,13 @@ This function can be used to quantify the expression of marker sets in each indi
 
 This function aids in identifying cell types based on average gene expression. It uses a feature of the Seurat software known as the AddModuleScore function. This function calculates the gene expression of specific sets and records them within a designated area of the Seurat object. The program then forecasts cell identities by comparing these recorded scores across various gene sets. You have the ability to adjust the identification process by designating cutoff points for a bimodal distribution in a parameter known as manual threshold. Any thresholds below this cutoff will not be considered during the identification process.
 
-**Inputs:** The program takes several inputs. These include the single-cell RNA sequencing (scRNA-seq) object, a selection of samples for analysis, a table of gene markers for different cell types, and optionally, a hierarchical table for directing the order of cell classification. 
-
-**Data Preparation:** The program prepares the scRNA-seq object, assigns names to the samples, and selects data based on your specified samples. 
-
-**Module Score Calculation:** The program calculates module scores, a measure of gene set activity or expression [1], for each cell type based on your provided marker table. 
-
+**Inputs:** The program takes several inputs. These include the single-cell RNA sequencing (scRNA-seq) object, a selection of samples for analysis, a table of gene markers for different cell types, and optionally, a hierarchical table for directing the order of cell classification.
+**Data Preparation:** The program prepares the scRNA-seq object, assigns names to the samples, and selects data based on your specified samples.
+**Module Score Calculation:** The program calculates module scores, a measure of gene set activity or expression [3], for each cell type based on your provided marker table.
 **Visualization:** Density distribution plots and colored reduction plots will be generated to help you visualize the module scores, their relationship with cell types, and sample identities.
-
-**Thresholding:** Users can select threshold values to aid in the classification of cells. Cells with scores below your designated threshold will be labeled as "unknown". 
-
+**Thresholding:** Users can select threshold values to aid in the classification of cells. Cells with scores below your designated threshold will be labeled as "unknown".
 Subclass Identification: If desired, the program can identify subclasses within cell types by further analyzing subpopulations. 
-**Updating Cell Type Labels:** The program appends a "Likely_CellType" column to the metadata of the scRNA-seq object, based on the results of the module score analysis. 
-
+**Updating Cell Type Labels:** The program appends a "Likely_CellType" column to the metadata of the scRNA-seq object, based on the results of the module score analysis.
 **Output:** An updated scRNA-seq object with new cell type labels.
 
 ```{r,eval=evalChunk}
@@ -373,9 +370,9 @@ MS_object=modScore(object=Anno_SO$object,
 ```
 ![](./images/MS1.png){width=600}
 
-<!-- ![](./images/MS2.png){width=300} ![](./images/MS3.png){width=300} -->
+![](./images/MS2.png){width=300} ![](./images/MS3.png){width=300}
 
-
+<br>
 
 ## Rename Clusters by Cell Type
 
@@ -384,28 +381,48 @@ This function creates a dot plot of Cell Types by Renamed Clusters and outputs a
 You must provide a table with a column containing the unique Cluster IDs from an upstream clustering analysis (e.g. one of the SCT_snn_res_* columns in your input Seurat Object metadata) and a column containing the corresponding New Cluster Names you have chosen. The dot plot will display the unique Cell Types on the x-axis and the Renamed Clusters on the y-axis. The size of the dots show the percentage of cells in each row (each Renamed Cluster) that was classified as each Cell Type. A comparison of dot sizes within a row may provide insights into that cluster's primary Cell Type. A new metadata column named "Clusternames" is added to the output Seurat Object that contains the New Cluster Names.
 
 
-Methodology
+**Methodology**  
 This function creates a dot plot visualization of cell types by metadata category (usually cluster number) from a given dataset implemented in the SCWorkflow package.  The function allows you to update and organize biological data about cell clusters in a Seurat object.  By changing the input labels, you can map custom names to the existing cluster IDs which will add these names to a new metadata column.
-It also generates a dot plot using Seurat's Dotplot function [3], providing a visual representation of the percentage of various cell types within each cluster.  Typically, a cluster can be more distinctively named by the predominant cell type as seen in the dotplot.  The plot's order can be customized for the clusters and cell types. If no specific order is provided, the function uses a default order.
+It also generates a dot plot using Seurat's Dotplot function [4], providing a visual representation of the percentage of various cell types within each cluster.  Typically, a cluster can be more distinctively named by the predominant cell type as seen in the dotplot.  The plot's order can be customized for the clusters and cell types. If no specific order is provided, the function uses a default order.
 An optional parameter allows the user to make the plot interactive. The function returns the updated Seurat object and the plot.
 
-```{r,eval=evalChunk}
 
-RNC_object=nameClusters(object=Anno_SO$object,
-                          cluster.identities.table=
-                         cluster.numbers= c(0,1,2,3,4,5,6,7),
-                         cluster.names=c("Pop0", "Pop1", "Pop2", "Pop3","Pop4", "Pop5", "Pop6", "Pop7"),
-                         cluster.column ="SCT_snn_res.0.2",
-                         labels.column = "mouseRNAseq_main",
-                         order.clusters.by = NULL,
-                         order.celltypes.by = NULL,
-                         interactive = FALSE)
+```{r,eval=T,echo=TRUE}
 
+clstrTable <- read.table(file = "./images/Cluster_Names.txt",  sep = '\t',header = T)
+
+```
+
+```{r,echo=F,eval=T}
+
+clstrTable=data.table(OriginalClusterIDs= c(0,1,2,3,4,5,6,7),
+                      NewClusterNames=c("Pop0", "Pop1", "Pop2", "Pop3","Pop4", "Pop5", "Pop6", "Pop7")
+)
+write.table(clstrTable,
+            file = "./images/Cluster_Names.txt",
+            sep = '\t',
+            row.names = F)
+  clstrTable%>%knitr::kable()
 
 
 ```
 
-```{r,eval=F,echo=T,results='hide'}
+```{r,eval=run_Chunks}
+
+RNC_object=nameClusters(object=Anno_SO$object,
+                         cluster.identities.table=clstrTable,
+                         cluster.numbers= 'OriginalClusterIDs',
+                         cluster.names='NewClusterNames',
+                         cluster.column ="SCT_snn_res.0.2",
+                         labels.column = "mouseRNAseq_main",
+                         order.clusters.by = NULL,
+                         order.celltypes.by = NULL,
+                         interactive = FALSE
+                        )
+
+```
+
+```{r,eval=run_Chunks,echo=T,results='hide'}
 
 # DimPlot(MS_object, group.by = "SCT_snn_res.0.2", label = T, reduction = 'umap')
 # DimPlot(MS_object, group.by = "mouseRNAseq_main", label = T, reduction = 'umap')
@@ -416,10 +433,7 @@ ggsave(RNC_object$plot, filename = "./images/RNC.png", width = 9, height = 6)
 
 ![](./images/RNC.png){width=600} 
  
- 
-3. Hao Y et al. Integrated analysis of multimodal single-cell data. Cell. 2021 Jun 24;184(13):3573-3587.e29. doi: 10.1016/j.cell.2021.04.048. Epub 2021 May 31. PMID: 34062119; PMCID: PMC8238499.
-
-
+<br>
 
 ## Dot Plot of Genes by Metadata
 
@@ -427,7 +441,7 @@ This function creates a dot plot of average gene expression values for a set of 
 
 The Dotplot size will reflect the percentage of cells expressing the gene while the color will reflect the average expression for the gene.  A table showing values on the plot (either percentage of cells expressing gene, or average expression scaled) will be returned, as selected by user.
 
-Methodology
+**Methodology**  
 This function creates a dot plot visualization of gene expression by metadata from a given dataset. It uses the Seurat package to create these plots. The size of the dot represents the percentage of cells expressing a particular gene (frequency), while the color of the dot indicates the average gene expression level.
 The function ensures that only unique and valid genes and categories are used. If some categories or genes are not found in the dataset, appropriate warnings are issued.  The plot is then drawn with the option to reverse the x and y-axes and to reverse the order of metadata categories. The colors can also be customized.
 In addition to the plot, the function provides the tabular format of the dot plot data, which can be useful for further analysis or reporting.  A choice of returning either the tables representing the percent of cells expressing a gene or the average expression level of the genes.
@@ -447,7 +461,7 @@ FigOut=dotPlotMet(object=Anno_SO$object,
 
 ```
 
-```{r,eval=F,echo=F,results='hide'}
+```{r,eval=run_Chunks,echo=F,results='hide'}
 
       c("Itgam", "Ly6g_neg","Adgre1", "Cd68",  "Siglec1", "Csf1r", "Apoe",  "Mafb",  "Cx3cr1", "Nr4a1","F13a1",
                                  "Lgals3", "Cxcl9", "Cxcl10", "Sell", "Arg1", "Mmp13", "Mmp12")
@@ -460,8 +474,15 @@ ggsave(FigOut$plot, filename = "./images/DPM.png", width = 9, height = 6)
 ![](./images/DPM.png){width=600} 
 
 
+<br><br>
 
+1. Aran, D., A. P. Looney, L. Liu, E. Wu, V. Fong, A. Hsu, S. Chak, et al. 2019. “Reference-based analysis of lung single-cell sequencing reveals a transitional profibrotic macrophage.” Nat. Immunol. 20 (2): 163–72.
 
+2. http://bioconductor.org/packages/release/data/experiment/html/celldex.html
+
+3. https://satijalab.org/seurat/reference/addmodulescore
+
+4. Hao Y et al. Integrated analysis of multimodal single-cell data. Cell. 2021 Jun 24;184(13):3573-3587.e29. doi: 10.1016/j.cell.2021.04.048. Epub 2021 May 31. PMID: 34062119; PMCID: PMC8238499.
 
 
 

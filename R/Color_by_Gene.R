@@ -67,7 +67,11 @@ colorByGene <- function(object,
   
   print(object)
   # checking for samples
-  samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+  if(any(grepl('c\\(|\\[\\]',samples))) {
+    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
+  }else{
+    samples=samples
+  }
   # if none specified, using ALL
   if (length(samples) == 0) {
     samples = unique(object@meta.data$orig.ident)

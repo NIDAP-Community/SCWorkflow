@@ -230,7 +230,11 @@ filterSeuratObjectByMetadata <- function(object,
   ## --------------- ##
   
   # Checking if samples are selected
-  samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+  if(any(grepl('c\\(|\\[\\]',samples.to.include))) {
+    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+  }else{
+    samples=samples.to.include
+  }
   
   if (length(samples) == 0) {
     samples = unique(object@meta.data[[sample.name[1]]])

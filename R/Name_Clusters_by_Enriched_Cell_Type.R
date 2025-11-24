@@ -65,17 +65,17 @@ nameClusters <- function(object,
   
   # # If cluster numbers on input table match the cluster numbers in cluster 
   # # column in metadata, add new custom labels to seurat object
-  # if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.numbers))) {
-  #   object =
-  #   AddMetaData(object,
-  #               metadata = 
-  #                 deframe(tibble(metadata.df[[cluster.column]],
-  #                                cluster.names[as.character(colval)])),
-  #                         col.name = "Clusternames")
-  # } else{
-  #   stop("Cluster ID's have to match metadata column. Please check entry in
-  #          input table.")
-  # }
+  if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.identities.table[[cluster.numbers]]))) {
+    object =
+    AddMetaData(object,
+                metadata =
+                  deframe(tibble(metadata.df[[cluster.column]],
+                                 cluster.names[as.character(colval)])),
+                          col.name = "Clusternames")
+  } else{
+    stop("Cluster ID's have to match metadata column. Please check entry in
+           input table.")
+  }
   
   clus.num <-
     as.data.frame.matrix(table(object@meta.data$Clusternames,
