@@ -45,7 +45,7 @@ articles:
 - title: Vignettes
   navbar: ~
   contents:
-  - SCWorkflow-Overview
+  - SCWorkflow-QC
   - SCWorkflow-Annotations
   - SCWorkflow-Visualizations
   - SCWorkflow-SubsetReclust
