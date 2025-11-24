@@ -18,7 +18,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">SCWorkflow</a>
 
@@ -151,6 +151,10 @@ effectively revealing clusters or groups of similar cells.</p>
 <span>           save.plot <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>           npcs <span class="op">=</span> <span class="fl">15</span></span>
 <span>           <span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt; {html_document}</span></span>
+<span><span class="co">#&gt; &lt;html&gt;</span></span>
+<span><span class="co">#&gt; [1] &lt;head&gt;\n&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8 ...</span></span>
+<span><span class="co">#&gt; [2] &lt;body style="background-color: white;"&gt;\n&lt;div id="htmlwidget_container"&gt;\ ...</span></span></code></pre>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -167,7 +171,7 @@ This function visualizes expression values of the chosen gene or protein
 in different samples. Users can customize how they want to visualize the
 data, including the type of visualization used, the size and shape of
 the points, and the level of transparency.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/colorByGene.html">colorByGene</a></span><span class="op">(</span></span>
 <span>            object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
@@ -209,7 +213,7 @@ axis, displaying individual data points, converting scales to
 logarithmic, and showing boxplots. You can choose how the plot looks -
 whether it’s laid out like a grid, in rows, or with customized
 labels.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/violinPlot_mod.html">violinPlot_mod</a></span><span class="op">(</span></span>
 <span>                object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>, </span>
@@ -265,7 +269,7 @@ in a particular sample, with one color representing upregulation (higher
 expression), another representing downregulation (lower expression), and
 usually a neutral color representing no change. This allows for easy
 visual interpretation of patterns or correlations in the data.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/heatmapSC.html">heatmapSC</a></span><span class="op">(</span></span>
 <span>          object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
@@ -334,7 +338,7 @@ conditions or groups of cells.</p>
 <li>Seurat package Dotplot Documentation <a href="https://satijalab.org/seurat/reference/dotplot" class="external-link uri">https://satijalab.org/seurat/reference/dotplot</a>
 </li>
 </ol>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/dotPlotMet.html">dotPlotMet</a></span><span class="op">(</span></span>
 <span>           object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>           metadata<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>,</span>

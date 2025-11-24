@@ -18,7 +18,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">SCWorkflow</a>
 
@@ -102,14 +102,83 @@ design and research questions. Additionally, exploring different
 statistical algorithms and adjusting the threshold can fine-tune the DEG
 analysis and reveal more accurate gene expression markers.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/degGeneExpressionMarkers.html">degGeneExpressionMarkers</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">SO</span>,</span>
-<span>                         samples <span class="op">=</span> <span class="va">samples</span>,</span>
-<span>                         contrasts <span class="op">=</span> <span class="va">contrasts</span>,</span>
-<span>                         parameter.to.test <span class="op">=</span> <span class="va">parameter_to_test</span>,</span>
-<span>                         test.to.use <span class="op">=</span> <span class="va">test_to_use</span>,</span>
-<span>                         log.fc.threshold <span class="op">=</span> <span class="va">log_fc_threshold</span>,</span>
-<span>                         use.spark <span class="op">=</span> <span class="va">use_spark</span>,</span>
-<span>                         assay.to.use <span class="op">=</span> <span class="va">assay_to_use</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span></span>
+<span>          <span class="va">DEG_table</span><span class="op">=</span><span class="fu"><a href="../reference/degGeneExpressionMarkers.html">degGeneExpressionMarkers</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">Anno_SO</span>,</span>
+<span>                                   samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD8dep"</span>,<span class="st">"Combo"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>,<span class="st">"PBS"</span><span class="op">)</span>,</span>
+<span>                                   contrasts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0-1"</span><span class="op">)</span>,</span>
+<span>                                   parameter.to.test <span class="op">=</span> <span class="st">"SCT_snn_res_0_2"</span>,</span>
+<span>                                   test.to.use <span class="op">=</span> <span class="st">"MAST"</span>,</span>
+<span>                                   log.fc.threshold <span class="op">=</span> <span class="fl">0.25</span>,</span>
+<span>                                   assay.to.use <span class="op">=</span> <span class="st">"SCT"</span>,</span>
+<span>                                   use.spark <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<table class="table">
+<colgroup>
+<col width="9%">
+<col width="15%">
+<col width="21%">
+<col width="15%">
+<col width="15%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th align="left">Gene</th>
+<th align="right">p_val_0_vs_1</th>
+<th align="right">avg_log2FC_0_vs_1</th>
+<th align="right">pct.1_0_vs_1</th>
+<th align="right">pct.2_0_vs_1</th>
+<th align="right">p_val_adj_0_vs_1</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">Cd274</td>
+<td align="right">0</td>
+<td align="right">-1.2268831</td>
+<td align="right">0.354</td>
+<td align="right">0.804</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">Fth1</td>
+<td align="right">0</td>
+<td align="right">-1.4120860</td>
+<td align="right">1.000</td>
+<td align="right">1.000</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">Mmp12</td>
+<td align="right">0</td>
+<td align="right">-3.0365848</td>
+<td align="right">0.168</td>
+<td align="right">0.641</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">mt-Atp6</td>
+<td align="right">0</td>
+<td align="right">0.9888044</td>
+<td align="right">1.000</td>
+<td align="right">0.982</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">mt-Co2</td>
+<td align="right">0</td>
+<td align="right">1.0310467</td>
+<td align="right">1.000</td>
+<td align="right">0.981</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="left">mt-Co3</td>
+<td align="right">0</td>
+<td align="right">0.9763562</td>
+<td align="right">1.000</td>
+<td align="right">0.980</td>
+<td align="right">0</td>
+</tr>
+</tbody>
+</table>
 <ol style="list-style-type: decimal">
 <li><a href="https://satijalab.org/seurat/" class="external-link uri">https://satijalab.org/seurat/</a></li>
 <li><a href="https://rglab.github.io/MAST/" class="external-link uri">https://rglab.github.io/MAST/</a></li>

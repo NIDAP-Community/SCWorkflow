@@ -58,7 +58,7 @@ For best results, it is recommended to use this function with well-curated and p
 
 ```
 
-```{r}
+```{r echo=F}
 if (run_Chunks==T) {
   write.table(DEG_table$df  ,
             file = "./images/DEG_Table.txt",
@@ -68,7 +68,7 @@ if (run_Chunks==T) {
   DEG_table=read.delim("./images/DEG_Table.txt")
 }
 
-  DEG_table%>%knitr::kable()
+  DEG_table%>%head()%>%knitr::kable()
 
 ```
 

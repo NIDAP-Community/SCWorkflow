@@ -18,7 +18,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">SCWorkflow</a>
 
@@ -93,6 +93,40 @@ information to the Seurat object. The table format should have Sample
 names in the first Column and any sample metadata in additional columns.
 The Metadata table can also be used to rename samples by including an
 alternative sample name Column in the metadata table.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="left">Sample_Name</th>
+<th align="left">Rename</th>
+<th align="left">Treatment</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="left">SCAF1713_1_1</td>
+<td align="left">PBS</td>
+<td align="left">WT</td>
+</tr>
+<tr class="even">
+<td align="left">SCAF1714_2_1</td>
+<td align="left">ENT</td>
+<td align="left">Entinostat</td>
+</tr>
+<tr class="odd">
+<td align="left">SCAF1715_3_1</td>
+<td align="left">NHSIL12</td>
+<td align="left">NHS-IL12</td>
+</tr>
+<tr class="even">
+<td align="left">SCAF1716_4_1</td>
+<td align="left">Combo</td>
+<td align="left">Entinostat + NHS-IL12</td>
+</tr>
+<tr class="odd">
+<td align="left">SCAF1717_5_1</td>
+<td align="left">CD8dep</td>
+<td align="left">Entinostat + NHS-IL12</td>
+</tr>
+</tbody>
+</table>
 <p>Samples can also be excluded from the final Seurat object using a
 REGEX strategy to identify the samples to be included/excluded. explain
 based on newnames</p>
