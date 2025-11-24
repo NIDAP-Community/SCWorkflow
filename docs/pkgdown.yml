@@ -6,11 +6,11 @@ articles:
   README: README.html
   SCWorkflow-Annotations: SCWorkflow-Annotations.html
   SCWorkflow-DEG: SCWorkflow-DEG.html
-  SCWorkflow-Overview: SCWorkflow-Overview.html
+  SCWorkflow-QC: SCWorkflow-QC.html
   SCWorkflow-SubsetReclust: SCWorkflow-SubsetReclust.html
   SCWorkflow-Usage: SCWorkflow-Usage.html
   SCWorkflow-Visualizations: SCWorkflow-Visualizations.html
-last_built: 2025-11-24T17:10Z
+last_built: 2025-11-24T17:48Z
 urls:
   reference: https://nidap-community.github.io/SCWorkflow/reference
   article: https://nidap-community.github.io/SCWorkflow/articles
