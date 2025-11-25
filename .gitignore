@@ -11,7 +11,7 @@ tests/testthat/output/
 .Rproj.user
 
 inst/doc
-inst/extdata/*
+#inst/extdata/*
 docs
 *.Rds
 *.rds

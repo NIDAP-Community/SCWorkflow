@@ -1,0 +1,119 @@
+{
+	"codeTemplate": "SingleRCellTypes_SO <- function({{{Seurat_Object}}},{{{CellDex_Snapshot}}}, {{{Metadata_Table}}}) {\n\n## --------- ##\n## Libraries ##\n## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n    library(grid)\n    library(gridExtra)\n    library(gridBase)\n    library(cowplot)\n    \n\n## -------------------------------- ##\n## User-Defined Template Parameters ##\n## -------------------------------- ##\n\n# Primary Inputs:\nCombinedSO <-{{{Seurat_Object}}}\nMetadata <- {{{Metadata_Table}}}\nRDS <- {{{CellDex_Snapshot}}}\n\n# Basic Parameters:\nspecies <- \"{{{organism}}}\"\nuseClusters <- {{{Use_Clusters}}}\nClusterColumn <- {{{Clusters_Column}}}[1]\n\n# Visualization Parameters:\nReduction <- \"umap\"\nLegend_Dot_Size <- {{{Legend_Dot_Size}}}\n\n# Advanced Parameters:\ndoFineTuning <- {{{Perform_Fine_Tuning}}}\nNumber_of_cells_per_partition <- {{{Number_of_Cells_Per_Partition}}}\n\n\n## -------------------------------- ##\n## Errors                           ##\n## -------------------------------- ##\n\n\n## -------------------------------- ##\n## Functions                        ##\n## -------------------------------- ##\n\n \n## --------------- ##\n## Main Code Block ##\n## --------------- ##\n\n\n\n# Loading Seurat object\n    cat(\"1. Reading Seurat Object from dataset: seurat_object.rds\\n\\n\")\n    fs <- CombinedSO$fileSystem()\n    path <- fs$get_path(\"seurat_object.rds\", 'r')\n    so <- readRDS(path)\n\n# Loading CellDex annotation\n#cell.dex <- list(HPCA, BP, mousernaseq, immgen)\n    cat(\"2. Reading pre-saved CellDex Data from dataset: CellDexDatabase.rds\\n\\n\")\n    fs2 <- RDS$fileSystem()\n    path2 <- fs2$get_path(\"CellDexDatabase.rds\", 'r')\n    CellDexData <- readRDS(path2)\n\nReduction = \"umap\"\nif (useClusters)\n  {\n      anno <- annotateCellTypes(object = so,\n                            species = species,\n                            reduction.type = Reduction,\n                            legend.dot.size = Legend_Dot_Size,\n                            do.finetuning = doFineTuning,\n                            local.celldex = CellDexData,\n                            use.clusters = ClusterColumn)\n  } else {\n      anno <- annotateCellTypes(object = so,\n                            species = species,\n                            reduction.type = Reduction,\n                            legend.dot.size = Legend_Dot_Size,\n                            do.finetuning = doFineTuning,\n                            local.celldex = CellDexData)\n\n  }\n    gc()\n\n## Print figures\n    print(anno$p1)\n    print(anno$p2)\n\nReduction = \"tsne\"\nif (useClusters)\n  {\n      anno <- annotateCellTypes(object = so,\n                            species = species,\n                            reduction.type = Reduction,\n                            legend.dot.size = Legend_Dot_Size,\n                            do.finetuning = doFineTuning,\n                            local.celldex = CellDexData,\n                            use.clusters = ClusterColumn)\n  } else {\n      anno <- annotateCellTypes(object = so,\n                            species = species,\n                            reduction.type = Reduction,\n                            legend.dot.size = Legend_Dot_Size,\n                            do.finetuning = doFineTuning,\n                            local.celldex = CellDexData)\n\n  }\n    gc()\n\n## Print figures\n    print(anno$p1)\n    print(anno$p2)\n\n\n\n\n## Save the annotated Seurat object\n    output <- new.output()\n    output_fs <- output$fileSystem()\n    saveRDS(anno$object, output_fs$get_path(\"seurat_object.rds\", 'w'))\n\n\n    return(NULL)\n}\n\n",
+	"columns": [
+		{
+			"key": "Clusters_Column",
+			"displayName": "Clusters Column",
+			"description": "If \"Use Clusters\" option set to TRUE: Please select a metadata column containing information about clusters you want to annotate. Only one clustering column should be selected. If multiple are selected, only the first selection in this parameter will be used for this function.",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "Annotate the cell types of your cells using SingleR. This template will take a combined Seurat object after PC reduction has been performed, and then attempt to assign cells to a category (e.g. Stem cells, T cells) based on their genomic profile. This template takes a combined Seurat Object as input. Final Potomac Compatible Version: v110. Final Sugarloaf V1 Version: v125. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.de08f2d9-6cda-43d4-8179-ef4c04f1104a)",
+	"externalId": "Cell_Type_Annotation_with_SingleR_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Select an input Suerat Object. This is usually your combined Seurat Object after PC reduction has been performed and comes from the Combine & Renormalize template at the end of the QC path.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": [
+				"ri.compass.main.tag.b39e053b-128a-49b6-996a-d867e2daa67d",
+				"ri.compass.main.tag.0500ee56-9efa-4d57-aa45-94a5c700fbd5"
+			]
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Select a metadata table for the input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "CellDex_Snapshot",
+			"displayName": "CellDex Snapshot",
+			"description": "Select a dataset containing a cached version of the CellDex dataset. We recommend that you import and use the dataset \"CellDex_snapshotDate_2021-10-19\".",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "organism",
+			"displayName": "Organism",
+			"description": "Please choose the species of your samples.",
+			"paramType": "SELECT",
+			"paramGroup": "Basic",
+			"paramValues": [
+				"Human",
+				"Mouse"
+			],
+			"defaultValue": "Human",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Use_Clusters",
+			"displayName": "Use Clusters",
+			"description": "Set to TRUE if you want to use clusters for annotation",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Basic",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Legend_Dot_Size",
+			"displayName": "Legend Dot Size",
+			"description": "Please select the size of the colored dots on your chart legend. Default is 2.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "2",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Perform_Fine_Tuning",
+			"displayName": "Perform Fine-Tuning",
+			"description": "Performs the SingleR fine-tuning function. Takes top scores per cell type, finds variable genes in the reference dataset for those cell types and recalculates the scores. This is performed until\nonly one cell type is left. \n\nToggling this to TRUE will significantly increase compute time. Recommended in combination with setting Use Spark to TRUE as well.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Number_of_Cells_Per_Partition",
+			"displayName": "Number of Cells Per Partition",
+			"description": "The number of partitions you want to use for parallelization. You should in decrease this as your data gets bigger. Default is 400.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "400",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Cell Type Annotation with SingleR [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

@@ -1,0 +1,138 @@
+{
+	"codeTemplate": "DotPlotGenesByMetadata_ModuleScores <- function({{{Input_Dataset}}},{{{Category_Labels_and_Genes_Table}}},{{{Metadata_Table}}}) {\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    \n\n    library(nidapFunctions)\n    nidapLoadPackages(c(\"SCWorkflow\",\"ggplot2\",\"cowplot\",\"magrittr\",\"tidyr\"))\n    #library(ggplot2)\n    #library(cowplot)    \n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n    \n    #Primary Inputs:\n    input_dataset <- {{{Input_Dataset}}}\n    metadata_table <- {{{Metadata_Table}}}\n    category_labels_and_genes_table <-  {{{Category_Labels_and_Genes_Table}}}\n\n    #Category Parameters:\n    metadata_category_to_plot <- \"{{{Metadata_Category_to_Plot}}}\"\n    category_labels_to_plot <- \"{{{Category_Labels_to_Plot}}}\"\n    genes_column <- \"{{{Genes_Column}}}\"\n\n    #Output Parameters:\n    return_percentage_cells_expressing <- {{{Return_Percentage_of_Cells_Expressing}}}\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n    #Visualization Parameters:\n    reverse_plot <- {{{Reverse_Plot}}}\n    reverse_categories <- {{{Reverse_Categories}}}\n    dot_color <- \"{{{Dot_Color}}}\"\n    \n    ## -------------------------------- ##\n    ## Parameter Misspecifation Errors  ##\n    ## -------------------------------- ##\n\n    if(class(input_dataset) != \"FoundryTransformInput\"){\n        stop(\"Input should be Seurat object in rds file format. Rerun previous step with latest released version to produce correct input format for Seurat Object\")\n    }\n\n    if(sum(category_labels_and_genes_table[[category_labels_to_plot]] %in% metadata_table[[metadata_category_to_plot]]) == 0){\n        stop(paste0(\"At least some category element in input table column: \", category_labels_to_plot, \" should match Seurat Object metadata category column: \",metadata_category_to_plot))\n    }\n\n    ## -------------------------------- ##\n    ## Functions                        ##\n    ## -------------------------------- ##\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(input_dataset,seurat_object_filename)\n    so <- readRDS(path)\n\n    #Change metadata tables to match NIDAP:\n    metadata.df <- so@meta.data\n    colnames(metadata.df) <- gsub(\"\\\\.\",\"_\",colnames(metadata.df))\n    so@meta.data <- metadata.df\n\n    cells <- category_labels_and_genes_table[[category_labels_to_plot]]\n    cells <- as.factor(cells[!is.na(cells)])\n\n\n\n\n### Temporary fix - ignore extra labels:\nlibrary(Seurat)\nExtraValue <- sum(!cells %in% unique(metadata.df[[metadata_category_to_plot]]))\nif (ExtraValue > 0) {\n         missinglab2 <- cells[!cells %in% unique(metadata.df[[metadata_category_to_plot]])]\n         warning(sprintf(\"There are %s additional elements in your input categories\\n that are missing from your metadata table: \", ExtraValue))\n         missinglab2 <- cat(paste(as.character(missinglab2), collapse = \"\\n\"))\n#\n    cells <- cells[cells %in% unique(metadata.df[[metadata_category_to_plot]])]\n#\n    }\n### End of the fix  \n\n\n\n\n    genes <- category_labels_and_genes_table[[genes_column]]\n    genes <- genes[!is.na(genes)]\n\n    results <- dotPlotMet(object = so,\n                       metadata = metadata_category_to_plot,\n                       cells = cells,\n                       markers = genes,\n                       plot.reverse = reverse_plot,\n                       cell.reverse.sort = reverse_categories,\n                       dot.color = dot_color)\n\n    print(results$plot)\n\n    if(return_percentage_cells_expressing == TRUE){\n        return(results$pct)\n    } else {\n        return(results$exp)\n    }\n}\n\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# Functions defined here will be available to call in\n# the code for any table.\n\n\ndotPlotMet <- function(object,\n                       metadata,\n                       cells,\n                       markers,\n                       plot.reverse = FALSE,\n                       cell.reverse.sort = FALSE,\n                       dot.color = \"darkblue\") {\n  \n  #Set up metadata as new identity:\n  metadata.df <- object@meta.data\n  Idents(object) <- metadata.df[[metadata]]\n  \n  #### Error messages #### \n  \n  #Calculate difference in input category elements from metadata column elements\n  a <- sum(cells %in% unique(Idents(object)))\n  b <- sum(!unique(Idents(object)) %in% cells)\n  c <- sum(!cells %in% unique(Idents(object)))\n  \n  if (a < 2) {\n    stop(\n      \"At least 2 metadata categories you wish to plot should\n         match the metadata column you are plotting.\"\n    )\n  }\n  \n  if (b > 0) {\n    missinglab <-\n      unique(Idents(object))[!unique(Idents(object)) %in% cells]\n    warning(\n      sprintf(\n        \"There are %s additional element(s) in the metadata table category that \n        were missing from your input categories: %s\", b,\n        paste(as.character(missinglab), collapse = \"\\n\")\n      )\n    )\n  }\n  \n  if (c > 0) {\n    missinglab2 <- cells[!cells %in% unique(Idents(object))]\n    warning(\n      sprintf(\n        \"There are %s additional elements in your input categories\n          that are missing from your metadata table: \", c)\n      )\n    missinglab2 <-\n      cat(paste(as.character(missinglab2), collapse = \"\\n\"))\n  }\n  \n  #Subset object by identity\n  object <- subset(object, idents = cells)\n  \n  #Clean up input genes and custom names\n  markers <- gsub(\"[[:space:]]\", \"\", markers)\n  l1 <- length(markers)\n  dups <- markers[duplicated(markers)]\n  markers <- markers[!duplicated(markers)]\n  \n  l2 <- length(markers)\n  print(sprintf(\"There are %s total unique genes in the genelist\", l2))\n  if (l1 > l2) {\n    warning(sprintf(\"\\n\\nThe following duplicate genes were removed: %s\",\n                   dups))\n  }\n  missing.genes <- markers[!markers %in% rownames(object)]\n  \n  l3 <- length(missing.genes)\n  missing.genes <- paste(shQuote(missing.genes), collapse = \", \")\n  if (l3 == l2) {\n    stop(\"No genes listed are found in dataset.\")\n  }\n  if (l3 > 0) {\n    warning(\n      sprintf(\n        \"There are %s gene(s) absent from dataset: %s. Possible reasons are that\n          gene is not official gene symbol or gene is not highly expressed and\n          has been filtered.\\n \", l3, missing.genes) \n      )\n  }\n  \n  #### Main Code: #####\n  \n  markers <- markers[markers %in% rownames(object)]\n  \n  cells <- cells[cells != \"\"]\n  \n  #Run Seurat Dotplot function\n  dp <- DotPlot(object,\n                assay = \"SCT\",\n                features = markers,\n                dot.scale = 4,\n                dot.min = .1,\n                cols = c(\"lightgrey\", dot.color)\n                )\n  cells <- cells[cells %in% dp$data$id]\n  if (length(cells) < 1) {\n    stop(\"None of the cell types in list match cell types in metadata\")\n  }\n  cells.missing <- cells[!cells %in% dp$data$id]\n  if (length(cells.missing) > 0) {\n    cells.missing <- paste(shQuote(cells.missing), collapse = \", \")\n    warning(sprintf(\n      \"Some categories are missing from your dataset: %s\",\n      cells.missing\n    ))\n  }\n  \n  #Add to ggplot object data created by DotPlot and draw plot\n  dp$data$id <- factor(dp$data$id, levels = rev(cells))\n  dp$data$features.plot <- factor(dp$data$features.plot, levels = markers)\n  \n  plot <- ggplot(data = dp$data,\n                 mapping = aes_string(x = \"features.plot\", y = \"id\")) +\n            geom_point(mapping = aes_string(size = \"pct.exp\",\n                                    color = \"avg.exp.scaled\")) +\n            scale_color_gradient(low = \"lightgrey\", high = dot.color) +\n            theme_cowplot() +\n            theme(axis.title.x = element_blank(),\n                  axis.text.x = element_text(angle = 90, \n                                             vjust = 1,\n                                             hjust = 1)) +\n            labs(y = metadata)\n  \n  if (plot.reverse == TRUE) {\n    plot <- plot + coord_flip()\n  }\n  if (cell.reverse.sort == TRUE) {\n    plot <- plot + scale_y_discrete(limits = rev(levels(dp$data$id)))\n  }\n  \n  #Provide Tabular format of Dotplot data \n  dp.pct.tab <- dp$data %>%\n    plotly::select(features.plot, pct.exp, id) %>%\n    tidyr::pivot_wider(names_from = features.plot,\n                       values_from = pct.exp)\n  dp.exp.tab <- dp$data %>%\n    plotly::select(features.plot, avg.exp.scaled, id) %>%\n    tidyr::pivot_wider(names_from = features.plot,\n                       values_from = avg.exp.scaled)\n  \n  result.list <-\n    list(\"plot\" = plot,\n         \"pct\" = dp.pct.tab,\n         \"exp\" = dp.exp.tab)\n  \n  return(result.list)\n  \n}\n\n\n\n",
+	"columns": [
+		{
+			"key": "Metadata_Category_to_Plot",
+			"displayName": "Metadata Category to Plot",
+			"description": "Category to plot on Y-axis of Dotplot",
+			"paramGroup": "Category",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Category_Labels_to_Plot",
+			"displayName": "Category Labels to Plot",
+			"description": "Column with Categorical data (e.g. Cell Types, sample names) to plot in dotplot in order of appearance, top to bottom.  The labels should match the categories in the Metadata Column",
+			"paramGroup": "Category",
+			"sourceDataset": "Category_Labels_and_Genes_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Genes_Column",
+			"displayName": "Genes Column",
+			"description": "Column with Genes to plot in dotplot (in order of appearance, left to right)",
+			"paramGroup": "Category",
+			"sourceDataset": "Category_Labels_and_Genes_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template creates a dot plot of average gene expression values for a set of genes in cell subpopulations defined by metadata annotation columns.  The input table contains a single column for genes (the \"Genes column\") and a single column for category (the \"Category labels to plot\" column).  The values in the \"Category labels to plot\" column should match the values provided in the metadata template (Metadata Category to Plot).  The plot will order the genes (x-axis, left to right) and Categories (y-axis, top to bottom) in the order in which it appears in the input table.  Any category entries omitted will not be plotted.  \n\nThe Dotplot size will reflect the percentage of cells expressing the gene while the color will reflect the average expression for the gene.  A table showing values on the plot (either percentage of cells expressing gene, or average expression scaled) will be returned, as selected by user. Final Potomac Compatible Version: v22. Sugarloaf V1: v31. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.327eafda-9e86-49c2-a14e-8bb2e6ee2cb9)",
+	"externalId": "Dot_Plot_of_Genes_by_Metadata_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Input_Dataset",
+			"displayName": "Input Dataset",
+			"description": "Select an input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Select the Metadata Table for the input Seurat Object. This table can be generated from the input Seurat Object using the \"Get Metadata Table\" template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "Category_Labels_and_Genes_Table",
+			"displayName": "Category Labels and Genes Table",
+			"description": "Custom Input Table containing 2 columns: first with categories in Seurat Object metadata to plot and second with genes to plot in x-axis.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Return_Percentage_of_Cells_Expressing",
+			"displayName": "Return Percentage of Cells Expressing",
+			"description": "If TRUE, return table of percent cells expressing genes.  If FALSE, show average gene expression per category.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Output",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Filename of RDS containing Seurat Object.  Default is seurat_object.rds",
+			"paramType": "STRING",
+			"paramGroup": "Output",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Reverse_Plot",
+			"displayName": "Reverse Plot",
+			"description": "If TRUE, plot genes on y-axis and categories on x-axis.  FALSE by default.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Reverse_Categories",
+			"displayName": "Reverse Categories",
+			"description": "If TRUE, plot categories in reverse order.  FALSE by default.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Dot_Color",
+			"displayName": "Dot Color",
+			"description": "Dotplot color",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"darkblue",
+				"blue",
+				"darkred",
+				"purple4"
+			],
+			"defaultValue": "darkblue",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Dot Plot of Genes by Metadata [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}
