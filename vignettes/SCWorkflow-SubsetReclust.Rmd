@@ -66,8 +66,8 @@ filter_SO=filterSeuratObjectByMetadata(
 ```{r,echo=F,eval=run_Chunks}
 saveRDS(filter_SO, file="./images/filter_SO.rds")
 
-ggsave(filter_SO$plot1, filename = "./images/SubRec_sub1.png", width = 10, height = 10)
-ggsave(filter_SO$plot2, filename = "./images/SubRec_sub2.png", width = 10, height = 10)
+ggsave(filter_SO$plots$plot1, filename = "./images/SubRec_sub1.png", width = 10, height = 10)
+ggsave(filter_SO$plots$plot2, filename = "./images/SubRec_sub2.png", width = 10, height = 10)
 
 ```
 
@@ -103,11 +103,12 @@ reClust_SO=reclusterSeuratObject(
                   cluster.resolution.range.bins = 0.2,
                   reduction.type = "umap"
                               )
+
 ```
 ```{r,echo=F,eval=run_Chunks}
 saveRDS(reClust_SO, file="./images/reClust_SO.rds")
 
-ggsave(reClust_SO$plot, filename = "./images/SubRec_recl.png", width = 18, height = 10)
+ggsave(reClust_SO$plots, filename = "./images/SubRec_recl.png", width = 18, height = 10)
 
 ```
 ![](./images/SubRec_recl.png){width=600}

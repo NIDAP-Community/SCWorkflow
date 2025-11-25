@@ -43,21 +43,24 @@ SingleR is an automatic annotation method for single-cell RNA sequencing data th
 
 
 ```{r,eval=run_Chunks}
+
 Anno_SO=annotateCellTypes(object=Comb_SO$object,
-                  species = "Mouse",
-                  reduction.type = "umap",
-                  legend.dot.size = 2,
-                  do.finetuning = FALSE,
-                  local.celldex = NULL,
-                  use.clusters = NULL)
+                          species = "Mouse",
+                          reduction.type = "umap",
+                          legend.dot.size = 2,
+                          do.finetuning = FALSE,
+                          local.celldex = NULL,
+                          use.clusters = NULL
+                          )
+
 ```
 
 
 ```{r,echo=F,eval=run_Chunks}
 saveRDS(Anno_SO, file="./images/Anno_SO.rds")
 
-ggsave(Anno_SO$p1, filename = "./images/Anno1.png", width = 10, height = 10)
-ggsave(Anno_SO$p2, filename = "./images/Anno2.png", width = 10, height = 10)
+ggsave(Anno_SO$plots$p1, filename = "./images/Anno1.png", width = 10, height = 10)
+ggsave(Anno_SO$plots$p2, filename = "./images/Anno2.png", width = 10, height = 10)
 
 ```
 
@@ -70,13 +73,14 @@ ggsave(Anno_SO$p2, filename = "./images/Anno2.png", width = 10, height = 10)
 
 This function will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named "Barcode" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table.
 
-```{r,eval=F,echo=T}
-CellType_Anno_Table=read.csv("PerCell_Metadata.csv")
+```{r,echo=T}
+
+Anno_SO=readRDS("./images/Anno_SO.rds")
 
 ```
 
 ```{r,eval=run_Chunks,echo=F}
-Anno_SO=readRDS("./images/Anno_SO.rds")
+
 
 
 Anno_SO$object@meta.data[,'mouseRNAseq_main',drop=F]%>%rename('Cell Type'=mouseRNAseq_main)%>%rownames_to_column('Barcode')%>%
@@ -218,12 +222,12 @@ return(NULL)
 ```{r,eval=F,echo=T}
 
 ExtAnno_SO=ExternalAnnotation(object = Anno_SO$object,
-                    external_metadata = CellType_Anno_Table,
-                    seurat_object_filename = "seurat_object.rds",
-                    barcode_column = "Barcode",
-                    external_cols_to_add = c("Cell Type"),
-                    col_to_viz = "Cell Type"
-                   )
+                              external_metadata = CellType_Anno_Table,
+                              seurat_object_filename = "seurat_object.rds",
+                              barcode_column = "Barcode",
+                              external_cols_to_add = c("Cell Type"),
+                              col_to_viz = "Cell Type"
+                             )
 
 ```
 
@@ -266,16 +270,16 @@ DLAnno_SO=dualLabeling(object = Anno_SO$object,
                         display.unscaled.values = FALSE
                        )
 
-plot(DLAnno_SO$plot_densityHM)
-plot(DLAnno_SO$plot_umap)
+plot(DLAnno_SO$plots$tsne)
+plot(DLAnno_SO$plots$umap)
 ```
 
 ```{r,echo=F,eval=run_Chunks}
 png(filename="./images/DL1.png")
-plot(DLAnno_SO$plot_densityHM)
+plot(DLAnno_SO$plots$densityHM)
 dev.off()
 png(filename="./images/DL2.png")
-plot(DLAnno_SO$plot_umap)
+plot(DLAnno_SO$plots$umap)
 dev.off()
 
 
@@ -308,30 +312,29 @@ Marker_Table=Marker_Table_demo[1:4,]
 
 ```{r,eval=run_Chunks,echo=T,results='hide',fig.width=10,fig.asp=.9}
     
-  colorByMarkerTable(object=Anno_SO$object,
-                   samples.subset=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
-                   samples.to.display=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
-                   marker.table=Marker_Table,
-                   cells.of.interest=c("Neutrophils","Macrophages","CD8_T" ),
-                   protein.presence = FALSE,
-                   assay = "SCT",
-                   reduction.type = "umap",
-                   point.transparency = 0.5,
-                   point.shape = 16,
-                   cite.seq = FALSE
-                   )
-
+        colorByMarkerTable(object=Anno_SO$object,
+                           samples.subset=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
+                           samples.to.display=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
+                           marker.table=Marker_Table,
+                           cells.of.interest=c("Neutrophils","Macrophages","CD8_T" ),
+                           protein.presence = FALSE,
+                           assay = "SCT",
+                           reduction.type = "umap",
+                           point.transparency = 0.5,
+                           point.shape = 16,
+                           cite.seq = FALSE
+                           )
 
 ```
 
-```{r,echo=F,eval=run_Chunks}
+```{r,echo=F,eval=F}
 png(filename="./images/CBM1.png",width=1000,height=700)
 FigOut
 dev.off()
 
 ```
 
-![](./images/CBM1.png){width=600}
+![](./images/CBM1.png){width=600} 
 
 <br>
 
@@ -427,7 +430,7 @@ RNC_object=nameClusters(object=Anno_SO$object,
 # DimPlot(MS_object, group.by = "SCT_snn_res.0.2", label = T, reduction = 'umap')
 # DimPlot(MS_object, group.by = "mouseRNAseq_main", label = T, reduction = 'umap')
 
-ggsave(RNC_object$plot, filename = "./images/RNC.png", width = 9, height = 6)
+ggsave(RNC_object$plots, filename = "./images/RNC.png", width = 9, height = 6)
 
 ```
 
@@ -463,11 +466,7 @@ FigOut=dotPlotMet(object=Anno_SO$object,
 
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-      c("Itgam", "Ly6g_neg","Adgre1", "Cd68",  "Siglec1", "Csf1r", "Apoe",  "Mafb",  "Cx3cr1", "Nr4a1","F13a1",
-                                 "Lgals3", "Cxcl9", "Cxcl10", "Sell", "Arg1", "Mmp13", "Mmp12")
-
-
-ggsave(FigOut$plot, filename = "./images/DPM.png", width = 9, height = 6)
+ggsave(FigOut$plots, filename = "./images/DPM.png", width = 9, height = 6)
 
 ```
 

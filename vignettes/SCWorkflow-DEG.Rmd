@@ -31,7 +31,7 @@ library(ggplot2)
 
 ```{r,include=F,echo=F,eval=run_Chunks}
 
-Anno_SO=readRDS("./images/CN_SO.rds")
+Anno_SO=readRDS("./images/Anno_SO.rds")
 
 ```
 
@@ -47,20 +47,21 @@ For best results, it is recommended to use this function with well-curated and p
 
 ```{r,eval=F}
 
-DEG_table=degGeneExpressionMarkers(object = Anno_SO,
+DEG_table=degGeneExpressionMarkers(object = Anno_SO$object,
                                    samples = c("PBS", "ENT", "NHSIL12", "Combo", "CD8dep" ),
                                    contrasts = c("0-1"),
                                    parameter.to.test = "SCT_snn_res_0_2",
                                    test.to.use = "MAST",
                                    log.fc.threshold = 0.25,
                                    assay.to.use = "SCT",
-                                   use.spark = F)
+                                   use.spark = F
+                                   )
 
 ```
 
 ```{r echo=F}
 if (run_Chunks==T) {
-  write.table(DEG_table$df  ,
+  write.table(DEG_table$data$DEG_Table  ,
             file = "./images/DEG_Table.txt",
             sep = '\t',
             row.names = F)
@@ -84,6 +85,79 @@ if (run_Chunks==T) {
 This function is the first step in a Pseudobulk analysis of your scRNA-seq dataset. It groups cells based on chosen categorical variable(s) in the Seurat Object's Metadata and aggregates the counts of each gene in each group.
 
 The output is a table of aggregate expression in which the rows are genes and the columns are values found in the chosen Pseudobulk variable. If you select multiple categories to aggregate by (e.g. Category1: A,B,C and Category2: D,E,F), cells will be grouped by combinations of category variables (e.g. A_D, A_E, A_F, B_D, B_E, B_F). By default, gene counts are averaged across cells in each group.
+
+```{r,eval=F,echo=FALSE}
+
+aggregateCounts=function(object,
+                         var.group,
+                         slot){
+  
+  
+  ## --------------- ##
+  ## Main Code Block ##
+  ## --------------- ##
+  
+  pseudobulk <- AverageExpression(object, 
+                                  return.seurat = FALSE,
+                                  assay = "SCT",
+                                  group.by = var.group,
+                                  slot = slot)[[1]] %>% 
+                  as.data.frame.matrix() 
+    
+  pseudobulk$Gene <- rownames(pseudobulk)
+  pseudobulk <- pseudobulk %>% select("Gene", everything())
+  rownames(pseudobulk) <- NULL
+
+  # Further processing of column names
+  colnames(pseudobulk) <- gsub("\\W","_",colnames(pseudobulk))
+
+  # # Rename columns generated from Clustering to be more Generic
+  #   if(grepl("SCT_snn_res",var.group)){ 
+  #     colnames(pseudobulk)[grepl("\\d+", colnames(pseudobulk))] <- 
+  #       paste("Cluster", 
+  #             colnames(pseudobulk)[grepl("\\d+", colnames(pseudobulk))], 
+  #             sep = "_")
+  #   }
+  
+  # Return Table/Figure that gives statistics on 
+  # Number of Cells in each group/new sample
+  # Distribution of cell Counts in each group/new sample
+  meta <- object@meta.data[,var.group]
+  
+  # check that columns are all factors / categorical
+  char_or_factor_cols <- sapply(meta, function(x) is.character(x) || is.factor(x) || is.logical(x))
+  
+  # do plots and tables if all columns are factors or characters
+  if(all(char_or_factor_cols)){
+    meta$interaction <- gsub("\\W","_",interaction(meta))
+    
+    df <- as.data.frame(table(pseudobulk_group = meta$interaction)) %>% filter(Freq != 0)
+    # sort the table by the number of cells in each group
+    df <- df[order(df$Freq, decreasing = F),]
+    
+    if(any(df$Freq == 1)){
+      single_counts <- df$pseudobulk_group[df$Freq == 1]
+      # sprintf, make custom warning message with %s as placeholder for single count groups
+      warning(sprintf(
+        "Some groups have only 1 cell. It is recommended to have at least 2 cells in each group.\nAffected groups: %s",
+        paste(single_counts, collapse = ", ")
+      ))
+    }
+    
+    p <- ggplotly(ggplot(df, aes(x = pseudobulk_group, y = Freq)) +
+                    geom_bar(stat = "identity", position = "stack") +
+                    labs(y = "Counts", x = "Pseudobulk Groups", title = "Number of Cells in each Pseudobulk Group") +
+                    theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+    
+    print(p)
+    
+  } else {
+    stop("All columns in var.group must be factors or characters")
+  }
+  
+  return(pseudobulk)
+}
+```
 
 ```{r,eval=F}
 aggregateCounts(object=so,

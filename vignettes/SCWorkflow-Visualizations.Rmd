@@ -53,7 +53,7 @@ FigOut=plotMetadata(
                   )
 ```
 ```{r,eval=run_Chunks,echo=F,results='hide'}
-p=FigOut$plot[[1]]+FigOut$plot[[2]]
+p=FigOut$plots[[1]]+FigOut$plots[[2]]
 ggsave(p, filename = "./images/Vis_CBM.png", width = 13, height = 6)
 
 ```
@@ -95,7 +95,7 @@ FigOut=tSNE3D(
 
 # saveRDS(FigOut$plot,"./images/Vis_3D.rds")
 
-saveWidget(as_widget(FigOut$plot), file = "./images/Vis_3D.html")
+saveWidget(as_widget(FigOut$plots), file = "./images/Vis_3D.html")
 ```
 
 ```{r,eval=T,echo=F,out.width="100%",results='hide',include=F}
@@ -142,7 +142,7 @@ FigOut=colorByGene(
 # ggsave(FigOut$plot, filename = "./images/Vis_CBG.png", width = 10, height = 10)
 
 png(filename="./images/Vis_CBG.png",width = 500,height = 350,pointsize = 10)
-(FigOut$plot)
+(FigOut$plots)
 dev.off()
 
 ```
@@ -180,7 +180,7 @@ FigOut=violinPlot_mod(
 ```
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-ggsave(FigOut, filename = "./images/Vis_Violin.png", width = 12, height = 5)
+ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 5)
 
 # png(filename="./images/Vis_Violin.png",width = 500,height = 350,pointsize = 10)
 # (FigOut$plot)
@@ -243,7 +243,7 @@ FigOut=heatmapSC(
 # ggsave(FigOut$plot, filename = "./images/Vis_HM.png", width = 12, height = 5)
 
 png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
-(FigOut$plot)
+(FigOut$plots)
 dev.off()
 
 ```
@@ -268,6 +268,7 @@ This function can be useful for exploratory data analysis and visualizing the di
 
 
 ```{r,eval=F}
+
 FigOut=dotPlotMet(
            object=Anno_SO$object,
            metadata='SCT_snn_res.0.4',
@@ -281,7 +282,7 @@ FigOut=dotPlotMet(
 ```
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-ggsave(FigOut$plot, filename = "./images/Vis_DPM.png", width = 9, height = 5)
+ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
 
 # png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
 # (FigOut$plot)
