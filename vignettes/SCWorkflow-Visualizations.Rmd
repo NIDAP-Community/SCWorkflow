@@ -98,7 +98,7 @@ FigOut=tSNE3D(
 saveWidget(as_widget(FigOut$plot), file = "./images/Vis_3D.html")
 ```
 
-```{r,eval=T,echo=F,out.width="100%"}
+```{r,eval=T,echo=F,out.width="100%",results='hide',include=F}
 library(rvest)
 library(htmltools)
 # readRDS("./images/Vis_3D.rds")

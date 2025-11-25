@@ -88,6 +88,29 @@ This will open Rstudio in your browser that is connected to the biowulf containe
 
 <br> 
 
+## Copy Files from Rstuido server to Helix
+#### 1.	Log into Helix
+```
+ssh username@helix.nih.gov
+```
+#### 2.	Go to Working Directory for Project
+#### 3.	connect to Rstuido Server to copy files to Biowulf 
+```
+sftp username@ nciws-d2335-v.nci.nih.gov
+```
+#### 4.	copy files to biowulf
+
+**Examples:** 
+
+All files: 
+```
+mget -r *
+```
+Rscipts: 
+```
+mget -r *R
+```
+
 
 ## Install Package
 

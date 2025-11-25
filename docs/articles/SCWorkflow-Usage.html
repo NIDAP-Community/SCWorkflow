@@ -18,7 +18,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">SCWorkflow</a>
 
@@ -35,7 +35,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/SCWorkflow-Overview.html">Import Data and Quality Control</a></li>
+<li><a class="dropdown-item" href="../articles/SCWorkflow-QC.html">Import Data and Quality Control</a></li>
     <li><a class="dropdown-item" href="../articles/SCWorkflow-Annotations.html">Annotations</a></li>
     <li><a class="dropdown-item" href="../articles/SCWorkflow-DEG.html">Differential Expression Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/SCWorkflow-Visualizations.html">Visualizations</a></li>
@@ -132,6 +132,33 @@ SSH tunneling.<a class="anchor" aria-label="anchor" href="#connect-your-local-sh
 <p>This will open Rstudio in your browser that is connected to the
 biowulf container you opened in step 3.</p>
 <p><br></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="copy-files-from-rstuido-server-to-helix">Copy Files from Rstuido server to Helix<a class="anchor" aria-label="anchor" href="#copy-files-from-rstuido-server-to-helix"></a>
+</h2>
+<div class="section level4">
+<h4 id="log-into-helix">1. Log into Helix<a class="anchor" aria-label="anchor" href="#log-into-helix"></a>
+</h4>
+<pre><code>ssh username@helix.nih.gov</code></pre>
+</div>
+<div class="section level4">
+<h4 id="go-to-working-directory-for-project">2. Go to Working Directory for Project<a class="anchor" aria-label="anchor" href="#go-to-working-directory-for-project"></a>
+</h4>
+</div>
+<div class="section level4">
+<h4 id="connect-to-rstuido-server-to-copy-files-to-biowulf">3. connect to Rstuido Server to copy files to Biowulf<a class="anchor" aria-label="anchor" href="#connect-to-rstuido-server-to-copy-files-to-biowulf"></a>
+</h4>
+<pre><code>sftp username@ nciws-d2335-v.nci.nih.gov</code></pre>
+</div>
+<div class="section level4">
+<h4 id="copy-files-to-biowulf">4. copy files to biowulf<a class="anchor" aria-label="anchor" href="#copy-files-to-biowulf"></a>
+</h4>
+<p><strong>Examples:</strong></p>
+<p>All files:</p>
+<pre><code>mget -r *</code></pre>
+<p>Rscipts:</p>
+<pre><code><span><span class="va">mget</span> <span class="op">-</span><span class="va">r</span> <span class="op">*</span><span class="va">R</span></span></code></pre>
 </div>
 </div>
 <div class="section level2">

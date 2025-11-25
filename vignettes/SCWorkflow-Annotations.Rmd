@@ -42,7 +42,7 @@ This function automates cell type annotation in single-cell RNA sequencing data 
 SingleR is an automatic annotation method for single-cell RNA sequencing data that uses a given reference dataset of samples (single-cell or bulk) with known labels to label new cells from a test dataset based on similarity to the reference. Two mouse reference datasets (MouseRNAseqData and ImmGenData) and two human reference datasets (HumanPrimaryCellAtlasData and BlueprintEncodeData) from CellDex R package [2] are currently available.
 
 
-```{r,eval=evalChunk}
+```{r,eval=run_Chunks}
 Anno_SO=annotateCellTypes(object=Comb_SO$object,
                   species = "Mouse",
                   reduction.type = "umap",
@@ -53,7 +53,7 @@ Anno_SO=annotateCellTypes(object=Comb_SO$object,
 ```
 
 
-```{r,echo=F,eval=evalChunk}
+```{r,echo=F,eval=run_Chunks}
 saveRDS(Anno_SO, file="./images/Anno_SO.rds")
 
 ggsave(Anno_SO$p1, filename = "./images/Anno1.png", width = 10, height = 10)
@@ -75,7 +75,7 @@ CellType_Anno_Table=read.csv("PerCell_Metadata.csv")
 
 ```
 
-```{r,eval=evalChunk,echo=F}
+```{r,eval=run_Chunks,echo=F}
 Anno_SO=readRDS("./images/Anno_SO.rds")
 
 
@@ -237,7 +237,7 @@ This function enables users to visualize the association between two selected ge
 
 Furthermore, the tool allows for the application of filters to the data, setting thresholds, and providing annotations to notify users if cells meet the established thresholds. The visualization can be improved by omitting extreme values. The tool also facilitates the creation of a heatmap to represent the density distribution of cells and exhibit the raw gene/protein expression values.
 
-```{r,eval=evalChunk,echo=T,results='hide'}
+```{r,eval=run_Chunks,echo=T,results='hide'}
 grep('Cd4',rownames(Anno_SO$object@assays$RNA),ignore.case = T,value=T)
 
 DLAnno_SO=dualLabeling(object = Anno_SO$object, 
@@ -270,7 +270,7 @@ plot(DLAnno_SO$plot_densityHM)
 plot(DLAnno_SO$plot_umap)
 ```
 
-```{r,echo=F,eval=evalChunk}
+```{r,echo=F,eval=run_Chunks}
 png(filename="./images/DL1.png")
 plot(DLAnno_SO$plot_densityHM)
 dev.off()
@@ -298,7 +298,7 @@ The output of this function is a detailed figure showing the activity of chosen 
 Marker_Table <- read.csv("Marker_Table_demo.csv")
 ```
 
-```{r,eval=evalChunk,echo=F}
+```{r,eval=run_Chunks,echo=F}
 Marker_Table_demo <- read.csv("../tests/testthat/fixtures/Marker_Table_demo.csv")
 Marker_Table_demo%>%head()%>%
   knitr::kable()
@@ -306,7 +306,7 @@ Marker_Table_demo%>%head()%>%
 Marker_Table=Marker_Table_demo[1:4,]
 ```
 
-```{r,eval=evalChunk,echo=T,results='hide',fig.width=10,fig.asp=.9}
+```{r,eval=run_Chunks,echo=T,results='hide',fig.width=10,fig.asp=.9}
     
   colorByMarkerTable(object=Anno_SO$object,
                    samples.subset=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
@@ -324,7 +324,7 @@ Marker_Table=Marker_Table_demo[1:4,]
 
 ```
 
-```{r,echo=F,eval=evalChunk}
+```{r,echo=F,eval=run_Chunks}
 png(filename="./images/CBM1.png",width=1000,height=700)
 FigOut
 dev.off()
@@ -352,7 +352,7 @@ Subclass Identification: If desired, the program can identify subclasses within 
 **Updating Cell Type Labels:** The program appends a "Likely_CellType" column to the metadata of the scRNA-seq object, based on the results of the module score analysis.
 **Output:** An updated scRNA-seq object with new cell type labels.
 
-```{r,eval=evalChunk}
+```{r,eval=run_Chunks}
 
 MS_object=modScore(object=Anno_SO$object, 
                    marker.table=Marker_Table,
@@ -448,7 +448,7 @@ In addition to the plot, the function provides the tabular format of the dot plo
 This function can be useful for exploratory data analysis and visualizing the differences in gene expression across different conditions or groups of cells.
 
 
-```{r,eval=evalChunk}
+```{r,eval=run_Chunks}
 
 FigOut=dotPlotMet(object=Anno_SO$object,
                    metadata="orig.ident",
