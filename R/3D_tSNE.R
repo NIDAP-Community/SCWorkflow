@@ -94,6 +94,7 @@ tSNE3D <- function(object,
     htmlwidgets::saveWidget(as_widget(fig), filename, selfcontained = TRUE)
   }
   
-  tsne.results <- list("plot"  = fig, "data" = tsne.df)
+  tsne.results <- list( "data" = tsne.df,
+                        "plots"  = fig)
   return(tsne.results)
 }

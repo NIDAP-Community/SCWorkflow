@@ -329,6 +329,8 @@ modScore <- function(object,
 
     lapply(figures, plot)
 
-    return(object)
+    return(
+        list("object"=object)
+    )
 }
  

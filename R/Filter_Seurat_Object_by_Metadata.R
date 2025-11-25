@@ -399,7 +399,9 @@ filterSeuratObjectByMetadata <- function(object,
 
   
   result.list <- list("object" = SO.sub,
-                      "plot1" = plot1,
-                      "plot2" = plot2)
+                      "plots"=list(
+                          "plot1" = plot1,
+                          "plot2" = plot2)
+                      )
   return(result.list)
 }

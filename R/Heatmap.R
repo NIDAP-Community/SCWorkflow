@@ -522,6 +522,8 @@ heatmapSC <- function(object,
   #Return expression matrix used in heatmap
   heatmap.df <- as.data.frame(tmean.scale) %>%
     rownames_to_column("gene")
-  heatmap.res <- list("plot" = p, "data" = heatmap.df)
+    
+  heatmap.res <- list("data" = heatmap.df, 
+                      "plots" = p )
   return(heatmap.res)
 }

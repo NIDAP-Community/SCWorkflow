@@ -1138,27 +1138,29 @@ filterQC <- function(object,
 
   
   ### Output ####
-  out=list(object=so.f.list,
-       FilteringTables=list(
-         FilteringMeta=so.nf.list.meta,
-         FilteringCounts=filtSum,
-         FilteringLimits=FiltLmts
+  out=list("object"=so.f.list,
+       "data"=list(
+         "FilteringMeta"=so.nf.list.meta,
+         "FilteringCounts"=filtSum,
+         "FilteringLimits"=FiltLmts
        ),
-       plots=list(
-         ViolinPlotCombine=violin.grob,
-         ViolinPlot=violin.list,
-         ScatterPlotCombine=scatter.grob,
-         Scatter=scatter.list,
+       "plots"=list(
+         "ViolinPlotCombine"=violin.grob,
+         "ViolinPlot"=violin.list,
+         "ScatterPlotCombine"=scatter.grob,
+         "Scatter"=scatter.list,
          
-         PostFilterCombined=postFilter.grobs,
-         ViolinPostFilter=violin.allsamples.grob,
-         ScatterPostFilter=scatter.allsamples.grob,
-         HistogramPostFilter=hist.allsamples.grob
+         "PostFilterCombined"=postFilter.grobs,
+         "ViolinPostFilter"=violin.allsamples.grob,
+         "ScatterPostFilter"=scatter.allsamples.grob,
+         "HistogramPostFilter"=hist.allsamples.grob
        )
   )
   
   if(plot.outliers!='none'){
-    out$plots=c(out$plots,TSNEFeature=qcFiltr.grobs)
+    out$plots=
+          c(out$plots,
+            "QCFeature"=qcFiltr.grobs)
     
   } 
     return(out)

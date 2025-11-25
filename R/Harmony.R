@@ -244,5 +244,7 @@ library(RColorBrewer)
 
    object <- FindNeighbors(object, reduction = "harmony", dims = 1:10, assay = "Harmony")
   
-  return(object)
+  return(
+    list("object"=object)
+    )
 }

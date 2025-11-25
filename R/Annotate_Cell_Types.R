@@ -300,7 +300,7 @@ annotateCellTypes <- function(object,
   # Returning Seurat Object and 2 plots:
   return(list(
     "object" = object,
-    "p1" = p1,
-    "p2" = p2
+    "plots"=list("p1" = p1,
+                 "p2" = p2)  
   ))
 }

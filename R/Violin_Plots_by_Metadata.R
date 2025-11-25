@@ -319,7 +319,10 @@ for (indv_group in unique_groups) {
 # Combine the results into a single data frame
 p_values_df <- do.call(rbind, p_values_list)
 
-    final_res <- list(fig = g, stat = p_values_df)
+    final_res <- list(
+      "plots" = g, 
+      "data"=list("stats" = p_values_df)
+      )
 
     return(final_res)
 }

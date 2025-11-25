@@ -222,11 +222,13 @@ colorByGene <- function(object,
     ###    plots <- gridExtra::grid.arrange(grobs=grob,nrow=n,newpage=F)
     
     if (return.seurat.object) {
-      result.list <- list("object" = object, "plot" = grob)
+      result.list <- list("object" = object, 
+                          "plots" = grob)
       return(result.list)
     } else {
       gene = as.data.frame(gene)
-      result.list <- list("object" = gene, "plot" = grob)
+      result.list <- list("data" = list("gene_table" = gene), 
+                          "plots" = grob)
       return(result.list)
     }
     

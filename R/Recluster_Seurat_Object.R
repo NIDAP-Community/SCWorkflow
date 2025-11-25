@@ -168,5 +168,10 @@ reclusterSeuratObject <- function(object,
   # print(g)
   
   # return(list("object"=object, "plot"=plot.list))
-  return(list("object" = object, "plot" = g))
+  return(
+    list(
+      "object" = object, 
+      "plots" = g
+      )
+      )
 }

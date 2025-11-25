@@ -491,7 +491,10 @@ plotMetadata <- function(#Basic Parameters:
   grobs <- lapply(m, function(x) .drawMetadata(x))
   
 
-  result.list <- list("object" = object, "plot" = grobs)
+  result.list <- list(
+    "object" = object, 
+    "plots" = grobs
+    )
   return(result.list)
   
 }

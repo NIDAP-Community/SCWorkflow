@@ -273,6 +273,6 @@ colnames(out.df) <- new_colnames
 
 
 
-    result.list <- list(df = out.df)
+    result.list <- list("data" = list("DEG_Table"=out.df))
     return(result.list)
 }

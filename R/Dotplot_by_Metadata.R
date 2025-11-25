@@ -179,9 +179,11 @@ if (ExtraValue > 0) {
                        values_from = avg.exp.scaled)
   
   result.list <-
-    list("plot" = plot,
-         "pct" = dp.pct.tab,
-         "exp" = dp.exp.tab)
+    list("data"=list(
+            "pct" = dp.pct.tab,
+            "exp" = dp.exp.tab),
+          "plots" = plot
+    )
   
   return(result.list)
   

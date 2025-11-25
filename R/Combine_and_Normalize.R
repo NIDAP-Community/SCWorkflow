@@ -872,8 +872,8 @@ combineNormalize <- function(object,
     
   }
   
-  return(list(object=object.merge,
-              plots=grobsList))
+  return(list("object"=object.merge,
+              "plots"=grobsList))
 }
 
 

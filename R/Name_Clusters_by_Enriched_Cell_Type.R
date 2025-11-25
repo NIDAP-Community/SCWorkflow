@@ -185,9 +185,9 @@ nameClusters <- function(object,
     g <- ggplotly(g)
   }
 
-  invisible(list(
-    object = object,
-    plot = g
+  return(list(
+    "object" = object,
+    "plots" = g
   ))
   
 }
