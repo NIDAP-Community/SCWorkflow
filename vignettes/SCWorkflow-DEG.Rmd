@@ -5,6 +5,7 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-DEG}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r, include = FALSE}
@@ -36,6 +37,8 @@ Anno_SO=readRDS("./images/Anno_SO.rds")
 ```
 
 ## DE with Find Markers 
+
+---
 
 This function performs a DE (differential expression) analysis on a merged Seurat object to identify expression markers between different groups of cells (contrasts). This analysis uses the FindMarkers() function of the Seurat Workflow. 
 
@@ -79,6 +82,8 @@ if (run_Chunks==T) {
 4. https://en.wikipedia.org/wiki/Multimodal_distribution
 
 ## Pseudo Bulk Method
+
+---
 
 ### Aggregate Seurat Counts
 
@@ -190,6 +195,8 @@ Pseudobulk_LimmaStats()
 ```
 
 ## Visualizations
+
+---
 
 ### Volcano Plot - Enhanced
 
@@ -403,6 +410,7 @@ additional_labels <- split_values[split_values != ""]
         }
   
 ## X-axis custom range change:
+
 if (custom_xlim == "") {
         xlim=c(floor(min(df[,lfc_name])) - xlim_additional,ceiling(max(df[,lfc_name]))+ xlim_additional)
 } else if (grepl(",", custom_xlim) == FALSE) {
@@ -453,6 +461,7 @@ if (custom_xlim == "") {
                               shapeCustom=shapeCustom
                               )
 ##        print(p_empty)   
+
 
 # Extract the data used for plotting
 plot_data <- ggplot_build(p_empty)$data[[1]]

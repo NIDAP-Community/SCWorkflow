@@ -5,9 +5,8 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-Annotations}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
-
-
 
 
 ```{r, include = FALSE}
@@ -36,6 +35,8 @@ Comb_SO$object=readRDS("./images/CN_SO.rds")
 <br>
 
 ## Cell Type Annotation with SingleR
+
+---
 
 This function automates cell type annotation in single-cell RNA sequencing data by employing the *SingleR* [1] method, which allocates labels to cells within a dataset according to their gene expression profile similarities with a reference dataset containing cell type labeled samples
 
@@ -71,38 +72,48 @@ ggsave(Anno_SO$plots$p2, filename = "./images/Anno2.png", width = 10, height = 1
 
 ## Add External Cell Annotations
 
+---
+
 This function will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named "Barcode" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table.
 
-```{r,echo=T}
-
-Anno_SO=readRDS("./images/Anno_SO.rds")
-
-```
 
 ```{r,eval=run_Chunks,echo=F}
 
-
+Anno_SO=readRDS("./images/Anno_SO.rds")
 
 Anno_SO$object@meta.data[,'mouseRNAseq_main',drop=F]%>%rename('Cell Type'=mouseRNAseq_main)%>%rownames_to_column('Barcode')%>%
-  head()%>%
-  knitr::kable()
+   head()%>%write.table(".images/PerCell_Metadata.csv",sep=",",row.names=F,quote=F)
+
 
 ```
 
-```{r,eval=F,echo=F}
+```{r,eval=T,echo=T}
+
+CellType_Anno_Table=read.csv("./images/PerCell_Metadata.csv")
+
+```
+
+```{r,eval=T,echo=F}
+CellType_Anno_Table%>%
+  head()%>%
+  knitr::kable()
+``` 
+
+```{r eval=F,echo=F}
 
 
 AddExternalAnnotation = function(
-    seurat_object = SingleRCellTypes_SO
-    external_metadata = BRCA_Training_PerCell_Metadata
-    seurat_object_filename = "seurat_object.rds"
-    barcode_column = "Barcode"
-    external_cols_to_add = c("Patient","Celltype_Major","Celltype_Minor","Celltype_Subset")
+    seurat_object = SingleRCellTypes_SO,
+    external_metadata = BRCA_Training_PerCell_Metadata,
+    seurat_object_filename = "seurat_object.rds",
+    barcode_column = "Barcode",
+    external_cols_to_add = c("Patient","Celltype_Major","Celltype_Minor","Celltype_Subset"),
     col_to_viz = "Celltype_Major") {
     
 ## --------- ##
 ## Libraries ##
 ## --------- ##
+
 
 # Load necessary libraries
 # library(nidapfunctions)
@@ -111,6 +122,7 @@ AddExternalAnnotation = function(
 ## -------------------------------- ##
 ## User-Defined Template Parameters ##
 ## -------------------------------- ##
+
 
 object <- SingleRCellTypes_SO
 external_metadata <- BRCA_Training_PerCell_Metadata
@@ -123,13 +135,16 @@ col_to_viz = "Celltype_Major"
 ## Errors                           ##
 ## -------------------------------- ##
 
+
 ## -------------------------------- ##
 ## functions                        ##
 ## -------------------------------- ##
 
+
 ## --------------- ##
 ## Main Code Block ##
 ## --------------- ##
+
 
 # Load Seurat Object
 cat(sprintf("\nReading Seurat Object from dataset: %s\n\n", paste(seurat_object_filename, collapse = ", ")))
@@ -178,6 +193,8 @@ if (!is.null(external_cols_to_add)) {
 merged_metadata <- merge(met.df, external_metadata, by.x = "Barcode", by.y = barcode_column, all.x = TRUE)
 
 ## troubleshooting, check if any NULL rows appear in merged meta
+
+
 if (any(is.na(merged_metadata$Barcode))){
     stop("STOP: Metadata not correctly merged. NA's produced.")
 }
@@ -219,7 +236,7 @@ return(NULL)
 
 ```
 
-```{r,eval=F,echo=T}
+```{r,eval=run_Chunks,echo=T}
 
 ExtAnno_SO=ExternalAnnotation(object = Anno_SO$object,
                               external_metadata = CellType_Anno_Table,
@@ -234,6 +251,8 @@ ExtAnno_SO=ExternalAnnotation(object = Anno_SO$object,
 <br>
 
 ## Cell Annotation with Co-Expression
+
+---
 
 This function will display co-expression of two chosen markers in your Seurat Object. It will then Create a metadata column containing annotations for cells that correspond to the marker expression thresholds you set.
 
@@ -290,6 +309,8 @@ dev.off()
 
 ## Color by Gene Lists
 
+---
+
 This function generates plots to visualize the expression of specific markers (genes) in single-cell RNA sequencing (scRNA-seq) data. Gene plots are generated in the same order as  they appear in the input list (provided that they are present in the data).
 
 This function takes in a number of inputs to create detailed plots showing the activity of certain genes. You can customize these based on specific samples or genes of interest or point transparency. 
@@ -340,6 +361,8 @@ dev.off()
 
 ## Module Score Cell Classification
 
+---
+
 Screens data for cells based on user-specified cell markers. Outputs a seurat object with a metadata with averaged marker scores and annotated "Likely_CellType" column.
 
 This function can be used to quantify the expression of marker sets in each individual cell and (optionally) in a hierarchical manner, helping you identify different cell types and potential subpopulations.
@@ -378,6 +401,8 @@ MS_object=modScore(object=Anno_SO$object,
 <br>
 
 ## Rename Clusters by Cell Type
+
+---
 
 This function creates a dot plot of Cell Types by Renamed Clusters and outputs a Seurat Object with a new metadata column containing these New Cluster Names. The Cell Types are often determined by looking at the Module Score Cell Classification calls made by the upstream Module Score Cell Classification (see MS_Celltype metadata column).
 
@@ -439,6 +464,8 @@ ggsave(RNC_object$plots, filename = "./images/RNC.png", width = 9, height = 6)
 <br>
 
 ## Dot Plot of Genes by Metadata
+
+---
 
 This function creates a dot plot of average gene expression values for a set of genes in cell subpopulations defined by metadata annotation columns.  The input table contains a single column for genes (the "Genes column") and a single column for category (the "Category labels to plot" column).  The values in the "Category labels to plot" column should match the values provided in the metadata function (Metadata Category to Plot).  The plot will order the genes (x-axis, left to right) and Categories (y-axis, top to bottom) in the order in which it appears in the input table.  Any category entries omitted will not be plotted.  
 

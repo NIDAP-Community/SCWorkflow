@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../articles/CONTRIBUTING.html">For Developers</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -75,6 +76,7 @@
 <div class="section level2">
 <h2 id="de-with-find-markers">DE with Find Markers<a class="anchor" aria-label="anchor" href="#de-with-find-markers"></a>
 </h2>
+<hr>
 <p>This function performs a DE (differential expression) analysis on a
 merged Seurat object to identify expression markers between different
 groups of cells (contrasts). This analysis uses the FindMarkers()
@@ -103,14 +105,15 @@ statistical algorithms and adjusting the threshold can fine-tune the DEG
 analysis and reveal more accurate gene expression markers.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">DEG_table</span><span class="op">=</span><span class="fu"><a href="../reference/degGeneExpressionMarkers.html">degGeneExpressionMarkers</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">Anno_SO</span>,</span>
+<span><span class="va">DEG_table</span><span class="op">=</span><span class="fu"><a href="../reference/degGeneExpressionMarkers.html">degGeneExpressionMarkers</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>                                   samples <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>, <span class="st">"ENT"</span>, <span class="st">"NHSIL12"</span>, <span class="st">"Combo"</span>, <span class="st">"CD8dep"</span> <span class="op">)</span>,</span>
 <span>                                   contrasts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"0-1"</span><span class="op">)</span>,</span>
 <span>                                   parameter.to.test <span class="op">=</span> <span class="st">"SCT_snn_res_0_2"</span>,</span>
 <span>                                   test.to.use <span class="op">=</span> <span class="st">"MAST"</span>,</span>
 <span>                                   log.fc.threshold <span class="op">=</span> <span class="fl">0.25</span>,</span>
 <span>                                   assay.to.use <span class="op">=</span> <span class="st">"SCT"</span>,</span>
-<span>                                   use.spark <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></span></code></pre></div>
+<span>                                   use.spark <span class="op">=</span> <span class="cn">F</span></span>
+<span>                                   <span class="op">)</span></span></code></pre></div>
 <table class="table">
 <colgroup>
 <col width="9%">
@@ -190,6 +193,7 @@ Science &amp; Business Media. pp. 99–100</li>
 <div class="section level2">
 <h2 id="pseudo-bulk-method">Pseudo Bulk Method<a class="anchor" aria-label="anchor" href="#pseudo-bulk-method"></a>
 </h2>
+<hr>
 <div class="section level3">
 <h3 id="aggregate-seurat-counts">Aggregate Seurat Counts<a class="anchor" aria-label="anchor" href="#aggregate-seurat-counts"></a>
 </h3>
@@ -235,6 +239,7 @@ development. If you encounter problems, please contact CCBR <a href="mailto:NCIC
 <div class="section level2">
 <h2 id="visualizations">Visualizations<a class="anchor" aria-label="anchor" href="#visualizations"></a>
 </h2>
+<hr>
 <div class="section level3">
 <h3 id="volcano-plot---enhanced">Volcano Plot - Enhanced<a class="anchor" aria-label="anchor" href="#volcano-plot---enhanced"></a>
 </h3>

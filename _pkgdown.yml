@@ -14,13 +14,16 @@ template:
 
 navbar:
   structure:
-    left: [getting-started, articles, reference]
+    left: [getting-started, articles, Developers, reference]
     right: [search, github]
   components:
     getting-started:
       text: Getting Started
-      href: articles/SCWorkflow-Usage.html
-  
+      href: articles/SCWorkflow-Usage.html  
+    Developers:
+      text: For Developers
+      href: articles/CONTRIBUTING.html  
+    
 
 footer:
   structure:
@@ -54,6 +57,7 @@ articles:
 - title: Developer
   desc: Developer documentation
   contents:
+  - CONTRIBUTING
   - SCWorkflow-Usage  
   - README
 

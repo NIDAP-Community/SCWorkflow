@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../articles/CONTRIBUTING.html">For Developers</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -75,6 +76,7 @@
 <div class="section level2">
 <h2 id="use-scworkflow-container">Use SCWorkflow Container<a class="anchor" aria-label="anchor" href="#use-scworkflow-container"></a>
 </h2>
+<hr>
 <p>The SCWorkflow docker container is available on Biowulf which can be
 used with RStudio to organize and rune the SCWorkflow package.</p>
 <p>You will need 2 shells (terminals) to set up RStudio on Biowulf.</p>
@@ -127,7 +129,7 @@ SSH tunneling.<a class="anchor" aria-label="anchor" href="#connect-your-local-sh
 <h4 id="open-rstudio-in-your-local-web-browser">5. Open RStudio in your local web browser<a class="anchor" aria-label="anchor" href="#open-rstudio-in-your-local-web-browser"></a>
 </h4>
 <p>Open your web browser and go to:</p>
-<pre><code>localhost:$PORT </code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="ex">localhost:</span><span class="va">$PORT</span> </span></code></pre></div>
 <p>Use the $PORT number from terminal 1 (step 2)</p>
 <p>This will open Rstudio in your browser that is connected to the
 biowulf container you opened in step 3.</p>
@@ -137,6 +139,7 @@ biowulf container you opened in step 3.</p>
 <div class="section level2">
 <h2 id="copy-files-from-rstuido-server-to-helix">Copy Files from Rstuido server to Helix<a class="anchor" aria-label="anchor" href="#copy-files-from-rstuido-server-to-helix"></a>
 </h2>
+<hr>
 <div class="section level4">
 <h4 id="log-into-helix">1. Log into Helix<a class="anchor" aria-label="anchor" href="#log-into-helix"></a>
 </h4>
@@ -164,6 +167,7 @@ biowulf container you opened in step 3.</p>
 <div class="section level2">
 <h2 id="install-package">Install Package<a class="anchor" aria-label="anchor" href="#install-package"></a>
 </h2>
+<hr>
 <p>for general use SCWorkflow can be installed into your Rlibrary</p>
 <pre><code><span><span class="co"># install.packages("remotes")</span></span>
 <span><span class="co"># remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)</span></span>

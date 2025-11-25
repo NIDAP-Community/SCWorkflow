@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
   </ul>
 </li>
+<li class="nav-item"><a class="nav-link" href="../articles/CONTRIBUTING.html">For Developers</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
@@ -76,6 +77,7 @@
 <div class="section level2">
 <h2 id="color-by-metadata">Color by Metadata<a class="anchor" aria-label="anchor" href="#color-by-metadata"></a>
 </h2>
+<hr>
 <p>Use this Function to color your dimensionality reduction (TSNE &amp;
 UMAP) with different columns from your Metadata Table. You can select
 one or more columns from the Metadata Table, and for each column
@@ -105,6 +107,7 @@ transparency.</p>
 <div class="section level2">
 <h2 id="plot-3d-dimensionality-reduction">Plot 3D Dimensionality Reduction<a class="anchor" aria-label="anchor" href="#plot-3d-dimensionality-reduction"></a>
 </h2>
+<hr>
 <p>This Function creates 3D interactive UMAP or t-SNE plot. The plot is
 saved in the output folder as an HTML file that can be downloaded.</p>
 <p>This function is designed to generate a 3D t-SNE visualization based
@@ -156,6 +159,7 @@ effectively revealing clusters or groups of similar cells.</p>
 <div class="section level2">
 <h2 id="color-by-genes">Color by Genes<a class="anchor" aria-label="anchor" href="#color-by-genes"></a>
 </h2>
+<hr>
 <p>This function visualizes gene expression intensities for provided
 Genes across your cells. If a gene is not found in the dataset, the Log
 will report this. Otherwise, you should see one plot (TSNE or UMAP, your
@@ -188,6 +192,7 @@ the points, and the level of transparency.</p>
 <div class="section level2">
 <h2 id="violin-plot-from-seurat-object">Violin Plot from Seurat Object<a class="anchor" aria-label="anchor" href="#violin-plot-from-seurat-object"></a>
 </h2>
+<hr>
 <p>This Function allows for the generation of customized violin plots to
 visualize transcriptional changes and interactions in single-cell
 RNA-seq data, providing insights into the cellular heterogeneity and
@@ -230,6 +235,7 @@ labels.</p>
 <div class="section level2">
 <h2 id="heatmap">Heatmap<a class="anchor" aria-label="anchor" href="#heatmap"></a>
 </h2>
+<hr>
 <p>This Function provides a comprehensive method for visualizing single
 cell transcript and/or protein expression data in the form of a heatmap.
 The data is obtained from a Seurat object, and the user can specify a
@@ -299,6 +305,7 @@ visual interpretation of patterns or correlations in the data.</p>
 <div class="section level2">
 <h2 id="dot-plot-of-genes-by-metadata">Dot Plot of Genes by Metadata<a class="anchor" aria-label="anchor" href="#dot-plot-of-genes-by-metadata"></a>
 </h2>
+<hr>
 <p>This function creates a dot plot of average gene expression values
 for a set of genes in cell subpopulations defined by metadata annotation
 columns. The input table contains a single column for genes (the “Genes
@@ -335,7 +342,8 @@ conditions or groups of cells.</p>
 </li>
 </ol>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/dotPlotMet.html">dotPlotMet</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/dotPlotMet.html">dotPlotMet</a></span><span class="op">(</span></span>
 <span>           object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>           metadata<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>,</span>
 <span>           cells<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span><span class="op">$</span><span class="va">SCT_snn_res.0.4</span><span class="op">)</span>,</span>

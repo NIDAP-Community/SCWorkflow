@@ -1,3 +1,4 @@
+
 ---
 title: "Subset and Recluster"
 output: rmarkdown::html_vignette
@@ -5,6 +6,7 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-SubsetReclust}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r, include = FALSE}
@@ -32,6 +34,8 @@ Anno_SO=readRDS("./images/Anno_SO.rds")
 
 
 ## Subset Seurat Object
+
+---
 
 This  function subsets your Seurat object. Select a metadata column and values matching the cells to pass forward in your analysis. 
 
@@ -76,6 +80,8 @@ ggsave(filter_SO$plots$plot2, filename = "./images/SubRec_sub2.png", width = 10,
 <br>
 
 ## Recluster Seurat Object
+
+---
 
 
 This  function provides a mechanism for re-clustering a filtered Seurat object, a common task in single-cell RNA sequencing analysis. The  function provides options to choose the number of principal components, range of clustering resolution, type of dimensionality reduction, and several other parameters.

@@ -1,5 +1,7 @@
+
 ---
 output: github_document
+
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -21,6 +23,8 @@ The CCBR Single-cell RNA-seq Package (SCWorkflow) allows users to analyze their 
 
 ## Installation
 
+---
+
 You can install the SCWorkflow package from [GitHub](https://github.com/NIDAP-Community/SCWorkflow) with:
 
 ```r
@@ -38,6 +42,8 @@ There is also a Docker container available at
 
 
 ## Usage
+
+---
 
 Following this workflow you can perform these steps of a single-cell RNA-seq analysis, and more:
 

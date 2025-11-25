@@ -5,6 +5,7 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-Overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r, include = FALSE}
@@ -22,6 +23,8 @@ library(ggplot2)
 ```
 
 ## Use SCWorkflow Container  
+
+---
 
 The SCWorkflow docker container is available on Biowulf which can be used with RStudio to organize and rune the SCWorkflow package. 
 
@@ -76,7 +79,7 @@ Use the $PORT number from terminal 1 (step 2).
 
 Open your web browser and go to: 
 
-``` 
+```sh 
 localhost:$PORT 
 ``` 
 
@@ -89,6 +92,9 @@ This will open Rstudio in your browser that is connected to the biowulf containe
 <br> 
 
 ## Copy Files from Rstuido server to Helix
+
+---
+
 #### 1.	Log into Helix
 ```
 ssh username@helix.nih.gov
@@ -113,6 +119,8 @@ mget -r *R
 
 
 ## Install Package
+
+---
 
 for general use SCWorkflow can be installed into your Rlibrary 
 

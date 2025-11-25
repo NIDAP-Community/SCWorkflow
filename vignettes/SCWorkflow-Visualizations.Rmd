@@ -1,3 +1,4 @@
+
 ---
 title: "Visualizations"
 output: rmarkdown::html_vignette
@@ -5,6 +6,7 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-Visualizations}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+
 ---
 
 ```{r, include = FALSE}
@@ -32,6 +34,8 @@ Anno_SO=readRDS("./images/Anno_SO.rds")
 <br>
 
 ## Color by Metadata
+
+---
 
 Use this Function to color your dimensionality reduction (TSNE & UMAP) with different columns from your Metadata Table. You can select one or more columns from the Metadata Table, and for each column selected, this function will produce a plot (t-SNE & UMAP) using the data in that column to color the cells. 
 
@@ -63,6 +67,8 @@ ggsave(p, filename = "./images/Vis_CBM.png", width = 13, height = 6)
 <br>
 
 ## Plot 3D Dimensionality Reduction
+
+---
 
 This Function creates 3D interactive UMAP or t-SNE plot. The plot is saved in the output folder as an HTML file that can be downloaded. 
 
@@ -114,6 +120,8 @@ print(html_content)
 
 ## Color by Genes
 
+---
+
 This function visualizes gene expression intensities for provided Genes across your cells. If a gene is not found in the dataset, the Log will report this. Otherwise, you should see one plot (TSNE or UMAP, your choice) per gene name provided. The intensity of the red color will be relative to the expression of the gene in that cell. Final Potomac Compatible Version: v98. Sugarloaf V1: v103. [View 
 
 **Methodology**  
@@ -151,6 +159,8 @@ dev.off()
 <br>
 
 ## Violin Plot from Seurat Object
+
+---
 
 This Function allows for the generation of customized violin plots to visualize transcriptional changes and interactions in single-cell RNA-seq data, providing insights into the cellular heterogeneity and dynamics within the dataset.
 
@@ -193,6 +203,8 @@ ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 
 <br>
 
 ## Heatmap
+
+---
 
 This Function provides a comprehensive method for visualizing single cell transcript and/or protein expression data in the form of a heatmap. The data is obtained from a Seurat object, and the user can specify a set of genes for the analysis.  
 The Function allows optional ordering by metadata (categorical) or gene/protein expression levels. Visualization customization options include color choices for the heatmap, addition of gene or protein annotations, and optional arrangement by metadata. 
@@ -253,6 +265,8 @@ dev.off()
 <br>
 
 ## Dot Plot of Genes by Metadata
+
+---
 
 This function creates a dot plot of average gene expression values for a set of genes in cell subpopulations defined by metadata annotation columns.  The input table contains a single column for genes (the "Genes column") and a single column for category (the "Category labels to plot" column).  The values in the "Category labels to plot" column should match the values provided in the metadata function (Metadata Category to Plot).  The plot will order the genes (x-axis, left to right) and Categories (y-axis, top to bottom) in the order in which it appears in the input table.  Any category entries omitted will not be plotted.  
 
