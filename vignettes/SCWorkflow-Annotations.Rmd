@@ -70,18 +70,26 @@ ggsave(Anno_SO$p2, filename = "./images/Anno2.png", width = 10, height = 10)
 
 This function will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named "Barcode" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table.
 
-```{r,eval=run_Chunks,echo=T}
-CellType_Anno_Table=read.csv("PerCell_Metadata.csv")
 
-```
 
-```{r,eval=T,echo=F}
+```{r,echo=F}
+if (run_Chunks){
 Anno_SO=readRDS("./images/Anno_SO.rds")
 
 
 Anno_SO$object@meta.data[,'mouseRNAseq_main',drop=F]%>%rename('Cell Type'=mouseRNAseq_main)%>%rownames_to_column('Barcode')%>%
-  head()%>%
-  knitr::kable()
+  write.table("PerCell_Metadata.csv",sep=",",row.names=F,quote=F)
+}else {
+
+   CellType_Anno_Table=read.csv("PerCell_Metadata.csv")
+
+}
+
+CellType_Anno_Table%>%head()%>% knitr::kable()
+
+```
+
+```{r,eval=run_Chunks,echo=T}
 
 ```
 
