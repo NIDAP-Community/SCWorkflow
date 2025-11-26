@@ -72,7 +72,7 @@ This function will merge an external table of cell annotations into an existing 
 
 
 
-```{r,echo=F}
+```{r,echo=F,eval=run_Chunks}
 if (run_Chunks){
 Anno_SO=readRDS("./images/Anno_SO.rds")
 
@@ -81,7 +81,7 @@ Anno_SO$object@meta.data[,'mouseRNAseq_main',drop=F]%>%rename('Cell Type'=mouseR
   write.table("PerCell_Metadata.csv",sep=",",row.names=F,quote=F)
 }else {
 
-   CellType_Anno_Table=read.csv("PerCell_Metadata.csv")
+   CellType_Anno_Table=read.csv("./images/PerCell_Metadata.csv")
 
 }
 
@@ -89,11 +89,10 @@ CellType_Anno_Table%>%head()%>% knitr::kable()
 
 ```
 
-```{r,eval=run_Chunks,echo=T}
 
-```
+```{r,eval=F,echo=F}
 
-```{r,eval=run_Chunks,echo=F}
+CellType_Anno_Table=read.csv("./images/PerCell_Metadata.csv")
 
 
 AddExternalAnnotation = function(
@@ -224,6 +223,8 @@ return(NULL)
 ```
 
 ```{r,eval=run_Chunks,echo=T}
+
+
 
 ExtAnno_SO=ExternalAnnotation(object = Anno_SO$object,
                     external_metadata = CellType_Anno_Table,
