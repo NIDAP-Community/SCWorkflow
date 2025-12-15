@@ -24,7 +24,7 @@
 #' @param interactive If TRUE, draw plotly plot (default is FALSE)
 #'
 #' @importFrom dplyr pull
-#' @importFrom reshape2 melt
+#' @importFrom reshape2 reshape2::melt
 #' @importFrom ggplot2 ggplot geom_point aes theme_classic ylim scale_y_reverse
 #' theme ggtitle
 #' @importFrom plotly ggplotly
@@ -80,12 +80,12 @@ nameClusters <- function(object,
   clus.num <-
     as.data.frame.matrix(table(object@meta.data$Clusternames,
                                object@meta.data[[labels.column]]))
-  clusnum.df <- melt(as.matrix(clus.num))
+  clusnum.df <- reshape2::melt(as.matrix(clus.num))
   sums <- rowSums(clus.num)
   cluster.perc <- (clus.num / sums) * 100
   
   # draw plot 
-  clus.df <- melt(as.matrix(cluster.perc))
+  clus.df <- reshape2::melt(as.matrix(cluster.perc))
   clus.df$num <- clusnum.df$value
   colnames(clus.df) <-
     c("cluster", "celltype", "percent", "number")
