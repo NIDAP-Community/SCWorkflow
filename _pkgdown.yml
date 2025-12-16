@@ -11,6 +11,11 @@ template:
     btn-border-radius: 3px
     grid-gutter-width: 3rem
     pkgdown-nav-height: 78px
+  params:
+    toc:
+      smooth_scroll: true
+      toc_float: true
+      toc_collapsed: true  # Start with TOC collapsed  
 
 navbar:
   structure:

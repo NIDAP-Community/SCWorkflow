@@ -21,12 +21,19 @@ knitr::opts_chunk$set(
 run_Chunks=FALSE
 ```
 
+# Overview {#overview}
 
-<br><br>
+![](./images/DEV_CheatSheet.png){}
 
-# **Clone the repo** {#clone-the-repo}
+<br>
+
+# **Propose Change** {#propose-changes}
 
 ---
+
+
+
+## **Clone the repo** {#clone-the-repo}
 
 If you are a member of [CCBR](https://github.com/CCBR),
 you can clone this repository to your computer or development environment.
@@ -48,23 +55,17 @@ git clone --single-branch --branch DEV https://github.com/NIDAP-Community/SCWork
 > Resolving deltas: 100% (1754/1754), done. <br>
 > Updating files: 100% (306/306), done. <br>
 
-<br>
 ```sh
 cd SCWorkflow
 ```
 
-<br><br>
+<br> 
 
-# **Install dependencies** {#install-dependencies}
-
-
----
+## **Install dependencies** {#install-dependencies}
 
 If this is your first time cloning the repo you may have to install dependencies
 
-<br
-
-**Steps to follow:**
+<!-- **Steps to follow:** -->
 
 **Check R CMD:** In an R console, make sure the package passes R CMD check by running:
 ```r
@@ -82,12 +83,9 @@ If this is your first time cloning the repo you may have to install dependencies
   This will install the repo's pre-commit hooks.
   You'll only need to do this step the first time you clone the repo. -->
 
-<br><br>
+<br>
 
-# **Load SCWorkflow from repo** {#load-scworkflow}
-
-
----
+## **Load SCWorkflow from repo** {#load-scworkflow}
 
 In an R console, load the package from the local repo using: 
 
@@ -95,38 +93,46 @@ In an R console, load the package from the local repo using:
 devtools::load_all()
 ```
 
-<br><br>
+<br>
 
-# **Create a branch** {#create-branch}
-
-
----
+## **Create branch** {#create-branch}
 
 Create a Git branch for your pull request (PR). Give the branch a descriptive name for the changes you will make.
 
-<br>
-
 **Example:** Use `iss-10` if it's for a specific issue, or `feature-new-plot` for a new feature.
 
+For bug fixes or small changes, you can branch from the `main` branch.
+
 ```sh
-# Create a new branch and switch to it
+# Create a new branch from main and switch to it
 git branch iss-10
 git switch iss-10
 ```
-
 > **Success:** Switched to a new branch 'iss-10'
+
+For new features or larger changes, branch from the `DEV` branch.
+
+```sh
+# Switch to DEV branch, create a new branch, and switch to new branch
+git switch DEV
+git branch feature-new-plot
+git switch feature-new-plot
+```
+> **Success:** Switched to a new branch 'feature-new-plot'
 
 <br><br>
 
-# **Make your changes** {#make-changes}
+# Develop {#develop}
 
 ---
+
+## **Make your changes** {#make-changes}
 
 Now you're ready to edit the code, write unit tests, and update the documentation as needed.
 
 <br>
 
-## **Code Style Guidelines**
+### **Code Style Guidelines**
 
 
 New code should follow the general guidelines outlined [here](https://nih.sharepoint.com/sites/NCI-CCR-CCBR-NIDAP/SitePages/R-Package-Coding-Style-and-Best-Practices.aspx).
@@ -147,7 +153,7 @@ New code should follow the general guidelines outlined [here](https://nih.sharep
 
 <br> 
 
-## **Function Organization**
+### **Function Organization**
 
 **Structure your functions like this:**
 
@@ -187,56 +193,12 @@ yourFunction <- function(param1, param2) {
   return(output_list)
 }
 ```
-<br> <br> 
-
-## **Writing Tests**
-
-**Why tests matter:** Most changes to the code will also need unit tests to demonstrate that the changes work as intended.
-
-**How to add tests:**
-
-1. Use [`testthat`](https://testthat.r-lib.org/) to create your unit tests
-2. Follow the organization described in the [tidyverse test style guide](https://style.tidyverse.org/tests.html)
-3. Look at existing code in this package for examples
+<br>
 
 
-## **Documentation**
-
-**When to update documentation:**
-
-- Written a new function
-- Changed the API of an existing function
-- Function is used in a vignette
-
-**How to update documentation:**
-
-1. Use [roxygen2](https://cran.r-project.org/package=roxygen2) with [Markdown syntax](https://roxygen2.r-lib.org/articles/rd-formatting.html)
-2. See the [R Packages book](https://r-pkgs.org/man.html) for detailed instructions
-3. Update relevant vignettes if needed
-
-<br><br>
-
-# **Check Your Work** {#check}
-
-🔍 **Final validation step:**
+## **Commit and Push Your Changes** {#commit-push}
 
 
----
-
-After making your changes, run the following command from an R console to make sure the package still passes R CMD check:
-
-```r
-devtools::check()
-```
-
-> **Goal:** All checks should pass with no errors, warnings, or notes.
-
-<br><br>
-
-# **Commit and Push Your Changes** {#commit-push}
-
-
----
 
 **Best practices for commits:**
 
@@ -269,11 +231,11 @@ Add the files that you changed to the staging area:
     git commit -m 'feat: create function for awesome feature'
 ```
 
-    Your commit message should follow the
-    [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-    specification.
-    Briefly, each commit should start with one of the approved types such as
-    `feat`, `fix`, `docs`, etc. followed by a description of the commit.
+Your commit message should follow the
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+specification.
+Briefly, each commit should start with one of the approved types such as
+`feat`, `fix`, `docs`, etc. followed by a description of the commit.
 Take a look at the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/#summary)
 for more detailed information about how to write commit messages.
 
@@ -327,8 +289,8 @@ will appear after the pre-commit messages showing that the commit was created.
     git push
  ```
 
-    If this is the first time you are pushing this branch, you may have to
-    explicitly set the upstream branch:
+If this is the first time you are pushing this branch, you may have to
+explicitly set the upstream branch:
 
  ```sh
     git push --set-upstream origin iss-10
@@ -341,7 +303,54 @@ You can view the files in your branch on GitHub at
 
 <br><br>
 
-# **Create a PR**
+
+# Document and Tests {#docs-tests}
+
+---
+
+## **Writing Tests**
+
+**Why tests matter:** Most changes to the code will also need unit tests to demonstrate that the changes work as intended.
+
+**How to add tests:**
+
+1. Use [`testthat`](https://testthat.r-lib.org/) to create your unit tests
+2. Follow the organization described in the [tidyverse test style guide](https://style.tidyverse.org/tests.html)
+3. Look at existing code in this package for examples
+
+<br>
+
+## **Documentation**
+
+**When to update documentation:**
+
+- Written a new function
+- Changed the API of an existing function
+- Function is used in a vignette
+
+**How to update documentation:**
+
+1. Use [roxygen2](https://cran.r-project.org/package=roxygen2) with [Markdown syntax](https://roxygen2.r-lib.org/articles/rd-formatting.html)
+2. See the [R Packages book](https://r-pkgs.org/man.html) for detailed instructions
+3. Update relevant vignettes if needed
+
+<br>
+
+## **Check Your Work** {#check}
+
+🔍 **Final validation step:**
+
+After making your changes, run the following command from an R console to make sure the package still passes R CMD check:
+
+```r
+devtools::check()
+```
+
+> **Goal:** All checks should pass with no errors, warnings, or notes.
+
+<br><br>
+
+# **Deploy Feature** {#deploy-feature}
 
 ---
 
