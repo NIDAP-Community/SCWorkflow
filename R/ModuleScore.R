@@ -327,10 +327,11 @@ modScore <- function(object,
 
     object@meta.data$MS_Celltype <- call.res$MS_Celltype[match(object@meta.data$Barcode, call.res$Barcode)]
 
-    lapply(figures, plot)
+    #lapply(figures, plot)
 
     return(
-        list("object"=object)
+        list("object"=object,
+        "figures" = figures)
     )
 }
  

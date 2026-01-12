@@ -7,27 +7,14 @@
 #' @param object Seurat-class object
 #' @param assay Assay to extract gene expression data from (Default: SCT)
 #' @param slot Slot to extract gene expression data from (Default: scale.data)
-#' @param group.by Split violin plot based on metadata group
-#' @param group.subset Include only a specific subset from group.by
-#' @param genes.of.interest Genes to visualize on the violin plot
-#' @param filter.outliers Filter outliers from the data (TRUE/FALSE)
-#' @param scale.data Scale data from 0 to 1 (TRUE/FALSE)
-#' @param log.scale.data Transform data onto a log10 scale (TRUE/FALSE)
-#' @param reorder.ident Numeric data will be ordered naturally by default. 
-#'                      Toggling this option will order the groups to match the
-#'                      group list if non-numeric, and will have no effect if 
-#'                      otherwise.
-#' @param rename.ident Give alternative names to group.by displayed on 
-#'                     the graph
-#' @param ylimit Y-axis limit
-#' @param plot.style Choose between grid, labeled, and row
-#' @param outlier.low.lim Filter lower bound outliers (Default = 0.1)
-#' @param outlier.up.lim Filter upper bound outliers (Default = 0.9)
-#' @param jitter.points Scatter points on the plot (TRUE/FALSE)
-#' @param jitter.width Set spread of jittered points 
-#' @param jitter.dot.size Set size of individual points
-#' @param print.outliers Print outliers as points in your graph that may be 
-#'                       redundant to jitter 
+#' @param genes Genes to visualize on the violin plot
+#' @param group Split violin plot based on metadata group
+#' @param facet_by Split violin plot based on a second metadata group
+#' @param filter_outliers Filter outliers from the data (TRUE/FALSE)
+#' @param outlier_low Filter lower bound outliers (Default = 0.05)
+#' @param outlier_high Filter upper bound outliers (Default = 0.95)
+#' @param jitter_points Scatter points on the plot (TRUE/FALSE)
+#' @param jitter_dot_size Set size of individual points
 
 #' @import Seurat 
 #' @import reshape2

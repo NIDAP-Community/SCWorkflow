@@ -10,12 +10,14 @@
 #' @param samples.to.display List of samples to depict on dimension plot, 
 #'                           samples not in the list would be colored gray in 
 #'                           the background
+#' @param manual.genes additional list of genes to display
 #' @param marker.table Table of marker genes for each celltype 
 #'                    (column names of the table), append "_prot" or "_neg" for 
 #'                    proteins or negative markers
 #' @param cells.of.interest Celltypes from geneset_dataframe to screen for
 #' @param protein.presence Set to TRUE if protein markers are used
 #' @param assay Assay to extract gene expression data from (Default: "SCT")
+#' @param slot Slot within assay to extract expression data from (Default: "scale.data")
 #' @param reduction.type Choose among tsne, umap, and pca (Default: "umap")
 #' @param point.transparency Set to lower values for more see through points on 
 #'                           dimension plot (Default: 0.5)
@@ -57,7 +59,7 @@ colorByMarkerTable <- function (object, samples.subset, samples.to.display,
                 g <- ggplot() + theme_void()
                 return(g)
             } else {
-                markers.mat = GetAssayData(object, assay = assay, slot = slot)[markers, ]
+                markers.mat = GetAssayData(object, assay = assay, layer = slot)[markers, ]
                 markers.quant = quantile(markers.mat[markers.mat > 
                     1], probs = c(0.1, 0.5, 0.9))
                 markers.mat[markers.mat > markers.quant[3]] = markers.quant[3]
@@ -124,7 +126,7 @@ colorByMarkerTable <- function (object, samples.subset, samples.to.display,
         for (celltype in colnames(marker.table)) {
             print(names(marker.table[celltype]))
             present = lapply(marker.table[[celltype]], function(x) x %in% 
-                rownames(GetAssayData(object, assay = assay, slot = slot)))
+                rownames(GetAssayData(object, assay = assay, layer = slot)))
             absent.genes = unlist(marker.table[[celltype]])[present == 
                 FALSE]
             present.genes = unlist(marker.table[[celltype]])[present == 
@@ -168,10 +170,11 @@ colorByMarkerTable <- function (object, samples.subset, samples.to.display,
         
         cons.fig <- do.call(grid.arrange, c(cons.gg.storage, ncol = ncol(markers.from.list)))
         cons.fig.bkgrd <- grobTree(background, cons.fig)
-        grid.draw(cons.fig.bkgrd)
-        grid.newpage()
+        #grid.draw(cons.fig.bkgrd)
+        #grid.newpage()
 
         # Plot individual arranged figures with padding
+        indv_arranged <- list()
         for (cell in colnames(markers.from.list)) {
             title <- cell
             markers.to.analyze <- as.character(markers.from.list[, 
@@ -181,26 +184,33 @@ colorByMarkerTable <- function (object, samples.subset, samples.to.display,
 
             # Combine the background with the arranged plots
             combined <- grobTree(background, arranged)
+            indv_arranged[[cell]] <- combined
             # Draw the combined grob with background
-            grid.draw(combined)
-            grid.newpage()
+            #grid.draw(combined)
+            #grid.newpage()
         }
 
         # Plot manual genes if not empty
+        manual.arranged <- NULL
         if(!is.null(manual.genes)){
 
             # Str-spit and use only present genes
             manual.genes.processed <- str_split(manual.genes, pattern = "[^a-zA-Z0-9]+")[[1]]
-            manual.genes.processed <- manual.genes.processed[manual.genes.processed %in% rownames(GetAssayData(object, assay = assay, slot = slot))]
+            manual.genes.processed <- manual.genes.processed[manual.genes.processed %in% rownames(GetAssayData(object, assay = assay, layer = slot))]
 
             tryCatch({
             manual.grob <- lapply(manual.genes.processed, function(x) .plotMarkers(x))
             manual.arranged <- gridExtra::arrangeGrob(grobs = manual.grob, newpage = F, as.table = F, top = ggpubr::text_grob("Manual Genes", size = 15, face = "bold"))
-            plot(manual.arranged)
-            grid.newpage()}, error = function(e) {
+            #plot(manual.arranged)
+            #grid.newpage()}, error = function(e) {
             cat(e$message, "\n", "Possible Reason: No manual genes were found in expression matrix")
 })
         }
+    
+        results <- list(
+            overall = cons.gg.storage,
+            celltype = indv_arranged,
+            manual_entry = manual.arranged)
         
-        return(NULL)
-    }
+        return(results)
+}

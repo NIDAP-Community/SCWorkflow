@@ -74,8 +74,15 @@ getModuleScoreParam <- function(data){
               ))  
 }
 
-.drawMSfig <- function(x, width = 10, height = 10){
+.drawMSfig <- function(x, width = 10, height = 10, index = 1){
+  target <- x
+  if (is.list(x) && all(c("object", "figures") %in% names(x))) {
+    if (length(x$figures) < index) {
+      stop("Requested index exceeds available figures")
+    }
+    target <- x$figures[[index]]
+  }
   path <- tempfile(fileext = ".png")
-  ggsave(path, x, width = 10, height = 10)
+  ggsave(path, target, width = 10, height = 10)
   print(path)
 }
