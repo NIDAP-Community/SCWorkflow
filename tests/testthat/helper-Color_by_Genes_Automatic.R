@@ -65,8 +65,27 @@ getCbgAutoParam <- function(data) {
   )
 }
 
-.drawCbG <- function(x, width = 10, height = 10){
+.drawCbG <- function(x, width = 10, height = 10, component = c("overall", "celltype", "manual_entry"), index = 1){
+  component <- match.arg(component)
+  target <- x
+  if (is.list(x) && all(c("overall", "celltype", "manual_entry") %in% names(x))) {
+    target <- x[[component]]
+    if (is.list(target)) {
+      if (length(target) < index) {
+        stop("Requested index exceeds available plots in component")
+      }
+      target <- target[[index]]
+    }
+    if (is.null(target)) {
+      # Fallback to first available overall plot if chosen component is NULL
+      if (length(x$overall) >= 1) {
+        target <- x$overall[[1]]
+      } else {
+        stop("No plot available to save in provided object")
+      }
+    }
+  }
   path <- tempfile(fileext = ".png")
-  ggsave(path, x, width = 10, height = 10)
+  ggsave(path, target, width = width, height = height)
   print(path)
 }

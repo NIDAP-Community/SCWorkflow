@@ -15,8 +15,15 @@ test_that("Color by Genes Automatic works for TEC data", {
     "tec_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
-  expect_setequal(class(cbg.demo), expected_elements)
+  expect_true(is.list(cbg.demo))
+  expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
+  expect_true(is.list(cbg.demo$overall))
+  expect_true(is.list(cbg.demo$celltype))
+  expect_gt(length(cbg.demo$overall), 0)
+  expect_gt(length(cbg.demo$celltype), 0)
+  expect_true(grid::is.grob(cbg.demo$overall[[1]]))
+  expect_true(grid::is.grob(cbg.demo$celltype[[1]]))
+  expect_true(is.null(cbg.demo$manual_entry) || grid::is.grob(cbg.demo$manual_entry))
 })
 
 test_that("Color by Genes Automatic works for Chariou data", {
@@ -35,8 +42,15 @@ test_that("Color by Genes Automatic works for Chariou data", {
     "chariou_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
-  expect_setequal(class(cbg.demo), expected_elements)
+  expect_true(is.list(cbg.demo))
+  expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
+  expect_true(is.list(cbg.demo$overall))
+  expect_true(is.list(cbg.demo$celltype))
+  expect_gt(length(cbg.demo$overall), 0)
+  expect_gt(length(cbg.demo$celltype), 0)
+  expect_true(grid::is.grob(cbg.demo$overall[[1]]))
+  expect_true(grid::is.grob(cbg.demo$celltype[[1]]))
+  expect_true(is.null(cbg.demo$manual_entry) || grid::is.grob(cbg.demo$manual_entry))
 
 })
 
@@ -56,8 +70,15 @@ test_that("Color by Genes Automatic works for pbmc.single data", {
     "pbmc_single_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
-  expect_setequal(class(cbg.demo), expected_elements)
+  expect_true(is.list(cbg.demo))
+  expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
+  expect_true(is.list(cbg.demo$overall))
+  expect_true(is.list(cbg.demo$celltype))
+  expect_gt(length(cbg.demo$overall), 0)
+  expect_gt(length(cbg.demo$celltype), 0)
+  expect_true(grid::is.grob(cbg.demo$overall[[1]]))
+  expect_true(grid::is.grob(cbg.demo$celltype[[1]]))
+  expect_true(is.null(cbg.demo$manual_entry) || grid::is.grob(cbg.demo$manual_entry))
 
 })
 
@@ -77,8 +98,15 @@ test_that("Color by Genes Automatic works for nsclc_multi data", {
     "nsclc_multi_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
-  expect_setequal(class(cbg.demo), expected_elements)
+  expect_true(is.list(cbg.demo))
+  expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
+  expect_true(is.list(cbg.demo$overall))
+  expect_true(is.list(cbg.demo$celltype))
+  expect_gt(length(cbg.demo$overall), 0)
+  expect_gt(length(cbg.demo$celltype), 0)
+  expect_true(grid::is.grob(cbg.demo$overall[[1]]))
+  expect_true(grid::is.grob(cbg.demo$celltype[[1]]))
+  expect_true(is.null(cbg.demo$manual_entry) || grid::is.grob(cbg.demo$manual_entry))
 
 })
 
@@ -98,8 +126,15 @@ test_that("Color by Genes Automatic works for BRCA data", {
     "brca_cbg.png"
   )
 
-  expected_elements <- c("gtable", "gTree", "grob", "gDesc")
-  expect_setequal(class(cbg.demo), expected_elements)
+  expect_true(is.list(cbg.demo))
+  expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
+  expect_true(is.list(cbg.demo$overall))
+  expect_true(is.list(cbg.demo$celltype))
+  expect_gt(length(cbg.demo$overall), 0)
+  expect_gt(length(cbg.demo$celltype), 0)
+  expect_true(grid::is.grob(cbg.demo$overall[[1]]))
+  expect_true(grid::is.grob(cbg.demo$celltype[[1]]))
+  expect_true(is.null(cbg.demo$manual_entry) || grid::is.grob(cbg.demo$manual_entry))
 
 })
 
@@ -115,8 +150,7 @@ test_that("Color by Genes Automatic stops when user inputs an assay not found
                             samples.to.display = tec.data$samples.to.display,
                             marker.table = tec.data$marker.table,
                             cells.of.interest = tec.data$cells.of.interest,
-                            assay = "wrong_assay"),
-                            "assay type not found in seurat")
+                            assay = "wrong_assay"))
 
 })
 
@@ -130,7 +164,7 @@ test_that("Color by Genes Automatic stops when user inputs an reduction type
                             samples.to.display = tec.data$samples.to.display,
                             marker.table = tec.data$marker.table,
                             cells.of.interest = tec.data$cells.of.interest,
-                            reduction = "wrong_reduction"),
-                            "reduction type not found in seurat")
+                            reduction.type = "wrong_reduction"),
+                            NA)
 
 })
