@@ -7,33 +7,33 @@ test_that("modScore returns metadata with scores and cell calls for tec", {
   
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
   #   "tec_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
   #   "tec_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
   #   "tec_MS_3.png"
   # )
   
-  expect_equal(mean(modscore.demo$CD8_T),
+  expect_equal(mean(modscore.demo[["object"]]$CD8_T),
                0.044506, tolerance = 1e-1)
   
-  expect_equal(mean(modscore.demo$CD4_T),
+  expect_equal(mean(modscore.demo[["object"]]$CD4_T),
                0.044506, tolerance = 1e-1)
   
-  expect_equal(mean(modscore.demo$Tregs),
+  expect_equal(mean(modscore.demo[["object"]]$Tregs),
                0.0913447, tolerance = 1e-1)
   
   expected_elements <- c("MS_Celltype",tec$general.class)
-  expect(all(expected_elements %in% colnames(modscore.demo@meta.data)), 
+  expect(all(expected_elements %in% colnames(modscore.demo[["object"]]@meta.data)), 
                           failure_message = "modscore results not found")
   
 })
@@ -46,33 +46,33 @@ test_that("modScore returns metadata with scores and cell calls for chariou", {
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
   #   "chariou_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
   #   "chariou_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
   #   "chariou_MS_3.png"
   # )
 
-  expect_equal(mean(modscore.demo$CD8_T),
+  expect_equal(mean(modscore.demo[["object"]]$CD8_T),
                0.05458893, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$CD4_T),
+  expect_equal(mean(modscore.demo[["object"]]$CD4_T),
                0.05458893, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$Tregs),
+  expect_equal(mean(modscore.demo[["object"]]$Tregs),
                0.07577882, tolerance = 1e-1)
 
   expected_elements <- c("MS_Celltype",chariou$general.class)
-  expect(all(expected_elements %in% colnames(modscore.demo@meta.data)),
+  expect(all(expected_elements %in% colnames(modscore.demo[["object"]]@meta.data)),
          failure_message = "modscore results not found")
 
 })
@@ -86,33 +86,33 @@ test_that("modScore returns metadata with scores and cell calls for
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
   #   "pbmc_single_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
   #   "pbmc_single_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
   #   "pbmc_single_MS_3.png"
   # )
 
-  expect_equal(mean(modscore.demo$rand_type1),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type1),
                0.2129345, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$rand_type2),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type2),
                0.1917001, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$rand_type3),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type3),
                0.1798533, tolerance = 1e-1)
 
   expected_elements <- c("MS_Celltype",pbmc.single$general.class)
-  expect(all(expected_elements %in% colnames(modscore.demo@meta.data)),
+  expect(all(expected_elements %in% colnames(modscore.demo[["object"]]@meta.data)),
          failure_message = "modscore results not found")
 
 })
@@ -126,33 +126,33 @@ test_that("modScore returns metadata with scores and cell calls for
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
   #   "nsclc_multi_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
   #   "nsclc_multi_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
   #   "nsclc_multi_MS_3.png"
   # )
 
-  expect_equal(mean(modscore.demo$rand_type1),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type1),
                0.1266389, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$rand_type2),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type2),
                0.1794167, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$rand_type3),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type3),
                0.2627949, tolerance = 1e-1)
 
   expected_elements <- c("MS_Celltype",nsclc.multi$general.class)
-  expect(all(expected_elements %in% colnames(modscore.demo@meta.data)),
+  expect(all(expected_elements %in% colnames(modscore.demo[["object"]]@meta.data)),
          failure_message = "modscore results not found")
 
 })
@@ -165,33 +165,33 @@ test_that("modScore returns metadata with scores and cell calls for brca", {
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
   #   "brca_multi_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
   #   "brca_multi_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
   #   "brca_multi_MS_3.png"
   # )
 
-  expect_equal(mean(modscore.demo$rand_type1),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type1),
                0.1958383, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$rand_type2),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type2),
                0.1079014, tolerance = 1e-1)
 
-  expect_equal(mean(modscore.demo$rand_type3),
+  expect_equal(mean(modscore.demo[["object"]]$rand_type3),
                0.03652896, tolerance = 1e-1)
 
   expected_elements <- c("MS_Celltype",brca$general.class)
-  expect(all(expected_elements %in% colnames(modscore.demo@meta.data)),
+  expect(all(expected_elements %in% colnames(modscore.demo[["object"]]@meta.data)),
          failure_message = "modscore results not found")
 
 })

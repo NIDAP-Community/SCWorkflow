@@ -32,12 +32,16 @@
 #' @import ggplot2
 #'
 #' @export
-#' @example Do not run: colorByMarkerTable(object = seurat,
-  #'                                       samples.subset = c("mouse1","mouse2),
-  #'                                       samples.to.display = c("mouse1"),
-  #'                                       marker.table = immuneCellMarkers,
-  #'                                       cells.of.interest = c("CD4","Treg")
-  #'                                       )
+#' @examples
+#' \dontrun{
+#' colorByMarkerTable(
+#'   object = seurat,
+#'   samples.subset = c("mouse1", "mouse2"),
+#'   samples.to.display = c("mouse1"),
+#'   marker.table = immuneCellMarkers,
+#'   cells.of.interest = c("CD4", "Treg")
+#' )
+#' }
 
 #' @return arranged grob of dimension reduction plots colored by individual 
 #'         marker expression

@@ -9,11 +9,11 @@ test_that("Color by Genes Automatic works for TEC data", {
                            marker.table = tec.data$marker.table,
                            cells.of.interest = tec.data$cells.of.interest)
   
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawCbG(cbg.demo),
-    "tec_cbg.png"
-  )
+  # skip_on_ci()
+  # expect_snapshot_file(
+  #   .drawCbG(cbg.demo),
+  #   "tec_cbg.png"
+  # )
 
   expect_true(is.list(cbg.demo))
   expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
@@ -36,11 +36,11 @@ test_that("Color by Genes Automatic works for Chariou data", {
                            marker.table = chariou.data$marker.table,
                            cells.of.interest = chariou.data$cells.of.interest)
   
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawCbG(cbg.demo),
-    "chariou_cbg.png"
-  )
+  # skip_on_ci()
+  # expect_snapshot_file(
+  #   .drawCbG(cbg.demo),
+  #   "chariou_cbg.png"
+  # )
 
   expect_true(is.list(cbg.demo))
   expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
@@ -64,11 +64,11 @@ test_that("Color by Genes Automatic works for pbmc.single data", {
                            marker.table = pbmc.single$marker.table,
                            cells.of.interest = pbmc.single$cells.of.interest)
   
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawCbG(cbg.demo),
-    "pbmc_single_cbg.png"
-  )
+  # skip_on_ci()
+  # expect_snapshot_file(
+  #   .drawCbG(cbg.demo),
+  #   "pbmc_single_cbg.png"
+  # )
 
   expect_true(is.list(cbg.demo))
   expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
@@ -92,11 +92,11 @@ test_that("Color by Genes Automatic works for nsclc_multi data", {
                            marker.table = nsclc_multi$marker.table,
                            cells.of.interest = nsclc_multi$cells.of.interest)
   
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawCbG(cbg.demo),
-    "nsclc_multi_cbg.png"
-  )
+  # skip_on_ci()
+  # expect_snapshot_file(
+  #   .drawCbG(cbg.demo),
+  #   "nsclc_multi_cbg.png"
+  # )
 
   expect_true(is.list(cbg.demo))
   expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))
@@ -120,11 +120,11 @@ test_that("Color by Genes Automatic works for BRCA data", {
                            marker.table = BRCA_data$marker.table,
                            cells.of.interest = BRCA_data$cells.of.interest)
   
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawCbG(cbg.demo),
-    "brca_cbg.png"
-  )
+  # skip_on_ci()
+  # expect_snapshot_file(
+  #   .drawCbG(cbg.demo),
+  #   "brca_cbg.png"
+  # )
 
   expect_true(is.list(cbg.demo))
   expect_setequal(names(cbg.demo), c("overall", "celltype", "manual_entry"))

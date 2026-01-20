@@ -101,3 +101,25 @@ ModuleScores and Likely_CellType calls
 Analyzed features are binned based on averaged expression;
 control features are randomly selected from each bin.
 }
+\examples{
+\dontrun{
+modScore(
+  object = seuratObject,
+  marker.table = immuneCellMarkers,
+  use_columns = c("CD4_T", "Treg", "Monocytes"),
+  ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+  general.class = c("CD4_T", "Monocytes"),
+  multi.lvl = FALSE
+)
+
+modScore(
+  object = seuratObject,
+  marker.table = immuneCellMarkers,
+  use_columns = c("CD4_T", "Treg", "Monocytes"),
+  ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+  general.class = c("CD4_T", "Monocytes"),
+  multi.lvl = TRUE,
+  lvl.df = parentChildTable
+)
+}
+}

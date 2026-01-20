@@ -7,7 +7,7 @@ selectViolin <- function(dataset) {
     object = selectCRObject("TEC")
     group = "orig_ident"
     assay = 'SCT'
-    slot = 'scale.data'
+    layer = 'scale.data'
     jitter_points = T
     jitter_dot_size = 4
     filter_outliers = F
@@ -15,14 +15,14 @@ selectViolin <- function(dataset) {
     outlier_high = 0.95
     facet_by = ""
     set.seed(81)
-    genes = sample(rownames(object$SCT@scale.data), 5, 
-                               replace = FALSE)
+    genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5, 
+             replace = FALSE)
     } else if (dataset == "Chariou"){
 
     object = selectCRObject("Chariou")
     group = "orig_ident"
     assay = 'SCT'
-    slot = 'scale.data'
+    layer = 'scale.data'
     jitter_points = T
     jitter_dot_size = 4
     filter_outliers = F
@@ -30,8 +30,8 @@ selectViolin <- function(dataset) {
     outlier_high = 0.95
     facet_by = ""
     set.seed(82)
-    genes = sample(rownames(object$SCT@scale.data), 5,
-                               replace = FALSE)
+    genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
+             replace = FALSE)
 
   # } else if (dataset == "Chariou.allgroups"){
   # 
@@ -71,7 +71,7 @@ selectViolin <- function(dataset) {
     object = selectCRObject("pbmc-single")
     group = "orig_ident"
     assay = 'SCT'
-    slot = 'scale.data'
+    layer = 'scale.data'
     jitter_points = T
     jitter_dot_size = 4
     filter_outliers = F
@@ -79,8 +79,8 @@ selectViolin <- function(dataset) {
     outlier_high = 0.95
     facet_by = ""
     set.seed(83)
-    genes = sample(rownames(object$SCT@scale.data), 5,
-                               replace = FALSE)
+    genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
+             replace = FALSE)
 
 
   } else if (dataset == "nsclc.multi"){
@@ -88,7 +88,7 @@ selectViolin <- function(dataset) {
     object = selectCRObject("nsclc-multi")
     group = "orig_ident"
     assay = 'SCT'
-    slot = 'scale.data'
+    layer = 'scale.data'
     jitter_points = T
     jitter_dot_size = 4
     filter_outliers = F
@@ -96,15 +96,15 @@ selectViolin <- function(dataset) {
     outlier_high = 0.95
     facet_by = ""
     set.seed(84)
-    genes = sample(rownames(object$SCT@scale.data), 5,
-                               replace = FALSE)
+    genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
+             replace = FALSE)
 
   } else if (dataset == "brca"){
 
     object = selectCRObject("BRCA")
     group = "orig_ident"
     assay = 'SCT'
-    slot = 'scale.data'
+    layer = 'scale.data'
     jitter_points = T
     jitter_dot_size = 4
     filter_outliers = F
@@ -112,13 +112,13 @@ selectViolin <- function(dataset) {
     outlier_high = 0.95
     facet_by = ""
     set.seed(85)
-    genes = sample(rownames(object$SCT@scale.data), 5,
-                               replace = FALSE)}
+    genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
+             replace = FALSE)}
   
   return(list("object" = object, 
               "group" = group,
               "assay" = assay,
-              "slot" = slot,
+              "layer" = layer,
               "jitter_points" = jitter_points,
               "jitter_dot_size" = jitter_dot_size,
               "genes" = genes))

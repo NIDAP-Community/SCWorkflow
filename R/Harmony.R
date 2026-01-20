@@ -22,11 +22,16 @@
 #' @import ggplot2
 #'   
 #' @export
-#' @example Do not run: harmonyBatchCorrect(object = seurat,
-#'                                          nvar = 2000,
-#'                                          genes.to.add = c("Cd4","Cd8a"),
-#'                                          group.by.var = "Mouse_Origin",
-#'                                          npc = 20)
+#' @examples
+#' \dontrun{
+#' harmonyBatchCorrect(
+#'   object = seurat,
+#'   nvar = 2000,
+#'   genes.to.add = c("Cd4", "Cd8a"),
+#'   group.by.var = "Mouse_Origin",
+#'   npc = 20
+#' )
+#' }
 
 #' @return A list: adj.object with harmony-adjusted gene expression (SCT slot) 
 #'                 adj.tsne: harmonized tSNE plot
