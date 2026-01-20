@@ -69,9 +69,15 @@ violinPlot_mod <- function (object,
     group <- colnames(object@meta.data)[grepl("origident",gsub('\\W|_',"",colnames(object@meta.data)))]
   }
   
+  available_layers <- if(packageVersion("Seurat") >= "5.0.0"){
+    Layers(object[[assay]])
+  } else (
+    slotNames(object[[assay]])
+  )
+
   if (!assay %in% Assays(object)) {
     stop("expression data type was not found in Seurat object")
-  } else if (!layer %in% Layers(object[[assay]])) {
+  } else if (!layer %in% available_layers) {
     stop("layer not found in Seurat[[assay]] Layers")
   } else if (all(!genes %in% rownames(object[[assay]]))) {
     stop("no genes were found in Seurat object")
