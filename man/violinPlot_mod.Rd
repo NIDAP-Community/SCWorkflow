@@ -25,42 +25,21 @@ violinPlot_mod(
 
 \item{slot}{Slot to extract gene expression data from (Default: scale.data)}
 
-\item{group.by}{Split violin plot based on metadata group}
+\item{genes}{Genes to visualize on the violin plot}
 
-\item{group.subset}{Include only a specific subset from group.by}
+\item{group}{Split violin plot based on metadata group}
 
-\item{genes.of.interest}{Genes to visualize on the violin plot}
+\item{facet_by}{Split violin plot based on a second metadata group}
 
-\item{filter.outliers}{Filter outliers from the data (TRUE/FALSE)}
+\item{filter_outliers}{Filter outliers from the data (TRUE/FALSE)}
 
-\item{scale.data}{Scale data from 0 to 1 (TRUE/FALSE)}
+\item{outlier_low}{Filter lower bound outliers (Default = 0.05)}
 
-\item{log.scale.data}{Transform data onto a log10 scale (TRUE/FALSE)}
+\item{outlier_high}{Filter upper bound outliers (Default = 0.95)}
 
-\item{reorder.ident}{Numeric data will be ordered naturally by default.
-Toggling this option will order the groups to match the
-group list if non-numeric, and will have no effect if
-otherwise.}
+\item{jitter_points}{Scatter points on the plot (TRUE/FALSE)}
 
-\item{rename.ident}{Give alternative names to group.by displayed on
-the graph}
-
-\item{ylimit}{Y-axis limit}
-
-\item{plot.style}{Choose between grid, labeled, and row}
-
-\item{outlier.low.lim}{Filter lower bound outliers (Default = 0.1)}
-
-\item{outlier.up.lim}{Filter upper bound outliers (Default = 0.9)}
-
-\item{jitter.points}{Scatter points on the plot (TRUE/FALSE)}
-
-\item{jitter.width}{Set spread of jittered points}
-
-\item{jitter.dot.size}{Set size of individual points}
-
-\item{print.outliers}{Print outliers as points in your graph that may be
-redundant to jitter}
+\item{jitter_dot_size}{Set size of individual points}
 }
 \value{
 violin ggplot2 object
@@ -72,4 +51,19 @@ Create violin plot of gene expression data across groups
 Takes in a list of genes inputted by the user, displays violin plots
 of genes across groups from a slot-assay with (optional) outliers
 removed. Can also choose to scale or transform expression data.
+}
+\examples{
+\dontrun{
+violinPlot_mod(
+  object = seurat,
+  assay = "SCT",
+  slot = "data",
+  genes = c("Cd4", "Cd8a"),
+  group = "celltype",
+  facet_by = "orig.ident",
+  filter_outliers = TRUE,
+  jitter_points = TRUE,
+  jitter_dot_size = 0.5
+)
+}
 }

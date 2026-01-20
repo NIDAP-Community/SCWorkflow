@@ -39,4 +39,15 @@ Runs singular value decomposition on pearson residuals
 decomposed embedding and adjusts decomposed gene expression values
 by harmonized embedding.
 }
+\examples{
+\dontrun{
+harmonyBatchCorrect(
+  object = seurat,
+  nvar = 2000,
+  genes.to.add = c("Cd4", "Cd8a"),
+  group.by.var = "Mouse_Origin",
+  npc = 20
+)
+}
+}
 \keyword{datasets}

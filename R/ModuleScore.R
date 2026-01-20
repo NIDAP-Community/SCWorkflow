@@ -71,21 +71,27 @@
 #' @importFrom dplyr select
 #'   
 #' @export
-#' @example Do not run: moduleScore(object = seuratObject,
-#'                                  marker.table = immuneCellMarkers,
-#'                                  celltypes = c("CD4_T","Treg",Monocytes"),
-#'                                  ms_threshold = c("CD4_T 0.1","Treg 0.4", "Monocytes 0.3"),
-#'                                  multi.lvl = FALSE
-#'                                  )
-#'                                  
-#' @example Do not run: moduleScore(object = seuratObject,
-#'                                  marker.table = immuneCellMarkers,
-#'                                  celltypes = c("CD4_T","Treg",Monocytes"),
-#'                                  ms_threshold = c("CD4_T 0.1","Treg 0.4", "Monocytes 0.3"),
-#'                                  general.class = c("CD_T","Monocytes"),
-#'                                  multi.lvl = TRUE,
-#'                                  lvl.df = parentChildTable
-#'                                  )
+#' @examples
+#' \dontrun{
+#' modScore(
+#'   object = seuratObject,
+#'   marker.table = immuneCellMarkers,
+#'   use_columns = c("CD4_T", "Treg", "Monocytes"),
+#'   ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+#'   general.class = c("CD4_T", "Monocytes"),
+#'   multi.lvl = FALSE
+#' )
+#' 
+#' modScore(
+#'   object = seuratObject,
+#'   marker.table = immuneCellMarkers,
+#'   use_columns = c("CD4_T", "Treg", "Monocytes"),
+#'   ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+#'   general.class = c("CD4_T", "Monocytes"),
+#'   multi.lvl = TRUE,
+#'   lvl.df = parentChildTable
+#' )
+#' }
 
 #' @return List containing annotated dimension plot with ModuleScore 
 #'         distribution of cell marker gene, Seurat Object with cell 
@@ -93,6 +99,7 @@
 
 modScore <- function(object, 
                      marker.table, 
+                     group_var = "orig.ident",
                      use_columns,
                      ms_threshold, 
                      general.class, 
@@ -231,7 +238,7 @@ modScore <- function(object,
         umap.pos <- clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1), umap2.mean = mean(umap2))
         title = as.character(m)
         clusmat <- clusmat %>% dplyr::arrange(clusid)
-        clusid.df <- data.frame(id = object@meta.data$orig.ident, 
+        clusid.df <- data.frame(id = object@meta.data[[group_var]], 
             ModuleScore = object@meta.data[[m]])
 
         g <- ggplot(clusmat, aes(x = umap1, y = umap2)) + theme_bw() + 
@@ -240,7 +247,7 @@ modScore <- function(object,
             1), limits = c(0, 1))) + guides(colour = guide_legend(override.aes = list(size = 5, alpha = 1))) + theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(), panel.background = element_blank()) + xlab("tsne-1") + ylab("tsne-2")
 
-        g1 <- RidgePlot(object, features = m, group.by = "orig.ident") + 
+        g1 <- RidgePlot(object, features = m, group.by = group_var) + 
             theme(legend.position = "none", title = element_blank(), 
                 axis.text.x = element_text(size = gradient.ft.size)) + 
             geom_vline(xintercept = numeric_threshold[celltype_name], linetype = "dashed", 

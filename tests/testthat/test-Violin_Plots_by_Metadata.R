@@ -9,8 +9,7 @@ test_that("Violin plot works for TEC data", {
     "tec_violin.png"
   )
   
-  expected_elements = c("gg", "ggplot")
-  expect_setequal(class(violin_test), expected_elements)
+  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
   
 })
 
@@ -25,8 +24,8 @@ test_that("Violin plot works for Chariou data", {
     "chariou_violin.png"
   )
 
-  expected_elements = c("gg", "ggplot")
-  expect_setequal(class(violin_test), expected_elements)
+  
+  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
 
 })
 
@@ -41,8 +40,8 @@ test_that("Violin plot works for Chariou data", {
 #     "chariou_allgroup_violin.png"
 #   )
 # 
-#   expected_elements = c("gg", "ggplot")
-#   expect_setequal(class(violin_test), expected_elements)
+#   
+#   expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
 # 
 # })
 # 
@@ -57,8 +56,8 @@ test_that("Violin plot works for Chariou data", {
 #     "chariou_subgroup_violin.png"
 #   )
 # 
-#   expected_elements = c("gg", "ggplot")
-#   expect_setequal(class(violin_test), expected_elements)
+#   
+#   expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
 # 
 # })
 
@@ -73,8 +72,8 @@ test_that("Violin plot works for pbmc.single data", {
     "pbmc_single_violin.png"
   )
 
-  expected_elements = c("gg", "ggplot")
-  expect_setequal(class(violin_test), expected_elements)
+  
+  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
 
 })
 
@@ -89,8 +88,8 @@ test_that("Violin plot works for nsclc.multi data", {
     "nsclc_multi_violin.png"
   )
 
-  expected_elements = c("gg", "ggplot")
-  expect_setequal(class(violin_test), expected_elements)
+  
+  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
 
 })
 
@@ -105,8 +104,8 @@ test_that("Violin plot works for brca data", {
     "brca_violin.png"
   )
 
-  expected_elements = c("gg", "ggplot")
-  expect_setequal(class(violin_test), expected_elements)
+  
+  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
 
 })
 

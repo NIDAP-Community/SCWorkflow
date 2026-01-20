@@ -38,7 +38,7 @@ aggregateCounts <- function(object,
                                   return.seurat = FALSE,
                                   assay = "SCT",
                                   group.by = var.group,
-                                  slot = slot)[[1]] %>% 
+                                  layer = slot)[[1]] %>% 
                   as.data.frame.matrix() 
     
   pseudobulk$Gene <- rownames(pseudobulk)

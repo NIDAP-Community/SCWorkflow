@@ -15,12 +15,16 @@ Description: A set of functions for analyzing single-cell RNA-seq data using the
     and further visualizations and analysis based on user input. This package can
     be run both in a docker container and in user-friendly web-based interactive
     notebooks (NIDAP, Palantir Foundry).
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Suggests: 
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    shiny
+VignetteBuilder: knitr
 Depends:
     R (>= 4.0)
 Imports:
@@ -86,4 +90,5 @@ Imports:
     tidyr,
     htmlwidgets,
     scDblFinder
+    , BiocParallel
 Config/testthat/edition: 3
