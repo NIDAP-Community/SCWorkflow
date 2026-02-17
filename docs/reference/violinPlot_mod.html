@@ -52,7 +52,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">violinPlot_mod</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">assay</span>,</span>
-<span>  <span class="va">slot</span>,</span>
+<span>  <span class="va">layer</span>,</span>
 <span>  <span class="va">genes</span>,</span>
 <span>  <span class="va">group</span>,</span>
 <span>  facet_by <span class="op">=</span> <span class="st">""</span>,</span>
@@ -76,77 +76,40 @@
 <dd><p>Assay to extract gene expression data from (Default: SCT)</p></dd>
 
 
-<dt id="arg-slot">slot<a class="anchor" aria-label="anchor" href="#arg-slot"></a></dt>
+<dt id="arg-layer">layer<a class="anchor" aria-label="anchor" href="#arg-layer"></a></dt>
 <dd><p>Slot to extract gene expression data from (Default: scale.data)</p></dd>
 
 
-<dt id="arg-group-by">group.by<a class="anchor" aria-label="anchor" href="#arg-group-by"></a></dt>
-<dd><p>Split violin plot based on metadata group</p></dd>
-
-
-<dt id="arg-group-subset">group.subset<a class="anchor" aria-label="anchor" href="#arg-group-subset"></a></dt>
-<dd><p>Include only a specific subset from group.by</p></dd>
-
-
-<dt id="arg-genes-of-interest">genes.of.interest<a class="anchor" aria-label="anchor" href="#arg-genes-of-interest"></a></dt>
+<dt id="arg-genes">genes<a class="anchor" aria-label="anchor" href="#arg-genes"></a></dt>
 <dd><p>Genes to visualize on the violin plot</p></dd>
 
 
-<dt id="arg-filter-outliers">filter.outliers<a class="anchor" aria-label="anchor" href="#arg-filter-outliers"></a></dt>
+<dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
+<dd><p>Split violin plot based on metadata group</p></dd>
+
+
+<dt id="arg-facet-by">facet_by<a class="anchor" aria-label="anchor" href="#arg-facet-by"></a></dt>
+<dd><p>Split violin plot based on a second metadata group</p></dd>
+
+
+<dt id="arg-filter-outliers">filter_outliers<a class="anchor" aria-label="anchor" href="#arg-filter-outliers"></a></dt>
 <dd><p>Filter outliers from the data (TRUE/FALSE)</p></dd>
 
 
-<dt id="arg-scale-data">scale.data<a class="anchor" aria-label="anchor" href="#arg-scale-data"></a></dt>
-<dd><p>Scale data from 0 to 1 (TRUE/FALSE)</p></dd>
+<dt id="arg-outlier-low">outlier_low<a class="anchor" aria-label="anchor" href="#arg-outlier-low"></a></dt>
+<dd><p>Filter lower bound outliers (Default = 0.05)</p></dd>
 
 
-<dt id="arg-log-scale-data">log.scale.data<a class="anchor" aria-label="anchor" href="#arg-log-scale-data"></a></dt>
-<dd><p>Transform data onto a log10 scale (TRUE/FALSE)</p></dd>
+<dt id="arg-outlier-high">outlier_high<a class="anchor" aria-label="anchor" href="#arg-outlier-high"></a></dt>
+<dd><p>Filter upper bound outliers (Default = 0.95)</p></dd>
 
 
-<dt id="arg-reorder-ident">reorder.ident<a class="anchor" aria-label="anchor" href="#arg-reorder-ident"></a></dt>
-<dd><p>Numeric data will be ordered naturally by default.
-Toggling this option will order the groups to match the
-group list if non-numeric, and will have no effect if
-otherwise.</p></dd>
-
-
-<dt id="arg-rename-ident">rename.ident<a class="anchor" aria-label="anchor" href="#arg-rename-ident"></a></dt>
-<dd><p>Give alternative names to group.by displayed on
-the graph</p></dd>
-
-
-<dt id="arg-ylimit">ylimit<a class="anchor" aria-label="anchor" href="#arg-ylimit"></a></dt>
-<dd><p>Y-axis limit</p></dd>
-
-
-<dt id="arg-plot-style">plot.style<a class="anchor" aria-label="anchor" href="#arg-plot-style"></a></dt>
-<dd><p>Choose between grid, labeled, and row</p></dd>
-
-
-<dt id="arg-outlier-low-lim">outlier.low.lim<a class="anchor" aria-label="anchor" href="#arg-outlier-low-lim"></a></dt>
-<dd><p>Filter lower bound outliers (Default = 0.1)</p></dd>
-
-
-<dt id="arg-outlier-up-lim">outlier.up.lim<a class="anchor" aria-label="anchor" href="#arg-outlier-up-lim"></a></dt>
-<dd><p>Filter upper bound outliers (Default = 0.9)</p></dd>
-
-
-<dt id="arg-jitter-points">jitter.points<a class="anchor" aria-label="anchor" href="#arg-jitter-points"></a></dt>
+<dt id="arg-jitter-points">jitter_points<a class="anchor" aria-label="anchor" href="#arg-jitter-points"></a></dt>
 <dd><p>Scatter points on the plot (TRUE/FALSE)</p></dd>
 
 
-<dt id="arg-jitter-width">jitter.width<a class="anchor" aria-label="anchor" href="#arg-jitter-width"></a></dt>
-<dd><p>Set spread of jittered points</p></dd>
-
-
-<dt id="arg-jitter-dot-size">jitter.dot.size<a class="anchor" aria-label="anchor" href="#arg-jitter-dot-size"></a></dt>
+<dt id="arg-jitter-dot-size">jitter_dot_size<a class="anchor" aria-label="anchor" href="#arg-jitter-dot-size"></a></dt>
 <dd><p>Set size of individual points</p></dd>
-
-
-<dt id="arg-print-outliers">print.outliers<a class="anchor" aria-label="anchor" href="#arg-print-outliers"></a></dt>
-<dd><p>Print outliers as points in your graph that may be
-redundant to jitter</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -156,10 +119,27 @@ redundant to jitter</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Takes in a list of genes inputted by the user, displays violin plots
-of genes across groups from a slot-assay with (optional) outliers
+of genes across groups from a layer-assay with (optional) outliers
 removed. Can also choose to scale or transform expression data.</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="fu">violinPlot_mod</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  object <span class="op">=</span> <span class="va">seurat</span>,</span></span>
+<span class="r-in"><span>  assay <span class="op">=</span> <span class="st">"SCT"</span>,</span></span>
+<span class="r-in"><span>  layer <span class="op">=</span> <span class="st">"data"</span>,</span></span>
+<span class="r-in"><span>  genes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cd4"</span>, <span class="st">"Cd8a"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  group <span class="op">=</span> <span class="st">"celltype"</span>,</span></span>
+<span class="r-in"><span>  facet_by <span class="op">=</span> <span class="st">"orig.ident"</span>,</span></span>
+<span class="r-in"><span>  filter_outliers <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  jitter_points <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  jitter_dot_size <span class="op">=</span> <span class="fl">0.5</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
