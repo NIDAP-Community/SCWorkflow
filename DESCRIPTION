@@ -85,4 +85,11 @@ Imports:
     tidyr,
     htmlwidgets,
     scDblFinder
+Suggests:
+    knitr,
+    testthat (>= 3.0.0),
+    rmarkdown,
+    roxygen2,
+    usethis
 Config/testthat/edition: 3
+Config/Needs/dev: cffr, covr, goodpractice, here, lintr, pkgdown, rcmdcheck
