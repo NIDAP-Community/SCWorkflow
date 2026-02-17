@@ -1,12 +1,14 @@
 #' @title Helpers for ModuleScore Shiny app
 #' @description Precompute module scores per celltype and build plots from cached data.
+#' @name modscore-imports
 #' @keywords internal
 #' @importFrom dplyr mutate group_by summarise arrange select
 #' @importFrom ggplot2 ggplot aes theme_bw theme element_blank 
-#' @importFrom geom_point scale_color_gradientn guides guide_legend 
-#' @importFrom xlab ylab element_text geom_violin theme_classic geom_hline 
-#' @importFrom scale_y_continuous geom_line geom_segment scale_y_log10 scale_x_continuous
-#' @importFrom gridExtra arrangeGrob grid textGrob gpar
+#' @importFrom ggplot2 geom_point scale_color_gradientn guides guide_legend 
+#' @importFrom ggplot2 xlab ylab element_text geom_violin theme_classic geom_hline 
+#' @importFrom ggplot2 scale_y_continuous geom_line geom_segment scale_y_log10 scale_x_continuous
+#' @importFrom gridExtra arrangeGrob 
+#' @importFrom grid textGrob gpar
 NULL
 
 #' @export
