@@ -7,7 +7,7 @@
 violinPlot_mod(
   object,
   assay,
-  slot,
+  layer,
   genes,
   group,
   facet_by = "",
@@ -23,7 +23,7 @@ violinPlot_mod(
 
 \item{assay}{Assay to extract gene expression data from (Default: SCT)}
 
-\item{slot}{Slot to extract gene expression data from (Default: scale.data)}
+\item{layer}{Slot to extract gene expression data from (Default: scale.data)}
 
 \item{genes}{Genes to visualize on the violin plot}
 
@@ -49,7 +49,7 @@ Create violin plot of gene expression data across groups
 }
 \details{
 Takes in a list of genes inputted by the user, displays violin plots
-of genes across groups from a slot-assay with (optional) outliers
+of genes across groups from a layer-assay with (optional) outliers
 removed. Can also choose to scale or transform expression data.
 }
 \examples{
@@ -57,7 +57,7 @@ removed. Can also choose to scale or transform expression data.
 violinPlot_mod(
   object = seurat,
   assay = "SCT",
-  slot = "data",
+  layer = "data",
   genes = c("Cd4", "Cd8a"),
   group = "celltype",
   facet_by = "orig.ident",
