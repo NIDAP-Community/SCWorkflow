@@ -33,9 +33,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip3 install --no-cache-dir igraph "leidenalg==0.10.0" numpy
 
 WORKDIR /home/rstudio
-# Copy your local tarballs (ensure PACKAGESS is in the build context)
-
-COPY PACKAGESS/ /opt/pkgs/
 
 # Remove any spatstat* that might be preinstalled in the rocker image
 RUN R -q -e " \
@@ -48,598 +45,456 @@ RUN R -q -e " \
     } \
   }"
 
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/bitops_1.0-8.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/RCurl_1.98-1.14.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/GlobalOptions_0.1.2.tar.gz \
- /opt/pkgs/bit_4.0.4.tar.gz \
- /opt/pkgs/BiocGenerics_0.40.0.tar.gz 
-
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/RCurl_1.98.1.16.tar.gz
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/RCurl_1.98.1.12.tar.gz
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/assertthat_0.2.1.tar.gz \
- /opt/pkgs/Biobase_2.54.0.tar.gz \
- /opt/pkgs/bit64_4.0.5.tar.gz \
- /opt/pkgs/shape_1.4.6.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/remotes_2.5.0.tar.gz
-RUN R -e "remotes::install_github('NIDAP-Community/SCWorkflow', ref = 'GalaxyCLI')"
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/colorspace_2.0-3.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/circlize_0.4.15.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/rlang_1.1.4.tar.gz \
- /opt/pkgs/cli_3.6.3.tar.gz \
- /opt/pkgs/glue_1.7.0.tar.gz 
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/lifecycle_1.0.4.tar.gz \
- /opt/pkgs/vctrs_0.6.5.tar.gz \
- /opt/pkgs/blob_1.2.3.tar.gz \
- /opt/pkgs/clue_0.3-61.tar.gz \
- /opt/pkgs/cluster_2.1.2.tar.gz \
- /opt/pkgs/codetools_0.2-18.tar.gz \
- /opt/pkgs/crayon_1.5.3.tar.gz \
- /opt/pkgs/data.table_1.15.4.tar.gz \
- /opt/pkgs/DBI_1.2.3.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/dendsort_0.3.4.tar.gz \
- /opt/pkgs/digest_0.6.37.tar.gz \
- /opt/pkgs/ellipsis_0.3.2.tar.gz \
- /opt/pkgs/evaluate_0.24.0.tar.gz \
- /opt/pkgs/fansi_1.0.6.tar.gz \
- /opt/pkgs/farver_2.1.1.tar.gz \
- /opt/pkgs/fastmap_1.2.0.tar.gz \
- /opt/pkgs/cachem_1.1.0.tar.gz \
- /opt/pkgs/fastmatch_1.1-3.tar.gz \
- /opt/pkgs/iterators_1.0.14.tar.gz \
- /opt/pkgs/foreach_1.5.2.tar.gz \
- /opt/pkgs/formatR_1.14.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/generics_0.1.3.tar.gz \
- /opt/pkgs/rjson_0.2.21.tar.gz \
- /opt/pkgs/GetoptLong_1.0.5.tar.gz \
- /opt/pkgs/gtable_0.3.5.tar.gz \
- /opt/pkgs/labeling_0.4.2.tar.gz \
- /opt/pkgs/munsell_0.5.0.tar.gz \
- /opt/pkgs/R6_2.5.1.tar.gz \
- /opt/pkgs/gridExtra_2.3.tar.gz \
- /opt/pkgs/RColorBrewer_1.1-3.tar.gz \
- /opt/pkgs/utf8_1.2.4.tar.gz \
- /opt/pkgs/pillar_1.9.0.tar.gz 
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/pkgconfig_2.0.3.tar.gz \
- /opt/pkgs/viridisLite_0.4.1.tar.gz \
- /opt/pkgs/scales_1.2.1.tar.gz \
- /opt/pkgs/withr_3.0.1.tar.gz \
- /opt/pkgs/gtools_3.9.5.tar.gz \
- /opt/pkgs/gridGraphics_0.5-1.tar.gz \
- /opt/pkgs/hms_1.1.2.tar.gz \
- /opt/pkgs/S4Vectors_0.32.4.tar.gz \
- /opt/pkgs/IRanges_2.28.0.tar.gz \
- /opt/pkgs/irlba_2.3.5.1.tar.gz \
- /opt/pkgs/jsonlite_1.8.8.tar.gz 
-
-# /opt/pkgs/jsonlite_1.8.8.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/png_0.1-7.tar.gz \
- /opt/pkgs/KernSmooth_2.23-20.tar.gz  \
- /opt/pkgs/lambda.r_1.2.4.tar.gz \
- /opt/pkgs/lattice_0.20-45.tar.gz  \
- /opt/pkgs/lazyeval_0.2.2.tar.gz \
- /opt/pkgs/limma_3.50.3.tar.gz \
- /opt/pkgs/locfit_1.5-9.9.tar.gz \
- /opt/pkgs/Matrix_1.5-1.tar.gz \
- /opt/pkgs/matrixStats_0.62.0.tar.gz \
- /opt/pkgs/MatrixGenerics_1.6.0.tar.gz \
- /opt/pkgs/memoise_2.0.1.tar.gz \
- /opt/pkgs/mgcv_1.8-39.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/nlme_3.1-155.tar.gz \
- /opt/pkgs/rsvd_1.0.5.tar.gz \
- /opt/pkgs/DelayedArray_0.20.0.tar.gz \
- /opt/pkgs/Rcpp_1.0.13.tar.gz \
- /opt/pkgs/sparseMatrixStats_1.6.0.tar.gz \
- /opt/pkgs/DelayedMatrixStats_1.16.0.tar.gz \
- /opt/pkgs/ScaledMatrix_1.2.0.tar.gz \
- /opt/pkgs/uuid_1.1-0.tar.gz \
- /opt/pkgs/xfun_0.47.tar.gz \
- /opt/pkgs/xtable_1.8-4.tar.gz \
- /opt/pkgs/zlibbioc_1.40.0.tar.gz \
- /opt/pkgs/XVector_0.34.0.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/yaml_2.3.10.tar.gz \
- /opt/pkgs/GenomeInfoDbData_1.2.7.tar.gz \
- /opt/pkgs/GenomeInfoDb_1.30.1.tar.gz \
- /opt/pkgs/beachmat_2.10.0.tar.gz \
- /opt/pkgs/doParallel_1.0.17.tar.gz \
- /opt/pkgs/edgeR_3.36.0.tar.gz \
- /opt/pkgs/futile.options_1.0.1.tar.gz \
- /opt/pkgs/futile.logger_1.4.3.tar.gz \
- /opt/pkgs/GenomicRanges_1.46.1.tar.gz \
- /opt/pkgs/base64enc_0.1-3.tar.gz \
- /opt/pkgs/htmltools_0.5.8.1.tar.gz \
- /opt/pkgs/rappdirs_0.3.3.tar.gz
-
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/tinytex_0.45.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/jquerylib_0.1.4.tar.gz \
- /opt/pkgs/tinytex_0.44.tar.gz \
- /opt/pkgs/fs_1.6.4.tar.gz \
- /opt/pkgs/sass_0.4.6.tar.gz \
- /opt/pkgs/mime_0.12.tar.gz \
- /opt/pkgs/bslib_0.4.2.tar.gz \
- /opt/pkgs/magrittr_2.0.3.tar.gz \
- /opt/pkgs/stringi_1.8.4.tar.gz \
- /opt/pkgs/stringr_1.5.1.tar.gz \
- /opt/pkgs/highr_0.10.tar.gz \
- /opt/pkgs/knitr_1.48.tar.gz \
- /opt/pkgs/fontawesome_0.5.1.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/rmarkdown_2.28.tar.gz \
- /opt/pkgs/htmlwidgets_1.6.4.tar.gz \
- /opt/pkgs/sys_3.4.1.tar.gz \
- /opt/pkgs/askpass_1.1.tar.gz \
- /opt/pkgs/openssl_2.0.5.tar.gz \
- /opt/pkgs/curl_6.4.0.tar.gz \
- /opt/pkgs/httr_1.4.7.tar.gz \
- /opt/pkgs/Biostrings_2.62.0.tar.gz \
- /opt/pkgs/cpp11_0.4.7.tar.gz \
- /opt/pkgs/timechange_0.2.0.tar.gz
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/lubridate_1.8.0.tar.gz \
- /opt/pkgs/isoband_0.2.7.tar.gz \
- /opt/pkgs/tibble_3.2.1.tar.gz \
- /opt/pkgs/ggplot2_3.3.6.tar.gz \
- /opt/pkgs/patchwork_1.2.0.tar.gz \
- /opt/pkgs/later_1.3.2.tar.gz \
- /opt/pkgs/promises_1.3.0.tar.gz \
- /opt/pkgs/crosstalk_1.2.0.tar.gz \
- /opt/pkgs/purrr_1.0.2.tar.gz \
- /opt/pkgs/tidyselect_1.2.1.tar.gz \
- /opt/pkgs/dplyr_1.1.4.tar.gz \
- /opt/pkgs/tidyr_1.2.1.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/plotly_4.10.4.tar.gz \
- /opt/pkgs/plyr_1.8.7.tar.gz \
- /opt/pkgs/clipr_0.8.0.tar.gz \
- /opt/pkgs/prettyunits_1.1.1.tar.gz \
- /opt/pkgs/progress_1.2.2.tar.gz \
- /opt/pkgs/tzdb_0.4.0.tar.gz \
- /opt/pkgs/vroom_1.6.3.tar.gz \
- /opt/pkgs/readr_2.1.2.tar.gz \
- /opt/pkgs/reshape2_1.4.4.tar.gz \
- /opt/pkgs/plogr_0.2.0.tar.gz \
- /opt/pkgs/RSQLite_2.3.9.tar.gz \
- /opt/pkgs/systemfonts_1.2.3.tar.gz
-
-
-# /opt/pkgs/vroom_1.6.1.tar.gz \
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/textshaping_0.3.6.tar.gz \
- /opt/pkgs/ragg_1.2.5.tar.gz \
- /opt/pkgs/dbplyr_2.2.1.tar.gz \
- /opt/pkgs/rstudioapi_0.14.tar.gz \
- /opt/pkgs/dtplyr_1.3.1.tar.gz \
- /opt/pkgs/backports_1.4.1.tar.gz \
- /opt/pkgs/broom_1.0.1.tar.gz \
- /opt/pkgs/ps_1.8.1.tar.gz \
- /opt/pkgs/processx_3.8.5.tar.gz \
- /opt/pkgs/callr_3.7.3.tar.gz \
- /opt/pkgs/reprex_2.0.2.tar.gz \
- /opt/pkgs/modelr_0.1.9.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/conflicted_1.2.0.tar.gz \
- /opt/pkgs/rematch2_2.1.2.tar.gz \
- /opt/pkgs/gargle_1.3.0.tar.gz \
- /opt/pkgs/rematch_1.0.1.tar.gz \
- /opt/pkgs/cellranger_1.1.0.tar.gz \
- /opt/pkgs/ids_1.0.1.tar.gz \
- /opt/pkgs/googledrive_2.0.0.tar.gz \
- /opt/pkgs/googlesheets4_1.0.1.tar.gz \
- /opt/pkgs/readxl_1.4.1.tar.gz \
- /opt/pkgs/selectr_0.4-2.tar.gz \
- /opt/pkgs/xml2_1.3.3.tar.gz \
- /opt/pkgs/rvest_1.0.3.tar.gz \
- /opt/pkgs/forcats_0.5.2.tar.gz \
- /opt/pkgs/haven_2.5.1.tar.gz \
- /opt/pkgs/tidyverse_1.3.2.tar.gz 
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/KEGGREST_1.34.0.tar.gz \
- /opt/pkgs/AnnotationDbi_1.56.2.tar.gz \
- /opt/pkgs/snow_0.4-4.tar.gz \
- /opt/pkgs/BH_1.81.0-1.tar.gz \
- /opt/pkgs/BiocParallel_1.28.3.tar.gz \
- /opt/pkgs/BiocSingular_1.10.0.tar.gz \
- /opt/pkgs/ComplexHeatmap_2.10.0.tar.gz \
- /opt/pkgs/viridis_0.6.5.tar.gz
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/dendextend_1.16.0.tar.gz \
- /opt/pkgs/fgsea_1.20.0.tar.gz \
- /opt/pkgs/ggrepel_0.9.5.tar.gz \
- /opt/pkgs/l2p_0.0-13.tar.gz  \
- /opt/pkgs/l2psupp_0.0-13.tar.gz  \
- /opt/pkgs/ica_1.0-3.tar.gz \
- /opt/pkgs/Rtsne_0.16.tar.gz \
- /opt/pkgs/ggridges_0.5.3.tar.gz \
- /opt/pkgs/scattermore_1.2.tar.gz \
- /opt/pkgs/listenv_0.9.1.tar.gz \
- /opt/pkgs/globals_0.16.3.tar.gz \
- /opt/pkgs/parallelly_1.38.0.tar.gz 
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/future_1.34.0.tar.gz \
- /opt/pkgs/future.apply_1.11.2.tar.gz \
- /opt/pkgs/RcppEigen_0.3.3.9.3.tar.gz \
- /opt/pkgs/RcppAnnoy_0.0.19.tar.gz \
- /opt/pkgs/zoo_1.8-12.tar.gz \
- /opt/pkgs/lmtest_0.9-40.tar.gz \
- /opt/pkgs/fitdistrplus_1.1-8.tar.gz 
-
- # /opt/pkgs/gplots_3.1.3.tar.gz \
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/caTools_1.18.2.tar.gz \
- /opt/pkgs/gplots_3.1.3.tar.gz \
- /opt/pkgs/ROCR_1.0-11.tar.gz \
- /opt/pkgs/igraph_2.0.3.tar.gz \
- /opt/pkgs/pbapply_1.5-0.tar.gz \
- /opt/pkgs/commonmark_1.9.0.tar.gz \
- /opt/pkgs/httpuv_1.6.15.tar.gz \
- /opt/pkgs/sourcetools_0.1.7-1.tar.gz \
- /opt/pkgs/shiny_1.9.1.tar.gz \
- /opt/pkgs/miniUI_0.1.1.1.tar.gz
-
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/igraph_2.0.3.tar.gz
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/progressr_0.14.0.tar.gz \
- /opt/pkgs/sitmo_2.0.2.tar.gz \
- /opt/pkgs/dqrng_0.4.1.tar.gz \
- /opt/pkgs/FNN_1.1.3.2.tar.gz \
- /opt/pkgs/RcppProgress_0.4.2.tar.gz \
- /opt/pkgs/uwot_0.1.14.tar.gz \
- /opt/pkgs/cowplot_1.1.1.tar.gz 
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/RcppTOML_0.2.2.tar.gz \
- /opt/pkgs/rprojroot_2.0.4.tar.gz \
- /opt/pkgs/here_1.0.1.tar.gz \
- /opt/pkgs/reticulate_1.40.0.tar.gz \
- /opt/pkgs/leiden_0.4.3.tar.gz \
- /opt/pkgs/RANN_2.6.1.tar.gz \
- /opt/pkgs/RcppArmadillo_0.12.4.0.0.tar.gz \
- /opt/pkgs/sctransform_0.3.4.tar.gz
-
-# see https://github.com/satijalab/seurat/issues/8948
-#devtools::install_version("spatstat.core", version = "2.4-0", repos='http://cran.us.r-project.org')
-#devtools::install_version("spatstat.data", version = "2.1-2", repos='http://cran.us.r-project.org')
-#devtools::install_version("spatstat.geom", version = "2.3-2", repos='http://cran.us.r-project.org')
-#devtools::install_version("spatstat.random", version = "2.1-0", repos='http://cran.us.r-project.org')
-
-# old - phils spec ...
-# /opt/pkgs/spatstat.core_2.4-4.tar.gz \
-# /opt/pkgs/spatstat.data_3.1-2.tar.gz \
-# /opt/pkgs/spatstat.geom_3.3-2.tar.gz \
-# /opt/pkgs/spatstat.random_3.3-1.tar.gz \
-# /opt/pkgs/spatstat.explore_3.1-0.tar.gz \
-# /opt/pkgs/spatstat.univar_3.0-0.tar.gz \
-
-#      /opt/pkgs/spatstat.geom_3.2-1.tar.gz \
-#      /opt/pkgs/spatstat.data_3.1-2.tar.gz \
-#      /opt/pkgs/spatstat.data_2.1-2.tar.gz \
-#      /opt/pkgs/spatstat.random_3.1-5.tar.gz \
-#      /opt/pkgs/spatstat.geom_2.3-2.tar.gz \
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
-      /opt/pkgs/spatstat.utils_3.1-0.tar.gz \
-      /opt/pkgs/spatstat.data_3.0-0.tar.gz \
-      /opt/pkgs/deldir_2.0-4.tar.gz \
-      /opt/pkgs/polyclip_1.10-7.tar.gz \
-      /opt/pkgs/spatstat.univar_2.0-3.tar.gz \
-      /opt/pkgs/spatstat.geom_3.0-3.tar.gz \
-      /opt/pkgs/spatstat.random_2.2-0.tar.gz \
-      /opt/pkgs/abind_1.4-5.tar.gz \
-      /opt/pkgs/tensor_1.5.tar.gz \
-      /opt/pkgs/goftest_1.2-3.tar.gz \
-      /opt/pkgs/spatstat.sparse_3.1-0.tar.gz 
-
-#      /opt/pkgs/spatstat.explore_3.0-3.tar.gz \
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
-      /opt/pkgs/spatstat.core_2.4-2.tar.gz \
-      /opt/pkgs/spatstat.linnet_2.2-1.tar.gz 
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/RSpectra_0.16-1.tar.gz \
- /opt/pkgs/dotCall64_1.1-1.tar.gz \
- /opt/pkgs/spam_2.11-0.tar.gz  \
- /opt/pkgs/RcppHNSW_0.4.1.tar.gz \
- /opt/pkgs/leidenbase_0.1.30.tar.gz 
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/fastDummies_1.7.3.tar.gz \
- /opt/pkgs/sp_1.5-0.tar.gz \
- /opt/pkgs/rgeos_0.5-9.tar.gz \
- /opt/pkgs/SeuratObject_4.1.1.tar.gz \
- /opt/pkgs/Seurat_4.1.1.tar.gz \
- /opt/pkgs/XML_3.99-0.14.tar.gz \
- /opt/pkgs/anndata_0.7.5.2.tar.gz \
- /opt/pkgs/annotate_1.72.0.tar.gz \
- /opt/pkgs/ash_1.0-15.tar.gz 
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/beeswarm_0.4.0.tar.gz \
- /opt/pkgs/filelock_1.0.3.tar.gz \
- /opt/pkgs/BiocFileCache_2.2.1.tar.gz \
- /opt/pkgs/BiocManager_1.30.26.tar.gz \
- /opt/pkgs/BiocNeighbors_1.12.0.tar.gz \
- /opt/pkgs/BiocVersion_3.14.0.tar.gz \
- /opt/pkgs/bluster_1.4.0.tar.gz \
- /opt/pkgs/bslib_0.5.0.tar.gz \
- /opt/pkgs/cachem_1.1.0.tar.gz \
- /opt/pkgs/Cairo_1.6-0.tar.gz \
- /opt/pkgs/desc_1.4.2.tar.gz \
- /opt/pkgs/pkgload_1.3.0.tar.gz \
- /opt/pkgs/brio_1.1.3.tar.gz
-
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/BiocManager_1.30.26.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/zip_2.3.3.tar.gz \
- /opt/pkgs/openxlsx_4.2.5.2.tar.gz \
- /opt/pkgs/praise_1.0.0.tar.gz \
- /opt/pkgs/diffobj_0.3.5.tar.gz \
- /opt/pkgs/waldo_0.5.1.tar.gz \
- /opt/pkgs/testthat_3.1.6.tar.gz \
- /opt/pkgs/nloptr_2.0.3.tar.gz \
- /opt/pkgs/minqa_1.2.5.tar.gz \
- /opt/pkgs/lme4_1.1-33.tar.gz \
- /opt/pkgs/MatrixModels_0.5-1.tar.gz \
- /opt/pkgs/SparseM_1.81.tar.gz \
- /opt/pkgs/quantreg_5.95.tar.gz \
- /opt/pkgs/numDeriv_2016.8-1.1.tar.gz \
- /opt/pkgs/pbkrtest_0.5.2.tar.gz \
- /opt/pkgs/maptools_1.1-7.tar.gz \
- /opt/pkgs/carData_3.0-5.tar.gz \
- /opt/pkgs/rio_0.5.29.tar.gz \
- /opt/pkgs/car_3.0-0.tar.gz 
-
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/pROC_1.18.2.tar.gz \
- /opt/pkgs/proxy_0.4-27.tar.gz \
- /opt/pkgs/e1071_1.7-13.tar.gz \
- /opt/pkgs/ModelMetrics_1.2.2.2.tar.gz \
- /opt/pkgs/SummarizedExperiment_1.24.0.tar.gz \
- /opt/pkgs/SingleCellExperiment_1.16.0.tar.gz 
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/clock_0.7.0.tar.gz \
- /opt/pkgs/shinyjs_2.1.0.tar.gz \
- /opt/pkgs/colourpicker_1.2.0.tar.gz \
- /opt/pkgs/combinat_0.0-8.tar.gz \
- /opt/pkgs/conquer_1.3.3.tar.gz \
- /opt/pkgs/corrplot_0.92.tar.gz \
- /opt/pkgs/cpp11_0.4.7.tar.gz \
- /opt/pkgs/diagram_1.6.5.tar.gz \
- /opt/pkgs/DT_0.28.tar.gz \
- /opt/pkgs/Rttf2pt1_1.3.12.tar.gz \
- /opt/pkgs/extrafontdb_1.0.tar.gz \
- /opt/pkgs/extrafont_0.18.tar.gz \
- /opt/pkgs/vipor_0.4.7.tar.gz \
- /opt/pkgs/ggbeeswarm_0.7.2.tar.gz \
- /opt/pkgs/ggrastr_1.0.2.tar.gz \
- /opt/pkgs/fastICA_1.2-3.tar.gz \
- /opt/pkgs/gdata_2.18.0.1.tar.gz \
- /opt/pkgs/ggExtra_0.10.1.tar.gz
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/ggsci_3.0.0.tar.gz \
- /opt/pkgs/ggsignif_0.6.3.tar.gz \
- /opt/pkgs/gower_1.0.1.tar.gz \
- /opt/pkgs/graph_1.72.0.tar.gz \
- /opt/pkgs/gridBase_0.4-7.tar.gz \
- /opt/pkgs/GSEABase_1.56.0.tar.gz \
- /opt/pkgs/hardhat_1.3.0.tar.gz \
- /opt/pkgs/RhpcBLASctl_0.23-42.tar.gz \
- /opt/pkgs/hdf5r_1.3.5.tar.gz \
- /opt/pkgs/hexbin_1.28.3.tar.gz \
- /opt/pkgs/interactiveDisplayBase_1.32.0.tar.gz \
- /opt/pkgs/survival_3.2-13.tar.gz \
- /opt/pkgs/MASS_7.3.55-tar.gz \
- /opt/pkgs/SQUAREM_2021.1.tar.gz \
- /opt/pkgs/lava_1.7.2.1.tar.gz \
- /opt/pkgs/lobstr_1.1.2.tar.gz \
- /opt/pkgs/lsei_1.3-0.tar.gz \
- /opt/pkgs/markdown_1.13.tar.gz \
- /opt/pkgs/MAST_1.20.0.tar.gz 
-
-# /opt/pkgs/zip_2.3.3.tar.gz \
-
-RUN set -eux; \
-    R CMD INSTALL -l /usr/local/lib/R/site-library \
- /opt/pkgs/lpSolve_5.6.16.tar.gz \
- /opt/pkgs/mclust_6.0.0.tar.gz \
- /opt/pkgs/metapod_1.2.0.tar.gz \
- /opt/pkgs/npsurv_0.5-0.tar.gz \
- /opt/pkgs/pheatmap_1.0.12.tar.gz \
- /opt/pkgs/polynom_1.4-1.tar.gz \
- /opt/pkgs/proj4_1.0-12.tar.gz \
- /opt/pkgs/pryr_0.1.5.tar.gz \
- /opt/pkgs/ps_1.8.1.tar.gz \
- /opt/pkgs/RcppParallel_5.1.6.tar.gz \
- /opt/pkgs/Rhdf5lib_1.16.0.tar.gz \
- /opt/pkgs/rstatix_0.7.0.tar.gz \
- /opt/pkgs/scuttle_1.4.0.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/scater_1.22.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/statmod_1.5.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/scran_1.22.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/SingleR_1.8.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/svglite_2.1.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/svMisc_1.2.3.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/sys_3.4.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/timeDate_4022.108.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/TrajectoryUtils_1.2.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/TSCAN_1.32.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/xts_0.12.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/TTR_0.24.3.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/xml2_1.3.3.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/maps_3.4.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/ggpubr_0.4.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/harmony_0.1.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/prodlim_2023.03.31.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/ipred_0.9-14.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/recipes_1.0.6.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/caret_6.0-94.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/quantmod_0.4.20.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/rhdf5filters_1.6.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/rhdf5_2.38.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/HDF5Array_1.22.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/GSVA_1.42.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/AnnotationHub_3.2.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/ExperimentHub_2.2.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/celldex_1.4.0.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/xgboost_1.7.8.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/scDblFinder_1.8.0.tar.gz
-# new
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/profvis_0.3.7.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/sessioninfo_1.2.3.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/downlit_0.4.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/whisker_0.4.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/pkgdown_2.0.7.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/pkgbuild_1.4.8.tar.gz
-
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/brew_1.0-8.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/roxygen2_7.2.3.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/urlchecker_1.0.1.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/rversions_2.1.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/xopen_1.0.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/rcmdcheck_1.4.0.tar.gz
-
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/credentials_1.3.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/gert_1.9.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/gitcreds_0.1.2.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/httr2_0.2.3.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/ini_0.3.1.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/gh_1.4.0.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/usethis_3.1.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/devtools_2.4.5.tar.gz
-
-#deprecated
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/ggalt_0.4.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/EnhancedVolcano_1.12.0.tar.gz
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/nidapFunctions_0.7.8.tar.gz
-
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/SparseArray_1.2.0.tar.gz
-
-# _______ end 
-
-# hold off for now 
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/SCWorkflow_NA.tar.gz
-
-# hard  - difficult dependencies
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/litedown_0.1.tar.gz
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/litedown_0.7.tar.gz
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/SparseArray_1.8.0.tar.gz
-# genomation ?  what for? it's just data for genomation
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/genomationData_1.24.0.tar.gz
-
-# not quite version ... use older version 
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/xgboost_1.7.8.1.tar.gz
-
-# RUN R -e "install.packages('https://github.com/NIDAP-Community/nidapFunctions/raw/main/nidapFunctions_0.7.8.tar.gz', repos=NULL)"
-
-# problems:
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/vector_0.0.2.tar.gz   NO 
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/arrow_4.0.1.tar.gz   NO 
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/FoundryObjects_0.86.0.tar.gz   NO 
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/FoundrySparkR_0.2.0.tar.gz   NO 
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/SparkR_3.4.1.tar.gz   NO 
-
-#dupes:
-# /opt/pkgs/viridis_0.6.5.tar.gz \
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/plotly_4.10.4.tar.gz
-# RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/dplyr_1.1.4.tar.gz
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/GenomeInfoDbData_1.2.7.tar.gz
-
-#RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/SCWorkflow_NA.tar.gz
-
-RUN R CMD INSTALL -l /usr/local/lib/R/site-library /opt/pkgs/remotes_2.5.0.tar.gz
-#        RUN R -e "remotes::install_github('NIDAP-Community/SCWorkflow/tree/GalaxyCLI')"
-# worked RUN R -e "remotes::install_github('https://github.com/NIDAP-Community/SCWorkflow/tree/GalaxyCLI')"
-
-RUN R -e "remotes::install_github('NIDAP-Community/SCWorkflow', ref = 'GalaxyCLI')"
+# Install packages with specific versions from CRAN and Bioconductor
+RUN R --vanilla --slave -e " \
+  options(repos = c(CRAN = 'https://cran.r-project.org')); \
+  \
+  if (!require('BiocManager', quietly = TRUE)) { \
+    install.packages('BiocManager', quiet = TRUE) \
+  }; \
+  if (!require('remotes', quietly = TRUE)) { \
+    install.packages('remotes', quiet = TRUE) \
+  }; \
+  \
+  # Install specific CRAN package versions \
+  cran_versions <- list( \
+    bitops = '1.0-8', \
+    RCurl = '1.98-1.14', \
+    GlobalOptions = '0.1.2', \
+    bit = '4.0.4', \
+    assertthat = '0.2.1', \
+    bit64 = '4.0.5', \
+    shape = '1.4.6', \
+    colorspace = '2.0-3', \
+    circlize = '0.4.15', \
+    rlang = '1.1.4', \
+    cli = '3.6.3', \
+    glue = '1.7.0', \
+    lifecycle = '1.0.4', \
+    vctrs = '0.6.5', \
+    blob = '1.2.3', \
+    clue = '0.3-61', \
+    cluster = '2.1.2', \
+    codetools = '0.2-18', \
+    crayon = '1.5.3', \
+    data.table = '1.15.4', \
+    DBI = '1.2.3', \
+    dendsort = '0.3.4', \
+    digest = '0.6.37', \
+    ellipsis = '0.3.2', \
+    evaluate = '0.24.0', \
+    fansi = '1.0.6', \
+    farver = '2.1.1', \
+    fastmap = '1.2.0', \
+    cachem = '1.1.0', \
+    fastmatch = '1.1-3', \
+    iterators = '1.0.14', \
+    foreach = '1.5.2', \
+    formatR = '1.14', \
+    generics = '0.1.3', \
+    rjson = '0.2.21', \
+    GetoptLong = '1.0.5', \
+    gtable = '0.3.5', \
+    labeling = '0.4.2', \
+    munsell = '0.5.0', \
+    R6 = '2.5.1', \
+    gridExtra = '2.3', \
+    RColorBrewer = '1.1-3', \
+    utf8 = '1.2.4', \
+    pillar = '1.9.0', \
+    pkgconfig = '2.0.3', \
+    viridisLite = '0.4.1', \
+    scales = '1.2.1', \
+    withr = '3.0.1', \
+    gtools = '3.9.5', \
+    gridGraphics = '0.5-1', \
+    hms = '1.1.2', \
+    irlba = '2.3.5.1', \
+    jsonlite = '1.8.8', \
+    png = '0.1-7', \
+    KernSmooth = '2.23-20', \
+    lambda.r = '1.2.4', \
+    lattice = '0.20-45', \
+    lazyeval = '0.2.2', \
+    locfit = '1.5-9.9', \
+    Matrix = '1.5-1', \
+    matrixStats = '0.62.0', \
+    memoise = '2.0.1', \
+    mgcv = '1.8-39', \
+    nlme = '3.1-155', \
+    rsvd = '1.0.5', \
+    Rcpp = '1.0.13', \
+    uuid = '1.1-0', \
+    xfun = '0.47', \
+    xtable = '1.8-4', \
+    yaml = '2.3.10', \
+    beeswarm = '0.4.0', \
+    filelock = '1.0.3', \
+    bslib = '0.4.2', \
+    Cairo = '1.6-0', \
+    desc = '1.4.2', \
+    pkgload = '1.3.0', \
+    brio = '1.1.3', \
+    zip = '2.3.3', \
+    openxlsx = '4.2.5.2', \
+    praise = '1.0.0', \
+    diffobj = '0.3.5', \
+    waldo = '0.5.1', \
+    testthat = '3.1.6', \
+    nloptr = '2.0.3', \
+    minqa = '1.2.5', \
+    lme4 = '1.1-33', \
+    MatrixModels = '0.5-1', \
+    SparseM = '1.81', \
+    quantreg = '5.95', \
+    numDeriv = '2016.8-1.1', \
+    pbkrtest = '0.5.2', \
+    maptools = '1.1-7', \
+    carData = '3.0-5', \
+    rio = '0.5.29', \
+    car = '3.0-0', \
+    pROC = '1.18.2', \
+    proxy = '0.4-27', \
+    e1071 = '1.7-13', \
+    ModelMetrics = '1.2.2.2', \
+    clock = '0.7.0', \
+    shinyjs = '2.1.0', \
+    colourpicker = '1.2.0', \
+    combinat = '0.0-8', \
+    corrplot = '0.92', \
+    cpp11 = '0.4.7', \
+    diagram = '1.6.5', \
+    DT = '0.28', \
+    Rttf2pt1 = '1.3.12', \
+    extrafontdb = '1.0', \
+    extrafont = '0.18', \
+    vipor = '0.4.7', \
+    ggbeeswarm = '0.7.2', \
+    ggrastr = '1.0.2', \
+    fastICA = '1.2-3', \
+    gdata = '2.18.0.1', \
+    ggExtra = '0.10.1', \
+    ggsci = '3.0.0', \
+    ggsignif = '0.6.3', \
+    gower = '1.0.1', \
+    gridBase = '0.4-7', \
+    hardhat = '1.3.0', \
+    RhpcBLASctl = '0.23-42', \
+    hdf5r = '1.3.5', \
+    hexbin = '1.28.3', \
+    survival = '3.2-13', \
+    MASS = '7.3-55', \
+    SQUAREM = '2021.1', \
+    lava = '1.7.2.1', \
+    lobstr = '1.1.2', \
+    lsei = '1.3-0', \
+    markdown = '1.13', \
+    lpSolve = '5.6.16', \
+    mclust = '6.0.0', \
+    npsurv = '0.5-0', \
+    pheatmap = '1.0.12', \
+    polynom = '1.4-1', \
+    proj4 = '1.0-12', \
+    pryr = '0.1.5', \
+    ps = '1.8.1', \
+    RcppParallel = '5.1.6', \
+    rstatix = '0.7.0', \
+    timeDate = '4022.108', \
+    maps = '3.4.1', \
+    ggpubr = '0.4.0', \
+    prodlim = '2023.03.31', \
+    ipred = '0.9-14', \
+    recipes = '1.0.6', \
+    caret = '6.0-94', \
+    quantmod = '0.4.20', \
+    profvis = '0.3.7', \
+    sessioninfo = '1.2.3', \
+    downlit = '0.4.2', \
+    whisker = '0.4.1', \
+    pkgdown = '2.0.7', \
+    pkgbuild = '1.4.8', \
+    brew = '1.0-8', \
+    roxygen2 = '7.2.3', \
+    urlchecker = '1.0.1', \
+    rversions = '2.1.2', \
+    xopen = '1.0.0', \
+    rcmdcheck = '1.4.0', \
+    credentials = '1.3.2', \
+    gert = '1.9.2', \
+    gitcreds = '0.1.2', \
+    httr2 = '0.2.3', \
+    ini = '0.3.1', \
+    gh = '1.4.0', \
+    usethis = '3.1.0', \
+    devtools = '2.4.5', \
+    ggalt = '0.4.0', \
+    EnhancedVolcano = '1.12.0' \
+  ); \
+  \
+  for (pkg in names(cran_versions)) { \
+    tryCatch({ \
+      remotes::install_version(pkg, version = cran_versions[[pkg]], repos = 'https://cran.r-project.org', quiet = TRUE) \
+    }, error = function(e) { \
+      message('Note: install_version failed for ', pkg, ', trying install.packages') \
+      install.packages(pkg, quiet = TRUE) \
+    }) \
+  }; \
+  \
+  # Install Bioconductor packages with specific versions \
+  bioc_versions <- list( \
+    BiocGenerics = '0.40.0', \
+    Biobase = '2.54.0', \
+    S4Vectors = '0.32.4', \
+    IRanges = '2.28.0', \
+    XVector = '0.34.0', \
+    GenomeInfoDbData = '1.2.7', \
+    GenomeInfoDb = '1.30.1', \
+    beachmat = '2.10.0', \
+    edgeR = '3.36.0', \
+    GenomicRanges = '1.46.1', \
+    Biostrings = '2.62.0', \
+    DelayedArray = '0.20.0', \
+    sparseMatrixStats = '1.6.0', \
+    DelayedMatrixStats = '1.16.0', \
+    ScaledMatrix = '1.2.0', \
+    zlibbioc = '1.40.0', \
+    KEGGREST = '1.34.0', \
+    AnnotationDbi = '1.56.2', \
+    BiocParallel = '1.28.3', \
+    BiocSingular = '1.10.0', \
+    ComplexHeatmap = '2.10.0', \
+    fgsea = '1.20.0', \
+    BiocNeighbors = '1.12.0', \
+    BiocFileCache = '2.2.1', \
+    bluster = '1.4.0', \
+    scuttle = '1.4.0', \
+    scater = '1.22.0', \
+    scran = '1.22.1', \
+    SingleR = '1.8.1', \
+    MAST = '1.20.0', \
+    scDblFinder = '1.8.0', \
+    SummarizedExperiment = '1.24.0', \
+    SingleCellExperiment = '1.16.0', \
+    HDF5Array = '1.22.1', \
+    rhdf5 = '2.38.1', \
+    rhdf5filters = '1.6.0', \
+    GSVA = '1.42.0', \
+    ExperimentHub = '2.2.1', \
+    AnnotationHub = '3.2.2', \
+    celldex = '1.4.0', \
+    annotate = '1.72.0', \
+    graph = '1.72.0', \
+    GSEABase = '1.56.0', \
+    interactiveDisplayBase = '1.32.0', \
+    TrajectoryUtils = '1.2.0', \
+    TSCAN = '1.32.0', \
+    conquer = '1.3.3', \
+    metapod = '1.2.0', \
+    statmod = '1.5.0' \
+  ); \
+  \
+  for (pkg in names(bioc_versions)) { \
+    tryCatch({ \
+      remotes::install_version(pkg, version = bioc_versions[[pkg]], repos = BiocManager::repositories(), quiet = TRUE) \
+    }, error = function(e) { \
+      message('Note: install_version failed for ', pkg, ', trying BiocManager') \
+      BiocManager::install(pkg, ask = FALSE, quiet = TRUE) \
+    }) \
+  }; \
+  \
+  message('All packages installed successfully')"
+
+
+# Additional packages that need special installation
+
+# Install SCWorkflow from GitHub
+RUN R --vanilla --slave -e "remotes::install_github('NIDAP-Community/SCWorkflow', ref = 'GalaxyCLI', quiet = TRUE)"
+
+# Install spatstat family packages with specific versions
+RUN R --vanilla --slave -e " \
+  options(repos = c(CRAN = 'https://cran.r-project.org')); \
+  if (!require('remotes', quietly = TRUE)) install.packages('remotes', quiet = TRUE); \
+  spatstat_versions <- list( \
+    spatstat.utils = '3.1-0', \
+    spatstat.data = '3.0-0', \
+    deldir = '2.0-4', \
+    polyclip = '1.10-7', \
+    spatstat.univar = '2.0-3', \
+    spatstat.geom = '3.0-3', \
+    spatstat.random = '2.2-0', \
+    abind = '1.4-5', \
+    tensor = '1.5', \
+    goftest = '1.2-3', \
+    spatstat.sparse = '3.1-0', \
+    spatstat.core = '2.4-2', \
+    spatstat.linnet = '2.2-1' \
+  ); \
+  for (pkg in names(spatstat_versions)) { \
+    tryCatch({ \
+      remotes::install_version(pkg, version = spatstat_versions[[pkg]], repos = 'https://cran.r-project.org', quiet = TRUE) \
+    }, error = function(e) { \
+      message('Note: install_version for ', pkg, ' failed, trying install.packages') \
+      install.packages(pkg, quiet = TRUE) \
+    }) \
+  }"
+
+# Install remaining specialized packages
+RUN R --vanilla --slave -e " \
+  options(repos = c(CRAN = 'https://cran.r-project.org')); \
+  if (!require('remotes', quietly = TRUE)) install.packages('remotes', quiet = TRUE); \
+  special_versions <- list( \
+    RSpectra = '0.16-1', \
+    dotCall64 = '1.1-1', \
+    spam = '2.11-0', \
+    RcppHNSW = '0.4.1', \
+    leidenbase = '0.1.30', \
+    fastDummies = '1.7.3', \
+    sp = '1.5-0', \
+    rgeos = '0.5-9', \
+    SeuratObject = '4.1.1', \
+    Seurat = '4.1.1', \
+    XML = '3.99-0.14', \
+    anndata = '0.7.5.2', \
+    ash = '1.0-15', \
+    viridis = '0.6.5', \
+    dendextend = '1.16.0', \
+    ggrepel = '0.9.5', \
+    l2p = '0.0-13', \
+    l2psupp = '0.0-13', \
+    ica = '1.0-3', \
+    Rtsne = '0.16', \
+    ggridges = '0.5.3', \
+    scattermore = '1.2', \
+    listenv = '0.9.1', \
+    globals = '0.16.3', \
+    parallelly = '1.38.0', \
+    future = '1.34.0', \
+    future.apply = '1.11.2', \
+    RcppEigen = '0.3.3.9.3', \
+    RcppAnnoy = '0.0.19', \
+    zoo = '1.8-12', \
+    lmtest = '0.9-40', \
+    fitdistrplus = '1.1-8', \
+    caTools = '1.18.2', \
+    gplots = '3.1.3', \
+    ROCR = '1.0-11', \
+    igraph = '2.0.3', \
+    pbapply = '1.5-0', \
+    commonmark = '1.9.0', \
+    httpuv = '1.6.15', \
+    sourcetools = '0.1.7-1', \
+    shiny = '1.9.1', \
+    miniUI = '0.1.1.1', \
+    progressr = '0.14.0', \
+    sitmo = '2.0.2', \
+    dqrng = '0.4.1', \
+    FNN = '1.1.3.2', \
+    RcppProgress = '0.4.2', \
+    uwot = '0.1.14', \
+    cowplot = '1.1.1', \
+    RcppTOML = '0.2.2', \
+    rprojroot = '2.0.4', \
+    here = '1.0.1', \
+    reticulate = '1.40.0', \
+    leiden = '0.4.3', \
+    RANN = '2.6.1', \
+    RcppArmadillo = '0.12.4.0.0', \
+    sctransform = '0.3.4', \
+    Rhdf5lib = '1.16.0', \
+    xgboost = '1.7.8.1', \
+    nidapFunctions = '0.7.8', \
+    snow = '0.4-4', \
+    BH = '1.81.0-1', \
+    futile.options = '1.0.1', \
+    futile.logger = '1.4.3', \
+    base64enc = '0.1-3', \
+    htmltools = '0.5.8.1', \
+    rappdirs = '0.3.3', \
+    jquerylib = '0.1.4', \
+    tinytex = '0.44', \
+    fs = '1.6.4', \
+    sass = '0.4.6', \
+    mime = '0.12', \
+    magrittr = '2.0.3', \
+    stringi = '1.8.4', \
+    stringr = '1.5.1', \
+    highr = '0.10', \
+    knitr = '1.48', \
+    fontawesome = '0.5.1', \
+    rmarkdown = '2.28', \
+    htmlwidgets = '1.6.4', \
+    sys = '3.4.2', \
+    askpass = '1.1', \
+    openssl = '2.0.5', \
+    curl = '6.4.0', \
+    httr = '1.4.7', \
+    timechange = '0.2.0', \
+    lubridate = '1.8.0', \
+    isoband = '0.2.7', \
+    tibble = '3.2.1', \
+    ggplot2 = '3.3.6', \
+    patchwork = '1.2.0', \
+    later = '1.3.2', \
+    promises = '1.3.0', \
+    crosstalk = '1.2.0', \
+    purrr = '1.0.2', \
+    tidyselect = '1.2.1', \
+    dplyr = '1.1.4', \
+    tidyr = '1.2.1', \
+    plotly = '4.10.4', \
+    plyr = '1.8.7', \
+    clipr = '0.8.0', \
+    prettyunits = '1.1.1', \
+    progress = '1.2.2', \
+    tzdb = '0.4.0', \
+    vroom = '1.6.3', \
+    readr = '2.1.2', \
+    reshape2 = '1.4.4', \
+    plogr = '0.2.0', \
+    RSQLite = '2.3.9', \
+    systemfonts = '1.2.3', \
+    textshaping = '0.3.6', \
+    ragg = '1.2.5', \
+    dbplyr = '2.2.1', \
+    rstudioapi = '0.14', \
+    dtplyr = '1.3.1', \
+    backports = '1.4.1', \
+    broom = '1.0.1', \
+    processx = '3.8.5', \
+    callr = '3.7.3', \
+    reprex = '2.0.2', \
+    modelr = '0.1.9', \
+    conflicted = '1.2.0', \
+    rematch2 = '2.1.2', \
+    gargle = '1.3.0', \
+    rematch = '1.0.1', \
+    cellranger = '1.1.0', \
+    ids = '1.0.1', \
+    googledrive = '2.0.0', \
+    googlesheets4 = '1.0.1', \
+    readxl = '1.4.1', \
+    selectr = '0.4-2', \
+    xml2 = '1.3.3', \
+    rvest = '1.0.3', \
+    forcats = '0.5.2', \
+    haven = '2.5.1', \
+    tidyverse = '1.3.2', \
+    doParallel = '1.0.17', \
+    MatrixGenerics = '1.6.0', \
+    svglite = '2.1.0', \
+    svMisc = '1.2.3', \
+    xts = '0.12.2', \
+    TTR = '0.24.3' \
+  ); \
+  for (pkg in names(special_versions)) { \
+    tryCatch({ \
+      remotes::install_version(pkg, version = special_versions[[pkg]], repos = 'https://cran.r-project.org', quiet = TRUE) \
+    }, error = function(e) { \
+      message('Note: install_version for ', pkg, ' failed, trying install.packages') \
+      install.packages(pkg, quiet = TRUE) \
+    }) \
+  }"
 
 COPY Dockerfile /
-
-RUN rm -rf /opt/pkgs
 
 
