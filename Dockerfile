@@ -301,8 +301,6 @@ for (pkg in names(bioc_versions)) {
     BiocManager::install(pkg, ask = FALSE, quiet = TRUE)
   })
 }
-
-message('All packages installed successfully')
 EOF
 
 
@@ -310,7 +308,7 @@ EOF
 
 # Install SCWorkflow from GitHub
 COPY . /opt/SCWorkflow
-RUN R --vanilla --slave -e "remotes::install_local('/opt/SCWorkflow', quiet = TRUE, upgrade='never')"
+RUN R --vanilla --slave -e "remotes::install_local('/opt/SCWorkflow', dependencies = TRUE, quiet = TRUE, upgrade='never')"
 
 # Install spatstat family packages with specific versions
 RUN cat > /tmp/install_spatstat.R << 'EOFSPAT'
@@ -503,6 +501,22 @@ EOFSPEC
 
 RUN R --vanilla --slave --file=/tmp/install_special.R
 
+# Install development dependencies
+RUN cat > /tmp/install_dev_dependencies.R << 'EOFDEV'
+options(repos = c(CRAN = 'https://cran.r-project.org'))
+dev_dependencies <- c('cffr', 'covr', 'goodpractice', 'here', 'lintr', 'pkgdown', 'rcmdcheck')
+
+for (pkg in dev_dependencies) {
+  tryCatch({
+    remotes::install_version(pkg, repos = 'https://cran.r-project.org', quiet = TRUE)
+  }, error = function(e) {
+    message('Note: install_version failed for ', pkg, ', trying install.packages')
+    install.packages(pkg, quiet = TRUE)
+  })
+}
+EOFDEV
+
+RUN R --vanilla --slave --file=/tmp/install_dev_dependencies.R
 COPY Dockerfile /
 
 
