@@ -309,7 +309,8 @@ EOF
 # Additional packages that need special installation
 
 # Install SCWorkflow from GitHub
-RUN R --vanilla --slave -e "remotes::install_github('NIDAP-Community/SCWorkflow', ref = 'GalaxyCLI', quiet = TRUE)"
+COPY . /opt/SCWorkflow
+RUN R --vanilla --slave -e "remotes::install_local('/opt/SCWorkflow', quiet = TRUE, upgrade='never')"
 
 # Install spatstat family packages with specific versions
 RUN cat > /tmp/install_spatstat.R << 'EOFSPAT'
