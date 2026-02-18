@@ -26,80 +26,82 @@ RUN conda config --add channels conda-forge \
  && conda config --set channel_priority strict
 
 # install conda packages
+# Note: Most version pins removed to allow conda to resolve compatible versions with R 4.1.3
+# Only R version is pinned per requirement
 RUN mamba install -y \
     r-base=${R_VERSION} \
-    r-anndata=0.7.5.2 \
+    r-anndata \
     r-biocmanager \
-    r-callr=3.7.3 \
-    bioconductor-celldex=1.4.0 \
-    r-colorspace=2.0-3 \
-    bioconductor-complexheatmap=2.10.0 \
-    r-cowplot=1.1.1 \
-    r-data.table=1.15.4 \
-    r-dendextend=1.16.0 \
-    r-dendsort=0.3.4 \
-    r-digest=0.6.37 \
-    r-dplyr=1.1.4 \
-    bioconductor-edger=3.36.0 \
-    r-future=1.34.0 \
-    r-future.apply=1.11.2 \
-    r-gargle=1.3.0 \
-    r-gdata=2.18.0.1 \
-    r-ggextra=0.10.1 \
-    r-ggplot2=3.3.6 \
-    r-ggpubr=0.4.0 \
-    r-ggrepel=0.9.5 \
-    r-globals=0.16.3 \
-    r-gridbase=0.4-7 \
-    r-gridextra=2.3 \
-    r-gtable=0.3.5 \
+    r-callr \
+    bioconductor-celldex \
+    r-colorspace \
+    bioconductor-complexheatmap \
+    r-cowplot \
+    r-data.table \
+    r-dendextend \
+    r-dendsort \
+    r-digest \
+    r-dplyr \
+    bioconductor-edger \
+    r-future \
+    r-future.apply \
+    r-gargle \
+    r-gdata \
+    r-ggextra \
+    r-ggplot2 \
+    r-ggpubr \
+    r-ggrepel \
+    r-globals \
+    r-gridbase \
+    r-gridextra \
+    r-gtable \
     r-harmony \
-    bioconductor-hdf5r=1.3.5 \
-    r-htmlwidgets=1.6.4 \
-    r-httpuv=1.6.15 \
-    r-httr=1.4.7 \
-    r-jsonlite=1.8.8 \
-    r-leiden=0.4.3 \
+    r-hdf5r \
+    r-htmlwidgets \
+    r-httpuv \
+    r-httr \
+    r-jsonlite \
+    r-leiden \
     bioconductor-limma \
-    r-magrittr=2.0.3 \
-    r-markdown=1.13 \
-    bioconductor-mast=1.20.0 \
-    r-pheatmap=1.0.12 \
-    r-plotly=4.10.4 \
-    r-plyr=1.8.7 \
-    r-png=0.1-7 \
-    r-progressr=0.14.0 \
-    r-purrr=1.0.2 \
-    r-quantmod=0.4.20 \
-    r-rcolorbrewer=1.1-3 \
-    r-reshape2=1.4.4 \
-    r-reticulate=1.40.0 \
-    r-rlang=1.1.4 \
-    r-scales=1.2.1 \
-    bioconductor-scdblfinder=1.8.0 \
+    r-magrittr \
+    r-markdown \
+    bioconductor-mast \
+    r-pheatmap \
+    r-plotly \
+    r-plyr \
+    r-png \
+    r-progressr \
+    r-purrr \
+    r-quantmod \
+    r-rcolorbrewer \
+    r-reshape2 \
+    r-reticulate \
+    r-rlang \
+    r-scales \
+    bioconductor-scdblfinder \
     r-seurat=4.1.1 \
-    bioconductor-singler=1.8.1 \
-    r-statmod=1.5.0 \
-    r-stringr=1.5.1 \
-    r-svglite=2.1.0 \
-    r-tibble=3.2.1 \
-    r-tidyr=1.2.1 \
-    r-tidyverse=1.3.2 \
-    r-viridislite=0.4.1 \
-    r-xfun=0.47 \
-    r-zip=2.3.3 \
-    r-knitr=1.48 \
-    r-rmarkdown=2.28 \
-    r-roxygen2=7.2.3 \
-    r-testthat=3.1.6 \
-    r-usethis=3.1.0 \
+    bioconductor-singler \
+    r-statmod \
+    r-stringr \
+    r-svglite \
+    r-tibble \
+    r-tidyr \
+    r-tidyverse \
+    r-viridislite \
+    r-xfun \
+    r-zip \
+    r-knitr \
+    r-rmarkdown \
+    r-roxygen2 \
+    r-testthat \
+    r-usethis \
     r-cffr \
     r-covr \
     r-goodpractice \
-    r-here=1.0.1 \
+    r-here \
     r-lintr \
-    r-pkgdown=2.0.7 \
-    r-rcmdcheck=1.4.0 \
+    r-pkgdown \
+    r-rcmdcheck \
   && conda clean -afy
 
 # install R package
