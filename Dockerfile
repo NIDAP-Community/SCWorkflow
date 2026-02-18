@@ -119,6 +119,43 @@ RUN R -e "devtools::install_local('/opt2/SCWorkflow', dependencies = TRUE, upgra
 COPY Dockerfile /opt2/Dockerfile_${REPONAME}.${BUILD_TAG}
 RUN chmod a+r /opt2/Dockerfile_${REPONAME}.${BUILD_TAG}
 
+# Verify all dependencies from DESCRIPTION are installed
+RUN cat > /tmp/check_description_deps.R << 'EOF'
+# Parse DESCRIPTION file and check if all dependencies are installed
+desc_file <- "/opt2/SCWorkflow/DESCRIPTION"
+if (!file.exists(desc_file)) {
+  stop("DESCRIPTION file not found at ", desc_file)
+}
+# Read and parse DESCRIPTION
+desc <- read.dcf(desc_file)
+# Extract dependencies
+extract_packages <- function(str) {
+  if (is.na(str) || str == "") return(character(0))
+  # Split by comma and clean up whitespace and version specs
+  pkgs <- strsplit(str, ",")[[1]]
+  pkgs <- trimws(pkgs)
+  pkgs <- gsub("\\s*\\(.*\\)$", "", pkgs)  # Remove version specs
+  pkgs <- pkgs[pkgs != ""]
+  pkgs
+}
+deps <- unique(c(
+  extract_packages(desc[1, "Depends"]),
+  extract_packages(desc[1, "Imports"]),
+  extract_packages(desc[1, "Suggests"]),
+  extract_packages(desc[1, "Config/Needs/dev"])
+))
+# Remove base R
+deps <- deps[!grepl("^R$", deps)]
+# Check if each dependency is installed
+missing <- deps[!vapply(deps, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))]
+if (length(missing) > 0) {
+  stop("The following dependencies are missing: ", paste(missing, collapse = ", "))
+} else {
+  message("All dependencies are installed.")
+}
+EOF
+RUN R --vanilla --slave --file=/tmp/check_description_deps.R
+
 # cleanup
 WORKDIR /data2
 RUN apt-get clean && apt-get purge \
