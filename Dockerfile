@@ -517,6 +517,32 @@ for (pkg in dev_dependencies) {
 EOFDEV
 
 RUN R --vanilla --slave --file=/tmp/install_dev_dependencies.R
+
+# Verify that all dependencies from DESCRIPTION are installed
+RUN cat > /tmp/check_description_deps.R << 'EOF'
+options(repos = c(CRAN = 'https://cran.r-project.org'))
+# Read the DESCRIPTION file
+desc_file <- "/opt/SCWorkflow/DESCRIPTION"
+if (!file.exists(desc_file)) {
+  stop("DESCRIPTION file not found at ", desc_file)
+}
+# Parse dependencies from DESCRIPTION
+desc <- read.dcf(desc_file)
+deps <- unique(c(
+  strsplit(desc[1, "Imports"], ",")[[1]],
+  strsplit(desc[1, "Suggests"], ",")[[1]],
+  strsplit(desc[1, "Depends"], ",")[[1]]
+))
+deps <- trimws(deps)
+# Check if each dependency is installed
+missing <- deps[!vapply(deps, requireNamespace, quietly = TRUE, FUN.VALUE = logical(1))]
+if (length(missing) > 0) {
+  stop("The following dependencies are missing: ", paste(missing, collapse = ", "))
+} else {
+  message("All dependencies are installed.")
+}
+EOF
+
+RUN R --vanilla --slave --file=/tmp/check_description_deps.R
+
 COPY Dockerfile /
-
-
