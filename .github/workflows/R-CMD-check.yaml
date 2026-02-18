@@ -14,7 +14,7 @@ permissions:
   pull-requests: read
 
 env:
-  CONTAINER: nciccbr/scworkflow:v1.0.2_79e5d37
+  CONTAINER_IMAGE: nciccbr/scworkflow:v1.0.2_79e5d37
 
 jobs:
   R-CMD-check:
@@ -28,10 +28,10 @@ jobs:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
     env:
-      CONTAINER: ${{ env.CONTAINER }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-    container: ${{ env.CONTAINER }}
+    container: 
+      image: ${{ env.CONTAINER_IMAGE }}
     steps:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -44,7 +44,8 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    container: ${{ env.CONTAINER }}
+    container: 
+      image: ${{ env.CONTAINER_IMAGE }}
     steps:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -67,9 +68,9 @@ jobs:
 
   test-coverage:
     runs-on: ubuntu-latest
-    container: ${{ env.CONTAINER }}
+    container: 
+      image: ${{ env.CONTAINER_IMAGE }}
     env:
-      CONTAINER: ${{ env.CONTAINER }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
