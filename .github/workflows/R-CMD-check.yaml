@@ -13,6 +13,9 @@ permissions:
   contents: read
   pull-requests: read
 
+env:
+  CONTAINER: nciccbr/scworkflow:v1.0.2_79e5d37
+
 jobs:
   R-CMD-check:
 
@@ -29,17 +32,14 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-
+    container: ${{ env.CONTAINER }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CCBR/actions/install-r-pak@main
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          versions-file: .github/package-versions.txt
           extra-packages: local::.
           needs: dev
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
 
       - uses: r-lib/actions/check-r-package@v2
         with:
@@ -47,13 +47,12 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    container: ${{ env.CONTAINER }}
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CCBR/actions/install-r-pak@main
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          r-version: 4.1.3
-          versions-file: .github/package-versions.txt
           needs: dev
 
       - name: Good Practice checks
