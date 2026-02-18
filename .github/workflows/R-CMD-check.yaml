@@ -13,9 +13,6 @@ permissions:
   contents: read
   pull-requests: read
 
-env:
-  CONTAINER_IMAGE: nciccbr/scworkflow:v1.0.2_79e5d37
-
 jobs:
   R-CMD-check:
     strategy:
@@ -30,8 +27,8 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
-    container: 
-      image: ${{ env.CONTAINER_IMAGE }}
+    container:
+      image: nciccbr/scworkflow:v1.0.2_79e5d37
     steps:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -44,8 +41,8 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    container: 
-      image: ${{ env.CONTAINER_IMAGE }}
+    container:
+      image: nciccbr/scworkflow:v1.0.2_79e5d37
     steps:
       - uses: actions/checkout@v4
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -68,8 +65,8 @@ jobs:
 
   test-coverage:
     runs-on: ubuntu-latest
-    container: 
-      image: ${{ env.CONTAINER_IMAGE }}
+    container:
+      image: nciccbr/scworkflow:v1.0.2_79e5d37
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -108,6 +105,8 @@ jobs:
 
   check: # make sure all check jobs pass. https://github.com/orgs/community/discussions/4324#discussioncomment-3477871
     runs-on: ubuntu-latest
+    container:
+      image: nciccbr/scworkflow:v1.0.2_79e5d37
     needs: [R-CMD-check, lint, test-coverage]
     if: always()
     steps:

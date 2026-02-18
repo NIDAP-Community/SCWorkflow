@@ -15,9 +15,6 @@ permissions:
   contents: write
   pages: write
 
-env:
-  CONTAINER_IMAGE: nciccbr/scworkflow:v1.0.2_79e5d37
-
 jobs:
   pkgdown:
     runs-on: ubuntu-latest
@@ -26,8 +23,8 @@ jobs:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-    container: 
-      image: ${{ env.CONTAINER_IMAGE }}
+    container:
+      image: nciccbr/scworkflow:v1.0.2_79e5d37
     steps:
       - uses: actions/checkout@v3
 
