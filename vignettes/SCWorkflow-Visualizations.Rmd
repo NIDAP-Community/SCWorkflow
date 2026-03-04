@@ -281,7 +281,7 @@ This function can be useful for exploratory data analysis and visualizing the di
 1. Seurat package Dotplot Documentation https://satijalab.org/seurat/reference/dotplot
 
 
-```{r,eval=F}
+```{r,eval=run_Chunks}
 
 FigOut=dotPlotMet(
            object=Anno_SO$object,
@@ -305,6 +305,35 @@ ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
 ```
 
 ![](./images/Vis_DPM.png){width=500} 
+
+
+## Compare Cell Populations
+
+```{r,eval=run_Chunks}
+
+FigOut=compareCellPopulations(
+            object=Anno_SO$object,
+            metadata.table=Anno_SO$metadata,
+            annotation.column='SCT_snn_res.0.4',
+            group.column='SCT_snn_res.0.4',
+            sample.column = "orig.ident",
+            counts.type = "Frequency",
+            group.order = NULL,
+            cell.reverse.sort = FALSE,
+            wrap.ncols = 5
+)
+
+```
+
+```{r,eval=run_Chunks,echo=F,results='hide'}
+
+ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
+
+# png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
+# (FigOut$plot)
+# dev.off()
+
+```
 
 <!-- ## Trajectory Analysis with TSCAN -->
 
