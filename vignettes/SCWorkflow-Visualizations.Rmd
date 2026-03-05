@@ -306,34 +306,39 @@ ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
 
 ![](./images/Vis_DPM.png){width=500} 
 
+<br>
 
 ## Compare Cell Populations
+
+---
+
 
 ```{r,eval=run_Chunks}
 
 FigOut=compareCellPopulations(
             object=Anno_SO$object,
-            metadata.table=Anno_SO$metadata,
-            annotation.column='SCT_snn_res.0.4',
-            group.column='SCT_snn_res.0.4',
-            sample.column = "orig.ident",
+            metadata.table=Anno_SO$object@meta.data,
+            annotation.column='immgen_main',
+            group.column='Treatment',
             counts.type = "Frequency",
             group.order = NULL,
-            cell.reverse.sort = FALSE,
             wrap.ncols = 5
 )
-
+ 
 ```
 
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
+ggsave(FigOut$Plots$Barplot, filename = "./images/Vis_CCPbar.png", width = 9, height = 10)
 
 # png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
 # (FigOut$plot)
 # dev.off()
-
 ```
+
+![](./images/Vis_CCPbar.png){width=500}
+
+<br> 
 
 <!-- ## Trajectory Analysis with TSCAN -->
 
