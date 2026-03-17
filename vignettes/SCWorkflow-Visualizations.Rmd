@@ -330,6 +330,7 @@ FigOut=compareCellPopulations(
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
 ggsave(FigOut$Plots$Barplot, filename = "./images/Vis_CCPbar.png", width = 10, height = 6)
+ggsave(FigOut$Plots$Boxplot, filename = "./images/Vis_CCPbox.png", width = 15, height = 9)
 
 # png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
 # (FigOut$plot)
@@ -337,6 +338,7 @@ ggsave(FigOut$Plots$Barplot, filename = "./images/Vis_CCPbar.png", width = 10, h
 ```
 
 ![](./images/Vis_CCPbar.png)
+![](./images/Vis_CCPbox.png)
 
 <br> 
 
