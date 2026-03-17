@@ -5,7 +5,6 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-DEG}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-
 ---
 
 ```{r, include = FALSE}
@@ -18,7 +17,7 @@ knitr::opts_chunk$set(
 )
 
 library(dplyr)
-
+library(magrittr)
 
 run_Chunks=F
 ```

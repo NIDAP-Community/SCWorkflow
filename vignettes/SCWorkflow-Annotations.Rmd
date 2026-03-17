@@ -5,7 +5,6 @@ vignette: >
   %\VignetteIndexEntry{SCWorkflow-Annotations}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-
 ---
 
 
@@ -19,6 +18,7 @@ knitr::opts_chunk$set(
 )
 
 library(data.table)
+library(magrittr)
 library(dplyr)
 library(ggplot2)
 library(tibble)
