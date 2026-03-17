@@ -26,7 +26,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' violinPlot_mod(
+#' violinPlot(
 #'   object = seurat,
 #'   assay = "SCT",
 #'   layer = "data",
@@ -41,7 +41,7 @@
 
 #' @return violin ggplot2 object
 
-violinPlot_mod <- function (object, 
+violinPlot <- function (object, 
                             assay, 
                             layer, 
                             genes, 
@@ -184,5 +184,5 @@ violinPlot_mod <- function (object,
     g <- g + geom_jitter(size = jitter_dot_size, shape = 1, position = position_dodge(width = 0.9), alpha = 0.5)
   }
   
-  return(g)
+  return(list(plots=g))
 }

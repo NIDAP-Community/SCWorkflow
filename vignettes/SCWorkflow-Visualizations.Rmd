@@ -173,11 +173,11 @@ You can choose how the plot looks - whether it's laid out like a grid, in rows, 
 
 ```{r,eval=run_Chunks}
 
-FigOut=violinPlot_mod(
+FigOut=violinPlot(
                 object=Anno_SO$object, 
                 assay='SCT', 
-                slot='scale.data', 
-                genes=c('Cd163','Cd38'), 
+                layer='scale.data', 
+                genes=c('Itgam','Cd38'), 
                 group='SCT_snn_res.0.4', 
                 facet_by = "", 
                 filter_outliers = F,
@@ -190,7 +190,7 @@ FigOut=violinPlot_mod(
 ```
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 5)
+ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 7)
 
 # png(filename="./images/Vis_Violin.png",width = 500,height = 350,pointsize = 10)
 # (FigOut$plot)
