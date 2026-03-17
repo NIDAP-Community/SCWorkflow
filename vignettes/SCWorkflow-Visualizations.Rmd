@@ -313,7 +313,7 @@ ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
 ---
 
 
-```{r,eval=run_Chunks}
+```{r,eval=run_Chunks,}
 
 FigOut=compareCellPopulations(
             object=Anno_SO$object,
