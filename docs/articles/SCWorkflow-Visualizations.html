@@ -299,7 +299,7 @@ visual interpretation of patterns or correlations in the data.</p>
 <span>          order.heatmap.rows <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>          row.order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>          <span class="op">)</span></span></code></pre></div>
-<p><img src="images/Vis_HM.png" width="600"></p>
+<p><img src="images/Vis_HM.png"></p>
 <p><br></p>
 </div>
 <div class="section level2">
@@ -352,7 +352,53 @@ conditions or groups of cells.</p>
 <span>           cell.reverse.sort <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>           dot.color <span class="op">=</span> <span class="st">"darkblue"</span></span>
 <span>           <span class="op">)</span></span></code></pre></div>
-<p><img src="images/Vis_DPM.png" width="500"></p>
+<p><img src="images/Vis_DPM.png"></p>
+<p><br></p>
+</div>
+<div class="section level2">
+<h2 id="compare-cell-populations">Compare Cell Populations<a class="anchor" aria-label="anchor" href="#compare-cell-populations"></a>
+</h2>
+<hr>
+<p>This function compares cell population composition across
+experimental groups (for example sample, treatment, timepoints, or donor
+cohorts) using metadata already stored in the Seurat object. It is
+useful after clustering and annotation, when you want to quantify how
+specific cell populations shift between conditions.
+<!-- `compareCellPopulations()` returns two complementary visualizations:
+
+- **Barplot**: stacked group-level composition with alluvial-style flows between groups to show changes in relative structure.
+- **Boxplot**: per-sample distributions for each annotated cell population, faceted by cluster/cell type.
+ --> The function supports both <strong>Frequency</strong> (percent) and
+<strong>Counts</strong> (absolute cell numbers) modes. In most
+biological comparisons with unequal total cell recovery across samples,
+frequency mode is preferred for interpretation. Counts mode can be
+useful for QC and yield-focused assessments.</p>
+<!-- To use this function effectively:
+
+- `annotation.column` should be a stable cell identity label (for example `immgen_main`, `seurat_clusters`, or curated cell types).
+- `group.column` should represent the condition being compared (for example `Treatment`).
+- `sample.column` should uniquely identify biological samples/replicates (default `orig.ident`).
+- `group.order` can be set to enforce display order when plotting conditions. -->
+<p><strong>Methodology</strong><br>
+The method first aggregates metadata by annotation and group to compute
+percentages and counts. It then links these summaries to sample-level
+metadata and generates a composition-focused barplot for sample-level
+variability. Together, these plots help distinguish overall
+compositional shifts from replicate-level dispersion.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/compareCellPopulations.html">compareCellPopulations</a></span><span class="op">(</span></span>
+<span>            object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
+<span>            metadata.table<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span><span class="op">@</span><span class="va">meta.data</span>,</span>
+<span>            annotation.column<span class="op">=</span><span class="st">'immgen_main'</span>,</span>
+<span>            group.column<span class="op">=</span><span class="st">'Treatment'</span>,</span>
+<span>            counts.type <span class="op">=</span> <span class="st">"Frequency"</span>,</span>
+<span>            group.order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>            wrap.ncols <span class="op">=</span> <span class="fl">5</span></span>
+<span><span class="op">)</span></span>
+<span> </span></code></pre></div>
+<p><img src="images/Vis_CCPbar.png" width="600"><!-- ![](./images/Vis_CCPbox.png){width=600}  --></p>
+<p><br></p>
 <!-- ## Trajectory Analysis with TSCAN -->
 <!-- Application of TSCAN Trajectory Analysis method to preClustered Seurat Object. -->
 <!-- This template is a Beta version and is undergoing active development. If you encounter problems, please contact CCBR NCICCBRNIDAP@mail.nih.gov -->
