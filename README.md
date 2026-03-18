@@ -30,7 +30,7 @@ The Single Cell Workflow streamlines the analysis of multimodal Single Cell RNA-
 - **compareCellPopulations()** - Compare cell population distributions across groups
 - **degGeneExpressionMarkers()** - Differential expression analysis
 - **reclusterSeuratObject()** / **reclusterFilteredSeuratObject()** - Subset and re-cluster
-- **colorByGene()**, **heatmapSC()**, **violinPlot_mod()** - Visualization functions
+- **colorByGene()**, **heatmapSC()**, **violinPlot()** - Visualization functions
 - **plotMetadata()**, **dotPlotMet()** - Metadata visualization
 
 <br>
