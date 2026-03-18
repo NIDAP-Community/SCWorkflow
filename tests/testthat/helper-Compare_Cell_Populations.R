@@ -2,45 +2,54 @@
 
 # Load real Seurat objects from fixtures
 getParamCCP <- function(data) {
+  supported.data <- c("TEC", "Chariou", "PBMC", "NSCLC", "BRCA")
+  
+  if (!is.character(data) || length(data) != 1) {
+    stop(
+      "Invalid `data` input. Expected a single character value. Supported values: ",
+      paste(supported.data, collapse = ", "),
+      call. = FALSE
+    )
+  }
+  
+  if (!(data %in% supported.data)) {
+    stop(
+      "Unsupported dataset key `", data, "`. Supported values: ",
+      paste(supported.data, collapse = ", "),
+      call. = FALSE
+    )
+  }
+  
+  annotation.column <- "seurat_clusters"
+  group.column <- "Phase"
+  sample.column <- "orig.ident"
+  counts.type <- "Frequency"
+  group.order <- NULL
+  
   if (data == "TEC") {
     object <- selectCRObject("TEC")
-    annotation.column <- "seurat_clusters"
     group.column <- "Status"
-    sample.column <- "orig.ident"
-    counts.type <- "Frequency"
-    group.order <- NULL
     
   } else if (data == "Chariou") {
     object <- selectCRObject("Chariou")
-    annotation.column <- "seurat_clusters"
     group.column <- "Status"
-    sample.column <- "orig.ident"
-    counts.type <- "Frequency"
-    group.order <- NULL
     
   } else if (data == "PBMC") {
     object <- selectSRObject("pbmc-single")
     annotation.column <- "HPCA_main"
-    group.column <- "Phase"
-    sample.column <- "orig.ident"
-    counts.type <- "Frequency"
-    group.order <- NULL
     
   } else if (data == "NSCLC") {
     object <- selectCRObject("nsclc-multi")
-    annotation.column <- "seurat_clusters"
-    group.column <- "Phase"
-    sample.column <- "orig.ident"
-    counts.type <- "Frequency"
-    group.order <- NULL
     
   } else if (data == "BRCA") {
     object <- selectCRObject("BRCA")
-    annotation.column <- "seurat_clusters"
-    group.column <- "Phase"
-    sample.column <- "orig.ident"
-    counts.type <- "Frequency"
-    group.order <- NULL
+    
+  } else {
+    stop(
+      "Unsupported dataset key `", data, "`. Supported values: ",
+      paste(supported.data, collapse = ", "),
+      call. = FALSE
+    )
   }
   
   return(
