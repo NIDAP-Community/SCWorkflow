@@ -93,6 +93,12 @@ compareCellPopulations <- function(
     stop("Error: 'object' must be a Seurat object")
   }
   
+  # Normalize metadata and column arguments (replace '.' with '_')
+  colnames(object@meta.data) <- gsub("\\.", "_", colnames(object@meta.data))
+  annotation.column <- gsub("\\.", "_", annotation.column)
+  group.column      <- gsub("\\.", "_", group.column)
+  sample.column     <- gsub("\\.", "_", sample.column)
+  
   # Validate metadata columns exist
   required.cols <- c(annotation.column, group.column, sample.column)
   missing.cols <- setdiff(required.cols, colnames(object@meta.data))
