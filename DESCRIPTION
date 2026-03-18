@@ -28,7 +28,6 @@ VignetteBuilder: knitr
 Depends:
     R (>= 4.0)
 Imports:
-    spatstat.core,
     anndata (>= 0.7.5.2),
     callr (>= 3.7.1),
     cowplot (>= 1.1.1),
