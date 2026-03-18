@@ -1,0 +1,103 @@
+{
+	"codeTemplate": "unnamed_21 <- function({{{Object}}},{{{Metadata_Table}}}) {\n\n## --------- ##\n## Libraries ##\n## --------- ##\nlibrary(Seurat)\nlibrary(ggplot2)\nlibrary(ggpubr)\nlibrary(RColorBrewer)\nlibrary(tibble)\nlibrary(reshape2)\nlibrary(ggalluvial)\n#library(plotly)\nlibrary(data.table)\nlibrary(dplyr)\nlibrary(magrittr)\nlibrary(cowplot)\nlibrary(gridExtra)\n#library(EnhancedVolcano)\nlibrary(grid)\nlibrary(nidapFunctions)\n    \n    #nidapLoadPackages(\"SCWorkflow\")\n\n## -------------------------------- ##\n## User-Defined Template Parameters ##\n## -------------------------------- ##\n\n\nseurat_object={{{Object}}}\nMetaData={{{Metadata_Table}}}\n\n#Basic Parameters:\nAnnoCol='{{{Annotation_Column}}}'\nGroupCol='{{{Group_Column}}}'\nSampleCol='{{{Sample_Column}}}'\nplotType='{{{Counts_Type}}}'\ncolor='custom'\ngroup_order=c({{{Group_Order}}})\nwrap_ncols=5\n\n#Filesave Parameters:\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n##--------------- ##\n## Error Messages ##\n## -------------- ##\n\n## --------- ##\n## Functions ##\n## --------- ##\n\n## --------------- ##\n## Main Code Block ##\n## --------------- ##\n\n\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    SO <- readRDS(path)\n\n    colnames(SO@meta.data) <- gsub(\"\\\\.\",\"_\",colnames(SO@meta.data))\n\n\nout=ComapreCellPop(SO=SO,\n               AnnoCol=AnnoCol,\n               GroupCol=GroupCol,\n               SampleCol=SampleCol,\n               group_order=group_order,\n               plotType=plotType,\n               color=color,\n               wrap_ncols=wrap_ncols)\n\n#plotType%>%print\n#print(out)\n#print(out[['freqTble']])\n\nplot(out$Plots$Barplot)\n\nif(plotType=='Frequency'){\n    plot(out$Plots$Boxplot)\n}else if (plotType=='Counts'){\n\n}\n\n#return(as.matrix(out$Table))\nreturn(NULL)\n}\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n\nComapreCellPop=function(SO,\n                        AnnoCol,\n                        GroupCol='Group',\n                        SampleCol='orig_ident',\n                        group_order=NULL,\n                        plotType='Frequency',\n                        color='custom',\n                        wrap_ncols=5){\n  \n  if (is.null(group_order)) {\n    group_order=unique(SO@meta.data[[GroupCol]])\n  } \n  # SO=AnnoOut_out$object\n  ordr=SO@meta.data[[AnnoCol]]%>%unique%>%sort\n  numColors = max(length(unique(SO@meta.data$mouseRNAseq_main)), length(unique(SO@meta.data$immgen_main)))\n  colpaired = colorRampPalette(brewer.pal(12, \"Paired\"))\n  cols = c(\n    \"#e6194B\",\n    \"#3cb44b\",\n    \"#4363d8\",\n    \"#f58231\",\n    \"#911eb4\",\n    \"#42d4f4\",\n    \"#f032e6\",\n    \"#bfef45\",\n    \"#fabebe\",\n    \"#469990\",\n    \"#e6beff\",\n    \"#9A6324\",\n    \"#800000\",\n    \"#aaffc3\",\n    \"#808000\",\n    \"#000075\",\n    colpaired(numColors)\n  )\n  \n  names(cols)=ordr\n  SO@meta.data[[AnnoCol]]=factor(SO@meta.data[[AnnoCol]],levels=ordr)\n  \n  \n  ### Create cnt Table by any group\n  CreateAnnoTable=function(SO,AnnoCol,GroupCol){\n    \n    ## extract annotation data for each group\n    cntTble=unique(SO@meta.data[[AnnoCol]])%>%as.matrix\n    for (s in unique(SO@meta.data[[GroupCol]]) ){\n      expr <- FetchData(object = SO, vars = GroupCol)\n      subSO=SO[, which(x = expr ==s)]\n      cntTble=cbind(cntTble,\n                    table(subSO@meta.data[[AnnoCol]])\n      )\n    }\n    colnames(cntTble)=c(AnnoCol,unique(SO@meta.data[[GroupCol]]))\n    cntTble=cntTble[,-1]\n    cntTble=data.frame(apply(cntTble, 2, function(x) as.numeric(as.character(x))),check.names=F, row.names = rownames(cntTble))\n    \n    \n    freqTble=apply(cntTble,2,FUN = function(x){\n      return(x/sum(x))\n    })\n    freqTble=(freqTble*100)\n    \n    \n    outTbl=merge(cntTble,as.data.frame(freqTble),by='row.names',suffixes = c('_CellCounts','_Percent'))\n    outTbl=dplyr::rename(outTbl,'Clusters'=\"Row.names\")\n    # colSums(outTbl[,2:ncol(outTbl)])\n    return(list(\n      'CellFreq'=freqTble,\n      'CellCounts'=cntTble,\n      'OutTable'=outTbl))\n  }\n  \n  ColTables=CreateAnnoTable(SO,AnnoCol,GroupCol)  \n  BoxTables=CreateAnnoTable(SO,AnnoCol,SampleCol)  \n  metaGroups=SO@meta.data[,c(GroupCol,SampleCol)]\n  rownames(metaGroups)=NULL\n  mataGroups=metaGroups%>%unique\n  SampleCol=colnames(mataGroups)[ncol(mataGroups)]\n  \n  \n  ####################################\n  ## Create Annotation Column Plot\n  if (plotType=='Frequency') {\n    ptbl=melt(ColTables$CellFreq)\n    ptblBox=melt(as.matrix(BoxTables$CellFreq))\n    ptblBox=merge(ptblBox,metaGroups,by.x='Var2',by.y=SampleCol,all.x=T)\n    \n    labelCol='PerValue'\n    ylab='Frequency of each cell type (100%)'\n  }else if (plotType==\"Counts\") {\n    ptbl=melt(as.matrix(ColTables$CellCounts))\n    ptblBox=melt(as.matrix(BoxTables$CellCounts))\n    ptblBox=merge(ptblBox,metaGroups,by.x='Var2',by.y=SampleCol,all.x=T)\n    \n    labelCol='value'\n    ylab='Cell Counts'\n  }\n  \n  ptbl$Var1=factor(ptbl$Var1,levels=ordr)\n  ptbl$value=round(ptbl$value,1)\n  # ptbl$PerValue=round(ptbl$value,0)\n  ptbl$PerValue=paste0(ptbl$value,'%')\n  ptbl$PerValue=gsub('^\\\\%$',\"_\",ptbl$PerValue)\n  ptbl[ptbl$value<1,'PerValue']=\"\"\n  \n  ptbl$Var2=factor(ptbl$Var2,levels=group_order)\n  \n  \n  p2=ptbl%>%ggplot(\n    aes_string(y = 'value', x = 'Var2',fill='Var1',label = labelCol)) +\n    geom_flow(aes(alluvium = Var1), alpha= .2, \n              lty = 2, color = \"black\",\n              curve_type = \"linear\", \n              width = .5) +\n    geom_col(aes(fill = Var1), width = .5, color = \"black\") +\n    geom_text(size = 3, position = position_stack(vjust = 0.5))+\n    theme_classic()+\n    ylab(ylab)+\n    xlab(\"\")+\n    scale_x_discrete(guide = guide_axis(angle = 45))\n  if (color!='orig') {\n    p2=p2+scale_fill_manual(AnnoCol,values = cols) \n  }\n  ptbl$Group=gsub('_[1-9]+$','',ptbl$Var2)\n  \n  \n  ####################################\n  ## Create Annotation Box Plot by sample\n  \n  \n  # ptblBox$Var1=factor(ptblBox$Var1,levels=ordr)\n  ptblBox$value=round(ptblBox$value,1)\n  ptblBox$PerValue=paste0(ptblBox$value,'%')\n  ptblBox$PerValue=gsub('^\\\\%$',\"_\",ptblBox$PerValue)\n  ptblBox[ptblBox$value<1,'PerValue']=\"\"\n  \n  ptblBox[,GroupCol]=factor(ptblBox[,GroupCol],levels=group_order)\n  \n  p2_Box=ptblBox%>%ggboxplot(y = 'value', x = GroupCol,add = \"jitter\",color = \"Var1\") + \n    # stat_compare_means(method = \"t.test\")+\n    facet_wrap(~Var1,ncol = wrap_ncols,scales = 'fixed')+ylab(ylab)+xlab(\"\")+\n    theme(legend.title=element_blank())\n  \n  \n  return(list('Plots'=list('Barplot'=p2,'Boxplot'=p2_Box),\"Table\"=ColTables$OutTable))\n  \n  \n}",
+	"columns": [
+		{
+			"key": "Annotation_Column",
+			"displayName": "Annotation Column",
+			"description": "Column to summarize in Barplot",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Group_Column",
+			"displayName": "Group Column",
+			"description": "Column to split Barplot into separate populations to compare",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Sample_Column",
+			"displayName": "Sample Column",
+			"description": "Column in Seurat Metadata that contains sample names",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "",
+	"externalId": "Compare_Cell_Populations",
+	"inputDatasets": [
+		{
+			"key": "Object",
+			"displayName": "Object",
+			"description": "Seurat object",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Seurat Metadata table",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Counts_Type",
+			"displayName": "Counts Type",
+			"description": "What type of data do you want to plot",
+			"paramType": "SELECT",
+			"paramGroup": "Basic",
+			"paramValues": [
+				"Frequency",
+				"Counts"
+			],
+			"defaultValue": "Frequency",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "",
+			"paramType": "STRING",
+			"paramGroup": "Filesave",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Group_Order",
+			"displayName": "Group Order",
+			"description": "",
+			"paramType": "VECTOR",
+			"paramGroup": "Basic",
+			"paramValues": null,
+			"defaultValue": "c(\"\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Compare Cell Populations",
+	"templateApiVersion": "0.1.0"
+}

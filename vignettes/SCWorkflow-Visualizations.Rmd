@@ -173,11 +173,11 @@ You can choose how the plot looks - whether it's laid out like a grid, in rows, 
 
 ```{r,eval=run_Chunks}
 
-FigOut=violinPlot_mod(
+FigOut=violinPlot(
                 object=Anno_SO$object, 
                 assay='SCT', 
-                slot='scale.data', 
-                genes=c('Cd163','Cd38'), 
+                layer='scale.data', 
+                genes=c('Itgam','Cd38'), 
                 group='SCT_snn_res.0.4', 
                 facet_by = "", 
                 filter_outliers = F,
@@ -190,7 +190,7 @@ FigOut=violinPlot_mod(
 ```
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 5)
+ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 7)
 
 # png(filename="./images/Vis_Violin.png",width = 500,height = 350,pointsize = 10)
 # (FigOut$plot)
@@ -198,7 +198,7 @@ ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 
 
 ```
 
-![](./images/Vis_Violin.png){width=600} 
+![](./images/Vis_Violin.png)
 
 <br>
 
@@ -260,7 +260,7 @@ dev.off()
 
 ```
 
-![](./images/Vis_HM.png){width=600} 
+![](./images/Vis_HM.png)
 
 <br>
 
@@ -281,7 +281,7 @@ This function can be useful for exploratory data analysis and visualizing the di
 1. Seurat package Dotplot Documentation https://satijalab.org/seurat/reference/dotplot
 
 
-```{r,eval=F}
+```{r,eval=run_Chunks}
 
 FigOut=dotPlotMet(
            object=Anno_SO$object,
@@ -304,7 +304,61 @@ ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
 
 ```
 
-![](./images/Vis_DPM.png){width=500} 
+![](./images/Vis_DPM.png)
+
+<br>
+
+## Compare Cell Populations
+
+---
+
+This function compares cell population composition across experimental groups (for example sample, treatment, timepoints, or donor cohorts) using metadata already stored in the Seurat object. It is useful after clustering and annotation, when you want to quantify how specific cell populations shift between conditions.
+<!-- `compareCellPopulations()` returns two complementary visualizations:
+
+- **Barplot**: stacked group-level composition with alluvial-style flows between groups to show changes in relative structure.
+- **Boxplot**: per-sample distributions for each annotated cell population, faceted by cluster/cell type.
+ -->
+The function supports both **Frequency** (percent) and **Counts** (absolute cell numbers) modes. In most biological comparisons with unequal total cell recovery across samples, frequency mode is preferred for interpretation. Counts mode can be useful for QC and yield-focused assessments.
+
+<!-- To use this function effectively:
+
+- `annotation.column` should be a stable cell identity label (for example `immgen_main`, `seurat_clusters`, or curated cell types).
+- `group.column` should represent the condition being compared (for example `Treatment`).
+- `sample.column` should uniquely identify biological samples/replicates (default `orig.ident`).
+- `group.order` can be set to enforce display order when plotting conditions. -->
+
+**Methodology**  
+The method first aggregates metadata by annotation and group to compute percentages and counts. It then links these summaries to sample-level metadata and generates a composition-focused barplot for sample-level variability. Together, these plots help distinguish overall compositional shifts from replicate-level dispersion.
+
+
+```{r,eval=run_Chunks}
+
+FigOut=compareCellPopulations(
+            object=Anno_SO$object,
+            metadata.table=Anno_SO$object@meta.data,
+            annotation.column='immgen_main',
+            group.column='Treatment',
+            counts.type = "Frequency",
+            group.order = NULL,
+            wrap.ncols = 5
+)
+ 
+```
+
+```{r,eval=run_Chunks,echo=F,results='hide'}
+
+ggsave(FigOut$Plots$Barplot, filename = "./images/Vis_CCPbar.png", width = 10, height = 6)
+ggsave(FigOut$Plots$Boxplot, filename = "./images/Vis_CCPbox.png", width = 15, height = 9)
+
+# png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
+# (FigOut$plot)
+# dev.off()
+```
+
+![](./images/Vis_CCPbar.png){width=600} 
+<!-- ![](./images/Vis_CCPbox.png){width=600}  -->
+
+<br> 
 
 <!-- ## Trajectory Analysis with TSCAN -->
 

@@ -17,6 +17,22 @@ R package for Single Cell analysis
 
 The Single Cell Workflow streamlines the analysis of multimodal Single Cell RNA-Seq data produced from 10x Genomics.  It can be run in a docker container, and for biologists, in user-friendly web-based interactive notebooks (NIDAP, Palantir Foundry). Much of it is based on the Seurat workflow in Bioconductor, and supports CITE-Seq data.  It incorporates a cell identification step (ModScore) that utilizes module scores obtained from Seurat and also includes Harmony for batch correction.
 
+## Key Functions
+
+### Sequential Workflow
+1. **processRawData()** - Process H5 files into Seurat objects
+2. **filterQC()** - Quality control and filtering  
+3. **combineNormalize()** - Merge samples, normalize, dimension reduction
+4. **Harmony integration** (optional) - Batch correction
+5. **annotateCellTypes()** - Automatic cell type annotation via SingleR
+
+### Analysis & Visualization
+- **compareCellPopulations()** - Compare cell population distributions across groups
+- **degGeneExpressionMarkers()** - Differential expression analysis
+- **reclusterSeuratObject()** / **reclusterFilteredSeuratObject()** - Subset and re-cluster
+- **colorByGene()**, **heatmapSC()**, **violinPlot()** - Visualization functions
+- **plotMetadata()**, **dotPlotMet()** - Metadata visualization
+
 <br>
 
 For further documentation see our detailed [Docs Website](https://nidap-community.github.io/SCWorkflow/)

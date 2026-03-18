@@ -3,7 +3,7 @@
 title: "Import Data and Quality Control"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{SCWorkflow-Overview}
+  %\VignetteIndexEntry{SCWorkflow-QC}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 

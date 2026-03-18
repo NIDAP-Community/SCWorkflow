@@ -12,6 +12,7 @@ tests/testthat/output/
 
 inst/doc
 #inst/extdata/*
-docs
 *.Rds
 *.rds
+/doc/
+/Meta/

@@ -7,6 +7,7 @@
 modScore(
   object,
   marker.table,
+  group_var = "orig.ident",
   use_columns,
   ms_threshold,
   general.class,

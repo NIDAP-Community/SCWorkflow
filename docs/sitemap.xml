@@ -3,10 +3,8 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/CHANGELOG.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/LICENSE-text.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/CONTRIBUTING.html</loc></url>
-<url><loc>https://nidap-community.github.io/SCWorkflow/articles/README.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-Annotations.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-DEG.html</loc></url>
-<url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-Overview.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-QC.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-SubsetReclust.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-Usage.html</loc></url>
@@ -14,12 +12,16 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/images/Vis_3D.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/index.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/authors.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/copilot-instructions.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/decision_log.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/index.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/aggregateCounts.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/annotateCellTypes.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/appendMetadataToSeuratObject.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/colorByGene.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/colorByMarkerTable.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/combineNormalize.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/compareCellPopulations.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/degGeneExpressionMarkers.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/dotPlotMet.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/dualLabeling.html</loc></url>
@@ -27,7 +29,10 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/filterSeuratObjectByMetadata.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/heatmapSC.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/index.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/launch_module_score_app.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/modScore.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/modscore-imports-011726.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/modscore-imports.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/nameClusters.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/object.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/palantir_api_call.html</loc></url>
@@ -36,6 +41,7 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/reclusterFilteredSeuratObject.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/reclusterSeuratObject.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/tSNE3D.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/violinPlot.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/violinPlot_mod.html</loc></url>
 </urlset>
 
