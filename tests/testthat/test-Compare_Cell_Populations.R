@@ -1,11 +1,15 @@
 # for R 4.1.3 ON RStudio Workbench
-# 1) restart R
-# 2) .libPaths(c("/home/homanpj/R/x86_64-pc-linux-gnu-library/4.1",
+# restart R
+# .libPaths(c("/home/homanpj/R/x86_64-pc-linux-gnu-library/4.1",
 #                "/opt/R/4.1.3/lib64/R/library",
 #                "/rstudio-files/ccbr-data/renv_cache/single-cell-rna-seq-r4/Snapshot-environment_method/renv/library/R-4.1/x86_64-pc-linux-gnu"))
-# 3)library(spatstat.core)
-# 4)library(Seurat)
-# 5)load_all()
+# library(spatstat.core)
+# library(Seurat)
+# library(scales)
+# library(devtools)
+# load_all()
+# options(testthat_stop_on_failure = TRUE)
+# devtools::test_active_file()
 
 # Test 1: Standard parameters - TEC dataset
 test_that("compareCellPopulations returns correct structure with TEC data", {
@@ -45,11 +49,11 @@ test_that("compareCellPopulations returns correct structure with TEC data", {
 test_that("compareCellPopulations works with Chariou data", {
   params <- getParamCCP("Chariou")
   result <- do.call(compareCellPopulations, params)
-  
+
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
   expect_s3_class(result$Plots$Boxplot, "gg")
-  
+
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$Plots$Barplot),
@@ -65,11 +69,11 @@ test_that("compareCellPopulations works with Chariou data", {
 test_that("compareCellPopulations works with PBMC annotated cell types", {
   params <- getParamCCP("PBMC")
   result <- do.call(compareCellPopulations, params)
-  
+
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
   expect_s3_class(result$Plots$Boxplot, "gg")
-  
+
   skip_on_ci()
   # Note: PBMC has only one sample, which creates issues with alluvial flow visualization
   # Skip barplot snapshot for single-sample dataset
@@ -83,11 +87,11 @@ test_that("compareCellPopulations works with PBMC annotated cell types", {
 test_that("compareCellPopulations works with NSCLC multi data", {
   params <- getParamCCP("NSCLC")
   result <- do.call(compareCellPopulations, params)
-  
+
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
   expect_s3_class(result$Plots$Boxplot, "gg")
-  
+
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$Plots$Barplot),
@@ -103,11 +107,11 @@ test_that("compareCellPopulations works with NSCLC multi data", {
 test_that("compareCellPopulations works with BRCA data", {
   params <- getParamCCP("BRCA")
   result <- do.call(compareCellPopulations, params)
-  
+
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
   expect_s3_class(result$Plots$Boxplot, "gg")
-  
+
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$Plots$Barplot),
@@ -123,14 +127,14 @@ test_that("compareCellPopulations works with BRCA data", {
 test_that("compareCellPopulations works with Counts type on TEC data", {
   params <- getParamCCP("TEC")
   params$counts.type <- "Counts"
-  
+
   result <- do.call(compareCellPopulations, params)
-  
+
   # Check result structure
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
   expect_s3_class(result$Plots$Boxplot, "gg")
-  
+
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$Plots$Barplot),
@@ -142,12 +146,12 @@ test_that("compareCellPopulations works with Counts type on TEC data", {
 test_that("compareCellPopulations handles custom group order on Chariou", {
   params <- getParamCCP("Chariou")
   params$group.order <- c("1", "0")  # Status levels
-  
+
   result <- do.call(compareCellPopulations, params)
-  
+
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
-  
+
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$Plots$Barplot),
@@ -159,13 +163,13 @@ test_that("compareCellPopulations handles custom group order on Chariou", {
 test_that("compareCellPopulations handles custom wrap.ncols on PBMC", {
   params <- getParamCCP("PBMC")
   params$wrap.ncols <- 3  # Change from default 5 to 3 columns
-  
+
   result <- do.call(compareCellPopulations, params)
-  
+
   expect_type(result, "list")
   expect_s3_class(result$Plots$Barplot, "gg")
   expect_s3_class(result$Plots$Boxplot, "gg")
-  
+
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$Plots$Boxplot),
@@ -178,7 +182,6 @@ test_that("compareCellPopulations validates input object", {
   expect_error(
     compareCellPopulations(
       object = list(),
-      metadata.table = data.frame(),
       annotation.column = "cell_type",
       group.column = "treatment"
     ),
@@ -190,7 +193,7 @@ test_that("compareCellPopulations validates input object", {
 test_that("compareCellPopulations validates metadata columns on TEC", {
   params <- getParamCCP("TEC")
   params$annotation.column <- "nonexistent_column"
-  
+
   expect_error(
     do.call(compareCellPopulations, params),
     "missing from metadata"
@@ -201,7 +204,7 @@ test_that("compareCellPopulations validates metadata columns on TEC", {
 test_that("compareCellPopulations validates counts.type parameter", {
   params <- getParamCCP("TEC")
   params$counts.type <- "Invalid"
-  
+
   expect_error(
     do.call(compareCellPopulations, params),
     "must be either 'Frequency' or 'Counts'"
@@ -212,7 +215,7 @@ test_that("compareCellPopulations validates counts.type parameter", {
 test_that("compareCellPopulations table contains expected columns on BRCA", {
   params <- getParamCCP("BRCA")
   result <- do.call(compareCellPopulations, params)
-  
+
   # Check for _CellCounts and _Percent suffixed columns
   expect_true(any(grepl("_CellCounts$", colnames(result$Table))))
   expect_true(any(grepl("_Percent$", colnames(result$Table))))

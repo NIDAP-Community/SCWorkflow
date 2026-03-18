@@ -4,13 +4,6 @@
 getParamCCP <- function(data) {
   supported.data <- c("TEC", "Chariou", "PBMC", "NSCLC", "BRCA")
   
-  if (!is.character(data) || length(data) != 1) {
-    stop(
-      "Invalid `data` input. Expected a single character value. Supported values: ",
-      paste(supported.data, collapse = ", "),
-      call. = FALSE
-    )
-  }
   
   if (data == "TEC") {
     object <- selectCRObject("TEC")
@@ -51,18 +44,11 @@ getParamCCP <- function(data) {
     sample.column <- "orig.ident"
     counts.type <- "Frequency"
     group.order <- NULL
-  } else {
-    stop(
-      "Unsupported dataset key `", data, "`. Supported values: ",
-      paste(supported.data, collapse = ", "),
-      call. = FALSE
-    )
-  }
+  } 
   
   return(
     list(
       "object" = object,
-      "metadata.table" = object@meta.data,
       "annotation.column" = annotation.column,
       "group.column" = group.column,
       "sample.column" = sample.column,

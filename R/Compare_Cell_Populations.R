@@ -93,20 +93,6 @@ compareCellPopulations <- function(
     stop("Error: 'object' must be a Seurat object")
   }
   
-  # Normalize metadata and column arguments (replace '.' with '_')
-  colnames(object@meta.data) <- gsub("\\.", "_", colnames(object@meta.data))
-  annotation.column <- gsub("\\.", "_", annotation.column)
-  group.column      <- gsub("\\.", "_", group.column)
-  sample.column     <- gsub("\\.", "_", sample.column)
-  
-  # Validate metadata columns exist
-  required.cols <- c(annotation.column, group.column, sample.column)
-  missing.cols <- setdiff(required.cols, colnames(object@meta.data))
-  if (length(missing.cols) > 0) {
-    stop("Error: The following columns are missing from metadata: ",
-         paste(missing.cols, collapse = ", "))
-  }
-  
   # Validate counts.type
   if (!counts.type %in% c("Frequency", "Counts")) {
     stop("Error: 'counts.type' must be either 'Frequency' or 'Counts'")
@@ -154,7 +140,7 @@ compareCellPopulations <- function(
   ## --------------- ##
   ## Main Code Block ##
   ## --------------- ##
-  
+
   # Replace dots with underscores in column names
   colnames(object@meta.data) <- gsub("\\.", "_", colnames(object@meta.data))
   
@@ -162,6 +148,18 @@ compareCellPopulations <- function(
   annotation.column <- gsub("\\.", "_", annotation.column)
   group.column <- gsub("\\.", "_", group.column)
   sample.column <- gsub("\\.", "_", sample.column)
+  
+  
+  # Validate metadata columns exist
+  required.cols <- c(annotation.column, group.column, sample.column)
+  missing.cols <- setdiff(required.cols, colnames(object@meta.data))
+  if (length(missing.cols) > 0) {
+    stop("Error: The following columns are missing from metadata: ",
+         paste(missing.cols, collapse = ", "))
+  }
+  
+  
+  
   
   # Set up ordering
   ordr <- object@meta.data[[annotation.column]] %>% 

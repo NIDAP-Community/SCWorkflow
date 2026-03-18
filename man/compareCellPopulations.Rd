@@ -6,21 +6,16 @@
 \usage{
 compareCellPopulations(
   object,
-  metadata.table,
   annotation.column,
   group.column,
   sample.column = "orig.ident",
   counts.type = "Frequency",
   group.order = NULL,
-  seurat.object.filename = "seurat_object.rds",
   wrap.ncols = 5
 )
 }
 \arguments{
 \item{object}{A Seurat object containing the single-cell data}
-
-\item{metadata.table}{A data.frame containing metadata (typically from
-Seurat object's meta.data slot)}
 
 \item{annotation.column}{Character string specifying the metadata column
 containing cell type annotations to summarize in the bar plot}
@@ -37,11 +32,11 @@ containing sample identifiers. Default is "orig.ident"}
 \item{group.order}{Character vector specifying the order of groups in plots.
 If NULL, uses natural order from data. Default is NULL}
 
-\item{seurat.object.filename}{Character string for the Seurat object
-filename. Default is "seurat_object.rds"}
-
 \item{wrap.ncols}{Integer specifying number of columns for facet wrapping
 in box plots. Default is 5}
+
+\item{seurat.object.filename}{Character string for the Seurat object
+filename. Default is "seurat_object.rds"}
 }
 \value{
 A list containing:
@@ -71,7 +66,6 @@ across samples and conditions.
 # Compare cell populations by treatment group
 results <- compareCellPopulations(
   object = seurat_obj,
-  metadata.table = seurat_obj@meta.data,
   annotation.column = "cell_type",
   group.column = "treatment",
   sample.column = "sample_id",
