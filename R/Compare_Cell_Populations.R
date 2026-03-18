@@ -39,6 +39,7 @@
 #' @import cowplot
 #' @import gridExtra
 #' @import grid
+#' @import scales
 #'
 #' @importFrom ggalluvial geom_flow
 #' @importFrom stats setNames

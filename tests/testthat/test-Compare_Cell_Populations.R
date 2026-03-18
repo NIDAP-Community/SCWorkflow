@@ -1,3 +1,12 @@
+# for R 4.1.3 ON RStudio Workbench
+# 1) restart R
+# 2) .libPaths(c("/home/homanpj/R/x86_64-pc-linux-gnu-library/4.1",
+#                "/opt/R/4.1.3/lib64/R/library",
+#                "/rstudio-files/ccbr-data/renv_cache/single-cell-rna-seq-r4/Snapshot-environment_method/renv/library/R-4.1/x86_64-pc-linux-gnu"))
+# 3)library(spatstat.core)
+# 4)library(Seurat)
+# 5)load_all()
+
 # Test 1: Standard parameters - TEC dataset
 test_that("compareCellPopulations returns correct structure with TEC data", {
   params <- getParamCCP("TEC")
