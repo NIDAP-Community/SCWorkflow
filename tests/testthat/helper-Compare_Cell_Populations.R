@@ -41,6 +41,11 @@ getParamCCP <- function(data) {
     sample.column <- "orig.ident"
     counts.type <- "Frequency"
     group.order <- NULL
+  } else {
+    stop(
+      "Unknown dataset '", data, "'. ",
+      "Supported datasets are: 'TEC', 'Chariou', 'PBMC', 'NSCLC', 'BRCA'."
+    )
   }
   
   return(
