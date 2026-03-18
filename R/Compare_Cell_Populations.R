@@ -10,8 +10,6 @@
 #' across samples and conditions.
 #'
 #' @param object A Seurat object containing the single-cell data
-#' @param metadata.table A data.frame containing metadata (typically from 
-#' Seurat object's meta.data slot)
 #' @param annotation.column Character string specifying the metadata column 
 #' containing cell type annotations to summarize in the bar plot
 #' @param group.column Character string specifying the metadata column 
