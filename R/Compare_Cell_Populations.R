@@ -103,19 +103,13 @@ compareCellPopulations <- function(
   ## --------- ##
   
   createAnnoTable <- function(SO, AnnoCol, GroupCol) {
-    ## Extract annotation data for each group
-    cntTble <- unique(SO@meta.data[[AnnoCol]]) %>% as.matrix()
+    ## Extract annotation data for each group using a 2D contingency table
+    cntMat <- table(SO@meta.data[[AnnoCol]], SO@meta.data[[GroupCol]])
     
-    for (s in unique(SO@meta.data[[GroupCol]])) {
-      expr <- FetchData(object = SO, vars = GroupCol)
-      subSO <- SO[, which(x = expr == s)]
-      cntTble <- cbind(cntTble, table(subSO@meta.data[[AnnoCol]]))
-    }
-    
-    colnames(cntTble) <- c(AnnoCol, unique(SO@meta.data[[GroupCol]]))
-    cntTble <- cntTble[, -1, drop = FALSE]
+    # Convert to data frame while preserving row/column names
+    cntTble <- as.data.frame.matrix(cntMat)
     cntTble <- data.frame(
-      apply(cntTble, 2, function(x) as.numeric(as.character(x))),
+      lapply(cntTble, function(x) as.numeric(as.character(x))),
       check.names = FALSE,
       row.names = rownames(cntTble)
     )
