@@ -84,7 +84,7 @@ heatmapSC <- function(object,
     # Set iter.max to 20 to avoid convergence warnings.
     set.seed(seed)
     km <- kmeans(current.color.space, k, iter.max = 20)
-    colors <- unname(hex(LAB(km$centers)))
+    colors <- unname(colorspace::hex(colorspace::LAB(km$centers)))
     return(colors)
   }
   
@@ -105,7 +105,7 @@ heatmapSC <- function(object,
     l <- rep(l, length.out = 2L)
     power <- rep(power, length.out = 2L)
     rval <- seq(1, -1, length = n)
-    rval <- hex(polarLUV(
+    rval <- colorspace::hex(colorspace::polarLUV(
       L = l[2L] - diff(l) * abs(rval) ^ power[2L],
       C = c * abs(rval) ^ power[1L],
       H = ifelse(rval > 0, h[1L], h[2L])
@@ -124,25 +124,25 @@ heatmapSC <- function(object,
   
   #Color selections for heatmap:
   np0 = .pal(100) #Cyan to Mustard
-  np1 = diverge_hcl(100,
+  np1 = colorspace::diverge_hcl(100,
                     c = 100,
                     l = c(30, 80),
                     power = 1)  #Blue to Red
-  np2 = heat_hcl(
+  np2 = colorspace::heat_hcl(
     100,
     c = c(80, 30),
     l = c(30, 90),
     power = c(1 / 5, 2)
   ) #Red to Vanilla
-  np3 = rev(heat_hcl(
+  np3 = rev(colorspace::heat_hcl(
     100,
     h = c(0, -100),
     c = c(40, 80),
     l = c(75, 40),
     power = 1
   )) #Violet to Pink
-  np4 = rev(colorRampPalette(brewer.pal(10, "RdYlBu"))(100)) #Bu Yl Rd
-  np5 = colorRampPalette(c("steelblue", "white", "red"))(100)
+  np4 = rev(grDevices::colorRampPalette(RColorBrewer::brewer.pal(10, "RdYlBu"))(100)) #Bu Yl Rd
+  np5 = grDevices::colorRampPalette(c("steelblue", "white", "red"))(100)
   #Steelblue to White to Red
   
   np = list(np0, np1, np2, np3, np4, np5)
@@ -171,10 +171,10 @@ heatmapSC <- function(object,
     if (clus.col == TRUE) {
       .sortHClust <-
         function(...)
-          as.hclust(rev(dendsort(as.dendrogram(...))))
+          as.hclust(rev(dendsort::dendsort(as.dendrogram(...))))
     } else {
       .sortHClust <- function(...)
-        as.hclust(dendsort(as.dendrogram(...)))
+        as.hclust(dendsort::dendsort(as.dendrogram(...)))
     }
     
     if (clus.row == TRUE) {
@@ -217,11 +217,11 @@ heatmapSC <- function(object,
     mat = t(dat)
     
     callback = function(hc, mat) {
-      dend = rev(dendsort(as.dendrogram(hc)))
+      dend = rev(dendsort::dendsort(as.dendrogram(hc)))
       #dend %>% dendextend::rotate(c(1:length(dend))) -> dend
       as.hclust(dend)
     }
-    do.call("pheatmap", c(hm.parameters, list(clustering_callback = callback)))
+    do.call(ComplexHeatmap::pheatmap, c(hm.parameters, list(clustering_callback = callback)))
   }
   
   ##### Main Code Block ####
@@ -263,8 +263,11 @@ heatmapSC <- function(object,
                     dups))
   }
   
-  if (transcripts[1] != "") {
-    missing.genes = setdiff(transcripts, rownames(object$SCT@scale.data))
+  assay.for.transcripts <- if (use_assay == "Harmony") "Harmony" else "SCT"
+  assay.features <- rownames(GetAssayData(object, assay = assay.for.transcripts, layer = "scale.data"))
+  missing.genes <- character(0)
+  if (length(transcripts) > 0 && transcripts[1] != "") {
+    missing.genes = setdiff(transcripts, assay.features)
     if (length(missing.genes) > 0) {
       print(paste("missing genes:", missing.genes))
     }
@@ -289,18 +292,27 @@ heatmapSC <- function(object,
     )
   }
   
-  transcripts <- transcripts[transcripts %in% rownames(object)]
+  transcripts <- transcripts[transcripts %in% assay.features]
   
+  .assayNames <- function(so) {
+    a <- Assays(so)
+    n <- names(a)
+    if (!is.null(n) && length(n) > 0) {
+      return(n)
+    }
+    tryCatch(as.character(a), error = function(e) character(0))
+  }
+
   #Clean up protein names and print missing proteins:
-  if (!is.null(object@assays$Protein)) {
+  if ("Protein" %in% .assayNames(object)) {
     proteins = gsub(" ", "", proteins)
     if (proteins[1] != "") {
-      protmiss = setdiff(proteins, rownames(object$Protein@scale.data))
+      protmiss = setdiff(proteins, rownames(GetAssayData(object, assay="Protein", layer="scale.data")))
       if (length(protmiss) > 0) {
         sprintf("missing proteins: %s", protmiss)
       }
     }
-    proteins = proteins[proteins %in% rownames(object$Protein@scale.data)]
+    proteins = proteins[proteins %in% rownames(GetAssayData(object, assay="Protein", layer="scale.data"))]
   }
   
   #Error messaging for protein annotation tracks:
@@ -317,35 +329,35 @@ heatmapSC <- function(object,
       if(use_assay == 'SCT'){
         df.mat1 <-
           vector(mode = "numeric",
-                 length = length(object$SCT@scale.data[transcripts,]))
-        df.mat1 <- object$SCT@scale.data[transcripts,]
+                 length = length(GetAssayData(object, assay="SCT", layer="scale.data")[transcripts,]))
+        df.mat1 <- GetAssayData(object, assay="SCT", layer="scale.data")[transcripts,]
       } else if (use_assay == 'Harmony'){
         df.mat1 <-
           vector(mode = "numeric",
-                 length = length(object$Harmony@scale.data[transcripts,]))
-        df.mat1 <- object$Harmony@scale.data[transcripts,]
+                 length = length(GetAssayData(object, assay="Harmony", layer="scale.data")[transcripts,]))
+        df.mat1 <- GetAssayData(object, assay="Harmony", layer="scale.data")[transcripts,]
         }
     } else {
       if(use_assay == 'SCT'){
-        df.mat1 <- as.matrix(object$SCT@scale.data[transcripts,])
+        df.mat1 <- as.matrix(GetAssayData(object, assay="SCT", layer="scale.data")[transcripts,])
       } else if (use_assay == 'Harmony'){
-        df.mat1 <- as.matrix(object$Harmony@scale.data[transcripts,])
+        df.mat1 <- as.matrix(GetAssayData(object, assay="Harmony", layer="scale.data")[transcripts,])
         }
     }
   }
   
   #collect protein expression values
   df.mat2 = NULL
-  if (!is.null(object@assays$Protein)) {
+  if ("Protein" %in% .assayNames(object)) {
     if (length(proteins) > 0) {
       if (length(proteins) == 1) {
         df.mat2 <-
           vector(mode = "numeric",
-                 length = length(object$Protein@scale.data[proteins,]))
-        df.mat2 <- object$Protein@scale.data[proteins,]
+                 length = length(GetAssayData(object, assay="Protein", layer="scale.data")[proteins,]))
+        df.mat2 <- GetAssayData(object, assay="Protein", layer="scale.data")[proteins,]
         protname <- paste0(proteins, "_Prot")
       } else {
-        df.mat2 <- as.matrix(object$Protein@scale.data[proteins,])
+        df.mat2 <- as.matrix(GetAssayData(object, assay="Protein", layer="scale.data")[proteins,])
         protname <- paste0(proteins, "_Prot")
         rownames(df.mat2) <- protname
       }
@@ -387,7 +399,7 @@ heatmapSC <- function(object,
   if (add.gene.or.protein == TRUE) {
     if (length(protein.annotations) > 0) {
       annot1 <-
-        as.matrix(object$Protein@scale.data[protein.annotations,])
+        as.matrix(GetAssayData(object, assay="Protein", layer="scale.data")[protein.annotations,])
       if (length(protein.annotations) == 1) {
         annot1 <- annot1[match(rownames(annot), rownames(annot1))]
         protname <- paste0(protein.annotations, "_Prot")
@@ -399,7 +411,7 @@ heatmapSC <- function(object,
     }
     
     if (length(rna.annotations) > 0) {
-      annot2 <- as.matrix(object$SCT@scale.data[rna.annotations,])
+      annot2 <- as.matrix(GetAssayData(object, assay="SCT", layer="scale.data")[rna.annotations,])
       if (length(rna.annotations) == 1) {
         annot2 <- annot2[match(rownames(annot), rownames(annot2))]
       } else {

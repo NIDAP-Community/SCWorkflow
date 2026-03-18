@@ -1,0 +1,42 @@
+---
+title: "SCWorkflow Harmony Knit Test"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SCWorkflow Harmony Knit Test}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+## Harmony Batch Correction Smoke Test
+
+This vignette runs only `harmonyBatchCorrect` against the Seurat5 example object.
+
+```{r run-harmony, message=TRUE, warning=TRUE}
+source("../R/Harmony.R")
+
+so_raw <- readRDS("images/Anno_SO.Seurat5.rds")
+so <- if (inherits(so_raw, "Seurat")) so_raw else so_raw$object
+
+group_var <- "orig.ident"
+if (!(group_var %in% colnames(so@meta.data))) {
+  group_var <- colnames(so@meta.data)[1]
+}
+
+res <- harmonyBatchCorrect(
+  object = so,
+  nvar = min(100, length(Seurat::VariableFeatures(so))),
+  genes.to.add = c("Itgam"),
+  group.by.var = group_var,
+  npc = 10
+)
+
+stopifnot(is.list(res), "object" %in% names(res), inherits(res$object, "Seurat"))
+
+cat("Harmony run succeeded.\n")
+cat("Reductions:", paste(names(res$object@reductions), collapse = ", "), "\n")
+cat("Assays:", paste(names(res$object@assays), collapse = ", "), "\n")
+```

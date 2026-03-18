@@ -66,11 +66,10 @@ colorByGene <- function(object,
   
   
   print(object)
-  # checking for samples
-  if(any(grepl('c\\(|\\[\\]',samples))) {
-    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
-  }else{
-    samples=samples
+  # Parse sample selection from either vector input or string expressions
+  samples <- samples.to.include
+  if (is.character(samples) && length(samples) == 1 && grepl("c\\\\(|\\\\[", samples)) {
+    samples <- eval(parse(text = gsub("\\\\[\\\\]", "c()", samples)))
   }
   # if none specified, using ALL
   if (length(samples) == 0) {
@@ -95,18 +94,18 @@ colorByGene <- function(object,
   }
   
   #Check input for missing genes
-  no.gene = gene[!gene %in% rownames(object.sub[[assay]]@scale.data)]
+  no.gene = gene[!gene %in% rownames(GetAssayData(object.sub, assay=assay, layer="scale.data"))]
   
   if (!is.null(no.gene)) {
     print("Gene(s) missing from dataset:")
     print(no.gene)
   }
   
-  gene = gene[gene %in% rownames(object.sub[[assay]]@scale.data)]
+  gene = gene[gene %in% rownames(GetAssayData(object.sub, assay=assay, layer="scale.data"))]
   
   if (length(gene) > 0) {
     .plotGene <- function(gene) {
-      gene.mat = object.sub[[assay]]@scale.data[gene,]
+      gene.mat = GetAssayData(object.sub, assay=assay, layer="scale.data")[gene,]
       gene.quant = quantile(gene.mat[gene.mat > 1], probs = c(.1, .5, .90))
       gene.mat[gene.mat > gene.quant[3]] = gene.quant[3]
       gene.mat[gene.mat < gene.quant[1]] = 0

@@ -18,7 +18,8 @@
 #' Default is 2
 #' @param do.finetuning Performs the SingleR fine-tuning function.
 #' Default is FALSE
-#' @param local.celldex Provide a local copy of CellDex library.
+#' @param local.celldex Provide a local copy of CellDex library as either an
+#' in-memory list object or a path to an .rds file containing references.
 #' Default is NULL
 #' @param use.clusters Provide cluster identities for each cell.
 #' Default is NULL
@@ -46,21 +47,59 @@ annotateCellTypes <- function(object,
                               do.finetuning = FALSE,
                               local.celldex = NULL,
                               use.clusters = NULL) {
+  if (is.character(local.celldex)) {
+    if (length(local.celldex) != 1 || is.na(local.celldex) || !nzchar(local.celldex)) {
+      stop("local.celldex must be NULL, an in-memory CellDex list, or a single valid file path.")
+    }
+    if (!file.exists(local.celldex)) {
+      stop(paste0("local.celldex file not found: ", local.celldex))
+    }
+    local.celldex <- readRDS(local.celldex)
+  }
+
+  .getCounts <- function(so) {
+    assay_names <- names(Assays(so))
+    if (is.null(assay_names) || length(assay_names) == 0) {
+      assay_names <- tryCatch(as.character(Assays(so)), error = function(e) character(0))
+    }
+    if ("RNA" %in% assay_names) {
+      return(GetAssayData(object = so, assay = "RNA", layer = "counts")[, colnames(x = so)])
+    }
+    return(GetAssayData(object = so, layer = "counts")[, colnames(x = so)])
+  }
+
+  .getCelldexRef <- function(local.db, index, name, fetch.fun) {
+    if (is.null(local.db)) {
+      return(fetch.fun())
+    }
+
+    if (is.list(local.db) && !is.null(names(local.db)) && name %in% names(local.db)) {
+      return(local.db[[name]])
+    }
+
+    if (is.list(local.db) && length(local.db) >= index) {
+      return(local.db[[index]])
+    }
+
+    stop(paste0("local.celldex does not contain reference '", name, "' (index ", index, ")."))
+  }
+
   ## -------------------------------- ##
   ## Functions                        ##
   ## -------------------------------- ##
   
   
   .annotations <- function(so) {
-    so.counts = GetAssayData(object = so)[, colnames(x = so)]
+    so.counts = .getCounts(so)
     if (species == "Human") {
 
       #HPCA block
-      if (!is.null(local.celldex)) {
-        HPCA <- local.celldex[[1]]
-      } else {
-        HPCA <- celldex::HumanPrimaryCellAtlasData(ensembl = FALSE)
-      }
+      HPCA <- .getCelldexRef(
+        local.db = local.celldex,
+        index = 1,
+        name = "HumanPrimaryCellAtlasData",
+        fetch.fun = function() celldex::HumanPrimaryCellAtlasData(ensembl = FALSE)
+      )
       
       singler = SingleR(
         test = so.counts,
@@ -97,11 +136,12 @@ annotateCellTypes <- function(object,
       }
       
       #BP_encode block
-      if (!is.null(local.celldex)) {
-        BP <- local.celldex[[2]]
-      } else {
-        BP <- celldex::BlueprintEncodeData(ensembl = FALSE)
-      }
+      BP <- .getCelldexRef(
+        local.db = local.celldex,
+        index = 2,
+        name = "BlueprintEncodeData",
+        fetch.fun = function() celldex::BlueprintEncodeData(ensembl = FALSE)
+      )
       singler = SingleR(
         test = so.counts,
         genes = 'de',
@@ -139,11 +179,12 @@ annotateCellTypes <- function(object,
     if (species == "Mouse") {
       
       #mouseRNAseq block
-      if (!is.null(local.celldex)) {
-          mousernaseq <- local.celldex[[3]]
-        } else {
-          mousernaseq <- celldex::MouseRNAseqData(ensembl = FALSE)
-        }
+      mousernaseq <- .getCelldexRef(
+        local.db = local.celldex,
+        index = 3,
+        name = "MouseRNAseqData",
+        fetch.fun = function() celldex::MouseRNAseqData(ensembl = FALSE)
+      )
       
       singler = SingleR(
         test = so.counts,
@@ -181,11 +222,12 @@ annotateCellTypes <- function(object,
       
       
       #ImmGen block
-      if (!is.null(local.celldex)) {
-        immgen <- local.celldex[[4]]
-      } else {
-        immgen <- celldex::ImmGenData(ensembl = FALSE)
-      }
+      immgen <- .getCelldexRef(
+        local.db = local.celldex,
+        index = 4,
+        name = "ImmGenData",
+        fetch.fun = function() celldex::ImmGenData(ensembl = FALSE)
+      )
       singler = SingleR(
         test = so.counts,
         genes = 'de',

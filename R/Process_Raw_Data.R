@@ -72,6 +72,16 @@ processRawData <- function(input,
   ## --------- ##
   library(Seurat)
   # library(stringr)
+  .hasAssay <- function(so, assay_name) {
+    tryCatch({
+      # Try to access the assay directly - if it exists, return TRUE
+      !is.null(so[[assay_name]])
+    }, error = function(e) {
+      # If access fails, assay doesn't exist
+      FALSE
+    })
+  }
+
   # Cell Cycle Scoring and Find Variable Features
   CC_FVF_so <- function(so){
     so <- CellCycleScoring(object = so, 
@@ -150,13 +160,13 @@ processRawData <- function(input,
     
     
     ## Detect & Normalize CITEseq 
-    if ("Protein" %in% names(so.nf)){
+    if (.hasAssay(so.nf, "Protein")){
       so.nf <- NormalizeData(so.nf, assay = "Protein",
                              normalization.method = "CLR")
     }
     
     ## Detect & Normalize HTO data
-    if ("HTO" %in% names(so.nf)){
+    if (.hasAssay(so.nf, "HTO")){
       so.nf <- NormalizeData(so.nf, assay = "HTO", normalization.method = "CLR")
     }
     
@@ -443,7 +453,7 @@ processRawData <- function(input,
     print(' ')
     print(names(obj.list)[i])
     ## From dgCMatrix
-    if (class(obj.list[[i]]) == "dgCMatrix"){
+    if (inherits(obj.list[[i]], "dgCMatrix")){
       so.orig.nf[[i]] <- CreateSeuratObject(counts = obj.list[[i]], 
                                             assay = "RNA", 
                                             project=names(obj.list)[[i]], 
@@ -559,7 +569,7 @@ processRawData <- function(input,
     } else {
       meta.table=sample.metadata.table
     }
-    if (length(setdiff(meta.table[,sample.name.column],names(so.orig.nf)))>0) {
+    if (length(setdiff(meta.table[[sample.name.column]],names(so.orig.nf)))>0) {
       stop(paste0("
                   Names in the sample metadata column: '",sample.name.column,
                   "' do not match sample names taken from .h5 files. 
@@ -567,7 +577,7 @@ processRawData <- function(input,
                   Check sample names:
                   ",
                   paste(
-                    paste0("'",setdiff(meta.table[,sample.name.column],
+                    paste0("'",setdiff(meta.table[[sample.name.column]],
                                        names(so.orig.nf)),"'"),
                     sep="",
                     collapse = "\n"
@@ -589,7 +599,7 @@ processRawData <- function(input,
 
         so.orig.nf=appendMetadataToSeuratObject(
         so.orig.nf,
-        meta.table[,c(sample.name.column,metacols)],
+        as.data.frame(meta.table[,c(sample.name.column,metacols)]),
         sample.name.column)[['object']]
       
     } else { print("No Metadata Columns were included in Metadata table")}
@@ -614,10 +624,10 @@ processRawData <- function(input,
                    sort(meta.table[[sample.name.column]]))){
         for (i in names(so.orig.nf)) {
           
-          nname=meta.table[meta.table[,sample.name.column]%in%i,]
+          nname=meta.table[meta.table[[sample.name.column]]%in%i,]
           ## add original name to metadata table
           so.orig.nf[[i]]@meta.data[,sample.name.column]=
-            nname[,sample.name.column]
+            nname[[sample.name.column]]
 
           ## Move original sample name column to second position in so metadata
           so.orig.nf[[i]]@meta.data=relocate(so.orig.nf[[i]]@meta.data,
@@ -625,9 +635,9 @@ processRawData <- function(input,
                                              .after = orig.ident)
 
           ## change orig.ident col to new name
-          so.orig.nf[[i]]@meta.data$orig.ident=nname[,rename.col]
+          so.orig.nf[[i]]@meta.data$orig.ident=nname[[rename.col]]
           
-          names(so.orig.nf)[names(so.orig.nf)%in%i]=nname[,rename.col]
+          names(so.orig.nf)[names(so.orig.nf)%in%i]=nname[[rename.col]]
           
 
           }
@@ -731,32 +741,68 @@ processRawData <- function(input,
   
   table.meta$nFeature_RNA=as.numeric(table.meta$nFeature_RNA)
   
-
-  table.meta=rename(table.meta,
-         'UMI Count (nCount_RNA)' = 'nCount_RNA',
-         'Gene Count (nFeature_RNA)' ='nFeature_RNA',
-         'Percent Mitochondrial Genes (percent.mt)'='percent.mt',
-         'Complexity (log10GenesPerUMI)'='log10GenesPerUMI'
-         )
+  # Conditionally rename columns only if they exist (using base R colnames)
+  rename_map <- c(
+    'nCount_RNA' = 'UMI Count (nCount_RNA)',
+    'nFeature_RNA' = 'Gene Count (nFeature_RNA)',
+    'percent.mt' = 'Percent Mitochondrial Genes (percent.mt)',
+    'log10GenesPerUMI' = 'Complexity (log10GenesPerUMI)'
+  )
   
-  v=c('UMI Count (nCount_RNA)' ,
-  'Gene Count (nFeature_RNA)',
-  'Percent Mitochondrial Genes (percent.mt)',
-  'Complexity (log10GenesPerUMI)')
+  current_names <- colnames(table.meta)
+  new_names <- current_names
+  for (old_name in names(rename_map)) {
+    idx <- which(current_names == old_name)
+    if (length(idx) > 0) {
+      new_names[idx] <- rename_map[old_name]
+    }
+  }
+  colnames(table.meta) <- new_names
+  
+  # Build list of renamed columns that actually exist
+  v <- c()
+  v_names <- c('UMI Count (nCount_RNA)', 'Gene Count (nFeature_RNA)', 
+               'Percent Mitochondrial Genes (percent.mt)', 'Complexity (log10GenesPerUMI)')
+  for (name in v_names) {
+    if (name %in% colnames(table.meta)) {
+      v <- c(v, name)
+    }
+  }
+  
+  # If v is empty (columns weren't renamed), use original names
+  if (length(v) == 0) {
+    v <- c('nCount_RNA', 'nFeature_RNA', 'percent.mt', 'log10GenesPerUMI')
+    v <- v[v %in% colnames(table.meta)]
+  }
   
   
 
   ### Post Filter Summary - Scatter
   
-  scatter.allsamples=lapply(v,
-                            function(y){.plotScatterPost2(table.meta,
-                                                          'UMI Count (nCount_RNA)',y)})
-  names(scatter.allsamples)=v
+  # Use nCount_RNA (or its renamed version) as x-axis if available
+  x_col <- if('UMI Count (nCount_RNA)' %in% colnames(table.meta)) {
+    'UMI Count (nCount_RNA)'
+  } else if('nCount_RNA' %in% colnames(table.meta)) {
+    'nCount_RNA'
+  } else if(length(v) > 0) {
+    v[1]
+  } else {
+    NULL
+  }
   
-  scatter.allsamples.grob=ggarrange(plotlist=scatter.allsamples,
-                                    ncol=1,
-                                    common.legend = T,
-                                    legend = 'right')
+  if(!is.null(x_col)) {
+    scatter.allsamples=lapply(v,
+                              function(y){.plotScatterPost2(table.meta, x_col, y)})
+    names(scatter.allsamples)=v
+    
+    scatter.allsamples.grob=ggarrange(plotlist=scatter.allsamples,
+                                      ncol=1,
+                                      common.legend = T,
+                                      legend = 'right')
+  } else {
+    scatter.allsamples <- NULL
+    scatter.allsamples.grob <- NULL
+  }
   
   
   ### Post Filter Summary - histogram
@@ -787,16 +833,20 @@ processRawData <- function(input,
   
   ### Post Filter Summary - combined Scatter + Histogram
   
-  raw.grobs=ggarrange(
-    ggarrange(plotlist=scatter.allsamples,
-              ncol=1,legend = 'none'),
-    ggarrange(plotlist=hist.allsamples,
-              ncol=1,legend = 'none'),
-    # ggarrange(plotlist=violin.allsamples,ncol=1,legend = 'none'),
-    legend.grob=get_legend(scatter.allsamples[[1]]),
-    ncol=2,
-    legend='right') %>% 
-    suppressMessages()%>%suppressWarnings()
+  if (!is.null(scatter.allsamples) && !is.null(hist.allsamples)) {
+    raw.grobs=ggarrange(
+      ggarrange(plotlist=scatter.allsamples,
+                ncol=1,legend = 'none'),
+      ggarrange(plotlist=hist.allsamples,
+                ncol=1,legend = 'none'),
+      # ggarrange(plotlist=violin.allsamples,ncol=1,legend = 'none'),
+      legend.grob=get_legend(scatter.allsamples[[1]]),
+      ncol=2,
+      legend='right') %>% 
+      suppressMessages()%>%suppressWarnings()
+  } else {
+    raw.grobs <- hist.allsamples.grob
+  }
   
   raw.grobs=annotate_figure(raw.grobs, 
                             top = text_grob(" Unfiltered QC Summary ", 

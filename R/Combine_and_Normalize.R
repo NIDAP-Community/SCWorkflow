@@ -149,6 +149,15 @@ combineNormalize <- function(object,
   ## --------- ##
   ## Functions ####
   ## --------- ##
+
+  .assayNames <- function(so) {
+    a <- Assays(so)
+    n <- names(a)
+    if (!is.null(n) && length(n) > 0) {
+      return(n)
+    }
+    tryCatch(as.character(a), error = function(e) character(0))
+  }
   
   .plotPCA <- function(so,m,sample){
     p1 <- DimPlot(so, reduction = "pca")
@@ -159,9 +168,10 @@ combineNormalize <- function(object,
                           clusid=so@meta.data[[m]])
     
     ## Calculate Percent Varriation for each PC
-    sumpcsd <- sum(so@reductions$pca@stdev)
+    pca_stdev <- Seurat::Stdev(so, reduction = "pca")
+    sumpcsd <- sum(pca_stdev)
     
-    pcvar <- (so@reductions$pca@stdev/sumpcsd)*100
+    pcvar <- (pca_stdev/sumpcsd)*100
     pcvar <- formatC(pcvar,format = "g",digits=3)
     
     pcvar1 <- pcvar[1] 
@@ -246,8 +256,9 @@ combineNormalize <- function(object,
     if("Elbow" %in% methods.pca){
       #Find Elbow:
       #NC Add comments for context of specific actions
-      sumpcsd = sum(so@reductions$pca@stdev)
-      pcvar = (so@reductions$pca@stdev/sumpcsd)*100
+      pca_stdev <- Seurat::Stdev(so, reduction = "pca")
+      sumpcsd = sum(pca_stdev)
+      pcvar = (pca_stdev/sumpcsd)*100
       cumu <- cumsum(pcvar)
       co1 <- which(cumu > 80 & pcvar < 5)[1]
       co2 <- sort(which((pcvar[1:length(pcvar) - 1] - pcvar[2:length(pcvar)]) > 
@@ -281,9 +292,10 @@ combineNormalize <- function(object,
       }
       
       ## Determine Dimentions of Expression data for MarchenkoPastur
-      M <- dim(so$RNA@data)[1]
-      N <- dim(so$RNA@data)[2]
-      pca.sdev <- so@reductions$pca@stdev
+      rna_data <- GetAssayData(so, assay = "RNA", layer = "data")
+      M <- nrow(rna_data)
+      N <- ncol(rna_data)
+      pca.sdev <- Seurat::Stdev(so, reduction = "pca")
       pca.sig.num <- pcaMarchenkoPastur(M=M,N=N,pca.sdev = pca.sdev)
       lab2 = paste0("MP = ", pca.sig.num)
       xpos2 = pca.sig.num+4
@@ -698,7 +710,7 @@ combineNormalize <- function(object,
   #later the template will check for a Protein assay and run if it finds it
 
   do.cite.seq <- FALSE
-  if ("Protein" %in% names(object.merge@assays)){
+  if ("Protein" %in% .assayNames(object.merge)){
     do.cite.seq <-TRUE
   }
 
@@ -710,8 +722,8 @@ combineNormalize <- function(object,
     VariableFeatures(object.merge,assay="Protein") <-
       rownames(object.merge$Protein)
     
-    if(all(sapply(seq_along(object),
-                  function(i) "Protein" %in% names(object[[i]]@assays)))){
+        if(all(sapply(seq_along(object),
+          function(i) "Protein" %in% .assayNames(object[[i]])))){
       object.merge = NormalizeData(object.merge,
                               assay = "Protein",
                               normalization.method = "CLR")

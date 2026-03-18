@@ -3,6 +3,7 @@
 export(aggregateCounts)
 export(annotateCellTypes)
 export(appendMetadataToSeuratObject)
+export(AddExternalAnnotation)
 export(colorByGene)
 export(colorByMarkerTable)
 export(combineNormalize)

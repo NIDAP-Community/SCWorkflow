@@ -78,8 +78,8 @@ colorByMarkerTable <- function (object, samples.subset, samples.to.display,
                     } else if (reduction.type == "umap") {
                     p1 <- DimPlot(object, reduction = "umap", 
                         group.by = "ident")
-                    clusmat = data.frame(umap1 = p1$data$UMAP_1, 
-                        umap2 = p1$data$UMAP_2, markers = markers.mat, 
+                    clusmat = data.frame(umap1 = p1$data$umap_1, 
+                        umap2 = p1$data$umap_2, markers = markers.mat, 
                         ident = as.factor(p1$data$ident))
                     } else {
                     p1 <- DimPlot(object, reduction = "pca", 

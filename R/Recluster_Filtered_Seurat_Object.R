@@ -98,8 +98,9 @@ reclusterFilteredSeuratObject <- function(object,
         verbose = FALSE,
         seed.use = 42
       ) # initial run
-    sumpcsd = sum(object@reductions$pca@stdev)
-    pcvar = (object@reductions$pca@stdev / sumpcsd) * 100
+    pca_stdev <- Seurat::Stdev(object, reduction = "pca")
+    sumpcsd = sum(pca_stdev)
+    pcvar = (pca_stdev / sumpcsd) * 100
     cumu <- cumsum(pcvar)
     co1 <- which(cumu > 80 & pcvar < 5)[1]
     co2 <-
@@ -120,15 +121,14 @@ reclusterFilteredSeuratObject <- function(object,
   object <-
     RunUMAP(
       object = object,
-      reduction.type = "pca",
+      reduction = "pca",
       dims = 1:number.of.pcs,
       seed.use = 42
     )
   object <-
     RunTSNE(
       object = object,
-      reduction.type = "pca",
-      dim.embed = 2,
+      reduction = "pca",
       dims = 1:number.of.pcs,
       seed.use = 1
     )

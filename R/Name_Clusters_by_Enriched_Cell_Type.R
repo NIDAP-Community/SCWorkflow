@@ -69,7 +69,7 @@ nameClusters <- function(object,
     object =
     AddMetaData(object,
                 metadata =
-                  deframe(tibble(metadata.df[[cluster.column]],
+                  deframe(tibble(rownames(metadata.df),
                                  cluster.names[as.character(colval)])),
                           col.name = "Clusternames")
   } else{

@@ -154,7 +154,7 @@ if (ExtraValue > 0) {
             geom_point(mapping = aes_string(size = "pct.exp",
                                     color = "avg.exp.scaled")) +
             scale_color_gradient(low = "lightgrey", high = dot.color) +
-            theme_cowplot() +
+            cowplot::theme_cowplot() +
             theme(axis.title.x = element_blank(),
                   axis.text.x = element_text(angle = 90, 
                                              vjust = 1,

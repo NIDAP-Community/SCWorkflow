@@ -64,7 +64,7 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
         markers = FindMarkers(object.sub, ident.1 = first.cluster, 
             ident.2 = second.cluster, test.use = test.to.use, 
             logfc.threshold = log.fc.threshold, verbose = FALSE, 
-            assay = assay.to.use, slot = "counts")
+            assay = assay.to.use, layer = "counts")
         colnames(markers) <- chartr(old = " ", new = "_", paste(colnames(markers), 
             first.cluster, "vs", second.cluster.name, sep = "_"))
         return(markers)

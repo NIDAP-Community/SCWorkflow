@@ -362,9 +362,11 @@ filterSeuratObjectByMetadata <- function(object,
     meta.col <- unique(object@meta.data[[category.to.filter]])
     value <- cut.off
     if (filter.direction == "greater than") {
-      SO.sub <- subset(object, subset = category.to.filter > cut.off)
+      keep.cells <- rownames(object@meta.data)[object@meta.data[[category.to.filter]] > cut.off]
+      SO.sub <- subset(object, cells = keep.cells)
     } else {
-      SO.sub <- subset(object, subset = category.to.filter < cut.off)
+      keep.cells <- rownames(object@meta.data)[object@meta.data[[category.to.filter]] < cut.off]
+      SO.sub <- subset(object, cells = keep.cells)
     }
     
     

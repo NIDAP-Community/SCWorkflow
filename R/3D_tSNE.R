@@ -41,7 +41,7 @@ tSNE3D <- function(object,
   )
   
   tsne.coord <-
-    as.data.frame(object@reductions$tsne@cell.embeddings)
+    as.data.frame(Embeddings(object, reduction="tsne"))
   
   if (is.null(object@meta.data[[label.variable]])) {
     stop(

@@ -36,13 +36,11 @@
 #' @return A list: adj.object with harmony-adjusted gene expression (SCT slot) 
 #'                 adj.tsne: harmonized tSNE plot
 
-object = readRDS('tests/testthat/fixtures/BRCA/BRCA_Combine_and_Renormalize_SO_downsample.rds')
-
 harmonyBatchCorrect <- function(object, 
                                 nvar = 2000, 
                                 genes.to.add = c(),
                                 group.by.var,
-                                return_lognorm = T,
+                                return_lognorm = TRUE,
                                 npc = 30) {
   
 library(patchwork)  
@@ -51,14 +49,34 @@ library(Seurat)
 library(ggplot2)
 library(RColorBrewer)
 
+  ensure_single_layer_assay <- function(seurat_obj, assay_name) {
+    assay_obj <- seurat_obj[[assay_name]]
+    if (inherits(assay_obj, "Assay5")) {
+      seurat_obj <- SeuratObject::JoinLayers(seurat_obj, assay = assay_name)
+    }
+    seurat_obj
+  }
+
   # Error and Warning Messages
+  if (missing(group.by.var) || length(group.by.var) != 1 || !(group.by.var %in% colnames(object@meta.data))) {
+    stop("group.by.var must be a single metadata column present in object@meta.data")
+  }
+
   if(is.null(genes.to.add)){
     print("no genes will be added")
   } else if (all(!genes.to.add %in% rownames(object))){
     warning("specified genes were not found and therefore cannot be added")
   }
+
+  assay_use <- if ("SCT" %in% names(object@assays)) "SCT" else DefaultAssay(object)
+  object <- ensure_single_layer_assay(object, assay_use)
+
+  var_features <- Seurat::VariableFeatures(object = object, assay = assay_use)
+  if (length(var_features) == 0) {
+    stop(paste0("No variable features found in assay '", assay_use, "'."))
+  }
   
-  if (nvar > length(VariableFeatures(object))){
+  if (nvar > length(var_features)){
     stop("nvar exceed total number of variable genes in the data")
   }
   
@@ -70,14 +88,16 @@ library(RColorBrewer)
   cols = unlist(mapply(brewer.pal, qual.col.pals$maxcolors, 
                        rownames(qual.col.pals)))
   
-  sdat.tsne.orig <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),
-                               as.vector(object@reductions$tsne@cell.embeddings[,2]),
-                               object@meta.data[eval(parse(text = "group.by.var"))])
+  tsne_embed_orig <- Embeddings(object, reduction = "tsne")
+  sdat.tsne.orig <- data.frame(as.vector(tsne_embed_orig[,1]),
+                               as.vector(tsne_embed_orig[,2]),
+                               object[[group.by.var, drop = TRUE]])
   names(sdat.tsne.orig) <- c("TSNE1","TSNE2","ident")
   
-  sdat.umap.orig <- data.frame(as.vector(object@reductions$umap@cell.embeddings[,1]),
-                               as.vector(object@reductions$umap@cell.embeddings[,2]),
-                               object@meta.data[eval(parse(text = "group.by.var"))])
+  umap_embed_orig <- Embeddings(object, reduction = "umap")
+  sdat.umap.orig <- data.frame(as.vector(umap_embed_orig[,1]),
+                               as.vector(umap_embed_orig[,2]),
+                               object[[group.by.var, drop = TRUE]])
   names(sdat.umap.orig) <- c("UMAP1","UMAP2","ident")
   
   orig.tsne <- ggplot(sdat.tsne.orig, aes(x=TSNE1, y=TSNE2)) +
@@ -107,14 +127,20 @@ library(RColorBrewer)
     annotate("text", x = Inf, y = -Inf, label = "Original UMAP", hjust = 1.1, vjust = -1, size = 5)
   
   # Adjusts SCT scale.data based on harmonized embedding
-  seur.SCT <- object@assays$SCT@scale.data
+  seur.SCT <- tryCatch(
+    Seurat::GetAssayData(object, assay = assay_use, layer = "scale.data"),
+    error = function(e) NULL
+  )
+  if (is.null(seur.SCT) || nrow(seur.SCT) == 0) {
+    warning("scale.data layer not available; using data layer for SVD input")
+    seur.SCT <- Seurat::GetAssayData(object, assay = assay_use, layer = "data")
+  }
   
   # Add more genes to analyze - must be present in SCT scale.data
-  genes.to.add <- genes.to.add[
-    genes.to.add %in% rownames(object@assays$SCT@scale.data)]
+  genes.to.add <- genes.to.add[genes.to.add %in% rownames(seur.SCT)]
   
   # Most variable features (mvf) with user added genes
-  mvf <- unique(c(VariableFeatures(object)[1:nvar], genes.to.add))
+  mvf <- unique(c(var_features[1:nvar], genes.to.add))
   
   # Double check that mvf genes are found in scale data genes
   mvf <- mvf[mvf %in% rownames(seur.SCT)]
@@ -140,19 +166,23 @@ library(RColorBrewer)
   rownames(ppldngs) <- mvf 
   
   # Redo pca embeddings based on SVD of gene expression values
-  object@reductions$pca@cell.embeddings <- ppembed
-  object@reductions$pca@feature.loadings <- ppldngs
-  object@reductions$pca@stdev <- pppca$d
+  object[["pca"]] <- CreateDimReducObject(
+    embeddings = ppembed,
+    loadings = ppldngs,
+    stdev = pppca$d,
+    assay = DefaultAssay(object),
+    key = "PC_"
+  )
 
    # Store original log-normalized data and scaling parameters for back-calculation
     if (return_lognorm) {
       library(Matrix)
       # Get log-normalized data for the variable features
-      lognorm_data <- object@assays$SCT@data[mvf, , drop = FALSE]
-      print(str(object))
-      print("hello")
-      print(class(lognorm_data))
-      print(dim(lognorm_data))
+      data_layer <- tryCatch(
+        Seurat::GetAssayData(object, assay = assay_use, layer = "data"),
+        error = function(e) Seurat::GetAssayData(object, assay = assay_use, layer = "counts")
+      )
+      lognorm_data <- data_layer[mvf, , drop = FALSE]
       
       # Calculate scaling parameters from the original scaled data
       #scale_center <- Matrix::rowMeans(lognorm_data)
@@ -170,24 +200,29 @@ library(RColorBrewer)
   # By default, Harmony corrects pca embeddings. 
   # Set do_pca to FALSE to use your own pca embeddings. 
   # Stores adjusted embeddings in harmony reduction slot
-  object <- RunHarmony(object, 
-                       group.by.var,
-                       do_pca=FALSE,
-                       assay.use = "SCT",
-                       plot_convergence = FALSE)
+  object <- harmony::RunHarmony(
+    object = object,
+    group.by.vars = group.by.var,
+    reduction.use = "pca",
+    dims.use = seq_len(min(npc, ncol(Embeddings(object, reduction = "pca")))),
+    plot_convergence = FALSE
+  )
 
-  object <- RunUMAP(object, reduction = "harmony", dims = 1:npc)
-  object <- RunTSNE(object, reduction = "harmony", dims = 1:npc)
+  harm_dims <- seq_len(min(npc, ncol(Embeddings(object, reduction = "harmony"))))
+  object <- RunUMAP(object, reduction = "harmony", dims = harm_dims)
+  object <- RunTSNE(object, reduction = "harmony", dims = harm_dims)
   
   # Plot harmony embeddings annotated by variable to batch correct for
-  sdat.tsne <- data.frame(as.vector(object@reductions$tsne@cell.embeddings[,1]),
-                          as.vector(object@reductions$tsne@cell.embeddings[,2]),
-                          object@meta.data[eval(parse(text = "group.by.var"))])
+  tsne_embed <- Embeddings(object, reduction = "tsne")
+  sdat.tsne <- data.frame(as.vector(tsne_embed[,1]),
+                          as.vector(tsne_embed[,2]),
+                          object[[group.by.var, drop = TRUE]])
   names(sdat.tsne) <- c("TSNE1","TSNE2","ident")
   
-  sdat.umap <- data.frame(as.vector(object@reductions$umap@cell.embeddings[,1]),
-                          as.vector(object@reductions$umap@cell.embeddings[,2]),
-                          object@meta.data[eval(parse(text = "group.by.var"))])
+  umap_embed <- Embeddings(object, reduction = "umap")
+  sdat.umap <- data.frame(as.vector(umap_embed[,1]),
+                          as.vector(umap_embed[,2]),
+                          object[[group.by.var, drop = TRUE]])
   names(sdat.umap) <- c("UMAP1","UMAP2","ident")
   
   harm.tsne <- ggplot(sdat.tsne, aes(x=TSNE1, y=TSNE2)) +
@@ -220,34 +255,45 @@ library(RColorBrewer)
   print((orig.umap + harm.umap) + plot_layout(ncol = 2))
   
   # Calculate adjusted gene expression from embeddings
-  harm.embeds <- object@reductions$harmony@cell.embeddings
-  harm.lvl.backcalc.scaled <- harm.embeds %*% t(ppldngs)
+  harm.embeds <- Embeddings(object, reduction = "harmony")
+  n_common_pcs <- min(ncol(harm.embeds), ncol(ppldngs))
+  if (n_common_pcs < 2) {
+    stop("Insufficient overlapping PCs between Harmony embeddings and loadings for back-calculation")
+  }
+  harm.embeds.use <- harm.embeds[, seq_len(n_common_pcs), drop = FALSE]
+  ppldngs.use <- ppldngs[, seq_len(n_common_pcs), drop = FALSE]
+  harm.lvl.backcalc.scaled <- harm.embeds.use %*% t(ppldngs.use)
   
   # Store batch-corrected scaled data in Harmony assay
   
   if (return_lognorm) {
       # Fast conversion back to log-normalized space
-      # Direct vectorized operations on the transposed matrix
-      harm.lvl.backcalc.lognorm <- t(harm.lvl.backcalc.scaled) * scaling_params$scale[mvf] + scaling_params$center[mvf]
+      common_genes <- intersect(colnames(harm.lvl.backcalc.scaled), scaling_params$genes)
+      if (length(common_genes) == 0) {
+        stop("No overlapping genes available to reconstruct log-normalized values")
+      }
+      harm_scaled_t <- t(harm.lvl.backcalc.scaled[, common_genes, drop = FALSE])
+      harm.lvl.backcalc.lognorm <- sweep(harm_scaled_t, 1, scaling_params$scale[common_genes], `*`)
+      harm.lvl.backcalc.lognorm <- sweep(harm.lvl.backcalc.lognorm, 1, scaling_params$center[common_genes], `+`)
       
       print("Batch-corrected data stored in 'Harmony' assay:")
-      print("- Log-normalized data: object@assays$Harmony@data")
-      print("- Scaled data: object@assays$Harmony@scale.data")
+      print("- Log-normalized data: Harmony assay data layer")
+      print("- Scaled data: Harmony assay scale.data layer")
     } else {
-      print("Batch-corrected scaled data stored in object@assays$Harmony@scale.data")
+      harm.lvl.backcalc.lognorm <- t(harm.lvl.backcalc.scaled)
+      print("Batch-corrected scaled data was also copied into the Harmony data layer")
     }
   
    # Insert back-calculated data into seurat
    object[["Harmony"]] <- CreateAssayObject(data = harm.lvl.backcalc.lognorm)
-   #object[["Harmony"]] <- CreateAssayObject(data = Matrix::Matrix(t(harm.lvl.backcalc.lognorm), sparse = TRUE))
-   object@assays$Harmony@scale.data <- t(harm.lvl.backcalc.scaled)
+   object <- SetAssayData(
+     object = object,
+     assay = "Harmony",
+     layer = "scale.data",
+     new.data = t(harm.lvl.backcalc.scaled)
+   )
 
-   object <- ScaleData(object, assay = "Harmony", verbose = FALSE)
-
-   # re-run PCA on harmony embeddings using top variable genes (mvf)
-   object <- RunPCA(object, assay = "Harmony", verbose = FALSE, features = rownames(object))
-
-   object <- FindNeighbors(object, reduction = "harmony", dims = 1:10, assay = "Harmony")
+   object <- FindNeighbors(object, reduction = "harmony", dims = seq_len(min(10, length(harm_dims))))
   
   return(
     list("object"=object)

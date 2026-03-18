@@ -86,6 +86,13 @@
 #' cells. Doublets are defined as two cells that are sequenced under the same 
 #' cellular barcode, for example, if they were captured in the same droplet.
 #' (Default: TRUE)
+#' @param do.doublets.filter Alias for do.doublets.fitler with corrected
+#'  spelling. If both arguments are provided and disagree, an error is thrown.
+#'  If this argument is provided, it takes precedence. (Default: NULL)
+#' @param artificialDoublets Number of artificial doublets to generate per sample
+#'  in scDblFinder. Older versions of scDblFinder defaulted to 5000 for all
+#'  sample sizes; newer versions scale proportionally to sample size. Set to
+#'  5000 for backwards-compatible behavior. (Default: 5000)
 #' 
 #' 
 #' @importFrom Seurat CreateAssayObject Idents as.SingleCellExperiment 
@@ -127,6 +134,8 @@ filterQC <- function(object,
                      mad.topNgenes.limits = c(5,5),
                      n.topgnes=20,
                      do.doublets.fitler=T,
+                     do.doublets.filter=NULL,
+                     artificialDoublets=5000,
                      
                      ## dim Reduction settings
                      plot.outliers="None", #options(None,UMAP,tSNE) 
@@ -146,9 +155,20 @@ filterQC <- function(object,
                      
                      
 ){
-  
-  
-  
+  using_legacy_doublet_arg <- !missing(do.doublets.fitler)
+  using_new_doublet_arg <- !missing(do.doublets.filter)
+
+  if (using_new_doublet_arg && !is.null(do.doublets.filter)) {
+    if (using_legacy_doublet_arg && !identical(do.doublets.fitler, do.doublets.filter)) {
+      stop("Both 'do.doublets.fitler' and 'do.doublets.filter' were provided with different values. Please provide only one, or set them to the same value.")
+    }
+    do.doublets.fitler <- do.doublets.filter
+  } else if (using_legacy_doublet_arg) {
+    warning("Argument 'do.doublets.fitler' is deprecated and retained for compatibility. Please use 'do.doublets.filter' instead.", call. = FALSE)
+  }
+
+
+
   ## --------- ##
   ## Functions ####
   ## --------- ##
@@ -157,7 +177,7 @@ filterQC <- function(object,
   
   .topNGenes <- function(so,n.topgnes) { 
     ##Extract counts table
-    counts_matrix = GetAssayData(so, slot="counts")
+    counts_matrix = GetAssayData(so, layer="counts")
     
     ## calculate Counts in Top n genes 
     tbl=  apply(counts_matrix,2,function(i){
@@ -175,6 +195,15 @@ filterQC <- function(object,
     so_out=AddMetaData(so, tbl, col.name = 'pct_counts_in_top_N_genes')
     
     return(so_out)  
+  }
+
+  .assayNames <- function(so) {
+    a <- Assays(so)
+    n <- names(a)
+    if (!is.null(n) && length(n) > 0) {
+      return(n)
+    }
+    tryCatch(as.character(a), error = function(e) character(0))
   }
   
   .rowMaxs=function(mtx){
@@ -430,9 +459,9 @@ filterQC <- function(object,
   
   .runTsnepPlot= function(filterCat,filterM,so,reduction){
     if (reduction=="umap") {
-      qcFiltr.df.plot <- as.data.frame(so@reductions$umap@cell.embeddings)
+      qcFiltr.df.plot <- as.data.frame(Embeddings(so, reduction = "umap"))
     }else{
-      qcFiltr.df.plot <- as.data.frame(so@reductions$tsne@cell.embeddings)
+      qcFiltr.df.plot <- as.data.frame(Embeddings(so, reduction = "tsne"))
     }
     
     filterM=filterM[,filterCat,drop=F]
@@ -565,18 +594,26 @@ filterQC <- function(object,
                               dims = 1:npcs, 
                               seed.use=seed.for.UMAP)
         qcFiltr.df.plot = as.data.frame(
-          so.nf.qcFiltr@reductions$umap@cell.embeddings)
+          Embeddings(so.nf.qcFiltr, reduction="umap"))
         so.nf=AddMetaData(so.nf,qcFiltr.df.plot) 
         
       }else{
         
-        so.nf.qcFiltr <- RunTSNE(object = so.nf.qcFiltr, 
-                              reduction = "pca", 
-                              dim.embed = 2, 
-                              dims = 1:npcs, 
-                              seed.use = seed.for.TSNE)
-        qcFiltr.df.plot = as.data.frame(
-          so.nf.qcFiltr@reductions$tsne@cell.embeddings)
+        so.nf.qcFiltr <- tryCatch({
+          RunTSNE(object = so.nf.qcFiltr, 
+                  reduction = "pca", 
+                  dim.embed = 2, 
+                  dims = 1:npcs, 
+                  seed.use = seed.for.TSNE)
+        }, error = function(e) {
+          message("RunTSNE failed: ", e$message, ". Skipping tSNE reduction.")
+          so.nf.qcFiltr
+        })
+        qcFiltr.df.plot = if ("tsne" %in% Reductions(so.nf.qcFiltr)) {
+          as.data.frame(Embeddings(so.nf.qcFiltr, reduction="tsne"))
+        } else {
+          as.data.frame(Embeddings(so.nf.qcFiltr, reduction="umap"))
+        }
         so.nf=AddMetaData(so.nf,qcFiltr.df.plot) 
       }
     }
@@ -590,7 +627,7 @@ filterQC <- function(object,
     ### Remove VDJ genes 
     VDJgenesOut=c()
     if (filter.vdj.genes==TRUE) {
-      allGenes = rownames(so)
+      allGenes = rownames(GetAssayData(so, layer="counts", assay="RNA"))
       VDJgenes = c("TRBV","TRAV","TRBD","TRAJ","TRBJ")
       print("Removing VDJ genes. Genes removed...")
       print(length(allGenes))
@@ -611,11 +648,15 @@ filterQC <- function(object,
     # nfeature and nCounts calculations are not effected by min.cells when using 
     # CreateSeuratObject
     
-    gene.cell.count=apply(so@assays$RNA@counts,1,function(x){sum(x>0)})
+    # Get counts matrix using Seurat 5 compatible method
+    counts_matrix <- GetAssayData(so, layer="counts", assay="RNA")
+    gene.cell.count <- apply(counts_matrix, 1, function(x){sum(x>0)})
     
-    if ('Protein'%in%names(so@assays)==T) {
-      genes=c(names(gene.cell.count)[(gene.cell.count>=min.cells)],
-              rownames(so@assays$Protein))%>%unique()
+    if ("Protein" %in% .assayNames(so)) {
+            # Get Protein assay features if it exists
+            protein_features <- rownames(GetAssayData(so, assay="Protein"))
+            genes=c(names(gene.cell.count)[(gene.cell.count>=min.cells)],
+              protein_features)%>%unique()
     }else{ genes=names(gene.cell.count)[(gene.cell.count>=min.cells)]}
     
     so=subset(so, features=genes)
@@ -738,7 +779,9 @@ filterQC <- function(object,
     perc.remain <- formatC(perc.remain,format = "g",digits=3)
     cat(paste0("Percent Remaining: " ,perc.remain,"% \n\n")) 
     cat(paste0("# of Cells removed by individual Filters: \n"))
-    print(colSums(filter_matrix==F))
+    removed_by_filter <- colSums(filter_matrix==F)
+    names(removed_by_filter)[names(removed_by_filter) == "doublets.fitler"] <- "doublets.filter"
+    print(removed_by_filter)
     cat("\n\n")
     
     ## create Filter resutls table
@@ -751,13 +794,23 @@ filterQC <- function(object,
       filtSum[,"Percent Remaining"]=perc.remain
     topN.filterRename=paste0('% Counts in Top',n.topgnes,' Genes filter')
     filtTbl=colSums(filter_matrix==F)%>%t()%>%as.data.frame()
-    filtTbl=rename(filtTbl,
-                   'UMI Count (nCount_RNA)' = 'ncounts.filter',
-                   'Gene Count (nFeature_RNA)' ='nfeature.filter',
-                   '% Mitochondrial Genes (percent.mt)'='mitochPer.filter',
-                   'Complexity (log10GenesPerUMI)'='complexity.filter',
-                   'DoubletFinder (scDblFinder)'='doublets.fitler',
-                   !!topN.filterRename :='topN.filter')
+    current_names <- colnames(filtTbl)
+    rename_map <- c(
+      'ncounts.filter' = 'UMI Count (nCount_RNA)',
+      'nfeature.filter' = 'Gene Count (nFeature_RNA)',
+      'mitochPer.filter' = '% Mitochondrial Genes (percent.mt)',
+      'complexity.filter' = 'Complexity (log10GenesPerUMI)',
+      'doublets.fitler' = 'DoubletFinder (scDblFinder)',
+      'topN.filter' = topN.filterRename
+    )
+    new_names <- current_names
+    for (old_name in names(rename_map)) {
+      idx <- which(current_names == old_name)
+      if (length(idx) > 0) {
+        new_names[idx] <- rename_map[old_name]
+      }
+    }
+    colnames(filtTbl) <- new_names
         colnames(filtTbl)=paste('Cells removed by ' ,colnames(filtTbl))
         
         filtSum=cbind(filtSum,filtTbl)
@@ -885,11 +938,13 @@ filterQC <- function(object,
     
     
     if( do.doublets.fitler==T){
-    sce <- as.SingleCellExperiment(so)
+    sce <- suppressWarnings(as.SingleCellExperiment(so))
       
       set.seed(123)
       RNGkind("default", "default", "default")
-    sce.dbl <- scDblFinder(sce,BPPARAM=SerialParam(RNGseed = 123))%>%suppressWarnings()
+    sce.dbl <- scDblFinder(sce,
+                           artificialDoublets=artificialDoublets,
+                           BPPARAM=SerialParam(RNGseed = 123))%>%suppressWarnings()
     sce.class <- sce.dbl$scDblFinder.class
     so <- AddMetaData(so,sce.class,"Doublet")
     }else{ print('doublets Identification not Run')}
@@ -996,14 +1051,23 @@ filterQC <- function(object,
   table.meta$filt=factor(table.meta$filt,levels = c('raw','filt'))
   
   topN.filterRename=paste0('% Counts in Top',n.topgnes,' Genes')
-  
-  table.meta=rename(table.meta,
-                    'UMI Count (nCount_RNA)' = 'nCount_RNA',
-                    'Gene Count (nFeature_RNA)' ='nFeature_RNA',
-                    '% Mitochondrial Genes (percent.mt)'='percent.mt',
-                    'Complexity (log10GenesPerUMI)'='log10GenesPerUMI',
-                    !!topN.filterRename :='pct_counts_in_top_N_genes'
+
+  current_names <- colnames(table.meta)
+  rename_map <- c(
+    'nCount_RNA' = 'UMI Count (nCount_RNA)',
+    'nFeature_RNA' = 'Gene Count (nFeature_RNA)',
+    'percent.mt' = '% Mitochondrial Genes (percent.mt)',
+    'log10GenesPerUMI' = 'Complexity (log10GenesPerUMI)',
+    'pct_counts_in_top_N_genes' = topN.filterRename
   )
+  new_names <- current_names
+  for (old_name in names(rename_map)) {
+    idx <- which(current_names == old_name)
+    if (length(idx) > 0) {
+      new_names[idx] <- rename_map[old_name]
+    }
+  }
+  colnames(table.meta) <- new_names
   
 
 

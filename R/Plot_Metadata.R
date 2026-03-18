@@ -61,6 +61,15 @@ plotMetadata <- function(#Basic Parameters:
   ###################
   
   .drawMetadata <- function(m) {
+    .coord <- function(df, candidates) {
+      for (nm in candidates) {
+        if (nm %in% colnames(df)) {
+          return(df[[nm]])
+        }
+      }
+      return(rep(NA_real_, nrow(df)))
+    }
+
     #check if there are NaNs in metadata, if there are, catch
     if (any(is.na(meta.df[[m]]))) {
       print(
@@ -115,20 +124,20 @@ plotMetadata <- function(#Basic Parameters:
         #plot RNA clusters
         if (reduction == "tsne") {
           clusmat = data.frame(
-            umap1 = p1$data$tSNE_1,
-            umap2 = p1$data$tSNE_2,
+            umap1 = .coord(p1$data, c("tSNE_1", "tsne_1")),
+            umap2 = .coord(p1$data, c("tSNE_2", "tsne_2")),
             clusid = as.character(object.sub@meta.data[[m]])
           )
         } else if (reduction == "umap") {
           clusmat = data.frame(
-            umap1 = p1$data$UMAP_1,
-            umap2 = p1$data$UMAP_2,
+            umap1 = .coord(p1$data, c("UMAP_1", "umap_1")),
+            umap2 = .coord(p1$data, c("UMAP_2", "umap_2")),
             clusid = as.character(object.sub@meta.data[[m]])
           )
         } else {
           clusmat = data.frame(
-            umap1 = p1$data$PC_1,
-            umap2 = p1$data$PC_2,
+            umap1 = .coord(p1$data, c("PC_1", "pca_1")),
+            umap2 = .coord(p1$data, c("PC_2", "pca_2")),
             clusid = as.character(object.sub@meta.data[[m]])
           )
         }
@@ -137,14 +146,14 @@ plotMetadata <- function(#Basic Parameters:
         #else plot Antibody clusters
         if (reduction == "tsne") {
           clusmat = data.frame(
-            umap1 = p1$data$protein_tsne_1,
-            umap2 = p1$data$protein_tsne_2,
+            umap1 = .coord(p1$data, c("protein_tsne_1", "tSNE_1", "tsne_1")),
+            umap2 = .coord(p1$data, c("protein_tsne_2", "tSNE_2", "tsne_2")),
             clusid = as.character(object.sub@meta.data[[m]])
           )
         } else if (reduction == "umap") {
           clusmat = data.frame(
-            umap1 = p1$data$protein_umap_1,
-            umap2 = p1$data$protein_umap_2,
+            umap1 = .coord(p1$data, c("protein_umap_1", "UMAP_1", "umap_1")),
+            umap2 = .coord(p1$data, c("protein_umap_2", "UMAP_2", "umap_2")),
             clusid = as.character(object.sub@meta.data[[m]])
           )
         } else {
@@ -279,20 +288,20 @@ plotMetadata <- function(#Basic Parameters:
         #plot RNA clusters
         if (reduction == "tsne") {
           clusmat = data.frame(
-            umap1 = p1$data$tSNE_1,
-            umap2 = p1$data$tSNE_2,
+            umap1 = .coord(p1$data, c("tSNE_1", "tsne_1")),
+            umap2 = .coord(p1$data, c("tSNE_2", "tsne_2")),
             clusid = as.numeric(object.sub@meta.data[[m]])
           )
         } else if (reduction == "umap") {
           clusmat = data.frame(
-            umap1 = p1$data$UMAP_1,
-            umap2 = p1$data$UMAP_2,
+            umap1 = .coord(p1$data, c("UMAP_1", "umap_1")),
+            umap2 = .coord(p1$data, c("UMAP_2", "umap_2")),
             clusid = as.numeric(object.sub@meta.data[[m]])
           )
         } else {
           clusmat = data.frame(
-            umap1 = p1$data$PC_1,
-            umap2 = p1$data$PC_2,
+            umap1 = .coord(p1$data, c("PC_1", "pca_1")),
+            umap2 = .coord(p1$data, c("PC_2", "pca_2")),
             clusid = as.numeric(object.sub@meta.data[[m]])
           )
         }
@@ -301,14 +310,14 @@ plotMetadata <- function(#Basic Parameters:
         #else plot Antibody clusters
         if (reduction == "tsne") {
           clusmat = data.frame(
-            umap1 = p1$data$protein_tsne_1,
-            umap2 = p1$data$protein_tsne_2,
+            umap1 = .coord(p1$data, c("protein_tsne_1", "tSNE_1", "tsne_1")),
+            umap2 = .coord(p1$data, c("protein_tsne_2", "tSNE_2", "tsne_2")),
             clusid = as.numeric(object.sub@meta.data[[m]])
           )
         } else if (reduction == "umap") {
           clusmat = data.frame(
-            umap1 = p1$data$protein_umap_1,
-            umap2 = p1$data$protein_umap_2,
+            umap1 = .coord(p1$data, c("protein_umap_1", "UMAP_1", "umap_1")),
+            umap2 = .coord(p1$data, c("protein_umap_2", "UMAP_2", "umap_2")),
             clusid = as.numeric(object.sub@meta.data[[m]])
           )
         } else {
@@ -358,15 +367,14 @@ plotMetadata <- function(#Basic Parameters:
     summarize.cut.off <- min(summarization.cut.off, 20)
     
     # checking for samples included:
-    if(any(grepl('c\\(|\\[\\]',samples))) {
-      samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
-    }else{
-      samples=samples
+    samples <- samples.to.include
+    if (length(samples) == 1 && is.character(samples) && any(grepl('c\\(|\\[\\]', samples))) {
+      samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
     }
     
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
-      samples = unique(object@meta.data$sample_name)
+      samples = unique(object@meta.data$orig.ident)
     }
     
     ## Goal is to have column 1 of the new metadata be named "orig.ident"
@@ -416,10 +424,10 @@ plotMetadata <- function(#Basic Parameters:
     
     
     # checking metadata for sanity
-    if(any(grepl('c\\(|\\[\\]',samples))) {
-      m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
-    }else{
-      m=metadata.to.plot
+    if (length(metadata.to.plot) == 1 && is.character(metadata.to.plot) && any(grepl('c\\(|\\[\\]', metadata.to.plot))) {
+      m <- eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
+    } else {
+      m <- metadata.to.plot
     }
     m = gsub("\\.", "_", m)
     
@@ -442,8 +450,13 @@ plotMetadata <- function(#Basic Parameters:
     }
     
     # Checking for content of "Columns to Summarize"
-    cols.to.summarize <-
-      eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
+    cols.to.summarize <- columns.to.summarize
+    if (length(cols.to.summarize) == 1 && is.character(cols.to.summarize) && any(grepl('c\\(|\\[\\]', cols.to.summarize))) {
+      cols.to.summarize <- eval(parse(text = gsub('\\[\\]', 'c()', cols.to.summarize)))
+    }
+    if (is.null(cols.to.summarize)) {
+      cols.to.summarize <- character(0)
+    }
     m = unique(c(m, cols.to.summarize))
     
     if (length(cols.to.summarize) > 0) {

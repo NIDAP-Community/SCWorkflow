@@ -159,7 +159,7 @@ modScore <- function(object,
 
     marker = select(marker.table, celltypes)
     marker.list = as.list(marker)
-    if (sum(unlist(marker.list) %in% rownames(object@assays$SCT@data)) == 
+    if (sum(unlist(marker.list) %in% rownames(GetAssayData(object, assay="SCT", layer="data"))) == 
         0) {
         stop("No genes from list was found in data")
     }
@@ -181,7 +181,7 @@ modScore <- function(object,
     for (h in seq_along(marker.list)) {
         print(names(marker.list[h]))
         present = lapply(marker.list[[h]], function(x) x %in% 
-            rownames(object@assays$SCT@data))
+            rownames(GetAssayData(object, assay="SCT", layer="data")))
         absentgenes = unlist(marker.list[[h]])[present == FALSE]
         absentgenes = absentgenes[is.na(absentgenes) == F]
         presentgenes = unlist(marker.list[[h]])[present == TRUE]
@@ -229,7 +229,7 @@ modScore <- function(object,
         if (reduction == "tsne") {
             clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$tSNE_1, umap2 = p1$data$tSNE_2, clusid = as.numeric(object@meta.data[[m]]))
             } else if (reduction == "umap") {
-            clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$UMAP_1, umap2 = p1$data$UMAP_2, clusid = as.numeric(object@meta.data[[m]]))
+            clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$umap_1, umap2 = p1$data$umap_2, clusid = as.numeric(object@meta.data[[m]]))
             } else {
             clusmat = data.frame(ident = p1$data$ident, umap1 = p1$data$PC_1, 
                 umap2 = p1$data$PC_2, clusid = as.numeric(object@meta.data[[m]]))}

@@ -89,6 +89,24 @@ dualLabeling <- function (object,
                           pre.scale.trim = 0.99, 
                           display.unscaled.values = FALSE) 
 {
+    assay_obj <- Assays(object)
+    assay_names <- unique(c(
+      tryCatch(names(slot(object, "assays")), error = function(e) character(0)),
+      if (is.character(assay_obj)) assay_obj else character(0),
+      names(assay_obj),
+      tryCatch(as.character(assay_obj), error = function(e) character(0))
+    ))
+    assay_names <- assay_names[!is.na(assay_names) & nzchar(assay_names)]
+
+    reduction_obj <- Reductions(object)
+    reduction_names <- unique(c(
+      tryCatch(names(slot(object, "reductions")), error = function(e) character(0)),
+      if (is.character(reduction_obj)) reduction_obj else character(0),
+      names(reduction_obj),
+      tryCatch(as.character(reduction_obj), error = function(e) character(0))
+    ))
+    reduction_names <- reduction_names[!is.na(reduction_names) & nzchar(reduction_names)]
+
     
   #### Error Messages ####
   
@@ -99,15 +117,19 @@ dualLabeling <- function (object,
     if (!(marker.2 %in% rownames(object))) {
         stop(sprintf("%s is not found in dataset", marker.2))
     }
-    if (!(marker.1.type %in% names(object@assays))) {
-        stop(sprintf("%s slot is not found in dataset", marker.1.type))
+    if (!(marker.1.type %in% assay_names)) {
+      stop(sprintf("%s slot is not found in dataset. Available assays: %s",
+             marker.1.type,
+             paste(assay_names, collapse = ", ")))
     }
-    if (!(marker.2.type %in% names(object@assays))) {
-        stop(sprintf("%s slot is not found in dataset", marker.2.type))
+    if (!(marker.2.type %in% assay_names)) {
+      stop(sprintf("%s slot is not found in dataset. Available assays: %s",
+             marker.2.type,
+             paste(assay_names, collapse = ", ")))
     }
     if (data.reduction=='both') {
-      if(sum(c('tsne','umap')%in%names(object@reductions))<2){
-        rdctns=names(object@reductions)[names(object@reductions)%in%c('umap','tsne')]
+      if(sum(c('tsne','umap')%in%reduction_names)<2){
+        rdctns=reduction_names[reduction_names%in%c('umap','tsne')]
       stop(sprintf("Object does not contain both umap and tsne reductions.
        Change Data Reduction parameter to %s",
                    paste(rdctns,collapse=' or ')
@@ -115,11 +137,11 @@ dualLabeling <- function (object,
            )
       }
     }else{ 
-      if (data.reduction%in%names(object@reductions)==F){
+      if (data.reduction%in%reduction_names==F){
         stop(sprintf("Object does not contain %s reduction. \n    ",
                      data.reduction),
              sprintf("Change Data Reduction parameter to %s",
-                c('tsne','umap')[c('tsne','umap')%in%names(object@reductions)])
+                c('tsne','umap')[c('tsne','umap')%in%reduction_names])
         )
       }
     }
@@ -286,6 +308,40 @@ dualLabeling <- function (object,
         
         return(list(gg.z1, gg.z2, gg))
     }
+
+    .getFeatureValues <- function(so, assay_name, feature, preferred_layer) {
+      candidate_layers <- unique(c(preferred_layer, "data", "counts", "scale.data"))
+
+      for (ly in candidate_layers) {
+        mat <- tryCatch(GetAssayData(so, assay = assay_name, layer = ly), error = function(e) NULL)
+        if (is.null(mat)) {
+          next
+        }
+
+        rn <- tryCatch(rownames(mat), error = function(e) NULL)
+        cn <- tryCatch(colnames(mat), error = function(e) NULL)
+
+        if (is.null(rn) || is.null(cn)) {
+          mat <- tryCatch(as.matrix(mat), error = function(e) NULL)
+          if (is.null(mat)) {
+            next
+          }
+          rn <- rownames(mat)
+          cn <- colnames(mat)
+        }
+
+        if (!is.null(rn) && feature %in% rn) {
+          vals <- as.numeric(mat[feature, , drop = TRUE])
+          if (!is.null(cn) && length(cn) == length(vals)) {
+            names(vals) <- cn
+          }
+          return(vals)
+        }
+      }
+
+      stop(sprintf("%s is not found in assay '%s' for tested layers: %s",
+                   feature, assay_name, paste(candidate_layers, collapse = ", ")))
+    }
     
     ## --------------- ##
     ## Main Code Block ##
@@ -313,9 +369,9 @@ dualLabeling <- function (object,
     #Select marker 1 values and scale:
     # use data slot for Spatial assay
     if(marker.1.type == "Spatial"){
-        mark1 <- so.sub@assays[[marker.1.type]]@data[marker.1,]
+        mark1 <- .getFeatureValues(so.sub, marker.1.type, marker.1, preferred_layer = "data")
     } else {
-      mark1 <- so.sub@assays[[marker.1.type]]@scale.data[marker.1,]
+      mark1 <- .getFeatureValues(so.sub, marker.1.type, marker.1, preferred_layer = "scale.data")
     }
     if (trim.marker.1 == TRUE) {
         q1 <- quantile(mark1, pre.scale.trim)
@@ -323,13 +379,13 @@ dualLabeling <- function (object,
         mark1[mark1 < q0] <- q0
         mark1[mark1 > q1] <- q1
     }
-    mark1.scale <- rescale(mark1, to = c(0, 1))
+    mark1.scale <- scales::rescale(mark1, to = c(0, 1))
     
     #Select marker 2 values and scale:
     if(marker.2.type == "Spatial"){
-        mark2 <- so.sub@assays[[marker.2.type]]@data[marker.2, ]
+      mark2 <- .getFeatureValues(so.sub, marker.2.type, marker.2, preferred_layer = "data")
     } else {
-    mark2 <- so.sub@assays[[marker.2.type]]@scale.data[marker.2, ]
+    mark2 <- .getFeatureValues(so.sub, marker.2.type, marker.2, preferred_layer = "scale.data")
     }
 
     if (trim.marker.2 == TRUE) {
@@ -338,7 +394,7 @@ dualLabeling <- function (object,
         mark2[mark2 < q0] <- q0
         mark2[mark2 > q1] <- q1
     }
-    mark2.scale <- rescale(mark2, to = c(0, 1))
+    mark2.scale <- scales::rescale(mark2, to = c(0, 1))
     
    
     
@@ -347,8 +403,8 @@ dualLabeling <- function (object,
       #Draw Plots:
       df <- data.frame(
         cbind(
-          dr1 = so.sub@reductions[[data.reduction]]@cell.embeddings[,1], 
-          dr2 = so.sub@reductions[[data.reduction]]@cell.embeddings[,2], 
+          dr1 = Embeddings(so.sub, reduction=data.reduction)[,1], 
+          dr2 = Embeddings(so.sub, reduction=data.reduction)[,2], 
           mark1.scale, 
           mark2.scale
         )
@@ -358,7 +414,7 @@ dualLabeling <- function (object,
       gg.list2 <- .ggOverlay2(so.sub, df, marker.1, marker.2)
       
       grob <- 
-        arrangeGrob(gg.list[[1]], 
+        gridExtra::arrangeGrob(gg.list[[1]], 
                     gg.list[[2]], 
                     gg.list[[3]],
                     gg.list2[[1]], 
@@ -372,8 +428,8 @@ dualLabeling <- function (object,
       #Draw Plots:
       df.u <- data.frame(
         cbind(
-          dr1 = so.sub@reductions[['umap']]@cell.embeddings[,1], 
-          dr2 = so.sub@reductions[['umap']]@cell.embeddings[,2], 
+          dr1 = Embeddings(so.sub, reduction='umap')[,1], 
+          dr2 = Embeddings(so.sub, reduction='umap')[,2], 
           mark1.scale, 
           mark2.scale
         )
@@ -384,8 +440,8 @@ dualLabeling <- function (object,
       #Draw Plots:
       df.t <- data.frame(
         cbind(
-          dr1 = so.sub@reductions[['tsne']]@cell.embeddings[,1], 
-          dr2 = so.sub@reductions[['tsne']]@cell.embeddings[,2], 
+          dr1 = Embeddings(so.sub, reduction='tsne')[,1], 
+          dr2 = Embeddings(so.sub, reduction='tsne')[,2], 
           mark1.scale, 
           mark2.scale
         )
@@ -401,7 +457,7 @@ dualLabeling <- function (object,
      
       
       grob.u <- 
-        arrangeGrob(gg.list.u[[1]], 
+        gridExtra::arrangeGrob(gg.list.u[[1]], 
                     gg.list.u[[2]], 
                     gg.list.u[[3]],
                     gg.list2[[1]], 
@@ -409,7 +465,7 @@ dualLabeling <- function (object,
                     gg.list2[[3]], 
                     ncol = 3)
       grob.t <- 
-        arrangeGrob(gg.list.t[[1]], 
+        gridExtra::arrangeGrob(gg.list.t[[1]], 
                     gg.list.t[[2]], 
                     gg.list.t[[3]],
                     gg.list2[[1]], 
@@ -444,11 +500,11 @@ dualLabeling <- function (object,
     geom_vline(xintercept = t1, linetype = "dashed") + 
     geom_hline(yintercept = t2, linetype = "dashed") 
             
-  p2 <- ggMarginal(p, df_heatmap, x = marker.1, y = marker.2, type = "density")
+  p2 <- ggExtra::ggMarginal(p, df_heatmap, x = marker.1, y = marker.2, type = "density")
 
 
     grobHM <- 
-      arrangeGrob(p2,ncol=1,nrow=1)
+      gridExtra::arrangeGrob(p2,ncol=1,nrow=1)
   
     
     #Applying Filters to Data using Thresholds:
@@ -551,20 +607,20 @@ dualLabeling <- function (object,
         }
         
         title <- 
-          textGrob(
+          grid::textGrob(
             titlename,
             y = 1,
             vjust = 1, 
-            gp = gpar(fontsize = 15)
+            gp = grid::gpar(fontsize = 15)
           )
-        grid.table <- tableGrob(data.filt, rows = NULL)
-        g <- arrangeGrob(grid.table, top = title)
-        g$heights[[2]] <- unit(0.5, "npc") - max(g$grobs[[1]]$heights)
+        grid.table <- gridExtra::tableGrob(data.filt, rows = NULL)
+        g <- gridExtra::arrangeGrob(grid.table, top = title)
+        g$heights[[2]] <- grid::unit(0.5, "npc") - max(g$grobs[[1]]$heights)
         
         rownames(so.sub.df) <- rownames(so.sub@meta.data)
         so.sub@meta.data <- so.sub.df
     } else {
-        g <- textGrob("No filtering thresholds applied")
+        g <- grid::textGrob("No filtering thresholds applied")
     }
     
     
