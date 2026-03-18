@@ -62,7 +62,6 @@
 #' # Compare cell populations by treatment group
 #' results <- compareCellPopulations(
 #'   object = seurat_obj,
-#'   metadata.table = seurat_obj@meta.data,
 #'   annotation.column = "cell_type",
 #'   group.column = "treatment",
 #'   sample.column = "sample_id",
@@ -79,13 +78,11 @@
 
 compareCellPopulations <- function(
   object,
-  metadata.table,
   annotation.column,
   group.column,
   sample.column = "orig.ident",
   counts.type = "Frequency",
   group.order = NULL,
-  seurat.object.filename = "seurat_object.rds",
   wrap.ncols = 5
 ) {
   
