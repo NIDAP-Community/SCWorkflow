@@ -331,7 +331,7 @@ The function supports both **Frequency** (percent) and **Counts** (absolute cell
 The method first aggregates metadata by annotation and group to compute percentages and counts. It then links these summaries to sample-level metadata and generates a composition-focused barplot for sample-level variability. Together, these plots help distinguish overall compositional shifts from replicate-level dispersion.
 
 
-```{r,eval=run_Chunks,}
+```{r,eval=run_Chunks}
 
 FigOut=compareCellPopulations(
             object=Anno_SO$object,
