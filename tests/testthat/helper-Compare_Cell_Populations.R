@@ -12,38 +12,45 @@ getParamCCP <- function(data) {
     )
   }
   
-  if (!(data %in% supported.data)) {
-    stop(
-      "Unsupported dataset key `", data, "`. Supported values: ",
-      paste(supported.data, collapse = ", "),
-      call. = FALSE
-    )
-  }
-  
-  annotation.column <- "seurat_clusters"
-  group.column <- "Phase"
-  sample.column <- "orig.ident"
-  counts.type <- "Frequency"
-  group.order <- NULL
-  
   if (data == "TEC") {
     object <- selectCRObject("TEC")
+    annotation.column <- "seurat_clusters"
     group.column <- "Status"
+    sample.column <- "orig.ident"
+    counts.type <- "Frequency"
+    group.order <- NULL
     
   } else if (data == "Chariou") {
     object <- selectCRObject("Chariou")
+    annotation.column <- "seurat_clusters"
     group.column <- "Status"
+    sample.column <- "orig.ident"
+    counts.type <- "Frequency"
+    group.order <- NULL
     
   } else if (data == "PBMC") {
     object <- selectSRObject("pbmc-single")
     annotation.column <- "HPCA_main"
+    group.column <- "Phase"
+    sample.column <- "orig.ident"
+    counts.type <- "Frequency"
+    group.order <- NULL
     
   } else if (data == "NSCLC") {
     object <- selectCRObject("nsclc-multi")
+    annotation.column <- "seurat_clusters"
+    group.column <- "Phase"
+    sample.column <- "orig.ident"
+    counts.type <- "Frequency"
+    group.order <- NULL
     
   } else if (data == "BRCA") {
     object <- selectCRObject("BRCA")
-    
+    annotation.column <- "seurat_clusters"
+    group.column <- "Phase"
+    sample.column <- "orig.ident"
+    counts.type <- "Frequency"
+    group.order <- NULL
   } else {
     stop(
       "Unsupported dataset key `", data, "`. Supported values: ",
