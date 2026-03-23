@@ -42,7 +42,8 @@
 
 nameClusters <- function(object,
                          cluster.column,
-                         labels.column,                         cluster.identities.table,
+                         labels.column,
+                         cluster.identities.table,
                          cluster.numbers,
                          cluster.names,
                          order.clusters.by = NULL,

@@ -3,11 +3,12 @@ test_that("Run Name clusters with default parameters - TEC data", {
   output <- do.call(nameClusters, input)
 
   #Test output values and plot:
-  newclus <- output$object@meta.data$clusternames
+  newclus <- output$object@meta.data$Clusternames
   expect_type(output, "list")
   expected.elements = c("object", "plots")
   expect_s4_class(output$object, "Seurat")
   expect_equal(length(setdiff(expected.elements, names(output))), 0)
+  expect_equal(sort(unique(newclus)), sort(input$cluster.identities.table$NewClusterNames))
   
   skip_on_ci()
   expect_snapshot_file(
@@ -112,7 +113,7 @@ test_that("Run Name clusters with default parameters - Chariou", {
 
   #Test output values and plot:
   newclus <- output$object@meta.data$Clusternames
-  expect_equal(sort(unique(newclus)), sort(input$cluster.names))
+  expect_equal(sort(unique(newclus)), sort(input$cluster.identities.table$NewClusterNames))
 
   expect_type(output, "list")
   expected.elements = c("object", "plots")
@@ -132,7 +133,7 @@ test_that("Run Name clusters with default parameters - PBMC single", {
 
   #Test output values and plot:
   newclus <- output$object@meta.data$Clusternames
-  expect_equal(sort(unique(newclus)), sort(input$cluster.names))
+  expect_equal(sort(unique(newclus)), sort(input$cluster.identities.table$NewClusterNames))
 
   expect_type(output, "list")
   expected.elements = c("object", "plots")
@@ -152,7 +153,7 @@ test_that("Run Name clusters with default parameters - NSCLC multi", {
 
   #Test output values and plot:
   newclus <- output$object@meta.data$Clusternames
-  expect_equal(sort(unique(newclus)), sort(input$cluster.names))
+  expect_equal(sort(unique(newclus)), sort(input$cluster.identities.table$NewClusterNames))
 
   expect_type(output, "list")
   expected.elements = c("object", "plots")
