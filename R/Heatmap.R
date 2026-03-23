@@ -7,6 +7,8 @@
 #' @param sample.names Sample names
 #' @param metadata Metadata column to plot
 #' @param transcripts Transcripts to plot
+#' @param use.assay Assay to use for transcript expression values. Choices are
+#'  "SCT" or "Harmony" (default is "SCT")
 #' @param proteins Proteins to plot (default is NULL)
 #' @param heatmap.color Color for heatmap. Choices are "Cyan to Mustard",
 #'   "Blue to Red", "Red to Vanilla", "Violet to Pink", "Bu Yl Rd", 
@@ -27,8 +29,8 @@
 #' @param trim.outliers Remove outlier data (default is TRUE)
 #' @param trim.outliers.percentage Set outlier percentage (default is 0.01)
 #' @param order.heatmap.rows Order heatmap rows (default is FALSE)
-#' @param row.order Gene vector to set row order. If NULL, use cluster order
-#'  (default is NULL)
+#' @param row.order Gene vector to set row order. If empty, use cluster order
+#'  (default is empty vector)
 #'
 #' @import Seurat
 #' @importFrom ComplexHeatmap pheatmap
@@ -51,7 +53,7 @@ heatmapSC <- function(object,
                       sample.names,
                       metadata,
                       transcripts,
-                      use_assay = 'SCT',
+                      use.assay = 'SCT',
                       proteins = NULL,
                       heatmap.color = "Bu Yl Rd",
                       plot.title = "Heatmap",
@@ -314,21 +316,21 @@ heatmapSC <- function(object,
   df.mat1 = NULL
   if (length(transcripts) > 0) {
     if (length(transcripts) == 1) {
-      if(use_assay == 'SCT'){
+      if(use.assay == 'SCT'){
         df.mat1 <-
           vector(mode = "numeric",
                  length = length(object$SCT@scale.data[transcripts,]))
         df.mat1 <- object$SCT@scale.data[transcripts,]
-      } else if (use_assay == 'Harmony'){
+      } else if (use.assay == 'Harmony'){
         df.mat1 <-
           vector(mode = "numeric",
                  length = length(object$Harmony@scale.data[transcripts,]))
         df.mat1 <- object$Harmony@scale.data[transcripts,]
         }
     } else {
-      if(use_assay == 'SCT'){
+      if(use.assay == 'SCT'){
         df.mat1 <- as.matrix(object$SCT@scale.data[transcripts,])
-      } else if (use_assay == 'Harmony'){
+      } else if (use.assay == 'Harmony'){
         df.mat1 <- as.matrix(object$Harmony@scale.data[transcripts,])
         }
     }
