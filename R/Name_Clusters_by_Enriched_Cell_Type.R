@@ -7,13 +7,16 @@
 #'
 #' @param object Seurat-class object with cluster IDs column and cell type 
 #'  column present
-#' @param cluster.numbers Vector containing cluster numbers that match the 
-#'  (numeric) cluster ID's in the cluster.column in Seurat Object metadata
-#' @param cluster.names Vector containing custom cluster labels
 #' @param cluster.column Column name containing cluster ID in the metadata slot
 #'  in the object
 #' @param labels.column Column name containing labels (usually cell type) in the
 #'  metadata slot in the object
+#' @param cluster.identities.table Data frame containing cluster IDs and custom
+#'  cluster labels
+#' @param cluster.numbers Column name in cluster.identities.table
+#'  containing cluster numbers that match values in cluster.column
+#' @param cluster.names Column name in cluster.identities.table
+#'  containing custom cluster labels
 #' @param order.clusters.by Vector containing order of clusters in graph. Can 
 #'  contain a subset of cluster numbers to plot that match at least some of
 #'  the values in the cluster.column. If NULL, use default order 
@@ -38,11 +41,10 @@
 #' custom cluster annotation and a plot
 
 nameClusters <- function(object,
-                         cluster.identities.table,
+                         cluster.column,
+                         labels.column,                         cluster.identities.table,
                          cluster.numbers,
                          cluster.names,
-                         cluster.column,
-                         labels.column,
                          order.clusters.by = NULL,
                          order.celltypes.by = NULL,
                          interactive = FALSE)
