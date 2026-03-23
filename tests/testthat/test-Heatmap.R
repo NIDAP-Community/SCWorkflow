@@ -4,10 +4,10 @@ test_that("Produce heatmap and return plot and filtered dataframe: TEC data",
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output$plot),
+  expect_snapshot_file(.drawHeatPng(output$plots),
                                  "TEC_heatmap.png")
 })
 
@@ -24,7 +24,7 @@ test_that("Heatmap scaled vs unscaled", {
   expect_false(isTRUE(all.equal(a, b)))
 
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output2$plot),
+  expect_snapshot_file(.drawHeatPng(output2$plots),
                        "TEC_heatmap_unscaled.png")
 
 })
@@ -69,11 +69,11 @@ test_that("Produce heatmap - Chariou data", {
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output$plot),
+  expect_snapshot_file(.drawHeatPng(output$plots),
                        "Chariou_heatmap.png")
 })
 
@@ -82,11 +82,11 @@ test_that("Chariou with no additional protein/transcript annotations", {
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output$plot),
+  expect_snapshot_file(.drawHeatPng(output$plots),
                        "Chariou_heatmap2.png")
 })
 
@@ -102,11 +102,11 @@ test_that("Produce heatmap - PBMC single data", {
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output$plot),
+  expect_snapshot_file(.drawHeatPng(output$plots),
                        "pbmc-single_heatmap.png")
 })
 
@@ -116,11 +116,11 @@ test_that("Produce heatmap with protein using NSCLC multi data", {
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output$plot),
+  expect_snapshot_file(.drawHeatPng(output$plots),
                        "nsclc-multi_heatmap.png")
 })
 
@@ -129,10 +129,10 @@ test_that("Produce heatmap with filtered dataframe - BRCA data", {
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
-  expect_snapshot_file(.drawHeatPng(output$plot),
+  expect_snapshot_file(.drawHeatPng(output$plots),
                        "BRCA_heatmap.png")
 })
