@@ -566,16 +566,26 @@ dualLabeling <- function (object,
     }
     
     
-    if (data.reduction=='tsne'|data.reduction=='umap') {
+    if (data.reduction=='tsne') {
       
       result.list <- list("object" = so.sub,
+                          "data"=list("plot_table" = g),
                           "plots"=list(
-                                "plot" = grob,
-                                "plot_densityHM" = grobHM,
-                                "plot_table" = g)
+                            'tsne' = grob,
+                                "densityHM" = grobHM)
       )
       
-    } else if (data.reduction=='both'){
+    }else if (data.reduction=='umap') {
+      
+      result.list <- list("object" = so.sub,
+                          "data"=list("plot_table" = g),
+                          "plots"=list(
+                            'umap' = grob,
+                            "densityHM" = grobHM)
+      )
+      
+      
+    }else if (data.reduction=='both'){
       
       result.list <- list("object" = so.sub, 
                           "data"=list("plot_table" = g),
