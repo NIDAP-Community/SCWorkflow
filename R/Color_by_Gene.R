@@ -65,15 +65,14 @@ colorByGene <- function(object,
   ## --------------- ##
   
   
-  print(object)
-  samples <- samples.to.include
   # checking for samples
-  if (is.character(samples) && length(samples) == 1 && grepl('c\\(|\\[\\]', samples)) {
-    samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
+  if (is.character(samples.to.include) && length(samples.to.include) == 1 &&
+      grepl('c\\(|\\[\\]', samples.to.include)) {
+    samples.to.include <- eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
   }
   # if none specified, using ALL
-  if (length(samples) == 0) {
-    samples = unique(object@meta.data$orig.ident)
+  if (length(samples.to.include) == 0) {
+    samples.to.include = unique(object@meta.data$orig.ident)
   }
   
   # Fix for underscore
@@ -84,13 +83,13 @@ colorByGene <- function(object,
     names(sample.name) = names(object@active.ident)
     object@active.ident <- as.factor(vector())
     object@active.ident <- sample.name
-    object.sub = subset(object, ident = samples)
+    object.sub = subset(object, ident = samples.to.include)
   } else {
     sample.name = as.factor(object@meta.data$orig.ident)
     names(sample.name) = names(object@active.ident)
     object@active.ident <- as.factor(vector())
     object@active.ident <- sample.name
-    object.sub = subset(object, ident = samples)
+    object.sub = subset(object, ident = samples.to.include)
   }
   
   #Check input for missing genes
