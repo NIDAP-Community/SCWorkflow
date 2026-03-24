@@ -46,17 +46,26 @@
 #' @return arranged grob of dimension reduction plots colored by individual 
 #'         marker expression
 
-colorByMarkerTable <- function (object, samples.subset, samples.to.display, 
-    manual.genes = c(), marker.table, 
-    cells.of.interest, protein.presence = FALSE, assay = "SCT", slot = "scale.data",
-    reduction.type = "umap", point.transparency = 0.5, point.shape = 16, 
-    cite.seq = FALSE){ 
+colorByMarkerTable <- function(object, 
+                               samples.subset, 
+                               samples.to.display,
+                               manual.genes = c(), 
+                               marker.table,
+                               cells.of.interest, 
+                               protein.presence = FALSE, 
+                               assay = "SCT", 
+                               slot = "scale.data",
+                               reduction.type = "umap",
+                               point.transparency = 0.5, 
+                               point.shape = 16,
+                               cite.seq = FALSE
+                            ){ 
 
-        library(ggplot2)
-        library(Seurat)
-        library(stringr)
-        library(grid)
-        library(gridExtra)
+        # library(ggplot2)
+        # library(Seurat)
+        # library(stringr)
+        # library(grid)
+        # library(gridExtra)
         
         .plotMarkers <- function(markers) {
             if (is.na(markers) == TRUE) {
