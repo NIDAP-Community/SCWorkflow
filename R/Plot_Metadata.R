@@ -358,15 +358,14 @@ plotMetadata <- function(#Basic Parameters:
     summarize.cut.off <- min(summarization.cut.off, 20)
     
     # checking for samples included:
-    if(any(grepl('c\\(|\\[\\]',samples))) {
-      samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
-    }else{
-      samples=samples
+    samples <- samples.to.include
+    if (is.character(samples) && any(grepl('c\\(|\\[\\]', samples))) {
+      samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
     }
     
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
-      samples = unique(object@meta.data$sample_name)
+      samples = unique(object@meta.data$orig.ident)
     }
     
     ## Goal is to have column 1 of the new metadata be named "orig.ident"
@@ -416,7 +415,7 @@ plotMetadata <- function(#Basic Parameters:
     
     
     # checking metadata for sanity
-    if(any(grepl('c\\(|\\[\\]',samples))) {
+    if (is.character(metadata.to.plot) && any(grepl('c\\(|\\[\\]', metadata.to.plot))) {
       m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
     }else{
       m=metadata.to.plot
@@ -452,7 +451,7 @@ plotMetadata <- function(#Basic Parameters:
         col <- meta.df[[i]]
         val.count <- length(unique(col))
         
-        if ((val.count >= summarizeCutOff) &
+        if ((val.count >= summarize.cut.off) &
             (i != 'Barcode') &
             (!is.element(class(meta.df[[i]][1]), c("numeric", "integer")))) {
           freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarize.cut.off]
