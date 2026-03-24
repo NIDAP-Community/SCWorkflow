@@ -142,10 +142,6 @@ harmonyBatchCorrect <- function(object,
       library(Matrix)
       # Get log-normalized data for the variable features
       lognorm_data <- object@assays$SCT@data[mvf, , drop = FALSE]
-      print(str(object))
-      print("hello")
-      print(class(lognorm_data))
-      print(dim(lognorm_data))
       
       # Calculate scaling parameters from the original scaled data
       #scale_center <- Matrix::rowMeans(lognorm_data)
@@ -254,4 +250,5 @@ harmonyBatchCorrect <- function(object,
                   "umap"=umapComb
                 )
         )
+      )
 }
