@@ -10,7 +10,7 @@ test_that("Test Recluster with TEC (Mouse) dataset.", {
   ## Compare new plot to old plot.
   ggsave(
     "output/TEC_reclusterSO.png",
-    output$plot,
+    output$plots,
     width = 10,
     height = 10
   )
@@ -18,7 +18,7 @@ test_that("Test Recluster with TEC (Mouse) dataset.", {
   
   ## Compare results.
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements) 
   }
 )
@@ -38,7 +38,7 @@ test_that("Test Recluster with TEC (Mouse) dataset & UMAP.", {
   ## Compare new plot to old plot.
   ggsave(
     "output/TEC_reclusterSO_umap.png",
-    output$plot,
+    output$plots,
     width = 10,
     height = 10
   )
@@ -46,7 +46,7 @@ test_that("Test Recluster with TEC (Mouse) dataset & UMAP.", {
   
   ## Compare results.
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements) 
   }
 )
@@ -63,7 +63,7 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
   ## Compare new plot to old plot.
   ggsave(
     "output/Chariou_reclusterSO.png",
-    output$plot,
+    output$plots,
     width = 10,
     height = 10
   )
@@ -71,7 +71,7 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
   
   ## Compare results.
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements) 
   }
 )
@@ -88,7 +88,7 @@ test_that("Test Recluster with PBMCSingle (Human) dataset.", {
   ## Compare new plot to old plot.
   ggsave(
     "output/PBMCsingle_reclusterSO.png",
-    output$plot,
+    output$plots,
     width = 10,
     height = 10
   )
@@ -96,7 +96,7 @@ test_that("Test Recluster with PBMCSingle (Human) dataset.", {
   
   ## Compare results.
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements) 
   }
 )
@@ -113,7 +113,7 @@ test_that("Test Recluster with NSCLCMulti (Human) dataset.", {
   ## Compare new plot to old plot.
   ggsave(
     "output/NSCLCMulti_reclusterSO.png",
-    output$plot,
+    output$plots,
     width = 10,
     height = 10
   )
@@ -121,7 +121,7 @@ test_that("Test Recluster with NSCLCMulti (Human) dataset.", {
   
   ## Compare results.
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements) 
   }
 )
@@ -138,7 +138,7 @@ test_that("Test Recluster with BRCA (Human) dataset.", {
   ## Compare new plot to old plot.
   ggsave(
     "output/BRCA_reclusterSO.png",
-    output$plot,
+    output$plots,
     width = 10,
     height = 10
   )
@@ -146,7 +146,7 @@ test_that("Test Recluster with BRCA (Human) dataset.", {
   
   ## Compare results.
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements) 
   }
 )

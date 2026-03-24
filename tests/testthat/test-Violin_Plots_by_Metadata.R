@@ -5,11 +5,11 @@ test_that("Violin plot works for TEC data", {
   
   skip_on_ci()
   expect_snapshot_file(
-    .drawViolin(violin_test),
+    .drawViolin(violin_test$plots),
     "tec_violin.png"
   )
   
-  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+  expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
   
 })
 
@@ -20,12 +20,12 @@ test_that("Violin plot works for Chariou data", {
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawViolin(violin_test),
+    .drawViolin(violin_test$plots),
     "chariou_violin.png"
   )
 
   
-  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+  expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
 
 })
 
@@ -36,12 +36,12 @@ test_that("Violin plot works for Chariou data", {
 # 
 #   skip_on_ci()
 #   expect_snapshot_file(
-#     .drawViolin(violin_test),
+#     .drawViolin(violin_test$plots),
 #     "chariou_allgroup_violin.png"
 #   )
 # 
 #   
-#   expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+#   expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
 # 
 # })
 # 
@@ -52,12 +52,12 @@ test_that("Violin plot works for Chariou data", {
 # 
 #   skip_on_ci()
 #   expect_snapshot_file(
-#     .drawViolin(violin_test),
+#     .drawViolin(violin_test$plots),
 #     "chariou_subgroup_violin.png"
 #   )
 # 
 #   
-#   expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+#   expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
 # 
 # })
 
@@ -68,12 +68,12 @@ test_that("Violin plot works for pbmc.single data", {
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawViolin(violin_test),
+    .drawViolin(violin_test$plots),
     "pbmc_single_violin.png"
   )
 
   
-  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+  expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
 
 })
 
@@ -84,12 +84,12 @@ test_that("Violin plot works for nsclc.multi data", {
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawViolin(violin_test),
+    .drawViolin(violin_test$plots),
     "nsclc_multi_violin.png"
   )
 
   
-  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+  expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
 
 })
 
@@ -100,12 +100,12 @@ test_that("Violin plot works for brca data", {
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawViolin(violin_test),
+    .drawViolin(violin_test$plots),
     "brca_violin.png"
   )
 
   
-  expect_setequal(any(grepl("ggplot", class(violin_test))), TRUE)
+  expect_setequal(any(grepl("ggplot", class(violin_test$plots))), TRUE)
 
 })
 

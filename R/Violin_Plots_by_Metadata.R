@@ -184,5 +184,5 @@ violinPlot <- function (object,
     g <- g + geom_jitter(size = jitter.dot.size, shape = 1, position = position_dodge(width = 0.9), alpha = 0.5)
   }
   
-  return(list(plots=g))
+  return(list("plots"=g))
 }
