@@ -36,8 +36,6 @@
 #' @return A list: adj.object with harmony-adjusted gene expression (SCT slot) 
 #'                 adj.tsne: harmonized tSNE plot
 
-object = readRDS('tests/testthat/fixtures/BRCA/BRCA_Combine_and_Renormalize_SO_downsample.rds')
-
 harmonyBatchCorrect <- function(object, 
                                 nvar = 2000, 
                                 genes.to.add = c(),
@@ -45,11 +43,6 @@ harmonyBatchCorrect <- function(object,
                                 return.lognorm = T,
                                 npc = 30) {
   
-library(patchwork)  
-library(harmony)
-library(Seurat)
-library(ggplot2)
-library(RColorBrewer)
 
   # Error and Warning Messages
   if(is.null(genes.to.add)){
@@ -237,13 +230,16 @@ library(RColorBrewer)
       print("Batch-corrected scaled data stored in object@assays$Harmony@scale.data")
     }
   
-   # Insert back-calculated data into seurat
+  # Insert back-calculated data into seurat
+   print( "Insert back-calculated data into seurat")
    object[["Harmony"]] <- CreateAssayObject(data = harm.lvl.backcalc.lognorm)
    #object[["Harmony"]] <- CreateAssayObject(data = Matrix::Matrix(t(harm.lvl.backcalc.lognorm), sparse = TRUE))
    object@assays$Harmony@scale.data <- t(harm.lvl.backcalc.scaled)
 
+   print( "Scale Harmony data")
    object <- ScaleData(object, assay = "Harmony", verbose = FALSE)
 
+   print( "re-run PCA on harmony")
    # re-run PCA on harmony embeddings using top variable genes (mvf)
    object <- RunPCA(object, assay = "Harmony", verbose = FALSE, features = rownames(object))
 

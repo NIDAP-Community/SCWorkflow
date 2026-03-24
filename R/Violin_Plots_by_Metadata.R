@@ -53,13 +53,7 @@ violinPlot <- function (object,
                             jitter.points, 
                             jitter.dot.size) 
 {
-  library(Seurat)
-  library(ggplot2)
-  library(gridExtra)
-  library(tidyr)
-  library(dplyr)
-  library(broom)
-  
+
   facet_data = facet.by != ""
   
   # for handling orig ident

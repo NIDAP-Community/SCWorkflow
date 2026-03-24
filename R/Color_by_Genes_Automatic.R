@@ -61,11 +61,6 @@ colorByMarkerTable <- function(object,
                                cite.seq = FALSE
                             ){ 
 
-        # library(ggplot2)
-        # library(Seurat)
-        # library(stringr)
-        # library(grid)
-        # library(gridExtra)
         
         .plotMarkers <- function(markers) {
             if (is.na(markers) == TRUE) {

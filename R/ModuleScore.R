@@ -111,12 +111,6 @@ modScore <- function(object,
                      violin.ft.size = 6, 
                      step.size = 0.1) 
 {
-    library(Seurat)
-    library(gridExtra)
-    library(grid)
-    library(dplyr)
-    library(stringr)
-    library(ggplot2)
 
     # Function for separating and calling cells by bimodal thresholds
     .modScoreCall <- function(ms.meta, numeric.threshold, reject) {
