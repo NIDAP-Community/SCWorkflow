@@ -179,12 +179,12 @@ FigOut=violinPlot(
                 layer="scale.data", 
                 genes=c("Itgam","Cd38"), 
                 group="SCT_snn_res.0.4", 
-                facet_by = "", 
-                filter_outliers = F,
-                outlier_low = 0.05,
-                outlier_high = 0.95,
-                jitter_points = TRUE, 
-                jitter_dot_size = 1
+                facet.by = "", 
+                filter.outliers = F,
+                outlier.low = 0.05,
+                outlier.high = 0.95,
+                jitter.points = TRUE, 
+                jitter.dot.size = 1
           )
 
 ```

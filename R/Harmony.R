@@ -42,7 +42,7 @@ harmonyBatchCorrect <- function(object,
                                 nvar = 2000, 
                                 genes.to.add = c(),
                                 group.by.var,
-                                return_lognorm = T,
+                                return.lognorm = T,
                                 npc = 30) {
   
 library(patchwork)  
@@ -145,7 +145,7 @@ library(RColorBrewer)
   object@reductions$pca@stdev <- pppca$d
 
    # Store original log-normalized data and scaling parameters for back-calculation
-    if (return_lognorm) {
+    if (return.lognorm) {
       library(Matrix)
       # Get log-normalized data for the variable features
       lognorm_data <- object@assays$SCT@data[mvf, , drop = FALSE]
@@ -225,7 +225,7 @@ library(RColorBrewer)
   
   # Store batch-corrected scaled data in Harmony assay
   
-  if (return_lognorm) {
+  if (return.lognorm) {
       # Fast conversion back to log-normalized space
       # Direct vectorized operations on the transposed matrix
       harm.lvl.backcalc.lognorm <- t(harm.lvl.backcalc.scaled) * scaling_params$scale[mvf] + scaling_params$center[mvf]

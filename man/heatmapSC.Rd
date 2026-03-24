@@ -9,7 +9,7 @@ heatmapSC(
   sample.names,
   metadata,
   transcripts,
-  use_assay = "SCT",
+  use.assay = "SCT",
   proteins = NULL,
   heatmap.color = "Bu Yl Rd",
   plot.title = "Heatmap",
@@ -39,6 +39,9 @@ heatmapSC(
 \item{metadata}{Metadata column to plot}
 
 \item{transcripts}{Transcripts to plot}
+
+\item{use.assay}{Assay to use for transcript expression values. Choices are
+"SCT" or "Harmony" (default is "SCT")}
 
 \item{proteins}{Proteins to plot (default is NULL)}
 
@@ -78,8 +81,8 @@ heatmapSC(
 
 \item{order.heatmap.rows}{Order heatmap rows (default is FALSE)}
 
-\item{row.order}{Gene vector to set row order. If NULL, use cluster order
-(default is NULL)}
+\item{row.order}{Gene vector to set row order. If empty, use cluster order
+(default is empty vector)}
 }
 \value{
 This function returns a heatmap plot and the data underlying the

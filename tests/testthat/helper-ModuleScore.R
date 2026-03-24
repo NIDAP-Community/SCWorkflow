@@ -4,8 +4,8 @@ getModuleScoreParam <- function(data){
     
       object = selectCRObject("TEC")
       marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
-      ms_threshold = paste(colnames(marker.table)[1:3], rep(0, ncol(marker.table)))
-      use_columns = colnames(marker.table)[1:3]
+      ms.threshold = paste(colnames(marker.table)[1:3], rep(0, ncol(marker.table)))
+      use.columns = colnames(marker.table)[1:3]
       general.class = colnames(marker.table)[1:3]
       # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
 
@@ -13,8 +13,8 @@ getModuleScoreParam <- function(data){
     
       object = selectCRObject("Chariou")
       marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
-      ms_threshold = paste(colnames(marker.table)[1:3], rep(0, ncol(marker.table)))
-      use_columns = colnames(marker.table)[1:3]
+      ms.threshold = paste(colnames(marker.table)[1:3], rep(0, ncol(marker.table)))
+      use.columns = colnames(marker.table)[1:3]
       general.class = colnames(marker.table)[1:3]
       # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
       
@@ -28,8 +28,8 @@ getModuleScoreParam <- function(data){
                                                   replace = FALSE),
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
-    ms_threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
-    use_columns = colnames(marker.table)
+    ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    use.columns = colnames(marker.table)
     general.class = colnames(marker.table)
     # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
     
@@ -43,8 +43,8 @@ getModuleScoreParam <- function(data){
                                                   replace = FALSE),
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
-    ms_threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
-    use_columns = colnames(marker.table)
+    ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    use.columns = colnames(marker.table)
     general.class = colnames(marker.table)
     # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
 
@@ -58,19 +58,19 @@ getModuleScoreParam <- function(data){
                                                   replace = FALSE),
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
-    ms_threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
-    use_columns = colnames(marker.table)
+    ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    use.columns = colnames(marker.table)
     general.class = colnames(marker.table)
     # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
     
   }
   
   return(list("object" = object, 
-              "ms_threshold"= ms_threshold, 
+              "ms.threshold"= ms.threshold, 
                # "lvl.vec" = lvl.vec, 
               "marker.table" = marker.table, 
               "general.class" = general.class,
-              "use_columns"=use_columns
+              "use.columns"=use.columns
               ))  
 }
 

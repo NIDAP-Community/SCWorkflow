@@ -382,8 +382,8 @@ Subclass Identification: If desired, the program can identify subclasses within 
 
 MS_object=modScore(object=Anno_SO$object, 
                    marker.table=Marker_Table,
-                   use_columns = c("Neutrophils","Macrophages","CD8_T" ),
-                   ms_threshold=c("Neutrophils .25","Macrophages .40","CD8_T .14"), 
+                   use.columns = c("Neutrophils","Macrophages","CD8_T" ),
+                   ms.threshold=c("Neutrophils .25","Macrophages .40","CD8_T .14"), 
                    general.class=c("Neutrophils","Macrophages","CD8_T"), 
                    multi.lvl = FALSE, 
                    reduction = "umap",

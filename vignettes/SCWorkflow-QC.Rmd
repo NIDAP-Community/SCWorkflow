@@ -136,8 +136,8 @@ SO_filtered=filterQC(object=SOlist$object,
                      mad.complexity.limits = c(5,NA),
                      topNgenes.limits = c(NA,NA),
                      mad.topNgenes.limits = c(5,5),
-                     n.topgnes=20,
-                     do.doublets.fitler=T
+                     n.topgenes=20,
+                     do.doublets.filter=TRUE
                                  
             )
 

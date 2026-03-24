@@ -7,11 +7,11 @@ provide plot with percentage of cell types}
 \usage{
 nameClusters(
   object,
+  cluster.column,
+  labels.column,
   cluster.identities.table,
   cluster.numbers,
   cluster.names,
-  cluster.column,
-  labels.column,
   order.clusters.by = NULL,
   order.celltypes.by = NULL,
   interactive = FALSE
@@ -21,16 +21,20 @@ nameClusters(
 \item{object}{Seurat-class object with cluster IDs column and cell type
 column present}
 
-\item{cluster.numbers}{Vector containing cluster numbers that match the
-(numeric) cluster ID's in the cluster.column in Seurat Object metadata}
-
-\item{cluster.names}{Vector containing custom cluster labels}
-
 \item{cluster.column}{Column name containing cluster ID in the metadata slot
 in the object}
 
 \item{labels.column}{Column name containing labels (usually cell type) in the
 metadata slot in the object}
+
+\item{cluster.identities.table}{Data frame containing cluster IDs and custom
+cluster labels}
+
+\item{cluster.numbers}{Column name in cluster.identities.table
+containing cluster numbers that match values in cluster.column}
+
+\item{cluster.names}{Column name in cluster.identities.table
+containing custom cluster labels}
 
 \item{order.clusters.by}{Vector containing order of clusters in graph. Can
 contain a subset of cluster numbers to plot that match at least some of
