@@ -71,7 +71,7 @@
 #' Usage c(lower limit, Upper Limit). E.g. setting to c(NA,50) will not set a 
 #' lower limit and remove cells with greater than 50% of reads in the top N 
 #' genes. (Default: c(NA,NA))
-#' @param mad.topNgenes.limitsSet Filter limits based on how many Median 
+#' @param mad.topNgenes.limits Filter limits based on how many Median 
 #' Absolute Deviations an outlier cell will have. Calculated from the Median 
 #' percentage of counts in the top N Genes.
 #' Usage c(lower limit, Upper Limit). E.g. setting to c(5,5) will remove all 
