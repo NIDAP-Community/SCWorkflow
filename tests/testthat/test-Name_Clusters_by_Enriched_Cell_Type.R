@@ -26,7 +26,7 @@ test_that("Run Name clusters with interactive plot", {
 
   expect_equal(class(output$plots), c("plotly", "htmlwidget"))
   # expect_snapshot_file(
-  #   .drawplot(output$plot),
+  #   .drawplot(output$plots),
   #   "TEC_clusters2.png"
   # )
 })
