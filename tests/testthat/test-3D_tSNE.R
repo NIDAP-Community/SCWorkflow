@@ -8,7 +8,7 @@ test_that("Produce 3D tsne plot and return tsne coordinates - TEC Data", {
   cr.object <- getParam3D("TEC")
   output <- do.call(tSNE3D, cr.object)
   
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
  
   skip_on_ci()
@@ -39,7 +39,7 @@ test_that("Produce 3D tsne plot and return tsne coordinates - Chariou Data", {
   cr.object <- getParam3D("Chariou")
   output <- do.call(tSNE3D, cr.object)
 
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
@@ -53,7 +53,7 @@ test_that("Produce 3D tsne plot and return tsne coordinates - Chariou Data", {
 test_that("Produce 3D tsne plot and return tsne - PBMC-single Data", {
   cr.object <- getParam3D("pbmc-single")
   output <- do.call(tSNE3D, cr.object)
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
@@ -67,7 +67,7 @@ test_that("Produce 3D tsne plot and return tsne - NSCLC-multi Data", {
   cr.object <- getParam3D("nsclc-multi")
   output <- do.call(tSNE3D, cr.object)
 
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
@@ -81,7 +81,7 @@ test_that("Produce 3D tsne plot and return tsne - BRCA Data", {
   cr.object <- getParam3D("BRCA")
   output <- do.call(tSNE3D, cr.object)
 
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
