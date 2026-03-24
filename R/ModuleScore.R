@@ -338,7 +338,7 @@ modScore <- function(object,
 
     return(
         list("object"=object,
-        "figures" = figures)
+        "plots" = figures)
     )
 }
  
