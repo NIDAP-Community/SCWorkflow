@@ -81,7 +81,7 @@ This function will merge an external table of cell annotations into an existing 
 
 Anno_SO=readRDS("./images/Anno_SO.rds")
 
-Anno_SO$object@meta.data[,'mouseRNAseq_main',drop=F]%>%rename('Cell Type'=mouseRNAseq_main)%>%rownames_to_column('Barcode')%>%
+Anno_SO$object@meta.data[,"mouseRNAseq_main",drop=F]%>%rename("Cell Type"=mouseRNAseq_main)%>%rownames_to_column("Barcode")%>%
    head()%>%write.table(".images/PerCell_Metadata.csv",sep=",",row.names=F,quote=F)
 
 
@@ -213,20 +213,20 @@ cat("Metadata successfully merged. Here is a preview:\n")
 print(head(merged_metadata))
 
 # Ensure that rownames in merged_metadata are barcodes, not numbers 
-merged_metadata=column_to_rownames(merged_metadata,'Barcode')
+merged_metadata=column_to_rownames(merged_metadata,"Barcode")
 
 # Update Seurat object with the new merged metadata
 so <- AddMetaData(so, merged_metadata)
 
 # If col_to_viz isn't empty, print TSNE/UMAP colored by this column.
 if(length(col_to_viz) != 0) {
-    print(DimPlot(so, group.by = col_to_viz, label = FALSE, reduction = 'umap'))# + NoLegend()
-    print(DimPlot(so, group.by = col_to_viz, label = FALSE, reduction = 'tsne'))# + NoLegend()
+    print(DimPlot(so, group.by = col_to_viz, label = FALSE, reduction = "umap"))# + NoLegend()
+    print(DimPlot(so, group.by = col_to_viz, label = FALSE, reduction = "tsne"))# + NoLegend()
 }
 
 output <- new.output()
 output_fs <- output$fileSystem()
-saveRDS(so, output_fs$get_path("seurat_object.rds", 'w'))
+saveRDS(so, output_fs$get_path("seurat_object.rds", "w"))
 
 return(NULL)
 
@@ -261,7 +261,7 @@ This function enables users to visualize the association between two selected ge
 Furthermore, the tool allows for the application of filters to the data, setting thresholds, and providing annotations to notify users if cells meet the established thresholds. The visualization can be improved by omitting extreme values. The tool also facilitates the creation of a heatmap to represent the density distribution of cells and exhibit the raw gene/protein expression values.
 
 ```{r,eval=run_Chunks,echo=T,results='hide'}
-grep('Cd4',rownames(Anno_SO$object@assays$RNA),ignore.case = T,value=T)
+grep("Cd4",rownames(Anno_SO$object@assays$RNA),ignore.case = T,value=T)
 
 DLAnno_SO=dualLabeling(object = Anno_SO$object, 
                         samples <- c("PBS","CD8dep","ENT","NHSIL12","Combo"), 

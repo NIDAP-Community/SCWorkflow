@@ -45,7 +45,7 @@ This function visualizes your plot based on selected metadata. Users can customi
 FigOut=plotMetadata(
             object=Anno_SO$object,
             samples.to.include=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-            metadata.to.plot=c('SCT_snn_res.0.4','Phase'),
+            metadata.to.plot=c("SCT_snn_res.0.4","Phase"),
             columns.to.summarize=NULL,
             summarization.cut.off = 5,
             reduction.type = "umap",
@@ -84,8 +84,8 @@ The algorithm employs an iterative process to adjust the positions of cells in a
 
 FigOut=tSNE3D(
            object=Anno_SO$object,
-           color.variable='SCT_snn_res.0.4',
-           label.variable='SCT_snn_res.0.4',
+           color.variable="SCT_snn_res.0.4",
+           label.variable="SCT_snn_res.0.4",
            dot.size = 4,
            legend = TRUE,
            colors = c("darkblue","purple4","green","red","darkcyan",
@@ -108,10 +108,10 @@ saveWidget(as_widget(FigOut$plots), file = "./images/Vis_3D.html")
 library(rvest)
 library(htmltools)
 # readRDS("./images/Vis_3D.rds")
-# htmltools::includeHTML('./images/Vis_3D.html')
-# shiny::includeHTML('./images/Vis_3D.html')
+# htmltools::includeHTML("./images/Vis_3D.html")
+# shiny::includeHTML("./images/Vis_3D.html")
 
-html_content <- read_html('./images/Vis_3D.html')
+html_content <- read_html("./images/Vis_3D.html")
 print(html_content)
 ```
 
@@ -132,7 +132,7 @@ This function visualizes expression values of the chosen gene or protein in diff
 FigOut=colorByGene(
             object=Anno_SO$object,
             samples.to.include=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-            gene='Itgam',
+            gene="Itgam",
             reduction.type = "umap",
             number.of.rows = 0,
             return.seurat.object = FALSE,
@@ -175,10 +175,10 @@ You can choose how the plot looks - whether it's laid out like a grid, in rows, 
 
 FigOut=violinPlot(
                 object=Anno_SO$object, 
-                assay='SCT', 
-                layer='scale.data', 
-                genes=c('Itgam','Cd38'), 
-                group='SCT_snn_res.0.4', 
+                assay="SCT", 
+                layer="scale.data", 
+                genes=c("Itgam","Cd38"), 
+                group="SCT_snn_res.0.4", 
                 facet_by = "", 
                 filter_outliers = F,
                 outlier_low = 0.05,
@@ -225,9 +225,9 @@ The heatmap is produced by a package called ComplexHeatmap [3] and presents the 
 FigOut=heatmapSC(
           object=Anno_SO$object,
           sample.names=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-          metadata='SCT_snn_res.0.4',
-          transcripts=c('Cd163','Cd38','Itgam','Cd4','Cd8a','Pdcd1','Ctla4'),
-          use_assay = 'SCT',
+          metadata="SCT_snn_res.0.4",
+          transcripts=c("Cd163","Cd38","Itgam","Cd4","Cd8a","Pdcd1","Ctla4"),
+          use_assay = "SCT",
           proteins = NULL,
           heatmap.color = "Bu Yl Rd",
           plot.title = "Heatmap",
@@ -285,9 +285,9 @@ This function can be useful for exploratory data analysis and visualizing the di
 
 FigOut=dotPlotMet(
            object=Anno_SO$object,
-           metadata='SCT_snn_res.0.4',
+           metadata="SCT_snn_res.0.4",
            cells=unique(Anno_SO$object$SCT_snn_res.0.4),
-           markers=c('Itgam','Cd163','Cd38','Cd4','Cd8a','Pdcd1','Ctla4'),
+           markers=c("Itgam","Cd163","Cd38","Cd4","Cd8a","Pdcd1","Ctla4"),
            plot.reverse = FALSE,
            cell.reverse.sort = FALSE,
            dot.color = "darkblue"
@@ -336,8 +336,8 @@ The method first aggregates metadata by annotation and group to compute percenta
 FigOut=compareCellPopulations(
             object=Anno_SO$object,
             metadata.table=Anno_SO$object@meta.data,
-            annotation.column='immgen_main',
-            group.column='Treatment',
+            annotation.column="immgen_main",
+            group.column="Treatment",
             counts.type = "Frequency",
             group.order = NULL,
             wrap.ncols = 5

@@ -44,9 +44,9 @@ This  function subsets your Seurat object. Select a metadata column and values m
 filter_SO=filterSeuratObjectByMetadata(
                    object = Anno_SO$object,
                    samples.to.include = c("PBS","ENT","NHSIL12","Combo","CD8dep"),
-                   sample.name = 'orig.ident',
-                   category.to.filter = 'immgen_main',
-                   values.to.filter = c('Monocytes','Macrophages','DC'),
+                   sample.name = "orig.ident",
+                   category.to.filter = "immgen_main",
+                   values.to.filter = c("Monocytes","Macrophages","DC"),
                    keep.or.remove = FALSE,
                    greater.less.than = "greater than",
                    colors = c(
