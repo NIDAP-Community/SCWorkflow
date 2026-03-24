@@ -7,7 +7,7 @@ for (data in c('TEC','Chariou','PBMC_Single','NSCLC_Multi')) {
     
     
     # create output
-    expected.elements = c("object","FilteringTables","plots")
+    expected.elements = c("object","data","plots")
     expect_setequal(names(filter.qc.out), expected.elements)
     # SO contains object same length as input
     expect_equal(length(filter.qc.out$object),length(data.run$object))
@@ -47,7 +47,7 @@ for (data in c('Chariou')) {
     
     
     # create output
-    expected.elements = c("object","FilteringTables","plots")
+    expected.elements = c("object","data","plots")
     expect_setequal(names(filter.qc.out), expected.elements)
     # SO contains object same length as input
     expect_equal(length(filter.qc.out$object),length(data.run$object))
@@ -59,7 +59,7 @@ for (data in c('Chariou')) {
     expect( object.size(filter.qc.out$plots),'> 0' )
     # Check if VDJ genes are removed
     expect(
-     sum(filter.qc.out$FilteringTables$FilteringCounts$`VDJ Genes Removed`>0),
+     sum(filter.qc.out$data$FilteringCounts$`VDJ Genes Removed`>0),
      '==5')
 
     
