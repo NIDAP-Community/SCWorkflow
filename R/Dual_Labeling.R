@@ -1,10 +1,7 @@
-#' @title Plot coexpression of 2 markers using transcript and/or protein
-#' expression values
-#' @description This method provides visualization of coexpression of 2 genes
-#' (or proteins) and additional methods for filtering for cells with gene
-#' expression values that are above or below thresholds set for one or both
-#' markers. The method allows for filtering (optional) of the Seurat object
-#' using manually set expression thresholds.
+#' @title Cell Annotation with Co-Expression [CCBR] [scRNA-seq]
+#' @description Display co-expression of two chosen markers in your Seurat
+#' object. Creates a metadata column containing annotations for cells that
+#' correspond to marker expression thresholds.
 #'
 #' @param object Seurat-class object
 #' @param samples Samples to be included in the analysis
@@ -45,7 +42,7 @@
 #' @param pre.scale.trim Set trimming percentile value (default is 0.99)
 #' @param display.unscaled.values Set to TRUE if you want to view the unscaled
 #' gene/protein expression values (default is FALSE)
-
+#'
 #' @import Seurat
 #' @importFrom scales rescale
 #' @importFrom gridExtra arrangeGrob tableGrob
@@ -61,7 +58,7 @@
 #' @return a seurat object with optional additional metadata for cells that are
 #' positive or negative for gene markers, a coexpression plot and contingency
 #' table showing sum of cells filtered.
-
+#'
 dualLabeling <- function (object, 
                           samples, 
                           marker.1, 

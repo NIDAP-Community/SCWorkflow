@@ -1,6 +1,7 @@
-#' @title Filter & QC Samples 
-#' @description Filters cells and Genes for each sample and generates QC Plots 
-#' to evaluate data before and after filtering. 
+#' @title Filter Low Quality Cells [CCBR] [scRNA-seq]
+#' @description Filters cells and genes across various criteria for each sample.
+#' Multiple cell and gene filters can be selected to remove poor quality data
+#' and noise while generating QC plots before and after filtering.
 #' @details This is Step 2 in the basic Single-Cell RNA-seq workflow. Multiple 
 #' cell and gene filters can be selected to remove poor quality data and noise. 
 #' Workflows can use this downstream of any Seurat Object. This tool is 
@@ -104,12 +105,12 @@
 #' @importFrom stringr str_split_fixed
 #' @importFrom stats mad median
 #' @importFrom grid grobHeight textGrob grid.newpage gTree grid.draw
-
+#'
 #' 
 #' @export
 #' 
 #' @return Seurat Object and QC plots
-
+#'
 filterQC <- function(object,
                      
                      ## Filter Samples

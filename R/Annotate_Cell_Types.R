@@ -1,8 +1,7 @@
-#' @title Annotating cell types using SingleR module
-#' @description SingleR is an automatic annotation method for single-cell
-#' RNA sequencing (scRNAseq) data (Aran et al. 2019). Given a reference dataset
-#' of samples (single-cell or bulk) with known labels, it labels new cells
-#' from a test dataset based on similarity to the reference.
+#' @title Cell Type Annotation with SingleR [CCBR] [scRNA-seq]
+#' @description Annotate the cell types of your cells using SingleR (Aran et al., 2019). This
+#' function takes a combined Seurat object after PC reduction and assigns cells
+#' to a category (for example, stem cells or T cells) based on genomic profile.
 #' @details This function is Step 5 of the basic Single-Cell RNA-seq workflow.
 #' It is the starting point for downstream visualization, subsetting, and
 #' analysis. It takes a combined seurat object as input, such as the one created
@@ -22,8 +21,7 @@
 #' Default is NULL
 #' @param use.clusters Provide cluster identities for each cell.
 #' Default is NULL
-
-
+#'
 #'
 #' @import Seurat
 #' @import cowplot
@@ -36,9 +34,8 @@
 #' @export
 #'
 #' @return a Seurat object with additional metadata
-
-
-
+#'
+#'
 annotateCellTypes <- function(object,
                               species = "Mouse",
                               reduction.type = "umap",
