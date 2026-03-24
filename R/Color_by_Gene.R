@@ -66,11 +66,10 @@ colorByGene <- function(object,
   
   
   print(object)
+  samples <- samples.to.include
   # checking for samples
-  if(any(grepl('c\\(|\\[\\]',samples))) {
-    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
-  }else{
-    samples=samples
+  if (is.character(samples) && length(samples) == 1 && grepl('c\\(|\\[\\]', samples)) {
+    samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
   }
   # if none specified, using ALL
   if (length(samples) == 0) {
