@@ -42,18 +42,19 @@
 #'
 #' @return a data.frame extracted from the Seurat object and plot
 
-plotMetadata <- function(#Basic Parameters:
-  object,
-  samples.to.include,
-  metadata.to.plot,
-  columns.to.summarize,
-  summarization.cut.off = 5,
-  reduction.type = "tsne",
-  use.cite.seq = FALSE,
-  show.labels = FALSE,
-  legend.text.size = 1,
-  legend.position = "right",
-  dot.size = 0.01
+plotMetadata <- function(
+                        #Basic Parameters:
+                        object,
+                        samples.to.include,
+                        metadata.to.plot,
+                        columns.to.summarize,
+                        summarization.cut.off = 5,
+                        reduction.type = "tsne",
+                        use.cite.seq = FALSE,
+                        show.labels = FALSE,
+                        legend.text.size = 1,
+                        legend.position = "right",
+                        dot.size = 0.01
   ) {
   
   ###################
