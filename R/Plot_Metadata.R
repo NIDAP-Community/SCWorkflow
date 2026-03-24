@@ -41,6 +41,17 @@
 #' @export
 #'
 #' @return a data.frame extracted from the Seurat object and plot
+#'
+#' @examples
+#' \dontrun{
+#' out <- plotMetadata(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   metadata.to.plot = c("celltype", "orig.ident"),
+#'   columns.to.summarize = c(),
+#'   reduction.type = "umap"
+#' )
+#' }
 
 plotMetadata <- function(
                         #Basic Parameters:

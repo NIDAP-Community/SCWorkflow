@@ -35,6 +35,15 @@
 #'
 #' @return a Seurat object with additional metadata
 #'
+#' @examples
+#' \dontrun{
+#' out <- annotateCellTypes(
+#'   object = combined_so,
+#'   species = "Human",
+#'   reduction.type = "umap"
+#' )
+#' }
+#'
 #'
 annotateCellTypes <- function(object,
                               species = "Mouse",

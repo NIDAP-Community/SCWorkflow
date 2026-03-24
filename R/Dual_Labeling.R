@@ -59,6 +59,17 @@
 #' positive or negative for gene markers, a coexpression plot and contingency
 #' table showing sum of cells filtered.
 #'
+#' @examples
+#' \dontrun{
+#' out <- dualLabeling(
+#'   object = anno_so,
+#'   samples = c("sample1"),
+#'   marker.1 = "CD3D",
+#'   marker.2 = "MS4A1",
+#'   data.reduction = "umap"
+#' )
+#' }
+#'
 dualLabeling <- function (object, 
                           samples, 
                           marker.1, 

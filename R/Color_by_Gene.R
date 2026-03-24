@@ -35,8 +35,17 @@
 #' @export
 #'
 #' @return a Seurat object with additional metadata or gene table and plot
-
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- colorByGene(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   gene = c("CD3D", "MS4A1"),
+#'   reduction.type = "umap"
+#' )
+#' }
+#'
 
 colorByGene <- function(object,
                         samples.to.include,

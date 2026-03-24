@@ -49,6 +49,16 @@
 #' @return This function returns a heatmap plot and the data underlying the 
 #'  heatmap.
 #'
+#' @examples
+#' \dontrun{
+#' out <- heatmapSC(
+#'   object = anno_so,
+#'   sample.names = c("sample1", "sample2"),
+#'   metadata = "celltype",
+#'   transcripts = c("CD3D", "MS4A1")
+#' )
+#' }
+#'
 heatmapSC <- function(object,
                       sample.names,
                       metadata,

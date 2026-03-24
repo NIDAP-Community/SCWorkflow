@@ -9,8 +9,18 @@
 #' @importFrom ggplot2 scale_y_continuous geom_line geom_segment scale_y_log10 scale_x_continuous
 #' @importFrom gridExtra arrangeGrob 
 #' @importFrom grid textGrob gpar
-NULL
-
+#' 
+#' 
+#' @examples
+#' \dontrun{
+#' res <- compute_modscore_data(
+#'   object = seurat_obj,
+#'   marker.list = list(Tcell = c("CD3D", "TRBC1")),
+#'   use.columns = c("Tcell"),
+#'   reduction = "umap"
+#' )
+#' }
+#'
 #' @export
 compute_modscore_data <- function(object, marker.list, use.columns,
                                   reduction = c("tsne","umap","pca"),

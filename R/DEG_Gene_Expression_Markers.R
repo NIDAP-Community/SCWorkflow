@@ -42,6 +42,16 @@
 #'
 #' @return a dataframe with DEG.
 #'
+#' @examples
+#' \dontrun{
+#' deg <- degGeneExpressionMarkers(
+#'   object = anno_so,
+#'   samples = c("sample1", "sample2"),
+#'   contrasts = c("A-B"),
+#'   parameter.to.test = "cluster"
+#' )
+#' }
+#'
 #'
 #'
 degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.test = "orig_ident", 

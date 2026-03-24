@@ -51,6 +51,17 @@
 #'
 #' @return a subset Seurat object
 #'
+#' @examples
+#' \dontrun{
+#' out <- filterSeuratObjectByMetadata(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   sample.name = "orig.ident",
+#'   category.to.filter = "celltype",
+#'   values.to.filter = c("T cell", "B cell")
+#' )
+#' }
+#'
 #'
 filterSeuratObjectByMetadata <- function(object,
                                          samples.to.include,

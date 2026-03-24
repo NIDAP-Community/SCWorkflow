@@ -52,6 +52,15 @@
 #' @export
 #' 
 #' @return Seurat Object and QC plots
+#' 
+#' @examples
+#' \dontrun{
+#' out <- processRawData(
+#'   input = c("sample1_filtered_feature_bc_matrix.h5"),
+#'   organism = "Human",
+#'   do.normalize.data = TRUE
+#' )
+#' }
 
 processRawData <- function(input,
                            sample.metadata.table=NULL,

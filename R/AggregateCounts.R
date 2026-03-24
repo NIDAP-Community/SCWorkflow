@@ -1,29 +1,38 @@
-##' @title Aggregate Counts (Pseudobulk)
-##' @description Compute pseudobulk expression by averaging expression across groups
-##'              defined by one or more metadata columns, and return a tidy table.
-##' @details Uses Seurat's `AverageExpression()` on the `SCT` assay to compute
-##'          group-wise average expression for each feature. Also produces a
-##'          bar plot (via `ggplot2`/`plotly`) showing the number of cells per
-##'          pseudobulk group and warns if any group contains only one cell.
-##'
-##' @param object Seurat-class object.
-##' @param var.group Character vector of metadata column names used to define
-##'                  pseudobulk groups. When multiple columns are supplied, an
-##'                  interaction of these columns defines the groups.
-##' @param slot Character name of the assay data layer passed to
-##'             `AverageExpression()` (e.g., "data", "counts", or "scale.data").
-##'
-##' @return A data.frame of pseudobulk expression with columns `Gene` followed by
-##'         one column per pseudobulk group. Column names are sanitized to
-##'         contain only alphanumeric/underscore characters.
-##'
-##' @import Seurat
-##' @import tidyverse
-##' @import ggplot2
-##' @import plotly
-##' @importFrom dplyr select
-##'
-##' @export
+#' @title Aggregate Counts (Pseudobulk)
+#' @description Compute pseudobulk expression by averaging expression across groups
+#'              defined by one or more metadata columns, and return a tidy table.
+#' @details Uses Seurat's `AverageExpression()` on the `SCT` assay to compute
+#'          group-wise average expression for each feature. Also produces a
+#'          bar plot (via `ggplot2`/`plotly`) showing the number of cells per
+#'          pseudobulk group and warns if any group contains only one cell.
+#'
+#' @param object Seurat-class object.
+#' @param var.group Character vector of metadata column names used to define
+#'                  pseudobulk groups. When multiple columns are supplied, an
+#'                  interaction of these columns defines the groups.
+#' @param slot Character name of the assay data layer passed to
+#'             `AverageExpression()` (e.g., "data", "counts", or "scale.data").
+#'
+#' @import Seurat
+#' @import tidyverse
+#' @import ggplot2
+#' @import plotly
+#' @importFrom dplyr select
+#'
+#' @export
+#'
+#' @return A data.frame of pseudobulk expression with columns `Gene` followed by
+#'         one column per pseudobulk group. Column names are sanitized to
+#'         contain only alphanumeric/underscore characters.
+#'
+#' @examples
+#' \dontrun{
+#' out <- aggregateCounts(
+#'   object = seurat_obj,
+#'   var.group = c("orig.ident", "condition"),
+#'   slot = "data"
+#' )
+#' }
 
 aggregateCounts <- function(object,
                             var.group,

@@ -110,6 +110,16 @@
 #' @export
 #' 
 #' @return Seurat Object and QC plots
+#' 
+#' @examples
+#' \dontrun{
+#' out <- filterQC(
+#'   object = so_list,
+#'   min.cells = 20,
+#'   n.topgenes = 20,
+#'   do.doublets.filter = TRUE
+#' )
+#' }
 #'
 filterQC <- function(object,
                      

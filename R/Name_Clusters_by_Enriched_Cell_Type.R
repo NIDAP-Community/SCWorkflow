@@ -39,6 +39,22 @@
 #' @export
 #' @return Returns Seurat-class object with updated meta.data slot containing
 #' custom cluster annotation and a plot
+#' 
+#' @examples
+#' \dontrun{
+#' map_tbl <- data.frame(
+#'   cluster_id = c("0", "1"),
+#'   label = c("T cell", "B cell")
+#' )
+#' out <- nameClusters(
+#'   object = anno_so,
+#'   cluster.column = "seurat_clusters",
+#'   labels.column = "celltype",
+#'   cluster.identities.table = map_tbl,
+#'   cluster.numbers = "cluster_id",
+#'   cluster.names = "label"
+#' )
+#' }
 
 nameClusters <- function(object,
                          cluster.column,
