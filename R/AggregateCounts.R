@@ -78,11 +78,11 @@ aggregateCounts <- function(object,
                     labs(y = "Counts", x = "Pseudobulk Groups", title = "Number of Cells in each Pseudobulk Group") +
                     theme(axis.text.x = element_text(angle = 90, hjust = 1)))
     
-    print(p)
     
   } else {
     stop("All columns in var.group must be factors or characters")
   }
   
-  return(pseudobulk)
+  return(list(data=pseudobulk,
+              plot=p))
 }
