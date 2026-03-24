@@ -209,9 +209,10 @@ harmonyBatchCorrect <- function(object,
     guides(colour = guide_legend(override.aes = list(size=5, alpha = 1))) +
     annotate("text", x = Inf, y = -Inf, label = "Harmonized UMAP", hjust = 1.1, vjust = -1, size = 5)
   
-  print((orig.tsne + harm.tsne) + plot_layout(ncol = 2))
-  print((orig.umap + harm.umap) + plot_layout(ncol = 2))
-  
+
+  tsneComb=(orig.tsne + harm.tsne) + plot_layout(ncol = 2)
+  umapComb=(orig.umap + harm.umap) + plot_layout(ncol = 2)
+
   # Calculate adjusted gene expression from embeddings
   harm.embeds <- object@reductions$harmony@cell.embeddings
   harm.lvl.backcalc.scaled <- harm.embeds %*% t(ppldngs)
@@ -245,7 +246,12 @@ harmonyBatchCorrect <- function(object,
 
    object <- FindNeighbors(object, reduction = "harmony", dims = 1:10, assay = "Harmony")
   
+
   return(
-    list("object"=object)
-    )
+    list("object"=object,
+          "plots"=list(
+                  "tsne"=tsneComb,
+                  "umap"=umapComb
+                )
+        )
 }
