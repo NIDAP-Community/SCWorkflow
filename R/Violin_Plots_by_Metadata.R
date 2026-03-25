@@ -15,10 +15,11 @@
 #' @param outlier.high Filter upper bound outliers (Default = 0.95)
 #' @param jitter.points Scatter points on the plot (TRUE/FALSE)
 #' @param jitter.dot.size Set size of individual points
-
+#' 
 #' @import Seurat 
 #' @import reshape2
 #' @import tidyverse
+#' @import tidyr pivot_longer
 #' @import cowplot
 #' @import rlang
 #' @import ggplot2
