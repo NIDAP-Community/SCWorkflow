@@ -93,3 +93,14 @@ This method provides a heatmap of single cell data from a Seurat
 object given a set of genes and optionally orders by various metadata and/or
 gene or protein expression levels. Method is based on ComplexHeatmap::pheatmap
 }
+\examples{
+\dontrun{
+out <- heatmapSC(
+  object = anno_so,
+  sample.names = c("sample1", "sample2"),
+  metadata = "celltype",
+  transcripts = c("CD3D", "MS4A1")
+)
+}
+
+}

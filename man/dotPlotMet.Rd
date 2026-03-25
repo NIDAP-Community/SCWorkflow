@@ -46,3 +46,13 @@ This method provides a dotplot showing the percent frequency of
 gene-positive cells as size of dot and degree of expression as color
 of dot.
 }
+\examples{
+\dontrun{
+p <- dotPlotMet(
+  object = anno_so,
+  metadata = "celltype",
+  cells = c("T cell", "B cell"),
+  markers = c("CD3D", "MS4A1")
+)
+}
+}

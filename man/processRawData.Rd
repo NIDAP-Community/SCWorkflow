@@ -71,3 +71,12 @@ This is Step 1 in the basic Single-Cell RNA-seq workflow.
 Returns data as a Seurat Object, the basic data structure for
 Seurat Single Cell analysis.
 }
+\examples{
+\dontrun{
+out <- processRawData(
+  input = c("sample1_filtered_feature_bc_matrix.h5"),
+  organism = "Human",
+  do.normalize.data = TRUE
+)
+}
+}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/DEG_Gene_Expression_Markers.R
 \name{degGeneExpressionMarkers}
 \alias{degGeneExpressionMarkers}
-\title{DEG (Gene Expression Markers)}
+\title{DE with Find Markers \link{CCBR} \link{scRNA-seq}}
 \usage{
 degGeneExpressionMarkers(
   object,
@@ -43,11 +43,24 @@ Default is SCT, but can use linearly scaled data by selecting RNA instead}
 a dataframe with DEG.
 }
 \description{
-This function performs a DEG (differential expression of genes)
-analysis on a merged Seurat object to identify expression markers
-between different groups of cells (contrasts).
+This function performs DE (differential expression) analysis on
+a merged Seurat object to identify expression markers between different
+groups of cells (contrasts).
 }
 \details{
 The recommended input is a merged Seurat object
 with SingleR annotations, along with its associated sample names and metadata
+}
+\examples{
+\dontrun{
+deg <- degGeneExpressionMarkers(
+  object = anno_so,
+  samples = c("sample1", "sample2"),
+  contrasts = c("A-B"),
+  parameter.to.test = "cluster"
+)
+}
+
+
+
 }

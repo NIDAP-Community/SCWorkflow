@@ -2,8 +2,7 @@
 % Please edit documentation in R/Dual_Labeling.R
 \name{dualLabeling}
 \alias{dualLabeling}
-\title{Plot coexpression of 2 markers using transcript and/or protein
-expression values}
+\title{Cell Annotation with Co-Expression \link{CCBR} \link{scRNA-seq}}
 \usage{
 dualLabeling(
   object,
@@ -102,9 +101,19 @@ positive or negative for gene markers, a coexpression plot and contingency
 table showing sum of cells filtered.
 }
 \description{
-This method provides visualization of coexpression of 2 genes
-(or proteins) and additional methods for filtering for cells with gene
-expression values that are above or below thresholds set for one or both
-markers. The method allows for filtering (optional) of the Seurat object
-using manually set expression thresholds.
+Display co-expression of two chosen markers in your Seurat
+object. Creates a metadata column containing annotations for cells that
+correspond to marker expression thresholds.
+}
+\examples{
+\dontrun{
+out <- dualLabeling(
+  object = anno_so,
+  samples = c("sample1"),
+  marker.1 = "CD3D",
+  marker.2 = "MS4A1",
+  data.reduction = "umap"
+)
+}
+
 }

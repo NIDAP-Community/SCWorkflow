@@ -31,3 +31,12 @@ group-wise average expression for each feature. Also produces a
 bar plot (via \code{ggplot2}/\code{plotly}) showing the number of cells per
 pseudobulk group and warns if any group contains only one cell.
 }
+\examples{
+\dontrun{
+out <- aggregateCounts(
+  object = seurat_obj,
+  var.group = c("orig.ident", "condition"),
+  slot = "data"
+)
+}
+}

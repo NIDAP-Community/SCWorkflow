@@ -2,7 +2,7 @@
 % Please edit documentation in R/Filter_QC.R
 \name{filterQC}
 \alias{filterQC}
-\title{Filter & QC Samples}
+\title{Filter Low Quality Cells \link{CCBR} \link{scRNA-seq}}
 \usage{
 filterQC(
   object,
@@ -135,12 +135,24 @@ cellular barcode, for example, if they were captured in the same droplet.
 Seurat Object and QC plots
 }
 \description{
-Filters cells and Genes for each sample and generates QC Plots
-to evaluate data before and after filtering.
+Filters cells and genes across various criteria for each sample.
+Multiple cell and gene filters can be selected to remove poor quality data
+and noise while generating QC plots before and after filtering.
 }
 \details{
 This is Step 2 in the basic Single-Cell RNA-seq workflow. Multiple
 cell and gene filters can be selected to remove poor quality data and noise.
 Workflows can use this downstream of any Seurat Object. This tool is
 typically the second step in the Single Cell Workflow.
+}
+\examples{
+\dontrun{
+out <- filterQC(
+  object = so_list,
+  min.cells = 20,
+  n.topgenes = 20,
+  do.doublets.filter = TRUE
+)
+}
+
 }

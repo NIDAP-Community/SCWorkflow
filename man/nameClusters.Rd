@@ -56,3 +56,19 @@ Maps custom cluster names to Seurat Object cluster IDs and adds
 cluster names to a new metadata column called \emph{Clusternames}. Provides a
 dotplot of percentage of cell types within each cluster.
 }
+\examples{
+\dontrun{
+map_tbl <- data.frame(
+  cluster_id = c("0", "1"),
+  label = c("T cell", "B cell")
+)
+out <- nameClusters(
+  object = anno_so,
+  cluster.column = "seurat_clusters",
+  labels.column = "celltype",
+  cluster.identities.table = map_tbl,
+  cluster.numbers = "cluster_id",
+  cluster.names = "label"
+)
+}
+}
