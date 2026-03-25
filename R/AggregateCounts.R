@@ -12,6 +12,7 @@
 #'                  interaction of these columns defines the groups.
 #' @param slot Character name of the assay data layer passed to
 #'             `AverageExpression()` (e.g., "data", "counts", or "scale.data").
+#' @param interactive If TRUE, draw plotly plot (default is FALSE)          
 #'
 #' @import Seurat
 #' @import tidyverse
@@ -36,7 +37,8 @@
 
 aggregateCounts <- function(object,
                             var.group,
-                            slot){
+                            slot="data",
+                            interactive=FALSE){
   
   
   ## --------------- ##
@@ -82,16 +84,19 @@ aggregateCounts <- function(object,
       ))
     }
     
-    p <- ggplotly(ggplot(df, aes(x = pseudobulk_group, y = Freq)) +
+    p <- ggplot(df, aes(x = pseudobulk_group, y = Freq)) +
                     geom_bar(stat = "identity", position = "stack") +
                     labs(y = "Counts", x = "Pseudobulk Groups", title = "Number of Cells in each Pseudobulk Group") +
-                    theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+                    theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
+    if(interactive==T){
+      p <- ggplotly(p)
+    }
     
   } else {
     stop("All columns in var.group must be factors or characters")
   }
   
   return(list(data=pseudobulk,
-              plot=p))
+              plots=p))
 }
