@@ -227,7 +227,7 @@ FigOut=heatmapSC(
           sample.names=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
           metadata="SCT_snn_res.0.4",
           transcripts=c("Cd163","Cd38","Itgam","Cd4","Cd8a","Pdcd1","Ctla4"),
-          use_assay = "SCT",
+          use.assay = "SCT",
           proteins = NULL,
           heatmap.color = "Bu Yl Rd",
           plot.title = "Heatmap",
@@ -335,14 +335,15 @@ The method first aggregates metadata by annotation and group to compute percenta
 
 FigOut=compareCellPopulations(
             object=Anno_SO$object,
-            metadata.table=Anno_SO$object@meta.data,
             annotation.column="immgen_main",
             group.column="Treatment",
+            sample.column = "orig.ident",
             counts.type = "Frequency",
             group.order = NULL,
             wrap.ncols = 5
 )
  
+
 ```
 
 ```{r,eval=run_Chunks,echo=F,results='hide'}

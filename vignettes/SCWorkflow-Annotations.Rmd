@@ -68,13 +68,13 @@ ggsave(Anno_SO$plots$p2, filename = "./images/Anno2.png", width = 10, height = 1
 ![](./images/Anno1.png){width=300} ![](./images/Anno2.png){width=300}
 
 
-<br>
+<!-- <br> -->
 
-## Add External Cell Annotations
+<!-- ## Add External Cell Annotations -->
 
----
+<!-- --- -->
 
-This function will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named "Barcode" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table.
+<!-- This function will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named "Barcode" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table. -->
 
 
 ```{r,eval=run_Chunks,echo=F}
@@ -82,18 +82,18 @@ This function will merge an external table of cell annotations into an existing 
 Anno_SO=readRDS("./images/Anno_SO.rds")
 
 Anno_SO$object@meta.data[,"mouseRNAseq_main",drop=F]%>%rename("Cell Type"=mouseRNAseq_main)%>%rownames_to_column("Barcode")%>%
-   head()%>%write.table(".images/PerCell_Metadata.csv",sep=",",row.names=F,quote=F)
+   head()%>%write.table("./images/PerCell_Metadata.csv",sep=",",row.names=F,quote=F)
 
 
 ```
 
-```{r,eval=T,echo=T}
+```{r,eval=F,echo=F}
 
 CellType_Anno_Table=read.csv("./images/PerCell_Metadata.csv")
 
 ```
 
-```{r,eval=T,echo=F}
+```{r,eval=F,echo=F}
 CellType_Anno_Table%>%
   head()%>%
   knitr::kable()
@@ -103,7 +103,7 @@ CellType_Anno_Table%>%
 
 
 AddExternalAnnotation = function(
-    seurat_object = SingleRCellTypes_SO,
+    object = SingleRCellTypes_SO,
     external_metadata = BRCA_Training_PerCell_Metadata,
     seurat_object_filename = "seurat_object.rds",
     barcode_column = "Barcode",
@@ -236,15 +236,15 @@ return(NULL)
 
 ```
 
-```{r,eval=run_Chunks,echo=T}
+```{r,eval=run_Chunks,echo=F}
 
-ExtAnno_SO=ExternalAnnotation(object = Anno_SO$object,
-                              external_metadata = CellType_Anno_Table,
-                              seurat_object_filename = "seurat_object.rds",
-                              barcode_column = "Barcode",
-                              external_cols_to_add = c("Cell Type"),
-                              col_to_viz = "Cell Type"
-                             )
+ExtAnno_SO=AddExternalAnnotation(object = Anno_SO$object,
+                                external_metadata = CellType_Anno_Table,
+                                seurat_object_filename = "seurat_object.rds",
+                                barcode_column = "Barcode",
+                                external_cols_to_add = c("Cell Type"),
+                                col_to_viz = "Cell Type"
+                               )
 
 ```
 

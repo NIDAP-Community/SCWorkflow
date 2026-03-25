@@ -12,7 +12,7 @@ vignette: >
 
 ```{r, include = FALSE}
 options(rmarkdown.html_vignette.check_title = FALSE)
-run_Chunks=FALSE
+run_Chunks=T
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -123,7 +123,7 @@ The function will return a filtered Seurat Object and various figures showing me
 SO_filtered=filterQC(object=SOlist$object,
                      ## Filter Genes
                      min.cells = 20,
-                     filter.vdj.genes=F,
+                     filter.vdj.genes=FALSE,
                      
                      ## Filter Cells
                      nfeature.limits=c(NA,NA),
@@ -138,7 +138,6 @@ SO_filtered=filterQC(object=SOlist$object,
                      mad.topNgenes.limits = c(5,5),
                      n.topgenes=20,
                      do.doublets.filter=TRUE
-                                 
             )
 
 
