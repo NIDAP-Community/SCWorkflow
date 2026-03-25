@@ -11,6 +11,8 @@
 #'                      as the column names, and marker(s) as the entries 
 #'                      in each column. 
 #'                      Requires SCT@data to be present within Seurat Object
+#' @param group.var Metadata column used for grouping in diagnostic plots.
+#'                  (Default: "orig.ident")
 #' @param use.columns Select specific columns within Marker Table to analyze. 
 #'                      Markers from unselected columns won't be included.
 #' @param ms.threshold Allow user-specified module score thresholds. 

@@ -5,13 +5,16 @@
 #'          (SCT scale.data) to obtain PCA embeddings. Performs harmony on 
 #'          decomposed embedding and adjusts decomposed gene expression values 
 #'          by harmonized embedding. 
-#' @param seurat_object Seurat-class object
+#' @param object Seurat-class object containing gene expression data and
+#'               metadata with the batch variable.
 #' @param nvar Number of variable genes to subset the gene expression data by
 #'             (Default: 2000)
 #' @param genes.to.add Add genes that might not be found among variably 
 #'                     expressed genes
 #' @param group.by.var Which variable should be accounted for when running 
 #'                     batch correction
+#' @param return.lognorm Logical; if TRUE, retain log-normalized assay behavior
+#'                       in downstream handling. (Default: TRUE)
 #' @param npc Number of principal components to use when running Harmony
 #'            (Default: 20)
 
