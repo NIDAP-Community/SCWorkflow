@@ -143,7 +143,7 @@ Volcano_Plot <- function(DEGAnalysis,
     }
 
     if (is_red) {
-      df_sub <- df[df[[sigcol]] <= pCutoff & abs(df[[lfccol]]) >= FCcutoff, ]
+      df_sub <- df[df[[sig_name]] <= pCutoff & abs(df[[lfc_name]]) >= FCcutoff, ]
     } else {
       df_sub <- df
     }
