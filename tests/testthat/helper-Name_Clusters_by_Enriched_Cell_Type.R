@@ -37,11 +37,18 @@ getParamsNameClus <- function(data){
       labels.column <- "BP_encode"
   }
   
+  cluster.identities.table <- data.frame(
+    OriginalClusterIDs = cluster.numbers,
+    NewClusterNames = cluster.names,
+    stringsAsFactors = FALSE
+  )
+
   return(list("object" = object,
-              "cluster.numbers" = cluster.numbers,
-              "cluster.names" = cluster.names,
               "cluster.column" = cluster.column,
-              "labels.column" = labels.column
+              "labels.column" = labels.column,
+              "cluster.identities.table" = cluster.identities.table,
+              "cluster.numbers" = "OriginalClusterIDs",
+              "cluster.names" = "NewClusterNames"
               ))
   
 }

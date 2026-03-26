@@ -2,8 +2,7 @@
 % Please edit documentation in R/Dual_Labeling.R
 \name{dualLabeling}
 \alias{dualLabeling}
-\title{Plot coexpression of 2 markers using transcript and/or protein
-expression values}
+\title{Cell Annotation with Co-Expression \link{CCBR} \link{scRNA-seq}}
 \usage{
 dualLabeling(
   object,
@@ -42,13 +41,13 @@ dualLabeling(
 \item{marker.2}{Second gene/marker for coexpression analysis}
 
 \item{marker.1.type}{Slot to use for first marker. Choices are "SCT",
-"protein","HTO" (default is "SCT")}
+"protein","HTO", or "Spatial" (default is "SCT")}
 
 \item{marker.2.type}{Slot to use for second marker. Choices are "SCT",
-"protein","HTO" (default is "SCT")}
+"protein","HTO", or "Spatial" (default is "SCT")}
 
 \item{data.reduction}{Dimension Reduction method to use for image. Options
-are "umap" or "tsne" (default is "umap")}
+are "umap", "tsne", or "both" (default is "both")}
 
 \item{point.size}{Point size for image (default is 0.5)}
 
@@ -56,7 +55,7 @@ are "umap" or "tsne" (default is "umap")}
 
 \item{point.transparency}{Point transparency for image (default is 0.5)}
 
-\item{add.marker.thresholds}{Add marker thresholds on plot (default is FALSE)}
+\item{add.marker.thresholds}{Add marker thresholds on plot (default is TRUE)}
 
 \item{marker.1.threshold}{Threshold set for first marker (default is 0.5)}
 
@@ -64,6 +63,14 @@ are "umap" or "tsne" (default is "umap")}
 
 \item{filter.data}{Add new parameter column to metadata annotating where
 marker thresholds are applied (default is TRUE)}
+
+\item{marker.1.filter.direction}{Annotate cells that have gene expression levels
+for marker 1 using the marker 1 threshold. Choices are "greater than"
+or "less than" (default is "greater than")}
+
+\item{marker.2.filter.direction}{Annotate cells that have gene expression levels
+for marker 2 using the marker 2 threshold. Choices are "greater than"
+or "less than" (default is "greater than")}
 
 \item{apply.filter.1}{If TRUE, apply the first filter (default is TRUE)}
 
@@ -73,31 +80,20 @@ marker thresholds are applied (default is TRUE)}
 intersection. If FALSE, apply both filters and take the union.}
 
 \item{parameter.name}{Name for metadata column for new marker filters
-(Default is "Marker")}
+(default is "My_CoExp")}
 
 \item{trim.marker.1}{Trim top and bottom percentile of marker 1 signal to
 pre-scale trim values (below) to remove extremely low and high values
-(Default is TRUE)}
+(default is FALSE)}
 
 \item{trim.marker.2}{Trim top and bottom percentile of marker 2 signal to
 pre-scale trim values (below) to remove extremely low and high values
-(Default is TRUE)}
+(default is FALSE)}
 
-\item{pre.scale.trim}{Set trimming percentile values (Defalut is 0.99)}
+\item{pre.scale.trim}{Set trimming percentile value (default is 0.99)}
 
 \item{display.unscaled.values}{Set to TRUE if you want to view the unscaled
-gene/protein expression values (Default is FALSE)}
-
-\item{M1.filter.direction}{Annotate cells that have gene expression levels
-for marker 1 using the marker 1 threshold. Choices are "greater than"
-or "less than" (default is "greater than")}
-
-\item{M2.filter.direction}{Annotate cells that have gene expression levels
-for marker 2 using the marker 2 threshold. Choices are "greater than"
-or "less than" (default is "greater than")}
-
-\item{density.heatmap}{Creates a additional heatmap showing the density
-distribution of cells. (Default is FALSE)}
+gene/protein expression values (default is FALSE)}
 }
 \value{
 a seurat object with optional additional metadata for cells that are
@@ -105,9 +101,19 @@ positive or negative for gene markers, a coexpression plot and contingency
 table showing sum of cells filtered.
 }
 \description{
-This method provides visualization of coexpression of 2 genes
-(or proteins) and additional methods for filtering for cells with gene
-expression values that are above or below thresholds set for one or both
-markers. The method allows for filtering (optional) of the Seurat object
-using manually set expression thresholds.
+Display co-expression of two chosen markers in your Seurat
+object. Creates a metadata column containing annotations for cells that
+correspond to marker expression thresholds.
+}
+\examples{
+\dontrun{
+out <- dualLabeling(
+  object = anno_so,
+  samples = c("sample1"),
+  marker.1 = "CD3D",
+  marker.2 = "MS4A1",
+  data.reduction = "umap"
+)
+}
+
 }

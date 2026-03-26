@@ -47,5 +47,6 @@ getParamFQ <- function(data){
   
   return(list("object" = object, 
               "mad.mitoch.limits" = mad.mitoch.limits,
-              "mitoch.limits" = mitoch.limits))  
+              "mitoch.limits" = mitoch.limits,
+              "do.doublets.filter" = TRUE))  
 }

@@ -1,5 +1,6 @@
-#' @title Filter Seurat Object by Metadata
-#' @description Filter and subset your Seurat object based on metadata column
+#' @title Subset Seurat Object [CCBR] [scRNA-seq]
+#' @description This function subsets your Seurat object by selecting a
+#' metadata column and values matching the cells to pass forward in analysis.
 #' @details This is a downstream template that should be loaded after
 #' Step 5 of the pipeline (SingleR Annotations on Seurat Object)
 #'
@@ -32,7 +33,7 @@
 #' which have been highlighted. Default is 0.5
 #' @param use.cite.seq.data TRUE if you would like to plot Antibody clusters
 #' from CITEseq instead of scRNA.
-
+#'
 #'
 #' @import Seurat
 #' @import ggplot2
@@ -49,8 +50,19 @@
 #' @export
 #'
 #' @return a subset Seurat object
-
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- filterSeuratObjectByMetadata(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   sample.name = "orig.ident",
+#'   category.to.filter = "celltype",
+#'   values.to.filter = c("T cell", "B cell")
+#' )
+#' }
+#'
+#'
 filterSeuratObjectByMetadata <- function(object,
                                          samples.to.include,
                                          sample.name,

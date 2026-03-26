@@ -1,33 +1,44 @@
-##' @title Aggregate Counts (Pseudobulk)
-##' @description Compute pseudobulk expression by averaging expression across groups
-##'              defined by one or more metadata columns, and return a tidy table.
-##' @details Uses Seurat's `AverageExpression()` on the `SCT` assay to compute
-##'          group-wise average expression for each feature. Also produces a
-##'          bar plot (via `ggplot2`/`plotly`) showing the number of cells per
-##'          pseudobulk group and warns if any group contains only one cell.
-##'
-##' @param object Seurat-class object.
-##' @param var.group Character vector of metadata column names used to define
-##'                  pseudobulk groups. When multiple columns are supplied, an
-##'                  interaction of these columns defines the groups.
-##' @param slot Character name of the assay data layer passed to
-##'             `AverageExpression()` (e.g., "data", "counts", or "scale.data").
-##'
-##' @return A data.frame of pseudobulk expression with columns `Gene` followed by
-##'         one column per pseudobulk group. Column names are sanitized to
-##'         contain only alphanumeric/underscore characters.
-##'
-##' @import Seurat
-##' @import tidyverse
-##' @import ggplot2
-##' @import plotly
-##' @importFrom dplyr select
-##'
-##' @export
+#' @title Aggregate Counts (Pseudobulk)
+#' @description Compute pseudobulk expression by averaging expression across groups
+#'              defined by one or more metadata columns, and return a tidy table.
+#' @details Uses Seurat's `AverageExpression()` on the `SCT` assay to compute
+#'          group-wise average expression for each feature. Also produces a
+#'          bar plot (via `ggplot2`/`plotly`) showing the number of cells per
+#'          pseudobulk group and warns if any group contains only one cell.
+#'
+#' @param object Seurat-class object.
+#' @param var.group Character vector of metadata column names used to define
+#'                  pseudobulk groups. When multiple columns are supplied, an
+#'                  interaction of these columns defines the groups.
+#' @param slot Character name of the assay data layer passed to
+#'             `AverageExpression()` (e.g., "data", "counts", or "scale.data").
+#' @param interactive If TRUE, draw plotly plot (default is FALSE)          
+#'
+#' @import Seurat
+#' @import tidyverse
+#' @import ggplot2
+#' @import plotly
+#' @importFrom dplyr select
+#'
+#' @export
+#'
+#' @return A data.frame of pseudobulk expression with columns `Gene` followed by
+#'         one column per pseudobulk group. Column names are sanitized to
+#'         contain only alphanumeric/underscore characters.
+#'
+#' @examples
+#' \dontrun{
+#' out <- aggregateCounts(
+#'   object = seurat_obj,
+#'   var.group = c("orig.ident", "condition"),
+#'   slot = "data"
+#' )
+#' }
 
 aggregateCounts <- function(object,
                             var.group,
-                            slot){
+                            slot="data",
+                            interactive=FALSE){
   
   
   ## --------------- ##
@@ -73,16 +84,19 @@ aggregateCounts <- function(object,
       ))
     }
     
-    p <- ggplotly(ggplot(df, aes(x = pseudobulk_group, y = Freq)) +
+    p <- ggplot(df, aes(x = pseudobulk_group, y = Freq)) +
                     geom_bar(stat = "identity", position = "stack") +
                     labs(y = "Counts", x = "Pseudobulk Groups", title = "Number of Cells in each Pseudobulk Group") +
-                    theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+                    theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
-    print(p)
+    if(interactive==T){
+      p <- ggplotly(p)
+    }
     
   } else {
     stop("All columns in var.group must be factors or characters")
   }
   
-  return(pseudobulk)
+  return(list(data=pseudobulk,
+              plots=p))
 }

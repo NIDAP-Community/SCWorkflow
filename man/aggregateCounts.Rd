@@ -4,7 +4,7 @@
 \alias{aggregateCounts}
 \title{Aggregate Counts (Pseudobulk)}
 \usage{
-aggregateCounts(object, var.group, slot)
+aggregateCounts(object, var.group, slot = "data", interactive = FALSE)
 }
 \arguments{
 \item{object}{Seurat-class object.}
@@ -15,6 +15,8 @@ interaction of these columns defines the groups.}
 
 \item{slot}{Character name of the assay data layer passed to
 \code{AverageExpression()} (e.g., "data", "counts", or "scale.data").}
+
+\item{interactive}{If TRUE, draw plotly plot (default is FALSE)}
 }
 \value{
 A data.frame of pseudobulk expression with columns \code{Gene} followed by
@@ -30,4 +32,13 @@ Uses Seurat's \code{AverageExpression()} on the \code{SCT} assay to compute
 group-wise average expression for each feature. Also produces a
 bar plot (via \code{ggplot2}/\code{plotly}) showing the number of cells per
 pseudobulk group and warns if any group contains only one cell.
+}
+\examples{
+\dontrun{
+out <- aggregateCounts(
+  object = seurat_obj,
+  var.group = c("orig.ident", "condition"),
+  slot = "data"
+)
+}
 }

@@ -9,13 +9,23 @@
 #' @importFrom ggplot2 scale_y_continuous geom_line geom_segment scale_y_log10 scale_x_continuous
 #' @importFrom gridExtra arrangeGrob 
 #' @importFrom grid textGrob gpar
-NULL
-
+#' 
+#' 
+#' @examples
+#' \dontrun{
+#' res <- compute_modscore_data(
+#'   object = seurat_obj,
+#'   marker.list = list(Tcell = c("CD3D", "TRBC1")),
+#'   use.columns = c("Tcell"),
+#'   reduction = "umap"
+#' )
+#' }
+#'
 #' @export
-compute_modscore_data <- function(object, marker_list, use_columns,
+compute_modscore_data <- function(object, marker.list, use.columns,
                                   reduction = c("tsne","umap","pca"),
                                   nbins = 10,
-                                  group_var = "orig.ident") {
+                                  group.var = "orig.ident") {
   reduction <- match.arg(reduction)
 
   if (!"Barcode" %in% colnames(object@meta.data)) {
@@ -30,8 +40,8 @@ compute_modscore_data <- function(object, marker_list, use_columns,
 
   # Build per-celltype data
   res <- list()
-  for (celltype_name in use_columns) {
-    genes <- marker_list[[celltype_name]]
+  for (celltype_name in use.columns) {
+    genes <- marker.list[[celltype_name]]
     if (is.null(genes)) next
 
     object <- Seurat::AddModuleScore(object, list(genes), name = celltype_name, nbin = nbins, assay = "SCT")
@@ -60,7 +70,7 @@ compute_modscore_data <- function(object, marker_list, use_columns,
     coords <- dplyr::mutate(coords, sample_clusid = coords$clusid)
     coords <- dplyr::arrange(coords, clusid)
 
-    clusid_df <- data.frame(id = object@meta.data[[group_var]],
+    clusid.df <- data.frame(id = object@meta.data[[group.var]],
                 ModuleScore = object@meta.data[[m]],
                 stringsAsFactors = FALSE)
 
@@ -68,7 +78,7 @@ compute_modscore_data <- function(object, marker_list, use_columns,
       object = object,
       m = m,
       coords = coords,
-      clusid_df = clusid_df,
+      clusid.df = clusid.df,
       density = d
     )
   }
@@ -77,9 +87,9 @@ compute_modscore_data <- function(object, marker_list, use_columns,
 }
 
 #' @export
-build_modscore_plots <- function(object, m, coords, clusid_df, d, threshold,
-                                 gradient_ft_size = 6, violin_ft_size = 6, step_size = 0.1,
-                                 group_var = "orig.ident",
+build_modscore_plots <- function(object, m, coords, clusid.df, d, threshold,
+                                 gradient.ft.size = 6, violin.ft.size = 6, step.size = 0.1,
+                                 group.var = "orig.ident",
                                  reduction = c("tsne","umap","pca")) {
   reduction <- match.arg(reduction)
 
@@ -93,10 +103,10 @@ build_modscore_plots <- function(object, m, coords, clusid_df, d, threshold,
     ggplot2::xlab(if (reduction == "tsne") "tsne-1" else if (reduction == "umap") "umap-1" else "pc-1") +
     ggplot2::ylab(if (reduction == "tsne") "tsne-2" else if (reduction == "umap") "umap-2" else "pc-2")
 
-  g1 <- Seurat::RidgePlot(object, features = m, group.by = group_var) +
-    ggplot2::theme(legend.position = "none", title = ggplot2::element_blank(), axis.text.x = ggplot2::element_text(size = gradient_ft_size)) +
+  g1 <- Seurat::RidgePlot(object, features = m, group.by = group.var) +
+    ggplot2::theme(legend.position = "none", title = ggplot2::element_blank(), axis.text.x = ggplot2::element_text(size = gradient.ft.size)) +
     ggplot2::geom_vline(xintercept = threshold, linetype = "dashed", color = "red3") +
-    ggplot2::scale_x_continuous(breaks = seq(0, 1, step_size))
+    ggplot2::scale_x_continuous(breaks = seq(0, 1, step.size))
 
   g3 <- ggplot2::ggplot(data.frame(x = d$x, y = d$y), ggplot2::aes(x, y)) +
     ggplot2::xlab("ModuleScore") + ggplot2::ylab("Density") + ggplot2::geom_line() +
@@ -104,7 +114,7 @@ build_modscore_plots <- function(object, m, coords, clusid_df, d, threshold,
     ggplot2::scale_color_gradientn(colours = c("blue4", "lightgrey", "red"),
       values = scales::rescale(c(0, threshold/2, threshold, (threshold + 1)/2, 1), limits = c(0, 1))) +
     ggplot2::geom_vline(xintercept = threshold, linetype = "dashed", color = "red3") +
-    ggplot2::scale_x_continuous(breaks = seq(0, 1, step_size)) + ggplot2::theme(legend.title = ggplot2::element_blank(), axis.text.x = ggplot2::element_text(size = 6))
+    ggplot2::scale_x_continuous(breaks = seq(0, 1, step.size)) + ggplot2::theme(legend.title = ggplot2::element_blank(), axis.text.x = ggplot2::element_text(size = 6))
 
   arranged <- gridExtra::arrangeGrob(g, g1, g3, ncol = 2, top = grid::textGrob(m, gp = grid::gpar(fontsize = 14, fontface = "bold")))
   list(g = g, g1 = g1, g3 = g3, arranged = arranged)

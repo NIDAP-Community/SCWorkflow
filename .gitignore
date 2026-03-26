@@ -16,3 +16,7 @@ inst/doc
 *.rds
 /doc/
 /Meta/
+
+.github
+.github.zip
+decision_log.md

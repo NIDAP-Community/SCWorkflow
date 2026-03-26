@@ -10,12 +10,12 @@ violinPlot(
   layer,
   genes,
   group,
-  facet_by = "",
-  filter_outliers = F,
-  outlier_low = 0.05,
-  outlier_high = 0.95,
-  jitter_points,
-  jitter_dot_size
+  facet.by = "",
+  filter.outliers = F,
+  outlier.low = 0.05,
+  outlier.high = 0.95,
+  jitter.points,
+  jitter.dot.size
 )
 }
 \arguments{
@@ -29,17 +29,17 @@ violinPlot(
 
 \item{group}{Split violin plot based on metadata group}
 
-\item{facet_by}{Split violin plot based on a second metadata group}
+\item{facet.by}{Split violin plot based on a second metadata group}
 
-\item{filter_outliers}{Filter outliers from the data (TRUE/FALSE)}
+\item{filter.outliers}{Filter outliers from the data (TRUE/FALSE)}
 
-\item{outlier_low}{Filter lower bound outliers (Default = 0.05)}
+\item{outlier.low}{Filter lower bound outliers (Default = 0.05)}
 
-\item{outlier_high}{Filter upper bound outliers (Default = 0.95)}
+\item{outlier.high}{Filter upper bound outliers (Default = 0.95)}
 
-\item{jitter_points}{Scatter points on the plot (TRUE/FALSE)}
+\item{jitter.points}{Scatter points on the plot (TRUE/FALSE)}
 
-\item{jitter_dot_size}{Set size of individual points}
+\item{jitter.dot.size}{Set size of individual points}
 }
 \value{
 violin ggplot2 object
@@ -60,10 +60,10 @@ violinPlot(
   layer = "data",
   genes = c("Cd4", "Cd8a"),
   group = "celltype",
-  facet_by = "orig.ident",
-  filter_outliers = TRUE,
-  jitter_points = TRUE,
-  jitter_dot_size = 0.5
+  facet.by = "orig.ident",
+  filter.outliers = TRUE,
+  jitter.points = TRUE,
+  jitter.dot.size = 0.5
 )
 }
 }
