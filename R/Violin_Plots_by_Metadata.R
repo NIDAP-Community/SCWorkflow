@@ -19,7 +19,7 @@
 #' @import Seurat 
 #' @import reshape2
 #' @import tidyverse
-#' @import tidyr pivot_longer
+#' @importFrom tidyr pivot_longer
 #' @import cowplot
 #' @import rlang
 #' @import ggplot2
