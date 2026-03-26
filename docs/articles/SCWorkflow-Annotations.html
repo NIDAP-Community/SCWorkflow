@@ -101,62 +101,10 @@ CellDex R package [2] are currently available.</p>
 <span>                          use.clusters <span class="op">=</span> <span class="cn">NULL</span></span>
 <span>                          <span class="op">)</span></span></code></pre></div>
 <p><img src="images/Anno1.png" width="300"><img src="images/Anno2.png" width="300"></p>
-<p><br></p>
-</div>
-<div class="section level2">
-<h2 id="add-external-cell-annotations">Add External Cell Annotations<a class="anchor" aria-label="anchor" href="#add-external-cell-annotations"></a>
-</h2>
-<hr>
-<p>This function will merge an external table of cell annotations into
-an existing Seurat Object’s metadata table. The input external metadata
-table must have a column named “Barcode” that contains barcodes matching
-those found in the metadata already present in the input Seurat Object.
-The output will be a new Seurat Object with metadata that now includes
-the additional columns from the external table.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">CellType_Anno_Table</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"./images/PerCell_Metadata.csv"</span><span class="op">)</span></span></code></pre></div>
-<table class="table">
-<thead><tr class="header">
-<th align="left">Barcode</th>
-<th align="left">Cell.Type</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td align="left">PBS_AAACCTGCAAGGTTTC-1</td>
-<td align="left">Monocytes</td>
-</tr>
-<tr class="even">
-<td align="left">PBS_AAACCTGGTCTAGCGC-1</td>
-<td align="left">Monocytes</td>
-</tr>
-<tr class="odd">
-<td align="left">PBS_AAACCTGTCACTTACT-1</td>
-<td align="left">Monocytes</td>
-</tr>
-<tr class="even">
-<td align="left">PBS_AAACCTGTCAGCGATT-1</td>
-<td align="left">Monocytes</td>
-</tr>
-<tr class="odd">
-<td align="left">PBS_AAACCTGTCAGCTGGC-1</td>
-<td align="left">Macrophages</td>
-</tr>
-<tr class="even">
-<td align="left">PBS_AAACCTGTCGGCTTGG-1</td>
-<td align="left">Macrophages</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">ExtAnno_SO</span><span class="op">=</span><span class="fu">ExternalAnnotation</span><span class="op">(</span>object <span class="op">=</span> <span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
-<span>                              external_metadata <span class="op">=</span> <span class="va">CellType_Anno_Table</span>,</span>
-<span>                              seurat_object_filename <span class="op">=</span> <span class="st">"seurat_object.rds"</span>,</span>
-<span>                              barcode_column <span class="op">=</span> <span class="st">"Barcode"</span>,</span>
-<span>                              external_cols_to_add <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cell Type"</span><span class="op">)</span>,</span>
-<span>                              col_to_viz <span class="op">=</span> <span class="st">"Cell Type"</span></span>
-<span>                             <span class="op">)</span></span></code></pre></div>
+<!-- <br> -->
+<!-- ## Add External Cell Annotations -->
+<!-- --- -->
+<!-- This function will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named "Barcode" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table. -->
 <p><br></p>
 </div>
 <div class="section level2">
@@ -179,8 +127,8 @@ cells meet the established thresholds. The visualization can be improved
 by omitting extreme values. The tool also facilitates the creation of a
 heatmap to represent the density distribution of cells and exhibit the
 raw gene/protein expression values.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">'Cd4'</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">)</span>,ignore.case <span class="op">=</span> <span class="cn">T</span>,value<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"Cd4"</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span><span class="op">@</span><span class="va">assays</span><span class="op">$</span><span class="va">RNA</span><span class="op">)</span>,ignore.case <span class="op">=</span> <span class="cn">T</span>,value<span class="op">=</span><span class="cn">T</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">DLAnno_SO</span><span class="op">=</span><span class="fu"><a href="../reference/dualLabeling.html">dualLabeling</a></span><span class="op">(</span>object <span class="op">=</span> <span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>, </span>
 <span>                        <span class="va">samples</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>,<span class="st">"CD8dep"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>,<span class="st">"Combo"</span><span class="op">)</span>, </span>
@@ -239,9 +187,9 @@ data and processes them to ensure uniformity across different cell
 types. The output of this function is a detailed figure showing the
 activity of chosen genes across different cell types. This is useful for
 identifying distinct groups of cells based on gene activity levels.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Marker_Table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"Marker_Table_demo.csv"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span>    </span>
 <span>        <span class="fu"><a href="../reference/colorByMarkerTable.html">colorByMarkerTable</a></span><span class="op">(</span>object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>                           samples.subset<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>, <span class="st">"Combo"</span>,<span class="st">"CD8dep"</span> <span class="op">)</span>,</span>
@@ -300,7 +248,7 @@ Cell Type Labels:</strong> The program appends a “Likely_CellType”
 column to the metadata of the scRNA-seq object, based on the results of
 the module score analysis. <strong>Output:</strong> An updated scRNA-seq
 object with new cell type labels.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">MS_object</span><span class="op">=</span><span class="fu"><a href="../reference/modScore.html">modScore</a></span><span class="op">(</span>object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>, </span>
 <span>                   marker.table<span class="op">=</span><span class="va">Marker_Table</span>,</span>
@@ -353,7 +301,7 @@ customized for the clusters and cell types. If no specific order is
 provided, the function uses a default order. An optional parameter
 allows the user to make the plot interactive. The function returns the
 updated Seurat object and the plot.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">clstrTable</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.table</a></span><span class="op">(</span>file <span class="op">=</span> <span class="st">"./images/Cluster_Names.txt"</span>,  sep <span class="op">=</span> <span class="st">'\t'</span>,header <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
@@ -396,7 +344,7 @@ updated Seurat object and the plot.</p>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">RNC_object</span><span class="op">=</span><span class="fu"><a href="../reference/nameClusters.html">nameClusters</a></span><span class="op">(</span>object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>                         cluster.identities.table<span class="op">=</span><span class="va">clstrTable</span>,</span>
@@ -408,7 +356,7 @@ updated Seurat object and the plot.</p>
 <span>                         order.celltypes.by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                         interactive <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>                        <span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># DimPlot(MS_object, group.by = "SCT_snn_res.0.2", label = T, reduction = 'umap')</span></span>
 <span><span class="co"># DimPlot(MS_object, group.by = "mouseRNAseq_main", label = T, reduction = 'umap')</span></span>
@@ -452,7 +400,7 @@ percent of cells expressing a gene or the average expression level of
 the genes. This function can be useful for exploratory data analysis and
 visualizing the differences in gene expression across different
 conditions or groups of cells.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/dotPlotMet.html">dotPlotMet</a></span><span class="op">(</span>object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>                   metadata<span class="op">=</span><span class="st">"orig.ident"</span>,</span>

@@ -132,6 +132,19 @@ Default is "right"</p></dd>
 (requires dataset where Filter/QC/SingleR annotations have been run first)</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">plotMetadata</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  object <span class="op">=</span> <span class="va">anno_so</span>,</span></span>
+<span class="r-in"><span>  samples.to.include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sample1"</span>, <span class="st">"sample2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  metadata.to.plot <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"celltype"</span>, <span class="st">"orig.ident"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  columns.to.summarize <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  reduction.type <span class="op">=</span> <span class="st">"umap"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

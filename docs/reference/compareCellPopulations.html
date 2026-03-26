@@ -57,13 +57,11 @@ frequencies or counts across user-defined groupings.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">compareCellPopulations</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
-<span>  <span class="va">metadata.table</span>,</span>
 <span>  <span class="va">annotation.column</span>,</span>
 <span>  <span class="va">group.column</span>,</span>
 <span>  sample.column <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
 <span>  counts.type <span class="op">=</span> <span class="st">"Frequency"</span>,</span>
 <span>  group.order <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  seurat.object.filename <span class="op">=</span> <span class="st">"seurat_object.rds"</span>,</span>
 <span>  wrap.ncols <span class="op">=</span> <span class="fl">5</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -74,11 +72,6 @@ frequencies or counts across user-defined groupings.</p>
 
 <dl><dt id="arg-object">object<a class="anchor" aria-label="anchor" href="#arg-object"></a></dt>
 <dd><p>A Seurat object containing the single-cell data</p></dd>
-
-
-<dt id="arg-metadata-table">metadata.table<a class="anchor" aria-label="anchor" href="#arg-metadata-table"></a></dt>
-<dd><p>A data.frame containing metadata (typically from
-Seurat object's meta.data slot)</p></dd>
 
 
 <dt id="arg-annotation-column">annotation.column<a class="anchor" aria-label="anchor" href="#arg-annotation-column"></a></dt>
@@ -106,14 +99,14 @@ containing sample identifiers. Default is "orig.ident"</p></dd>
 If NULL, uses natural order from data. Default is NULL</p></dd>
 
 
-<dt id="arg-seurat-object-filename">seurat.object.filename<a class="anchor" aria-label="anchor" href="#arg-seurat-object-filename"></a></dt>
-<dd><p>Character string for the Seurat object
-filename. Default is "seurat_object.rds"</p></dd>
-
-
 <dt id="arg-wrap-ncols">wrap.ncols<a class="anchor" aria-label="anchor" href="#arg-wrap-ncols"></a></dt>
 <dd><p>Integer specifying number of columns for facet wrapping
 in box plots. Default is 5</p></dd>
+
+
+<dt id="arg-seurat-object-filename">seurat.object.filename<a class="anchor" aria-label="anchor" href="#arg-seurat-object-filename"></a></dt>
+<dd><p>Character string for the Seurat object
+filename. Default is "seurat_object.rds"</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -138,7 +131,6 @@ across samples and conditions.</p>
 <span class="r-in"><span><span class="co"># Compare cell populations by treatment group</span></span></span>
 <span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">compareCellPopulations</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">seurat_obj</span>,</span></span>
-<span class="r-in"><span>  metadata.table <span class="op">=</span> <span class="va">seurat_obj</span><span class="op">@</span><span class="va">meta.data</span>,</span></span>
 <span class="r-in"><span>  annotation.column <span class="op">=</span> <span class="st">"cell_type"</span>,</span></span>
 <span class="r-in"><span>  group.column <span class="op">=</span> <span class="st">"treatment"</span>,</span></span>
 <span class="r-in"><span>  sample.column <span class="op">=</span> <span class="st">"sample_id"</span>,</span></span>

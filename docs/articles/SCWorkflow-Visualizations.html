@@ -91,7 +91,7 @@ transparency.</p>
 <code class="sourceCode R"><span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/plotMetadata.html">plotMetadata</a></span><span class="op">(</span></span>
 <span>            object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>            samples.to.include<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>,<span class="st">"Combo"</span>,<span class="st">"CD8dep"</span> <span class="op">)</span>,</span>
-<span>            metadata.to.plot<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'SCT_snn_res.0.4'</span>,<span class="st">'Phase'</span><span class="op">)</span>,</span>
+<span>            metadata.to.plot<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SCT_snn_res.0.4"</span>,<span class="st">"Phase"</span><span class="op">)</span>,</span>
 <span>            columns.to.summarize<span class="op">=</span><span class="cn">NULL</span>,</span>
 <span>            summarization.cut.off <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>            reduction.type <span class="op">=</span> <span class="st">"umap"</span>,</span>
@@ -144,8 +144,8 @@ effectively revealing clusters or groups of similar cells.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/tSNE3D.html">tSNE3D</a></span><span class="op">(</span></span>
 <span>           object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
-<span>           color.variable<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>,</span>
-<span>           label.variable<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>,</span>
+<span>           color.variable<span class="op">=</span><span class="st">"SCT_snn_res.0.4"</span>,</span>
+<span>           label.variable<span class="op">=</span><span class="st">"SCT_snn_res.0.4"</span>,</span>
 <span>           dot.size <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>           legend <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>           colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"darkblue"</span>,<span class="st">"purple4"</span>,<span class="st">"green"</span>,<span class="st">"red"</span>,<span class="st">"darkcyan"</span>,</span>
@@ -176,7 +176,7 @@ the points, and the level of transparency.</p>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/colorByGene.html">colorByGene</a></span><span class="op">(</span></span>
 <span>            object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>            samples.to.include<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>,<span class="st">"Combo"</span>,<span class="st">"CD8dep"</span> <span class="op">)</span>,</span>
-<span>            gene<span class="op">=</span><span class="st">'Itgam'</span>,</span>
+<span>            gene<span class="op">=</span><span class="st">"Itgam"</span>,</span>
 <span>            reduction.type <span class="op">=</span> <span class="st">"umap"</span>,</span>
 <span>            number.of.rows <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>            return.seurat.object <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -218,10 +218,10 @@ labels.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/violinPlot.html">violinPlot</a></span><span class="op">(</span></span>
 <span>                object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>, </span>
-<span>                assay<span class="op">=</span><span class="st">'SCT'</span>, </span>
-<span>                layer<span class="op">=</span><span class="st">'scale.data'</span>, </span>
-<span>                genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Itgam'</span>,<span class="st">'Cd38'</span><span class="op">)</span>, </span>
-<span>                group<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>, </span>
+<span>                assay<span class="op">=</span><span class="st">"SCT"</span>, </span>
+<span>                layer<span class="op">=</span><span class="st">"scale.data"</span>, </span>
+<span>                genes<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Itgam"</span>,<span class="st">"Cd38"</span><span class="op">)</span>, </span>
+<span>                group<span class="op">=</span><span class="st">"SCT_snn_res.0.4"</span>, </span>
 <span>                facet.by <span class="op">=</span> <span class="st">""</span>, </span>
 <span>                filter.outliers <span class="op">=</span> <span class="cn">F</span>,</span>
 <span>                outlier.low <span class="op">=</span> <span class="fl">0.05</span>,</span>
@@ -276,9 +276,9 @@ visual interpretation of patterns or correlations in the data.</p>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/heatmapSC.html">heatmapSC</a></span><span class="op">(</span></span>
 <span>          object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
 <span>          sample.names<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"PBS"</span>,<span class="st">"ENT"</span>,<span class="st">"NHSIL12"</span>,<span class="st">"Combo"</span>,<span class="st">"CD8dep"</span> <span class="op">)</span>,</span>
-<span>          metadata<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>,</span>
-<span>          transcripts<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Cd163'</span>,<span class="st">'Cd38'</span>,<span class="st">'Itgam'</span>,<span class="st">'Cd4'</span>,<span class="st">'Cd8a'</span>,<span class="st">'Pdcd1'</span>,<span class="st">'Ctla4'</span><span class="op">)</span>,</span>
-<span>          use_assay <span class="op">=</span> <span class="st">'SCT'</span>,</span>
+<span>          metadata<span class="op">=</span><span class="st">"SCT_snn_res.0.4"</span>,</span>
+<span>          transcripts<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Cd163"</span>,<span class="st">"Cd38"</span>,<span class="st">"Itgam"</span>,<span class="st">"Cd4"</span>,<span class="st">"Cd8a"</span>,<span class="st">"Pdcd1"</span>,<span class="st">"Ctla4"</span><span class="op">)</span>,</span>
+<span>          use.assay <span class="op">=</span> <span class="st">"SCT"</span>,</span>
 <span>          proteins <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>          heatmap.color <span class="op">=</span> <span class="st">"Bu Yl Rd"</span>,</span>
 <span>          plot.title <span class="op">=</span> <span class="st">"Heatmap"</span>,</span>
@@ -345,9 +345,9 @@ conditions or groups of cells.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/dotPlotMet.html">dotPlotMet</a></span><span class="op">(</span></span>
 <span>           object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
-<span>           metadata<span class="op">=</span><span class="st">'SCT_snn_res.0.4'</span>,</span>
+<span>           metadata<span class="op">=</span><span class="st">"SCT_snn_res.0.4"</span>,</span>
 <span>           cells<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span><span class="op">$</span><span class="va">SCT_snn_res.0.4</span><span class="op">)</span>,</span>
-<span>           markers<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'Itgam'</span>,<span class="st">'Cd163'</span>,<span class="st">'Cd38'</span>,<span class="st">'Cd4'</span>,<span class="st">'Cd8a'</span>,<span class="st">'Pdcd1'</span>,<span class="st">'Ctla4'</span><span class="op">)</span>,</span>
+<span>           markers<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Itgam"</span>,<span class="st">"Cd163"</span>,<span class="st">"Cd38"</span>,<span class="st">"Cd4"</span>,<span class="st">"Cd8a"</span>,<span class="st">"Pdcd1"</span>,<span class="st">"Ctla4"</span><span class="op">)</span>,</span>
 <span>           plot.reverse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>           cell.reverse.sort <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>           dot.color <span class="op">=</span> <span class="st">"darkblue"</span></span>
@@ -389,9 +389,9 @@ compositional shifts from replicate-level dispersion.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="va">FigOut</span><span class="op">=</span><span class="fu"><a href="../reference/compareCellPopulations.html">compareCellPopulations</a></span><span class="op">(</span></span>
 <span>            object<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span>,</span>
-<span>            metadata.table<span class="op">=</span><span class="va">Anno_SO</span><span class="op">$</span><span class="va">object</span><span class="op">@</span><span class="va">meta.data</span>,</span>
-<span>            annotation.column<span class="op">=</span><span class="st">'immgen_main'</span>,</span>
-<span>            group.column<span class="op">=</span><span class="st">'Treatment'</span>,</span>
+<span>            annotation.column<span class="op">=</span><span class="st">"immgen_main"</span>,</span>
+<span>            group.column<span class="op">=</span><span class="st">"Treatment"</span>,</span>
+<span>            sample.column <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
 <span>            counts.type <span class="op">=</span> <span class="st">"Frequency"</span>,</span>
 <span>            group.order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>            wrap.ncols <span class="op">=</span> <span class="fl">5</span></span>
