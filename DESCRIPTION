@@ -92,4 +92,5 @@ Imports:
     htmlwidgets,
     scDblFinder
     , BiocParallel
+    , patchwork
 Config/testthat/edition: 3
