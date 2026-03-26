@@ -2,7 +2,10 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/404.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/CHANGELOG.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/LICENSE-text.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/LICENSE.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/CONTRIBUTING.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/articles/Intro.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/articles/README.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-Annotations.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-DEG.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/articles/SCWorkflow-QC.html</loc></url>
@@ -27,6 +30,7 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/dualLabeling.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/filterQC.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/filterSeuratObjectByMetadata.html</loc></url>
+<url><loc>https://nidap-community.github.io/SCWorkflow/reference/harmonyBatchCorrect.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/heatmapSC.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/index.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/launch_module_score_app.html</loc></url>
@@ -42,6 +46,5 @@
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/reclusterSeuratObject.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/tSNE3D.html</loc></url>
 <url><loc>https://nidap-community.github.io/SCWorkflow/reference/violinPlot.html</loc></url>
-<url><loc>https://nidap-community.github.io/SCWorkflow/reference/violinPlot_mod.html</loc></url>
 </urlset>
 

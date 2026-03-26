@@ -1,7 +1,7 @@
-#' @title DEG (Gene Expression Markers)
-#' @description This function performs a DEG (differential expression of genes)
-#' analysis on a merged Seurat object to identify expression markers
-#' between different groups of cells (contrasts).
+#' @title DE with Find Markers [CCBR] [scRNA-seq]
+#' @description This function performs DE (differential expression) analysis on
+#' a merged Seurat object to identify expression markers between different
+#' groups of cells (contrasts).
 #' @details The recommended input is a merged Seurat object
 #' with SingleR annotations, along with its associated sample names and metadata
 #'
@@ -20,8 +20,8 @@
 #' Default is FALSE
 #' @param assay.to.use The assay to use for your DEG analysis.
 #' Default is SCT, but can use linearly scaled data by selecting RNA instead
-
-
+#'
+#'
 #' @import Seurat
 #' @import ggplot2
 #' @import RColorBrewer
@@ -41,9 +41,19 @@
 #' @export
 #'
 #' @return a dataframe with DEG.
-
-
-
+#'
+#' @examples
+#' \dontrun{
+#' deg <- degGeneExpressionMarkers(
+#'   object = anno_so,
+#'   samples = c("sample1", "sample2"),
+#'   contrasts = c("A-B"),
+#'   parameter.to.test = "cluster"
+#' )
+#' }
+#'
+#'
+#'
 degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.test = "orig_ident", 
     test.to.use = "MAST", log.fc.threshold = 0.25, use.spark = FALSE, 
     assay.to.use = "SCT") 

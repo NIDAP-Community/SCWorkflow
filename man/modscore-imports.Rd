@@ -2,8 +2,30 @@
 % Please edit documentation in R/ModuleScoreHelpers.R
 \name{modscore-imports}
 \alias{modscore-imports}
+\alias{compute_modscore_data}
 \title{Helpers for ModuleScore Shiny app}
+\usage{
+compute_modscore_data(
+  object,
+  marker.list,
+  use.columns,
+  reduction = c("tsne", "umap", "pca"),
+  nbins = 10,
+  group.var = "orig.ident"
+)
+}
 \description{
 Precompute module scores per celltype and build plots from cached data.
+}
+\examples{
+\dontrun{
+res <- compute_modscore_data(
+  object = seurat_obj,
+  marker.list = list(Tcell = c("CD3D", "TRBC1")),
+  use.columns = c("Tcell"),
+  reduction = "umap"
+)
+}
+
 }
 \keyword{internal}

@@ -55,9 +55,9 @@ ModuleScores and Likely_CellType calls</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">modScore</span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
 <span>  <span class="va">marker.table</span>,</span>
-<span>  group_var <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
-<span>  <span class="va">use_columns</span>,</span>
-<span>  <span class="va">ms_threshold</span>,</span>
+<span>  group.var <span class="op">=</span> <span class="st">"orig.ident"</span>,</span>
+<span>  <span class="va">use.columns</span>,</span>
+<span>  <span class="va">ms.threshold</span>,</span>
 <span>  <span class="va">general.class</span>,</span>
 <span>  multi.lvl <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  lvl.df <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -86,15 +86,20 @@ in each column.
 Requires SCT@data to be present within Seurat Object</p></dd>
 
 
-<dt id="arg-use-columns">use_columns<a class="anchor" aria-label="anchor" href="#arg-use-columns"></a></dt>
+<dt id="arg-group-var">group.var<a class="anchor" aria-label="anchor" href="#arg-group-var"></a></dt>
+<dd><p>Metadata column used for grouping in diagnostic plots.
+(Default: "orig.ident")</p></dd>
+
+
+<dt id="arg-use-columns">use.columns<a class="anchor" aria-label="anchor" href="#arg-use-columns"></a></dt>
 <dd><p>Select specific columns within Marker Table to analyze.
 Markers from unselected columns won't be included.</p></dd>
 
 
-<dt id="arg-ms-threshold">ms_threshold<a class="anchor" aria-label="anchor" href="#arg-ms-threshold"></a></dt>
+<dt id="arg-ms-threshold">ms.threshold<a class="anchor" aria-label="anchor" href="#arg-ms-threshold"></a></dt>
 <dd><p>Allow user-specified module score thresholds.
 Provide one threshold for each Celltype you included
-in the "use_columns" parameter.
+in the "use.columns" parameter.
 For each Celltype, provide the Celltype name,
 then a space, then type your threshold for that Celltype.
 This threshold must be a number between 0.0 and 1.0.
@@ -183,8 +188,8 @@ control features are randomly selected from each bin.</p>
 <span class="r-in"><span><span class="fu">modScore</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">seuratObject</span>,</span></span>
 <span class="r-in"><span>  marker.table <span class="op">=</span> <span class="va">immuneCellMarkers</span>,</span></span>
-<span class="r-in"><span>  use_columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T"</span>, <span class="st">"Treg"</span>, <span class="st">"Monocytes"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  ms_threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T 0.1"</span>, <span class="st">"Treg 0.4"</span>, <span class="st">"Monocytes 0.3"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  use.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T"</span>, <span class="st">"Treg"</span>, <span class="st">"Monocytes"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  ms.threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T 0.1"</span>, <span class="st">"Treg 0.4"</span>, <span class="st">"Monocytes 0.3"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  general.class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T"</span>, <span class="st">"Monocytes"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  multi.lvl <span class="op">=</span> <span class="cn">FALSE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
@@ -192,8 +197,8 @@ control features are randomly selected from each bin.</p>
 <span class="r-in"><span><span class="fu">modScore</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  object <span class="op">=</span> <span class="va">seuratObject</span>,</span></span>
 <span class="r-in"><span>  marker.table <span class="op">=</span> <span class="va">immuneCellMarkers</span>,</span></span>
-<span class="r-in"><span>  use_columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T"</span>, <span class="st">"Treg"</span>, <span class="st">"Monocytes"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  ms_threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T 0.1"</span>, <span class="st">"Treg 0.4"</span>, <span class="st">"Monocytes 0.3"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  use.columns <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T"</span>, <span class="st">"Treg"</span>, <span class="st">"Monocytes"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  ms.threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T 0.1"</span>, <span class="st">"Treg 0.4"</span>, <span class="st">"Monocytes 0.3"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  general.class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CD4_T"</span>, <span class="st">"Monocytes"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  multi.lvl <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  lvl.df <span class="op">=</span> <span class="va">parentChildTable</span></span></span>

@@ -1,33 +1,30 @@
-#' @title Plot coexpression of 2 markers using transcript and/or protein
-#' expression values
-#' @description This method provides visualization of coexpression of 2 genes
-#' (or proteins) and additional methods for filtering for cells with gene
-#' expression values that are above or below thresholds set for one or both
-#' markers. The method allows for filtering (optional) of the Seurat object
-#' using manually set expression thresholds.
+#' @title Cell Annotation with Co-Expression [CCBR] [scRNA-seq]
+#' @description Display co-expression of two chosen markers in your Seurat
+#' object. Creates a metadata column containing annotations for cells that
+#' correspond to marker expression thresholds.
 #'
 #' @param object Seurat-class object
 #' @param samples Samples to be included in the analysis
 #' @param marker.1 First gene/marker for coexpression analysis
 #' @param marker.2 Second gene/marker for coexpression analysis
 #' @param marker.1.type Slot to use for first marker. Choices are "SCT",
-#' "protein","HTO" (default is "SCT")
+#' "protein","HTO", or "Spatial" (default is "SCT")
 #' @param marker.2.type Slot to use for second marker. Choices are "SCT",
-#' "protein","HTO" (default is "SCT")
+#' "protein","HTO", or "Spatial" (default is "SCT")
 #' @param data.reduction Dimension Reduction method to use for image. Options
-#' are "umap" or "tsne" (default is "umap")
+#' are "umap", "tsne", or "both" (default is "both")
 #' @param point.size Point size for image (default is 0.5)
 #' @param point.shape Point shape for image (default is 16)
 #' @param point.transparency Point transparency for image (default is 0.5)
-#' @param add.marker.thresholds Add marker thresholds on plot (default is FALSE)
+#' @param add.marker.thresholds Add marker thresholds on plot (default is TRUE)
 #' @param marker.1.threshold Threshold set for first marker (default is 0.5)
 #' @param marker.2.threshold Threshold set for second marker (default is 0.5)
 #' @param filter.data Add new parameter column to metadata annotating where 
 #' marker thresholds are applied (default is TRUE)
-#' @param M1.filter.direction Annotate cells that have gene expression levels 
+#' @param marker.1.filter.direction Annotate cells that have gene expression levels 
 #' for marker 1 using the marker 1 threshold. Choices are "greater than" 
 #' or "less than" (default is "greater than")
-#' @param M2.filter.direction Annotate cells that have gene expression levels 
+#' @param marker.2.filter.direction Annotate cells that have gene expression levels 
 #' for marker 2 using the marker 2 threshold. Choices are "greater than" 
 #' or "less than" (default is "greater than")
 #' @param apply.filter.1 If TRUE, apply the first filter (default is TRUE)
@@ -35,19 +32,17 @@
 #' @param filter.condition If TRUE, apply both filters 1 and 2 and take
 #' intersection. If FALSE, apply both filters and take the union.
 #' @param parameter.name Name for metadata column for new marker filters
-#' (Default is "Marker")
+#' (default is "My_CoExp")
 #' @param trim.marker.1 Trim top and bottom percentile of marker 1 signal to
 #' pre-scale trim values (below) to remove extremely low and high values
-#' (Default is TRUE)
+#' (default is FALSE)
 #' @param trim.marker.2 Trim top and bottom percentile of marker 2 signal to
 #' pre-scale trim values (below) to remove extremely low and high values
-#' (Default is TRUE)
-#' @param pre.scale.trim Set trimming percentile values (Defalut is 0.99)
-#' @param density.heatmap Creates a additional heatmap showing the density
-#' distribution of cells. (Default is FALSE)
+#' (default is FALSE)
+#' @param pre.scale.trim Set trimming percentile value (default is 0.99)
 #' @param display.unscaled.values Set to TRUE if you want to view the unscaled
-#' gene/protein expression values (Default is FALSE)
-
+#' gene/protein expression values (default is FALSE)
+#'
 #' @import Seurat
 #' @importFrom scales rescale
 #' @importFrom gridExtra arrangeGrob tableGrob
@@ -63,7 +58,18 @@
 #' @return a seurat object with optional additional metadata for cells that are
 #' positive or negative for gene markers, a coexpression plot and contingency
 #' table showing sum of cells filtered.
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- dualLabeling(
+#'   object = anno_so,
+#'   samples = c("sample1"),
+#'   marker.1 = "CD3D",
+#'   marker.2 = "MS4A1",
+#'   data.reduction = "umap"
+#' )
+#' }
+#'
 dualLabeling <- function (object, 
                           samples, 
                           marker.1, 
@@ -568,16 +574,26 @@ dualLabeling <- function (object,
     }
     
     
-    if (data.reduction=='tsne'|data.reduction=='umap') {
+    if (data.reduction=='tsne') {
       
       result.list <- list("object" = so.sub,
+                          "data"=list("plot_table" = g),
                           "plots"=list(
-                                "plot" = grob,
-                                "plot_densityHM" = grobHM,
-                                "plot_table" = g)
+                            'tsne' = grob,
+                                "densityHM" = grobHM)
       )
       
-    } else if (data.reduction=='both'){
+    }else if (data.reduction=='umap') {
+      
+      result.list <- list("object" = so.sub,
+                          "data"=list("plot_table" = g),
+                          "plots"=list(
+                            'umap' = grob,
+                            "densityHM" = grobHM)
+      )
+      
+      
+    }else if (data.reduction=='both'){
       
       result.list <- list("object" = so.sub, 
                           "data"=list("plot_table" = g),

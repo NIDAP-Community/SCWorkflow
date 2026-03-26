@@ -92,6 +92,16 @@
 #' 
 #' @return Seurat Objects and QC plots
 #' 
+#' @examples
+#' \dontrun{
+#' out <- combineNormalize(
+#'   object = filtered_so_list,
+#'   npcs = 30,
+#'   draw.umap = TRUE,
+#'   draw.tsne = TRUE
+#' )
+#' }
+#' 
 
 
 combineNormalize <- function(object,

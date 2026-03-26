@@ -8,12 +8,12 @@ selectViolin <- function(dataset) {
     group = "orig_ident"
     assay = 'SCT'
     layer = 'scale.data'
-    jitter_points = T
-    jitter_dot_size = 4
-    filter_outliers = F
-    outlier_low = 0.05
-    outlier_high = 0.95
-    facet_by = ""
+    jitter.points = T
+    jitter.dot.size = 4
+    filter.outliers = F
+    outlier.low = 0.05
+    outlier.high = 0.95
+    facet.by = ""
     set.seed(81)
     genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5, 
              replace = FALSE)
@@ -23,12 +23,12 @@ selectViolin <- function(dataset) {
     group = "orig_ident"
     assay = 'SCT'
     layer = 'scale.data'
-    jitter_points = T
-    jitter_dot_size = 4
-    filter_outliers = F
-    outlier_low = 0.05
-    outlier_high = 0.95
-    facet_by = ""
+    jitter.points = T
+    jitter.dot.size = 4
+    filter.outliers = F
+    outlier.low = 0.05
+    outlier.high = 0.95
+    facet.by = ""
     set.seed(82)
     genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
              replace = FALSE)
@@ -39,12 +39,12 @@ selectViolin <- function(dataset) {
   #   group = "orig_ident"
   #   assay = 'SCT'
   #   slot = 'scale.data'
-  #   jitter_points = T
-  #   jitter_dot_size = 4
-  #   filter_outliers = F
-  #   outlier_low = 0.05
-  #   outlier_high = 0.95
-  #   facet_by = ""
+  #   jitter.points = T
+  #   jitter.dot.size = 4
+  #   filter.outliers = F
+  #   outlier.low = 0.05
+  #   outlier.high = 0.95
+  #   facet.by = ""
   #   set.seed(821)
   #   genes.of.interest = sample(rownames(object$SCT@scale.data), 5,
   #                              replace = FALSE)
@@ -56,12 +56,12 @@ selectViolin <- function(dataset) {
   #   group = "orig_ident"
   #   assay = 'SCT'
   #   slot = 'scale.data'
-  #   jitter_points = T
-  #   jitter_dot_size = 4
-  #   filter_outliers = F
-  #   outlier_low = 0.05
-  #   outlier_high = 0.95
-  #   facet_by = ""
+  #   jitter.points = T
+  #   jitter.dot.size = 4
+  #   filter.outliers = F
+  #   outlier.low = 0.05
+  #   outlier.high = 0.95
+  #   facet.by = ""
   #   set.seed(822)
   #   genes.of.interest = sample(rownames(object$SCT@scale.data), 5,
   #                              replace = FALSE)
@@ -72,12 +72,12 @@ selectViolin <- function(dataset) {
     group = "orig_ident"
     assay = 'SCT'
     layer = 'scale.data'
-    jitter_points = T
-    jitter_dot_size = 4
-    filter_outliers = F
-    outlier_low = 0.05
-    outlier_high = 0.95
-    facet_by = ""
+    jitter.points = T
+    jitter.dot.size = 4
+    filter.outliers = F
+    outlier.low = 0.05
+    outlier.high = 0.95
+    facet.by = ""
     set.seed(83)
     genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
              replace = FALSE)
@@ -89,12 +89,12 @@ selectViolin <- function(dataset) {
     group = "orig_ident"
     assay = 'SCT'
     layer = 'scale.data'
-    jitter_points = T
-    jitter_dot_size = 4
-    filter_outliers = F
-    outlier_low = 0.05
-    outlier_high = 0.95
-    facet_by = ""
+    jitter.points = T
+    jitter.dot.size = 4
+    filter.outliers = F
+    outlier.low = 0.05
+    outlier.high = 0.95
+    facet.by = ""
     set.seed(84)
     genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
              replace = FALSE)
@@ -105,12 +105,12 @@ selectViolin <- function(dataset) {
     group = "orig_ident"
     assay = 'SCT'
     layer = 'scale.data'
-    jitter_points = T
-    jitter_dot_size = 4
-    filter_outliers = F
-    outlier_low = 0.05
-    outlier_high = 0.95
-    facet_by = ""
+    jitter.points = T
+    jitter.dot.size = 4
+    filter.outliers = F
+    outlier.low = 0.05
+    outlier.high = 0.95
+    facet.by = ""
     set.seed(85)
     genes = sample(rownames(Seurat::GetAssayData(object, assay = assay, layer = layer)), 5,
              replace = FALSE)}
@@ -119,8 +119,8 @@ selectViolin <- function(dataset) {
               "group" = group,
               "assay" = assay,
               "layer" = layer,
-              "jitter_points" = jitter_points,
-              "jitter_dot_size" = jitter_dot_size,
+              "jitter.points" = jitter.points,
+              "jitter.dot.size" = jitter.dot.size,
               "genes" = genes))
   }
 

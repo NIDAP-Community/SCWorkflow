@@ -17,7 +17,7 @@ test_that(
     expect_snapshot_file("output", "TEC_fsobm.plot2.png")
     
     expect_type(output, "list")
-    expected.elements = c("object", "plot1", "plot2")
+    expected.elements = c("object", "plots")
     expect_setequal(names(output), expected.elements)
     
   }
@@ -46,7 +46,7 @@ test_that("Test Filter Seurat Object by Metadata using Chariou (Mouse) dataset",
             expect_snapshot_file("output", "Chariou_fsobm.plot2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "plot1", "plot2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
             
           })
@@ -75,7 +75,7 @@ test_that("Test Filter Seurat Object by Metadata using BRCA (Human) dataset",
             expect_snapshot_file("output", "BRCA_fsobm.plot2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "plot1", "plot2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
             
           })
@@ -103,7 +103,7 @@ test_that("Test Filter Seurat Object by Metadata using NSCLCmulti (Human) data",
             expect_snapshot_file("output", "NSCLCmulti_fsobm.plot2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "plot1", "plot2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
             
           })
@@ -133,7 +133,7 @@ test_that("Test Filter Seurat Object by Metadata using PBMCsingle (Human) data",
             expect_snapshot_file("output", "PBMCsingle_fsobm.plot2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "plot1", "plot2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
             
           })
