@@ -17,6 +17,10 @@ inst/doc
 /doc/
 /Meta/
 
+# Generated HTML widget assets (vignette build artifacts)
+vignettes/images/Vis_3D.html
+vignettes/images/Vis_3D_files/
+
 .github
 .github.zip
 decision_log.md
