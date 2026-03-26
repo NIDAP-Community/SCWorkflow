@@ -333,24 +333,24 @@ Marker_Table=Marker_Table_demo[1:4,]
 
 ```{r,eval=run_Chunks,echo=T,results='hide',fig.width=10,fig.asp=.9}
     
-        colorByMarkerTable(object=Anno_SO$object,
-                           samples.subset=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
-                           samples.to.display=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
-                           marker.table=Marker_Table,
-                           cells.of.interest=c("Neutrophils","Macrophages","CD8_T" ),
-                           protein.presence = FALSE,
-                           assay = "SCT",
-                           reduction.type = "umap",
-                           point.transparency = 0.5,
-                           point.shape = 16,
-                           cite.seq = FALSE
-                           )
+  FigOut <- colorByMarkerTable(object=Anno_SO$object,
+             samples.subset=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
+             samples.to.display=c("PBS","ENT","NHSIL12", "Combo","CD8dep" ),
+             marker.table=Marker_Table,
+             cells.of.interest=c("Neutrophils","Macrophages","CD8_T" ),
+             protein.presence = FALSE,
+             assay = "SCT",
+             reduction.type = "umap",
+             point.transparency = 0.5,
+             point.shape = 16,
+             cite.seq = FALSE
+             )
 
 ```
 
 ```{r,echo=F,eval=F}
 png(filename="./images/CBM1.png",width=1000,height=700)
-FigOut
+grid::grid.draw(FigOut$plots$overall[[1]])
 dev.off()
 
 ```

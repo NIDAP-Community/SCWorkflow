@@ -215,10 +215,12 @@ colorByMarkerTable <- function(object,
 })
         }
     
-        results <- list(
-            overall = cons.gg.storage,
-            celltype = indv_arranged,
-            manual_entry = manual.arranged)
+        results <- list("plots"=list(
+                                "overall" = cons.gg.storage,
+                                "celltype" = indv_arranged,
+                                "manual_entry" = manual.arranged
+                                )
+                    )
         
         return(results)
 }
