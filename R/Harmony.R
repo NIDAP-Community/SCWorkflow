@@ -23,6 +23,7 @@
 #' @import gridExtra
 #' @import RColorBrewer
 #' @import ggplot2
+#' @importFrom patchwork plot_layout
 #'   
 #' @export
 #' @examples
