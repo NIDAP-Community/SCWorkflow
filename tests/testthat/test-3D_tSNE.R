@@ -8,12 +8,12 @@ test_that("Produce 3D tsne plot and return tsne coordinates - TEC Data", {
   cr.object <- getParam3D("TEC")
   output <- do.call(tSNE3D, cr.object)
   
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
  
   skip_on_ci()
   expect_snapshot_file(
-    .drawplot(output$plot),
+    .drawplot(output$plots),
     "TEC_plotly.png"
     )
   }
@@ -39,12 +39,12 @@ test_that("Produce 3D tsne plot and return tsne coordinates - Chariou Data", {
   cr.object <- getParam3D("Chariou")
   output <- do.call(tSNE3D, cr.object)
 
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawplot(output$plot),
+    .drawplot(output$plots),
     "Chariou_plotly.png"
   )
 }
@@ -53,12 +53,12 @@ test_that("Produce 3D tsne plot and return tsne coordinates - Chariou Data", {
 test_that("Produce 3D tsne plot and return tsne - PBMC-single Data", {
   cr.object <- getParam3D("pbmc-single")
   output <- do.call(tSNE3D, cr.object)
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawplot(output$plot),
+    .drawplot(output$plots),
     "PBMC_single_plotly.png"
   )
 })
@@ -67,12 +67,12 @@ test_that("Produce 3D tsne plot and return tsne - NSCLC-multi Data", {
   cr.object <- getParam3D("nsclc-multi")
   output <- do.call(tSNE3D, cr.object)
 
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawplot(output$plot),
+    .drawplot(output$plots),
     "NSCLC_multi_plotly.png"
   )
 })
@@ -81,12 +81,12 @@ test_that("Produce 3D tsne plot and return tsne - BRCA Data", {
   cr.object <- getParam3D("BRCA")
   output <- do.call(tSNE3D, cr.object)
 
-  expected.elements = c("plot", "data")
+  expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
   expect_snapshot_file(
-    .drawplot(output$plot),
+    .drawplot(output$plots),
     "BRCA_plotly.png"
   )
 })
