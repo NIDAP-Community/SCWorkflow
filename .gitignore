@@ -11,12 +11,8 @@ tests/testthat/output/
 .Rproj.user
 
 inst/doc
-#inst/extdata/*
-*.Rds
-*.rds
 /doc/
 /Meta/
 
-.github
 .github.zip
 decision_log.md
