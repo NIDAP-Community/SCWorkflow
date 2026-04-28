@@ -2,11 +2,11 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   pull_request:
-    branches: [main, master]
+    branches: [ main, master ]
   release:
-    types: [published]
+    types: [ published ]
   workflow_dispatch:
 
 name: pkgdown
@@ -27,9 +27,10 @@ jobs:
       image: nciccbr/scworkflow:v1.0.2_79e5d37
     steps:
       - uses: actions/checkout@v3
-
-      - uses: r-lib/actions/setup-r-dependencies@v2
+      - uses: CCBR/actions/install-r-pak@main
         with:
+          r-version: 4.1.3
+          versions-file: .github/package-versions.txt
           extra-packages: local::.
           needs: dev
 

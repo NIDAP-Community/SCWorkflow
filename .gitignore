@@ -9,10 +9,10 @@ tests/testthat/fixtures/
 tests/testthat/output/
 
 .Rproj.user
-
 inst/doc
 /doc/
 /Meta/
 
 .github.zip
 decision_log.md
+
