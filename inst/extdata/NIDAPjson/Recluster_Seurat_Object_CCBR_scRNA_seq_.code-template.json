@@ -1,0 +1,131 @@
+{
+	"codeTemplate": "Reclustered_SO <- function({{{Seurat_Object}}}, {{{Metadata_Table}}}) {\n    #image: png\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n    \n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n    \n    #Basic Parameters:\n    seurat_object = {{{Seurat_Object}}}\n    meta <- {{{Metadata_Table}}}\n    reduction <- \"{{{Reduction}}}\"\n\n    #Old Clustering Column Parameters:\n    old_columns_to_save <- {{{Old_Columns_to_Save}}}\n    prepend_text = \"{{{Prepend_Text}}}\"\n\n    #Reclustering Parameters:\n    number_of_pcs = {{{Number_of_PCs}}}\n    cluster_resolution_low_range <- {{{Cluster_Resolution_Low}}}\n    cluster_resolution_high_range <- {{{Cluster_Resolution_High}}}\n    cluster_resolution_range_bins <- {{{Cluster_Resolution_Bin_Size}}}\n    \n    #Advanced Parameters:\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n    ##--------------- ##\n    ## Error Messages ##\n    ## -------------- ##\n    \n    ## --------- ##\n    ## Functions ##\n    ## --------- ##\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    ## Input SO.\n    cat(\"Reading Seurat Object from dataset: seurat_object.rds\\n\\n\")\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    SO <- readRDS(path)\n\n    ## Recluster the SO.\n    reclustered_SO <- reclusterSeuratObject(object = SO,\n                                            prepend.txt = prepend_text,\n                                            old.columns.to.save = old_columns_to_save,\n                                            number.of.pcs = number_of_pcs,\n                                            cluster.resolution.low.range = cluster_resolution_low_range,\n                                            cluster.resolution.high.range = cluster_resolution_high_range,\n                                            cluster.resolution.range.bins = cluster_resolution_range_bins,\n                                            reduction.type = reduction\n                                            )\n\n    ## Print reclustered dimensionality reduction plot.\n    print(reclustered_SO$plot)\n\n    ## Output reclustered SO.\n    output <- new.output()\n    output_fs <- output$fileSystem()\n    saveRDS(reclustered_SO$object, output_fs$get_path(\"seurat_object.rds\", 'w'))\n    return(output_fs)\n}\n",
+	"columns": [
+		{
+			"key": "Old_Columns_to_Save",
+			"displayName": "Old Columns to Save",
+			"description": "You can keep any previously-created clustering columns (e.g. SCT_snn_res_0_4) by renaming them before you recluster. To rename those old clustering columns, select one or more columns from the input Metadata Table that contain the older clustering info. They will be renamed using the \"Prepend Text\" parameter in the Reclustered SO.",
+			"paramGroup": "Older Clustering Column",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template takes a filtered or otherwise subsetted Seurat Object (SO) and its Metadata Table as input. Cells in the subsetted SO will then be reclustered. Parameters allow tuning the clustering and allow you to save prior clustering results is for comparison to reclustered results. The output is a Reclustered SO. A dimensionality reduction plot of the type you choose (TSNE or UMAP) and colored by your new clustering resolutions is also produced. Final Potomac Compatible Version: v12; Final Sugarloaf V1: v19. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.4d6e7059-80d9-4d64-9c4c-757a9065746d)",
+	"externalId": "Recluster_Seurat_Object_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Select an input Seurat Object. This Seurat Object should be filtered or otherwise subsetted.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Select the Metadata Table for the input Seurat Object. This table can be extracted from the input SO using the \"Get Metadata Table\" template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Reduction",
+			"displayName": "Reduction",
+			"description": "Select the type of dimensionality reduction you want the resulting plots to use. Choose from TSNE or UMAP. Default is UMAP.",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"tsne",
+				"umap"
+			],
+			"defaultValue": "umap",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Number_of_PCs",
+			"displayName": "Number of PCs",
+			"description": "Select the number of principal components (PCs) for your reclustering analysis. Set to 0 to automatically decide. Default is 30.",
+			"paramType": "NUMBER",
+			"paramGroup": "Reclustering",
+			"paramValues": null,
+			"defaultValue": "30",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Cluster_Resolution_Low",
+			"displayName": "Cluster Resolution - Low",
+			"description": "Select the minimum resolution for this round of reclustering. At LOWER resolutions you will get FEWER clusters. Default is 0.2.",
+			"paramType": "NUMBER",
+			"paramGroup": "Reclustering",
+			"paramValues": null,
+			"defaultValue": "0.2",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Cluster_Resolution_High",
+			"displayName": "Cluster Resolution - High",
+			"description": "Select the maximum resolution for this round of reclustering. At HIGHER resolutions, you will get MORE clusters. Default is 1.2.",
+			"paramType": "NUMBER",
+			"paramGroup": "Reclustering",
+			"paramValues": null,
+			"defaultValue": "1.2",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Cluster_Resolution_Bin_Size",
+			"displayName": "Cluster Resolution - Bin Size",
+			"description": "Select the bin size for your reclustering resolutions. Reclustering will be performed at steps between Low and High Resolutions using this bin size. For example, if you input 0.2 as your bin, and have low/high resolution ranges of 0.2 and 1.2, then the template will recluster the cells at resolutions of 0.2, 0.4, 0.6, 0.8, 1.0, and 1.2. Default is 0.2.",
+			"paramType": "NUMBER",
+			"paramGroup": "Reclustering",
+			"paramValues": null,
+			"defaultValue": "0.2",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Prepend_Text",
+			"displayName": "Prepend Text",
+			"description": "This text will be prepended to the old clustering column names that you have selected in the \"Old Columns to Save\" parameter. This will ensure that those older, pre-reclustering clustering columns will be preserved in the metadata table of the resulting reclustered SO. The results of the reclustering will be contained in new columns lacking this prefix. The default prefix text is \"old\".",
+			"paramType": "STRING",
+			"paramGroup": "Older Clustering Column",
+			"paramValues": null,
+			"defaultValue": "old",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "The filename for the output RDS that contains the Reclustered Seurat Object produced by this template. Default is \"seurat_object.rds\".",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Recluster Seurat Object [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

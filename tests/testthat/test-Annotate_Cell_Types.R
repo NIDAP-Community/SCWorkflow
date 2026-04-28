@@ -19,7 +19,7 @@ test_that("Annotate_Cell_Types run with normal parameters - Mouse TEC Data",
             expect_snapshot_file("output", "TEC_annotateCellTypes.p2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "p1", "p2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -45,7 +45,7 @@ test_that("Annotate_Cell_Types run with reduction type TSNE - Mouse TEC Data",
             expect_snapshot_file("output", "TEC_annotateCellTypes.tsne.p2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "p1", "p2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -71,7 +71,7 @@ test_that("Test Annotate Cell Types with FineTuning - Mouse TEC dataset", {
   expect_snapshot_file("output", "TEC_annotateCellTypes.fine.p2.png")
   
   expect_type(output, "list")
-  expected.elements = c("object", "p1", "p2")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -96,7 +96,7 @@ test_that("Annotate_Cell_Types run with normal parameters - Chariou Data", {
   expect_snapshot_file("output", "Chariou_annotateCellTypes.p2.png")
   
   expect_type(output, "list")
-  expected.elements = c("object", "p1", "p2")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
   
 })
@@ -122,7 +122,7 @@ test_that("Annotate_Cell_Types run with normal parameters - PBMC-single Data",
             expect_snapshot_file("output", "PBMCsingle_annotateCellTypes.p2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "p1", "p2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -147,7 +147,7 @@ test_that("Annotate_Cell_Types run with normal parameters - NSCLC-multi Data",
             expect_snapshot_file("output", "NSCLCmulti_annotateCellTypes.p2.png")
             
             expect_type(output, "list")
-            expected.elements = c("object", "p1", "p2")
+            expected.elements = c("object", "plots")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -171,6 +171,6 @@ test_that("Annotate_Cell_Types run with normal parameters - BRCA Data", {
   expect_snapshot_file("output", "BRCA_annotateCellTypes.p2.png")
   
   expect_type(output, "list")
-  expected.elements = c("object", "p1", "p2")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
 })

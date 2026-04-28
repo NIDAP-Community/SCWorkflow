@@ -1,0 +1,201 @@
+{
+	"codeTemplate": "ColorByGene_CellTypes <- function({{{seurat_object}}},{{{sample_table}}}) {\n    \n    \n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n    \n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n    library(grid)\n    library(gridExtra)\n    library(scales)\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    # Primary Inputs:\n    seurat_object <- {{{seurat_object}}}\n\n    # Basic Parameters:\n    samples_to_include <- '{{{samples_to_include}}}'\n    gene <- {{{Gene}}}\n\n    # Visualization Parameters:\n    reduction_type <- \"{{{reduction_type}}}\"\n    number_of_rows <- {{{Number_of_Rows}}}\n    color <- \"{{{Color}}}\"\n    point_size <- {{{Point_Size}}}\n    point_shape <- {{{Point_Shape}}}\n    point_transparency <- {{{Point_Transparency}}}\n    image_type <- \"{{{Image_Type}}}\"\n\n    # Advanced Parameters:\n    save_the_entire_dataset <- {{{Save_the_Entire_Dataset}}}\n    use_cite_seq_data <- {{{Use_CITE_seq_Data}}}\n    assay <- \"{{{Assay}}}\"\n\n    ##--------------- ##\n    ## Error Messages ##\n    ## -------------- ##\n    \n    \n    ## --------- ##\n    ## Functions ##\n    ## --------- ##\n\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    # Loading Seurat Object\n    cat(\"Reading Seurat Object from dataset: seurat_object.rds\\n\\n\")\n    fs <- seurat_object$fileSystem()\n    path <- fs$get_path(\"seurat_object.rds\", 'r')\n    SO <- readRDS(path)\n    print(SO)\n\n\nColorByGene.result <- colorByGene(object = SO,\n                                    samples.to.include = samples_to_include,\n                                    gene = gene,\n                                    reduction.type = reduction_type,\n                                    number.of.rows = number_of_rows,\n                                    return.seurat.object = save_the_entire_dataset,\n                                    color = color,\n                                    point.size = point_size,\n                                    point.shape = point_shape,\n                                    point.transparency = point_transparency,\n                                    use.cite.seq.data = use_cite_seq_data,\n                                    assay = assay)\n\n\n# Preparing Graphic Output\n    if (number_of_rows == 0) {\n        n = ceiling(length(ColorByGene.result$plot)^0.5)\n    } else {\n        n = number_of_rows\n    }\n\ndo.call(\"grid.arrange\", c(ColorByGene.result$plot, nrow=n))\n\n\n# Saving dataset (if requested)\nif(save_the_entire_dataset){\n    return(ColorByGene.result$object)\n  }\n  else{\n    gene = as.data.frame(gene) \n    return(gene)\n  }\n}\n",
+	"columns": [
+		{
+			"key": "samples_to_include",
+			"displayName": "Samples to Include",
+			"description": "Please select which samples to include. You may \"+Add All\" to select all samples and then deselect those you do not want to analyze.",
+			"paramGroup": "Basic",
+			"sourceDataset": "sample_table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template visualizes gene expression intensities for provided Genes across your cells. If a gene is not found in the dataset, the Log will report this. Otherwise, you should see one plot (TSNE or UMAP, your choice) per gene name provided. The intensity of the red color will be relative to the expression of the gene in that cell. Final Potomac Compatible Version: v98. Sugarloaf V1: v103. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.e28a74ff-674a-462d-8017-34c8c3bf69c8)",
+	"externalId": "Color_by_Genes_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "seurat_object",
+			"displayName": "Seurat Object",
+			"description": "Select your combined Seurat object from which to plot your gene expression heat map. Recommended to use output from the SingleR annotated template (Step 5 of pipeline).",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": [
+				"ri.compass.main.tag.b39e053b-128a-49b6-996a-d867e2daa67d",
+				"ri.compass.main.tag.411a3dbf-07f6-498a-86d7-0180caa1abf2"
+			]
+		},
+		{
+			"key": "sample_table",
+			"displayName": "Sample Table",
+			"description": "Please select the dataset that contains your sample names. This should be the outputs from the Get Sample Names template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": [
+				"ri.compass.main.tag.b39e053b-128a-49b6-996a-d867e2daa67d",
+				"ri.compass.main.tag.809bdb80-693d-4bf4-827e-d70c946ce2bc"
+			]
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Gene",
+			"displayName": "Gene",
+			"description": "Please enter genes which you would like to visualize. If you don't know what genes to look at, consider consulting your DEG table for interest contrasts.",
+			"paramType": "VECTOR",
+			"paramGroup": "Basic",
+			"paramValues": null,
+			"defaultValue": "c(\"Gapdh\",\"GAPDH\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "reduction_type",
+			"displayName": "Reduction Type",
+			"description": "Please select the kind of clustering visualization you want to use. UMAP is best for visualization global differences across samples, while TSNE is better for local differences.",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"umap",
+				"tsne",
+				"pca"
+			],
+			"defaultValue": "umap",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Number_of_Rows",
+			"displayName": "Number of Rows",
+			"description": "Please select the number of rows you want to arrange your plots into. For example, if you are plotting 10 genes and want 2 rows of 5 plots, select 2. If are plotting 6 genes and want 3 rows of 2, input 3.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "1",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Color",
+			"displayName": "Color",
+			"description": "Select the color you want to use for the \"heat\" in your heatmap.",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"red",
+				"blue",
+				"purple",
+				"orange"
+			],
+			"defaultValue": "red",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Size",
+			"displayName": "Point Size",
+			"description": "Customize the size of the points representing each cell in your visualization.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "1",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Shape",
+			"displayName": "Point Shape",
+			"description": "",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"16",
+				"19",
+				"20"
+			],
+			"defaultValue": "16",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Transparency",
+			"displayName": "Point Transparency",
+			"description": "Customize how transparent/opaque you want to make points on your visualization.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "0.5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Image_Type",
+			"displayName": "Image Type",
+			"description": "",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"png",
+				"svg"
+			],
+			"defaultValue": "png",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Save_the_Entire_Dataset",
+			"displayName": "Save the Entire Dataset",
+			"description": "If you want to continue analyzing/filtering from here, toggle TRUE to save the Seurat Object to the output dataset. If you toggle FALSE, it will only save the output image (saving time). Keep FALSE for faster performance.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Use_CITE_seq_Data",
+			"displayName": "Use CITE-seq Data",
+			"description": "Opt to use CITEseq clusters as opposed to RNA",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Assay",
+			"displayName": "Assay",
+			"description": "Select Assay to Plot (default is SCT)",
+			"paramType": "SELECT",
+			"paramGroup": "Advanced",
+			"paramValues": [
+				"SCT",
+				"integrated"
+			],
+			"defaultValue": "SCT",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Color by Genes [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

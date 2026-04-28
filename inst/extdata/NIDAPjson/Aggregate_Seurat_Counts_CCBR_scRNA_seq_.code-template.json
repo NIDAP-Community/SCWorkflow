@@ -1,0 +1,72 @@
+{
+	"codeTemplate": "Pseudobulk_AggregateCounts_BV6 <- function({{{Seurat_Object}}},{{{Metadata}}}) {\n\n  ## --------- ##\n  ## Libraries ##\n  ## --------- ##\n  \n  library(nidapFunctions)\n  nidapLoadPackages(c(\"SCWorkflow\",\"Seurat\",\"dplyr\",\"ggplot2\",\"plotly\"))\n  \n  ## -------------------------------- ##\n  ## User-Defined Template Parameters ##\n  ## -------------------------------- ##\n  \n  # PH- Need Better Explination of variables\n  seruat_object={{{Seurat_Object}}}\n  var_group={{{Pseudobulk_Variable}}} \n  slot=\"{{{Slot}}}\"\n  \n  ## ------------------- ##\n  ## Load Seurat Object  ##\n  ## ------------------- ##\n  \n  filename <- \"{{{Filename}}}\"\n  fs <- seruat_object$fileSystem()\n  path <- fs$get_path(filename, 'r')\n  so <- readRDS(path)\n  \n  ##--------------- ##\n  ## Error Messages ##\n  ## -------------- ##\n  \n  # Check that input is single Seurat Object\n  if (length(so) > 1){\n    stop(\"Please provide an input containing a single Seurat Object\")\n  }\n  \n  ## Rename variables in case of NIDAPisms\n  # For instances where metadata variable is orig_ident and Seurat variable \n  # is orig.ident\n  if (\"orig_ident\" %in% var_group){\n    var_group[var_group == \"orig_ident\"] <- \"orig.ident\"\n  }\n  \n  ## Rename variables in case of NIDAPisms\n  # Check if \"hash_ID\" is in var_group and replace with the actual column name in metadata\n if (\"hash_ID\" %in% var_group) {\n   actual_col <- NULL\n   if (\"hash.ID\" %in% colnames(so@meta.data)) {\n     actual_col <- \"hash.ID\"\n   } else if (\"hash_ID\" %in% colnames(so@meta.data)) {\n     actual_col <- \"hash_ID\"\n   } else {\n     stop(\"Neither 'hash.ID' nor 'hash_ID' found in Seurat object metadata. \")\n   }\n   var_group[var_group == \"hash_ID\"] <- actual_col\n }\n\n\n  # For instances where metadata variable is SCT_snn_res_X_Y and Seurat variable\n  # is SCT_snn_res.X.Y (Old_SCT_res_X_Y from Recluster Template is fine)\n  if (all(any(grepl(\"SCT_snn_res_(\\\\d+)_\",var_group)) & \n          !grepl(\"old\",var_group))){\n    var_group <- gsub(\"SCT_snn_res_(\\\\d+)_\",\"SCT_snn_res.\\\\1.\",var_group)\n  } \n  \n  ## --------------- ##\n  ## Run Fucnction   ##\n  ## --------------- ##  \n  \n  pseudobulk_Table=aggregateCounts(object=so,\n                                   var.group=var_group,\n                                   slot=slot)\n  \n  \n  return(pseudobulk_Table)\n}\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\naggregateCounts=function(object,\n                         var.group,\n                         slot){\n  \n  \n  ## --------------- ##\n  ## Main Code Block ##\n  ## --------------- ##\n  \n  pseudobulk <- AverageExpression(object, \n                                  return.seurat = FALSE,\n                                  assay = \"SCT\",\n                                  group.by = var.group,\n                                  slot = slot)[[1]] %>% \n                  as.data.frame.matrix() \n    \n  pseudobulk$Gene <- rownames(pseudobulk)\n  pseudobulk <- pseudobulk %>% select(\"Gene\", everything())\n  rownames(pseudobulk) <- NULL\n\n  # Further processing of column names\n  colnames(pseudobulk) <- gsub(\"\\\\W\",\"_\",colnames(pseudobulk))\n\n  # # Rename columns generated from Clustering to be more Generic\n  #   if(grepl(\"SCT_snn_res\",var.group)){ \n  #     colnames(pseudobulk)[grepl(\"\\\\d+\", colnames(pseudobulk))] <- \n  #       paste(\"Cluster\", \n  #             colnames(pseudobulk)[grepl(\"\\\\d+\", colnames(pseudobulk))], \n  #             sep = \"_\")\n  #   }\n  \n  # Return Table/Figure that gives statistics on \n  # Number of Cells in each group/new sample\n  # Distribution of cell Counts in each group/new sample\n  meta <- object@meta.data[,var.group]\n  \n  # check that columns are all factors / categorical\n  char_or_factor_cols <- sapply(meta, function(x) is.character(x) || is.factor(x))\n  \n  # do plots and tables if all columns are factors or characters\n  if(all(char_or_factor_cols)){\n    meta$interaction <- gsub(\"\\\\W\",\"_\",interaction(meta))\n    \n    df <- as.data.frame(table(pseudobulk_group = meta$interaction)) %>% filter(Freq != 0)\n    # sort the table by the number of cells in each group\n    df <- df[order(df$Freq, decreasing = F),]\n    \n    if(any(df$Freq == 1)){\n      single_counts <- df$pseudobulk_group[df$Freq == 1]\n      # sprintf, make custom warning message with %s as placeholder for single count groups\n      warning(sprintf(\n        \"Some groups have only 1 cell. It is recommended to have at least 2 cells in each group.\\nAffected groups: %s\",\n        paste(single_counts, collapse = \", \")\n      ))\n    }\n    \n    p <- ggplotly(ggplot(df, aes(x = pseudobulk_group, y = Freq)) +\n                    geom_bar(stat = \"identity\", position = \"stack\") +\n                    labs(y = \"Counts\", x = \"Pseudobulk Groups\", title = \"Number of Cells in each Pseudobulk Group\") +\n                    theme(axis.text.x = element_text(angle = 90, hjust = 1)))\n    \n    print(p)\n    \n  } else {\n    stop(\"All columns in var.group must be factors or characters\")\n  }\n  \n  return(pseudobulk)\n}\n\n",
+	"columns": [
+		{
+			"key": "Pseudobulk_Variable",
+			"displayName": "Pseudobulk Variable",
+			"description": "Column from Seurat Metadata that contains the categorical variable(s) to group cells and gene expression values by.",
+			"paramGroup": null,
+			"sourceDataset": "Metadata",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template is the first step in a Pseudobulk analysis of your scRNA-seq dataset. It groups cells based on chosen categorical variable(s) in the Seurat Object's Metadata and aggregates the counts of each gene in each group. \n\nThe output is a table of aggregate expression in which the rows are genes and the columns are values found in the chosen Pseudobulk variable. If you select multiple categories to aggregate by (e.g. Category1: A,B,C and Category2: D,E,F), cells will be grouped by combinations of category variables (e.g. A_D, A_E, A_F, B_D, B_E, B_F). By default, gene counts are averaged across cells in each group.\n\n",
+	"externalId": "Aggregate_Seurat_Counts_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Seurat Object containing single-cell data.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata",
+			"displayName": "Metadata",
+			"description": "Metadata of Seurat Object, from the \"Get Metadata Table [CCBR] [scRNA-seq]\" template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Slot",
+			"displayName": "Slot",
+			"description": "Select the specific gene expression data slot to run analysis on. The \"data\" is the log-normalized SCTransformed expression. The \"scale.data\" slot is scaled and centered SCT Normalized expression (mean 0 and variance 1 for each gene). The \"counts\" slot is the raw gene expression. Default is the \"data\" slot because intent is analysis with Limma-Voom downstream.",
+			"paramType": "SELECT",
+			"paramGroup": null,
+			"paramValues": [
+				"data",
+				"scale.data",
+				"counts"
+			],
+			"defaultValue": "data",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Filename",
+			"displayName": "Filename",
+			"description": "Name of input file connected to this template.",
+			"paramType": "STRING",
+			"paramGroup": null,
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Aggregate Seurat Counts [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

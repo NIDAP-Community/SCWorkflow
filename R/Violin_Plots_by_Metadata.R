@@ -1,69 +1,61 @@
 #' @title Violin Plot by Metadata
 #' @description Create violin plot of gene expression data across groups
 #' @details Takes in a list of genes inputted by the user, displays violin plots
-#'          of genes across groups from a slot-assay with (optional) outliers 
+#'          of genes across groups from a layer-assay with (optional) outliers 
 #'          removed. Can also choose to scale or transform expression data.
 #' 
 #' @param object Seurat-class object
 #' @param assay Assay to extract gene expression data from (Default: SCT)
-#' @param slot Slot to extract gene expression data from (Default: scale.data)
-#' @param group.by Split violin plot based on metadata group
-#' @param group.subset Include only a specific subset from group.by
-#' @param genes.of.interest Genes to visualize on the violin plot
+#' @param layer Slot to extract gene expression data from (Default: scale.data)
+#' @param genes Genes to visualize on the violin plot
+#' @param group Split violin plot based on metadata group
+#' @param facet.by Split violin plot based on a second metadata group
 #' @param filter.outliers Filter outliers from the data (TRUE/FALSE)
-#' @param scale.data Scale data from 0 to 1 (TRUE/FALSE)
-#' @param log.scale.data Transform data onto a log10 scale (TRUE/FALSE)
-#' @param reorder.ident Numeric data will be ordered naturally by default. 
-#'                      Toggling this option will order the groups to match the
-#'                      group list if non-numeric, and will have no effect if 
-#'                      otherwise.
-#' @param rename.ident Give alternative names to group.by displayed on 
-#'                     the graph
-#' @param ylimit Y-axis limit
-#' @param plot.style Choose between grid, labeled, and row
-#' @param outlier.low.lim Filter lower bound outliers (Default = 0.1)
-#' @param outlier.up.lim Filter upper bound outliers (Default = 0.9)
+#' @param outlier.low Filter lower bound outliers (Default = 0.05)
+#' @param outlier.high Filter upper bound outliers (Default = 0.95)
 #' @param jitter.points Scatter points on the plot (TRUE/FALSE)
-#' @param jitter.width Set spread of jittered points 
 #' @param jitter.dot.size Set size of individual points
-#' @param print.outliers Print outliers as points in your graph that may be 
-#'                       redundant to jitter 
-
+#' 
 #' @import Seurat 
 #' @import reshape2
 #' @import tidyverse
+#' @importFrom tidyr pivot_longer
 #' @import cowplot
 #' @import rlang
 #' @import ggplot2
 #'   
 #' @export
-#' @example Do not run: violinPlot(object = seurat,
-#'                                 group.by = "celltype",
-#'                                 group.subset = c("CD4_Tcell","CD8_Tcell")
-#'                                 genes.of.interest = c("Cd4","Cd8a"))
+#' @examples
+#' \dontrun{
+#' violinPlot(
+#'   object = seurat,
+#'   assay = "SCT",
+#'   layer = "data",
+#'   genes = c("Cd4", "Cd8a"),
+#'   group = "celltype",
+#'   facet.by = "orig.ident",
+#'   filter.outliers = TRUE,
+#'   jitter.points = TRUE,
+#'   jitter.dot.size = 0.5
+#' )
+#' }
 
 #' @return violin ggplot2 object
 
-violinPlot_mod <- function (object, 
+violinPlot <- function (object, 
                             assay, 
-                            slot, 
+                            layer, 
                             genes, 
                             group, 
-                            facet_by = "", 
-                            filter_outliers = F,
-                            outlier_low = 0.05,
-                            outlier_high = 0.95,
-                            jitter_points, 
-                            jitter_dot_size) 
+                            facet.by = "", 
+                            filter.outliers = F,
+                            outlier.low = 0.05,
+                            outlier.high = 0.95,
+                            jitter.points, 
+                            jitter.dot.size) 
 {
-  library(Seurat)
-  library(ggplot2)
-  library(gridExtra)
-  library(tidyr)
-  library(dplyr)
-  library(broom)
-  
-  facet_data = facet_by != ""
+
+  facet_data = facet.by != ""
   
   # for handling orig ident
   if (group == "orig.ident" | group == "orig_ident"){
@@ -72,10 +64,16 @@ violinPlot_mod <- function (object,
     group <- colnames(object@meta.data)[grepl("origident",gsub('\\W|_',"",colnames(object@meta.data)))]
   }
   
+  available_layers <- if(packageVersion("Seurat") >= "5.0.0"){
+    Layers(object[[assay]])
+  } else (
+    slotNames(object[[assay]])
+  )
+
   if (!assay %in% Assays(object)) {
     stop("expression data type was not found in Seurat object")
-  } else if (!slot %in% slotNames(object[[assay]])) {
-    stop("slot not found in Seurat[[assay]]")
+  } else if (!layer %in% available_layers) {
+    stop("layer not found in Seurat[[assay]] Layers")
   } else if (all(!genes %in% rownames(object[[assay]]))) {
     stop("no genes were found in Seurat object")
   } else if (!group %in% colnames(object@meta.data)) {
@@ -83,7 +81,7 @@ violinPlot_mod <- function (object,
   }
   
   # Scale to non-negative for visualization
-  gene_mtx <- as.matrix(GetAssayData(object, assay = assay, slot = slot))
+  gene_mtx <- as.matrix(GetAssayData(object, assay = assay, layer = layer))
   gene_mtx <- scales::rescale(gene_mtx, to = c(0,1))
   
   if(length(genes[!genes %in% rownames(gene_mtx)]) > 0){
@@ -93,7 +91,7 @@ violinPlot_mod <- function (object,
   
   genes.present <- genes[genes %in% rownames(gene_mtx)]
   if(facet_data){
-    meta_sub <- object@meta.data[,c(group,facet_by)]
+    meta_sub <- object@meta.data[,c(group,facet.by)]
   } else {
     meta_sub <- object@meta.data[c(group)]
   }
@@ -108,7 +106,7 @@ violinPlot_mod <- function (object,
   data_df$Gene <- factor(data_df$Gene, levels = genes.present)
   
   if(facet_data){
-    unique_facets <- unique(object@meta.data[,facet_by])
+    unique_facets <- unique(object@meta.data[,facet.by])
   } else{
     unique_facets <- NULL
   }
@@ -123,18 +121,18 @@ violinPlot_mod <- function (object,
   
   # Define the outlier removal function
   .removeOutliers <- function(x, na.rm = TRUE){
-    qnt <- quantile(x, probs = c(outlier_low, outlier_high), na.rm = na.rm)
+    qnt <- quantile(x, probs = c(outlier.low, outlier.high), na.rm = na.rm)
     H <- 1.5 * IQR(x, na.rm = na.rm)
     x[x < (qnt[1] - H) | x > (qnt[2] + H)] <- NA
     x
   }
   
   # Apply only if filtering is enabled
-  if (filter_outliers) {
-    group_vars <- colnames(data_df)[colnames(data_df) != 'Expression']
+  if (filter.outliers) {
+    group.vars <- colnames(data_df)[colnames(data_df) != 'Expression']
     
     data_df <- data_df %>%
-      group_by(across(all_of(group_vars))) %>%
+      group_by(across(all_of(group.vars))) %>%
       mutate(Expression = .removeOutliers(Expression)) %>%
       ungroup()
   }
@@ -145,7 +143,7 @@ violinPlot_mod <- function (object,
     color_mapping <- setNames(rep(available_colors, length.out = length(unique_facets)), unique_facets)
     
     # Set up the common elements of the plot
-    g <- ggplot(data_df, aes(x = .data[[group]], y = Expression, fill = .data[[facet_by]])) + 
+    g <- ggplot(data_df, aes(x = .data[[group]], y = Expression, fill = .data[[facet.by]])) + 
       geom_violin(scale = "width", position = position_dodge(width = 0.9), trim = TRUE) +
       geom_boxplot(width = 0.2, position = position_dodge(width = 0.9), outlier.shape = NA) +
       scale_fill_manual(values = color_mapping) +
@@ -177,9 +175,9 @@ violinPlot_mod <- function (object,
   }
   
   # Add jitter points conditionally
-  if (jitter_points) {
-    g <- g + geom_jitter(size = jitter_dot_size, shape = 1, position = position_dodge(width = 0.9), alpha = 0.5)
+  if (jitter.points) {
+    g <- g + geom_jitter(size = jitter.dot.size, shape = 1, position = position_dodge(width = 0.9), alpha = 0.5)
   }
   
-  return(g)
+  return(list("plots"=g))
 }

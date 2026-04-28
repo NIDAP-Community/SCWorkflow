@@ -19,6 +19,20 @@
 #' @importFrom htmlwidgets saveWidget
 #'
 #' @export
+#'
+#' @return A list with a plotly 3D TSNE plot (`figure`) and TSNE coordinates
+#' (`tsne.df`).
+#'
+#' @examples
+#' \dontrun{
+#' out <- tSNE3D(
+#'   object = seurat_obj,
+#'   color.variable = "cell_type",
+#'   label.variable = "orig.ident",
+#'   npcs = 15,
+#'   save.plot = FALSE
+#' )
+#' }
 
 tSNE3D <- function(object,
                    color.variable,
@@ -94,6 +108,7 @@ tSNE3D <- function(object,
     htmlwidgets::saveWidget(as_widget(fig), filename, selfcontained = TRUE)
   }
   
-  tsne.results <- list("plot"  = fig, "data" = tsne.df)
+  tsne.results <- list( "data" = tsne.df,
+                        "plots"  = fig)
   return(tsne.results)
 }

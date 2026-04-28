@@ -24,7 +24,7 @@ combineNormalize(
   clust.res.low = 0.2,
   clust.res.high = 1.2,
   clust.res.bin = 0.2,
-  methods.pca = NULL,
+  methods.pca = "none",
   var.threshold = 0.1,
   pca.reg.plot = FALSE,
   jackstraw = FALSE,
@@ -151,4 +151,15 @@ runs Dimensional Reduction, Clusters, and returns a combined Seurat Object.
 This is Step 3 in the basic Single-Cell RNA-seq workflow.
 This template will summarize the multi-dimensionality of your data into
 a set of "principal components" to allow for easier analysis.
+}
+\examples{
+\dontrun{
+out <- combineNormalize(
+  object = filtered_so_list,
+  npcs = 30,
+  draw.umap = TRUE,
+  draw.tsne = TRUE
+)
+}
+
 }

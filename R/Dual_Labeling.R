@@ -1,25 +1,22 @@
-#' @title Plot coexpression of 2 markers using transcript and/or protein
-#' expression values
-#' @description This method provides visualization of coexpression of 2 genes
-#' (or proteins) and additional methods for filtering for cells with gene
-#' expression values that are above or below thresholds set for one or both
-#' markers. The method allows for filtering (optional) of the Seurat object
-#' using manually set expression thresholds.
+#' @title Cell Annotation with Co-Expression [CCBR] [scRNA-seq]
+#' @description Display co-expression of two chosen markers in your Seurat
+#' object. Creates a metadata column containing annotations for cells that
+#' correspond to marker expression thresholds.
 #'
 #' @param object Seurat-class object
 #' @param samples Samples to be included in the analysis
 #' @param marker.1 First gene/marker for coexpression analysis
 #' @param marker.2 Second gene/marker for coexpression analysis
 #' @param marker.1.type Slot to use for first marker. Choices are "SCT",
-#' "protein","HTO" (default is "SCT")
+#' "protein","HTO", or "Spatial" (default is "SCT")
 #' @param marker.2.type Slot to use for second marker. Choices are "SCT",
-#' "protein","HTO" (default is "SCT")
+#' "protein","HTO", or "Spatial" (default is "SCT")
 #' @param data.reduction Dimension Reduction method to use for image. Options
-#' are umap, tsne, or both (default is "umap")
+#' are "umap", "tsne", or "both" (default is "both")
 #' @param point.size Point size for image (default is 0.5)
 #' @param point.shape Point shape for image (default is 16)
 #' @param point.transparency Point transparency for image (default is 0.5)
-#' @param add.marker.thresholds Add marker thresholds on plot (default is FALSE)
+#' @param add.marker.thresholds Add marker thresholds on plot (default is TRUE)
 #' @param marker.1.threshold Threshold set for first marker (default is 0.5)
 #' @param marker.2.threshold Threshold set for second marker (default is 0.5)
 #' @param filter.data Add new parameter column to metadata annotating where 
@@ -35,34 +32,44 @@
 #' @param filter.condition If TRUE, apply both filters 1 and 2 and take
 #' intersection. If FALSE, apply both filters and take the union.
 #' @param parameter.name Name for metadata column for new marker filters
-#' (Default is "My_CoExp")
+#' (default is "My_CoExp")
 #' @param trim.marker.1 Trim top and bottom percentile of marker 1 signal to
 #' pre-scale trim values (below) to remove extremely low and high values
-#' (Default is FALSE)
+#' (default is FALSE)
 #' @param trim.marker.2 Trim top and bottom percentile of marker 2 signal to
 #' pre-scale trim values (below) to remove extremely low and high values
-#' (Default is FALSE)
-#' @param pre.scale.trim Set trimming percentile values (Defalut is 0.99)
+#' (default is FALSE)
+#' @param pre.scale.trim Set trimming percentile value (default is 0.99)
 #' @param display.unscaled.values Set to TRUE if you want to view the unscaled
-#' gene/protein expression values (Default is FALSE)
-
+#' gene/protein expression values (default is FALSE)
+#'
 #' @import Seurat
-#' @import ggExtra
 #' @importFrom scales rescale
-#' @importFrom gridExtra arrangeGrob
-#' @importFrom grid grid.draw
+#' @importFrom gridExtra arrangeGrob tableGrob
+#' @importFrom grid grid.draw textGrob gpar unit
 #' @importFrom dplyr arrange mutate case_when
 #' @importFrom magrittr %>%
 #' @importFrom stats quantile
-#' @importFrom ggplot2 ggplot geom_point theme_classic xlab ylab geom_vline
-#'  geom_hline scale_color_identity theme_bw coord_fixed ggtitle aes
+#' @importFrom ggplot2 ggplot geom_point theme_classic xlab ylab geom_vline geom_hline scale_color_identity theme_bw coord_fixed ggtitle aes
+#' @importFrom ggExtra ggMarginal
 #'
 #' @export
 #'
 #' @return a seurat object with optional additional metadata for cells that are
 #' positive or negative for gene markers, a coexpression plot and contingency
 #' table showing sum of cells filtered.
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- dualLabeling(
+#'   object = anno_so,
+#'   samples = c("sample1"),
+#'   marker.1 = "CD3D",
+#'   marker.2 = "MS4A1",
+#'   data.reduction = "umap"
+#' )
+#' }
+#'
 dualLabeling <- function (object, 
                           samples, 
                           marker.1, 
@@ -89,8 +96,6 @@ dualLabeling <- function (object,
                           display.unscaled.values = FALSE) 
 {
     
-  # Feb28 2025 ver.
-
   #### Error Messages ####
   
   #Errors for genes not available in dataset/slot
@@ -499,7 +504,7 @@ dualLabeling <- function (object,
         # Print out numbers of cells that meet threshold cutoffs for marker 1,
         # marker 2 and for either intersection or union of 2 thresholds:
         
-        colnames(df)[3:4] <- c(marker.1, marker.2)
+        colnames(df)[1:2] <- c(marker.1, marker.2)
         so.sub.df <- so.sub@meta.data %>% 
           mutate(x = case_when(
             rownames(so.sub@meta.data) %in% df$cellbarcode ~ TRUE, 
@@ -569,25 +574,37 @@ dualLabeling <- function (object,
     }
     
     
-    if (data.reduction=='tsne'|data.reduction=='umap') {
+    if (data.reduction=='tsne') {
       
-      result.list <- list(object = so.sub, 
-                          plot = grob,
-                          plot_densityHM = grobHM,
-                          plot_table = g)
+      result.list <- list("object" = so.sub,
+                          "data"=list("plot_table" = g),
+                          "plots"=list(
+                            'tsne' = grob,
+                                "densityHM" = grobHM)
+      )
+      
+    }else if (data.reduction=='umap') {
+      
+      result.list <- list("object" = so.sub,
+                          "data"=list("plot_table" = g),
+                          "plots"=list(
+                            'umap' = grob,
+                            "densityHM" = grobHM)
+      )
       
       
-    } else if (data.reduction=='both'){
+    }else if (data.reduction=='both'){
       
-      result.list <- list(object = so.sub, 
-                          plot_tsne = grob.t,
-                          plot_umap = grob.u,
-                          plot_densityHM = grobHM,
-                          plot_table = g)
+      result.list <- list("object" = so.sub, 
+                          "data"=list("plot_table" = g),
+                          "plots"=list(
+                              "tsne" = grob.t,
+                              "umap" = grob.u,
+                              "densityHM" = grobHM
+                              ) 
+                          )
     }
 
     
     return(result.list)
 }
-
-

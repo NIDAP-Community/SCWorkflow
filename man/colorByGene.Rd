@@ -64,3 +64,14 @@ This function must be run downstream of the Sample Names function,
 as well as be provided a combined Seurat Object
 such as the one produced by the SingleR Cell Annotation function
 }
+\examples{
+\dontrun{
+out <- colorByGene(
+  object = anno_so,
+  samples.to.include = c("sample1", "sample2"),
+  gene = c("CD3D", "MS4A1"),
+  reduction.type = "umap"
+)
+}
+
+}

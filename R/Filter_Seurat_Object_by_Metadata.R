@@ -1,5 +1,6 @@
-#' @title Filter Seurat Object by Metadata
-#' @description Filter and subset your Seurat object based on metadata column
+#' @title Subset Seurat Object [CCBR] [scRNA-seq]
+#' @description This function subsets your Seurat object by selecting a
+#' metadata column and values matching the cells to pass forward in analysis.
 #' @details This is a downstream template that should be loaded after
 #' Step 5 of the pipeline (SingleR Annotations on Seurat Object)
 #'
@@ -32,7 +33,7 @@
 #' which have been highlighted. Default is 0.5
 #' @param use.cite.seq.data TRUE if you would like to plot Antibody clusters
 #' from CITEseq instead of scRNA.
-
+#'
 #'
 #' @import Seurat
 #' @import ggplot2
@@ -49,8 +50,19 @@
 #' @export
 #'
 #' @return a subset Seurat object
-
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- filterSeuratObjectByMetadata(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   sample.name = "orig.ident",
+#'   category.to.filter = "celltype",
+#'   values.to.filter = c("T cell", "B cell")
+#' )
+#' }
+#'
+#'
 filterSeuratObjectByMetadata <- function(object,
                                          samples.to.include,
                                          sample.name,
@@ -230,7 +242,11 @@ filterSeuratObjectByMetadata <- function(object,
   ## --------------- ##
   
   # Checking if samples are selected
-  samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+  if(any(grepl('c\\(|\\[\\]',samples.to.include))) {
+    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
+  }else{
+    samples=samples.to.include
+  }
   
   if (length(samples) == 0) {
     samples = unique(object@meta.data[[sample.name[1]]])
@@ -264,12 +280,12 @@ filterSeuratObjectByMetadata <- function(object,
   
   ## Get colors from user parameter and add more if the default list is too short.
   if (class(object@meta.data[[category.to.filter[1]]]) != "numeric") {
-    col.length = length(levels(as.factor(Filter.orig[colname])))
+    col.length = length(levels(as.factor(Filter.orig)))
     if (length(colors) < col.length) {
       more.cols = .distinctColorPalette(col.length - length(colors), 10)
       colors <- c(colors, more.cols)
     }
-    names(colors) <- levels(as.factor(Filter.orig[colname]))
+    names(colors) <- levels(as.factor(Filter.orig))
     
     ## Keep or remove cells based on user input values.
     if (keep.or.remove) {
@@ -316,14 +332,16 @@ filterSeuratObjectByMetadata <- function(object,
     ## Make before and after plots.
     title <-
       paste0("filtered by ",
-             category.to.filter[1],
-             " and split by ",
-             category.to.filter[2])
+             category.to.filter[1]#,
+##             " and split by ",
+##             category.to.filter[2]
+            )
     plot1 = DimPlot(
       object,
       reduction = reduction,
       group.by = colname,
-      pt.size = dot.size
+      pt.size = dot.size,
+      raster=FALSE
     ) +
       theme_classic() +
       scale_color_manual(values = colors) +
@@ -338,7 +356,8 @@ filterSeuratObjectByMetadata <- function(object,
       reduction = reduction,
       cells.highlight = idx,
       cols.highlight = rev(cols2[1:filt.length]),
-      sizes.highlight = dot.size.highlighted.cells
+      sizes.highlight = dot.size.highlighted.cells,
+      raster=FALSE
     ) +
       theme_classic() +
       theme(legend.position = legend.position) +
@@ -392,7 +411,9 @@ filterSeuratObjectByMetadata <- function(object,
 
   
   result.list <- list("object" = SO.sub,
-                      "plot1" = plot1,
-                      "plot2" = plot2)
+                      "plots"=list(
+                          "plot1" = plot1,
+                          "plot2" = plot2)
+                      )
   return(result.list)
 }

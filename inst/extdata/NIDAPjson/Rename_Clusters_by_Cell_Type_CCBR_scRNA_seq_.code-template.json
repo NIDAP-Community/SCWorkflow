@@ -1,0 +1,143 @@
+{
+	"codeTemplate": "RenameClustersByCellType_SO <- function({{{Seurat_Object}}}, {{{Metadata_Table}}}, {{{Cluster_Identities_Table}}}) {\n\n    ## This function maps seurat cluster ids to annotated cell types\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n    library(nidapFunctions)\n    #nidapLoadPackages(\"SCWorkflow\")\n        library(Seurat)\n    library(dplyr)\n    library(stringr)\n    library(reshape2)    \n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    #Primary Inputs:\n    seurat_object <- {{{Seurat_Object}}}  \n    cluster_identities_table <- {{{Cluster_Identities_Table}}}\n\n    #Basic Parameters:\n    cluster_number_column <- \"{{{Cluster_IDs_Column}}}\"\n    cluster_name_column <- \"{{{New_Cluster_Names_Column}}}\"\n    cluster_column_from_metadata <- \"{{{Cluster_IDs_from_Metadata}}}\"\n    celltype_column_from_metadata <- \"{{{Cell_Type_Column_from_Metadata}}}\"\n    \n\n    #Advanced Parameters:\n    order_clusters_by <- {{{Order_Clusters_By}}}\n    order_celltypes_by <- {{{Order_Cell_Types_By}}}\n\tinteractive <- {{{Interactive}}}\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\tPrefix <- \"{{{Prefix_for_Existing_Names}}}\"\n\n\t## -------------------------------- ##\n\t## Parameter Misspecifation Errors  ##\n\t## -------------------------------- ##\n\t## -------------------------------- ##\n\t## Functions                        ##\n\t## -------------------------------- ##\n\t## --------------- ##\n\t## Main Code Block ##\n\t## --------------- ##\n\n\t# load data\n\tpath <- nidapGetPath(seurat_object,seurat_object_filename)\n    SO <- readRDS(path)\n\t\n    #Set up the parameters \n\n    cluster_numbers <- cluster_identities_table[[cluster_number_column]]\n    cluster_names <- cluster_identities_table[[cluster_name_column]]\n    \n    #Change cluster column to match SO (NIDAPism)\n    metadata_df <- SO@meta.data\n\tcolnames(metadata_df) <- gsub(\"\\\\.\", \"_\", colnames(metadata_df))\n\tSO.renamed <- SO\n    SO.renamed@meta.data <- metadata_df \n\n\n############## A new ways of handling labels\n\n# Check for entries in cluster_number_column that are not in the Seurat object and print a warning if there are missing clusters\nmissing_clusters <- setdiff(cluster_numbers, unique(metadata_df[[cluster_column_from_metadata]]))\nif (length(missing_clusters) > 0) { warning(\"The following cluster numbers are not found in the Seurat object: \", paste(missing_clusters, collapse = \", \")) }\n\n# Create a named vector for easy lookup of new cluster names\nnew_cluster_names <- setNames(cluster_names, cluster_numbers)\nexisting_clusters <- metadata_df[[cluster_column_from_metadata]]\n\n\n# # If cluster numbers on input table match the cluster numbers in cluster \n# # column in metadata, add new custom labels to seurat object\nif (all(unique(metadata_df[[cluster_column_from_metadata]]) %in% names(new_cluster_names)) ){\n\n# Adding new 'Clusternames' column to metadata.df\nmetadata_new <- metadata_df %>%\n  mutate(Clusternames = ifelse(existing_clusters %in% cluster_numbers,\n                               new_cluster_names[as.character(existing_clusters)],\n                               paste0(Prefix, existing_clusters)))\n\ncluster_numbers <- unique(metadata_new[[cluster_column_from_metadata]])\ncluster_names <- unique(metadata_new$Clusternames)\n\nSO.renamed@meta.data <- metadata_new \n\n} else{\n  stop(\"Cluster ID's have to match metadata column. Please check entry in\n         input table.\")\n}\n\n##############\n\n\n\n\n    so_result <- nameClusters(object = SO.renamed,\n    cluster.identities.table=cluster_identities_table,\n                        cluster.numbers = cluster_number_column,\n                        cluster.names = cluster_name_column,\n                        cluster.column = cluster_column_from_metadata,\n                        labels.column = celltype_column_from_metadata,\n                        order.clusters.by = order_clusters_by,\n                        order.celltypes.by = order_celltypes_by,\n                        interactive = interactive)\n\n\t\n    print(so_result$plot)\n\n    #Add new metadata column to original so:\n\tSO@meta.data$Clusternames <- so_result$object@meta.data$Clusternames\n\n    #Print figure and save output file\n\toutput <- new.output()\n\toutput_fs <- output$fileSystem()\n\tsaveRDS(SO, output_fs$get_path(\"seurat_object.rds\", 'w'))\n\treturn(SO)\n}\n\n\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n\nnameClusters <- function(object,\n                         cluster.identities.table,\n                         cluster.numbers,\n                         cluster.names,\n                         cluster.column,\n                         labels.column,\n                         order.clusters.by = NULL,\n                         order.celltypes.by = NULL,\n                         interactive = FALSE)\n{\n  \n  # # Assign cluster numbers with custom cluster names \n  # cluster.numbers <- factor(cluster.numbers,\n  #                           str_sort(cluster.numbers, numeric = TRUE))\n  # levels(cluster.numbers) <-\n  #   str_sort(cluster.numbers, numeric = TRUE)\n  # # names(cluster.names) <- as.character(cluster.numbers)\n  \n  cluster.names= setNames(cluster.identities.table[[cluster.names]],cluster.identities.table[[cluster.numbers]])\n  \n  \n  # get metadata from object and get cluster column\n  metadata.df <- object@meta.data\n  colval <- metadata.df[[cluster.column]]\n  \n  \n  # # If cluster numbers on input table match the cluster numbers in cluster \n  # # column in metadata, add new custom labels to seurat object\n  # if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.numbers))) {\n  #   object =\n  #   AddMetaData(object,\n  #               metadata = \n  #                 deframe(tibble(metadata.df[[cluster.column]],\n  #                                cluster.names[as.character(colval)])),\n  #                         col.name = \"Clusternames\")\n  # } else{\n  #   stop(\"Cluster ID's have to match metadata column. Please check entry in\n  #          input table.\")\n  # }\n  \n  clus.num <-\n    as.data.frame.matrix(table(object@meta.data$Clusternames,\n                               object@meta.data[[labels.column]]))\n  clusnum.df <- melt(as.matrix(clus.num))\n  sums <- rowSums(clus.num)\n  cluster.perc <- (clus.num / sums) * 100\n  \n  # draw plot \n  clus.df <- melt(as.matrix(cluster.perc))\n  clus.df$num <- clusnum.df$value\n  colnames(clus.df) <-\n    c(\"cluster\", \"celltype\", \"percent\", \"number\")\n  head(clus.df)\n  clus.df$cluster <- factor(clus.df$cluster)\n  \n  #For plot, optional ordering by clusters\n  if (length(order.clusters.by) > 0) {\n    add2 <- order.clusters.by[!order.clusters.by %in%\n                                levels(clus.df$celltype)]\n    if (length(add2) > 0) {\n      add2 <- paste(add2, collapse = \", \")\n      warning(sprintf(\"Some factors are not in data: %s\", add2))\n    }\n    clus.dat2 <- unique(clus.df$cluster)\n    minus2 <- clus.dat2[!clus.dat2 %in% order.clusters.by]\n    if (length(minus2) > 0) {\n      minus2 <- paste(minus2, collapse = \", \")\n      warning(sprintf(\"Some factors were not included in the list: %s\",\n                      minus2))\n    }\n    clus.df <-\n      clus.df %>% filter(cluster %in% order.clusters.by)\n    clus.df$cluster <-\n      factor(clus.df$cluster, levels = order.clusters.by)\n  } else {\n    clus.df$cluster <- factor(clus.df$cluster,\n                              levels = str_sort(unique(cluster.names), numeric = TRUE))\n  }\n  \n  #For plot, optional if ordering by cell types\n  if (length(order.celltypes.by) > 0) {\n    #Check for factors not present in dataset\n    add <- order.celltypes.by[!order.celltypes.by %in%\n                                levels(clus.df$celltype)]\n    if (length(add) > 0) {\n      add <- paste(add, collapse = \", \")\n      warning(sprintf(\"Some factors are not in data: %s\", add))\n    }\n    clus.dat <- unique(clus.df$celltype)\n    minus <- clus.dat[!clus.dat %in% order.celltypes.by]\n    if (length(minus) > 0) {\n      minus <- paste(minus, collapse = \", \")\n      warning(sprintf(\"Some factors were not included in the list: %s\",\n                      minus))\n    }\n    clus.df <- \n      clus.df %>% filter(celltype %in% order.celltypes.by)\n    clus.df$celltype <-\n      factor(clus.df$celltype, levels = order.celltypes.by)\n  }\n  \n  clus.df <- clus.df %>%\n    arrange(cluster, celltype)\n\n  ## if % less then 5 do not plot (convert to NA)\n  clus.df[clus.df<5]=NA\n\n\n  ## print clusters in log:\n  clus <- clus.df %>%\n    pull(cluster) %>%\n    unique() %>%\n    as.character()\n  cat(\"clusters:\\n\")\n  cat(clus, sep = \"\\n\")\n  cat(\"\\n\\n\")\n  \n  ## print cell types in log\n  celltypes <- clus.df %>%\n    pull(celltype) %>%\n    unique() %>%\n    as.character()\n  cat(\"celltypes:\\n\")\n  cat(celltypes, sep = \"\\n\")\n  \n  \n  # do plot (suppressMessages for ggplot2 scale replacemnt)\n  g <- ggplot(clus.df,\n              aes(\n                x = celltype,\n                y = cluster,\n                size = percent,\n                color = celltype,\n                label = number\n              )) +\n    theme_classic() +\n    geom_point(alpha = 0.5) +\n    theme(axis.text.x = element_text(\n      angle = 90,\n      vjust = 0.5,\n      hjust = 1\n    )) +\n    ggtitle(\"Percentage of Cell Type within Clusters\")\n  \n  if (interactive == TRUE) {\n    g <- ggplotly(g)\n  }\n\n  invisible(list(\n    object = object,\n    plot = g\n  ))\n  \n}\n",
+	"columns": [
+		{
+			"key": "Cluster_IDs_from_Metadata",
+			"displayName": "Cluster IDs from Metadata",
+			"description": "Select the Seurat Object metadata column containing the Cluster IDs. These Cluster IDs are often one of the SCT_snn_res_* columns created during the earlier clustering analysis.",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		},
+		{
+			"key": "Cell_Type_Column_from_Metadata",
+			"displayName": "Cell Type Column from Metadata",
+			"description": "Select the Seurat Object metadata column containing the Cell Type annotations. This is often, but not always, the \"MS_Celltype\" column produced during earlier Module Scoring.",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Cluster_IDs_Column",
+			"displayName": "Cluster IDs Column",
+			"description": "Select the column from the input Cluster Identities Table that contains the Cluster IDs from an earlier clustering analysis.  These IDs must match the unique values from a clustering metadata column of the input Seurat Object.",
+			"paramGroup": "Basic",
+			"sourceDataset": "Cluster_Identities_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		},
+		{
+			"key": "New_Cluster_Names_Column",
+			"displayName": "New Cluster Names Column",
+			"description": "Select the column from the input Cluster Identities Table that contains the New Cluster Names you have chosen.",
+			"paramGroup": "Basic",
+			"sourceDataset": "Cluster_Identities_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template creates a dot plot of Cell Types by Renamed Clusters and outputs a Seurat Object with a new metadata column containing these New Cluster Names. The Cell Types are often determined by looking at the Module Score Cell Classification calls made by the upstream Module Score Cell Classification (see MS_Celltype metadata column).\n\nYou must provide a table with a column containing the unique Cluster IDs from an upstream clustering analysis (e.g. one of the SCT_snn_res_* columns in your input Seurat Object metadata) and a column containing the corresponding New Cluster Names you have chosen. The dot plot will display the unique Cell Types on the x-axis and the Renamed Clusters on the y-axis. The size of the dots show the percentage of cells in each row (each Renamed Cluster) that was classified as each Cell Type. A comparison of dot sizes within a row may provide insights into that cluster's primary Cell Type. A new metadata column named \"Clusternames\" is added to the output Seurat Object that contains the New Cluster Names.\n\nFinal Potomac Compatible Version: v37. Final Sugarloaf V1 Version: v45. Latest Sugarloaf V2 Version: V50. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.8c36edd1-0852-463c-becc-1517db1fc9f8) If you encounter problems, please contact CCBR* [NCICCBRNIDAP@mail.nih.gov](mailto:NCICCBRNIDAP@mail.nih.gov)",
+	"externalId": "Rename_Clusters_by_Cell_Type_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Seurat Object",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Metadata Table",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "Cluster_Identities_Table",
+			"displayName": "Cluster Identities Table",
+			"description": "This input table must have two columns. The first contains the unique Cluster IDs from an upstream clustering analysis. The second contains the New Cluster Names you wish to apply to the Cluster IDs.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Order_Clusters_By",
+			"displayName": "Order Clusters By",
+			"description": "[Optional] Provide a comma- or newline-separated list of New Cluster Names in the order you would like them displayed on the y-axis. If blank, the New Cluster Names will be sorted alphanumerically on the y-axis. Default is blank.",
+			"paramType": "VECTOR",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "c()",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Order_Cell_Types_By",
+			"displayName": "Order Cell Types By",
+			"description": "[Optional] Provide a comma- or newline-separated list of Cell Types in the order you would like them displayed on the x-axis. These must match the unique values found in the Cell Type column chosen from the input Metatdata. If blank, the Cell Types will be sorted alphanumerically on the x-axis. Default is blank.",
+			"paramType": "VECTOR",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "c()",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Interactive",
+			"displayName": "Interactive",
+			"description": "If TRUE, draw interactive plot. Default is FALSE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Filename of RDS containing seurat object.",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Prefix_for_Existing_Names",
+			"displayName": "Prefix for Existing Names",
+			"description": "Please enter your prefix here (i.e., if your prefix value is \"Label_\", then cluster \"4\" would appear as \"Label_4\" in new metadata column)",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "Cluster_",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Rename Clusters by Cell Type [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

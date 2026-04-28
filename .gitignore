@@ -1,7 +1,18 @@
-# For SCWorkflow dev
+.DS_Store
 .nfs*
-*.png
+#*.png
 Rcheck.txt
-*.pdf
+#*.pdf
 tests/testthat/otherData/
+tests/testthat/_snaps
+tests/testthat/fixtures/
+tests/testthat/output/
+
 .Rproj.user
+
+inst/doc
+/doc/
+/Meta/
+
+.github.zip
+decision_log.md

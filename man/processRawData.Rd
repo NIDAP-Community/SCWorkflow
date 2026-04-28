@@ -14,11 +14,12 @@ processRawData(
   file.filter.regex = c(),
   split.h5 = F,
   cell.hash = F,
+  tcr.summarize.topN = 10,
   do.normalize.data = T
 )
 }
 \arguments{
-\item{input}{Input can be a vector of scRNA-Seq .h5 files, or a list of
+\item{input}{Input can be a vector of .h5 files, or a list of
 seurat objects for each sample. TCRseq Metadata .csv files can also be
 included and will be added to the corrisponding sample seurat object.
 Vector of files should include entire file path.}
@@ -42,12 +43,17 @@ If FALSE, remove files when pattern is found in sample name.
 The pattern is set in the file.filter.regex parameter (below).}
 
 \item{file.filter.regex}{Pattern or regular expression in sample
-name. Use the 'keep' parameter to keep or remove files that contain pattern.
+name. Use the 'keep' parameter to keep or remove fi
+les that contain pattern.
 If samples have been renamed set regular expression based on new names}
 
 \item{split.h5}{If TRUE, split H5 into individual files. (Default: FALSE)}
 
 \item{cell.hash}{If TRUE, dataset contains cell hashtags. (Default: FALSE)}
+
+\item{tcr.summarize.topN}{Select number of top most identified TCR clonotypes
+to be included in summary column. Any clonotypes below the top N most
+populated will be classified as "Other". (Default: 10)}
 
 \item{do.normalize.data}{If TRUE counts table will be log2 normalized. If
 input contains counts that are already normalzed set to FALSE.
@@ -57,12 +63,20 @@ input contains counts that are already normalzed set to FALSE.
 Seurat Object and QC plots
 }
 \description{
-Creates Seurat Objects from h5 files for individual or
-merged samples. Will log normalize and produce QC figures for
-individual samples
+Creates a list of Seurat Objects from h5 files. Will log
+normalize and produce QC figures for individual samples
 }
 \details{
 This is Step 1 in the basic Single-Cell RNA-seq workflow.
 Returns data as a Seurat Object, the basic data structure for
 Seurat Single Cell analysis.
+}
+\examples{
+\dontrun{
+out <- processRawData(
+  input = c("sample1_filtered_feature_bc_matrix.h5"),
+  organism = "Human",
+  do.normalize.data = TRUE
+)
+}
 }
