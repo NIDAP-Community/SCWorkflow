@@ -17,7 +17,7 @@ test_that("Test Plot Metadata using TEC (Mouse) dataset", {
   
     
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
   
 
@@ -37,7 +37,7 @@ test_that("Test Plot Metadata using Chariou (Mouse) dataset", {
   expect_snapshot_file("output","Chariou_plotmet3.png")
   
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
   
 })
@@ -63,7 +63,7 @@ test_that("Test Plot Metadata using BRCA (Human) dataset", {
   expect_snapshot_file("output","BRCA_plotmet6.png")
   
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
 
 })
@@ -90,7 +90,7 @@ test_that("Test Plot Metadata using NSCLCmulti (Human) dataset", {
   expect_snapshot_file("output","NSCLCmulti_plotmet6.png")
   
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
 
 })
@@ -117,7 +117,7 @@ test_that("Test Plot Metadata using PBMCsingle (Human) dataset", {
   expect_snapshot_file("output","PBMCsingle_plotmet6.png")
   
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
   
   
@@ -148,7 +148,7 @@ test_that("Test Plot Metadata using TEC (Mouse) dataset; UMAP", {
   expect_snapshot_file("output","TEC_plotmet6.umap.png")
 
   expect_type(output,"list")
-  expected.elements = c("object", "plot")
+  expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
   
 

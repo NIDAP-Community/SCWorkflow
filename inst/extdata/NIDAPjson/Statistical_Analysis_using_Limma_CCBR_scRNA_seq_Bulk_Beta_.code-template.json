@@ -1,0 +1,194 @@
+{
+	"codeTemplate": "GSVA_LimmaStats <- function({{{Dataset}}},{{{Metadata_Table}}}) {\n    \n    library(nidapFunctions)\n    libs <- c(\"limma\",\"ggplot2\",\"edgeR\",\"stringr\",\"gridExtra\",\"reshape2\",\"grid\",\"gtable\",\"dplyr\",\"tibble\",\"tidyr\",\"plotly\")\n    nidapLoadPackages(libs)\n    \n    counts_matrix <- {{{Dataset}}}\n    sample_metadata <- {{{Metadata_Table}}} \n    samples_to_include = {{{Samples_to_Include}}}\n    gene_names_column <- \"{{{Gene_Names_Column}}}\"\n    contrast_variable_columns <- {{{Contrast_Variable_Column}}}\n    contrasts <- {{{Contrasts}}}\n    donor_variable_column = {{{Donor_Variable_Column}}}\n    sample_names_column = \"{{{Sample_Names_Column}}}\"\n     \n    covariate_columns = {{{Covariate_Columns}}}\n    summarization_method = \"{{{Summarization_Method}}}\" \n    \n    #Advanced:\n    return_matrix = {{{Return_Matrix}}}\n    fold_change_threshold = {{{Fold_Change_Threshold}}}\n    first_pvalue_threshold = {{{First_p_value_Threshold}}}\n    second_pvalue_threshold = {{{Second_p_value_Treshold}}}\n\n    #Visualization:\n    row_number <- {{{Row_Number}}}  # cut number of rows\n    column_number <- {{{Column_Number}}}  # cut number of columns per table\n\n    ##--------------- ##\n    ## Error Messages ##\n    ## -------------- ##\n    \n    if(!all(make.names(colnames(counts_matrix))==colnames(counts_matrix))){\n        print(\"Error: The following counts matrix column names are not valid:\\n\")\n        print(colnames(counts_matrix)[make.names(colnames(counts_matrix))!=colnames(counts_matrix)])\n        \n        print(\"Likely causes are columns starting with numbers or other special characters eg spaces.\")\n        stop(\"Bad column names.\")\n    }\n    \n    ## --------- ##\n  ## Functions ##\n  ## --------- ##\n  \n  # Function to split data frame rows\n  split_data_frame_rows <- function(data, chunk_size) {\n    data <- as.data.frame(data)\n    split(data, ceiling(seq_along(1:nrow(data)) / chunk_size))\n    #split(data, ceiling( nrow(data)/ chunk_size))\n  }\n  \n  # Function to split data frame columns\n  split_data_frame_cols <- function(data, chunk_size) {\n    col_indices <- split(seq_len(ncol(data)), ceiling(seq_along(seq_len(ncol(data))) / chunk_size))\n    lapply(col_indices, function(cols) data[, cols, drop = FALSE])\n  }\n  \n  # Function to print chunks with titles\n  print_chunk <- function(chunk, index, title) {\n    for(i in seq_along(colnames(chunk))) {\n      if(class(chunk[[i]]) == \"list\") {\n        chunk[[i]] <- unlist(lapply(chunk[[i]], function(x) paste(x, collapse = \",\")))\n      }\n    }\n    \n    # Create a grob with title\n    title_grob <- textGrob(title, gp = gpar(fontsize = 15, fontface = \"bold\"))\n    table_grob <- tableGrob(chunk, theme = ttheme_default(base_size = 10))\n    \n    # Arrange the title and table in a vertical layout\n    combined_grob <- arrangeGrob(title_grob, table_grob, ncol = 1, heights = c(1, 10))\n    \n    grid.newpage()\n    grid.draw(combined_grob)\n    return(NULL)\n  }\n  \n  # Function to split and print a table\n  split_and_print_table <- function(data, row_chunk_size, col_chunk_size, tabtitle) {\n    # Split rows into chunks\n    row_chunks <- suppressWarnings(split_data_frame_rows(data, row_chunk_size))\n    row_index <- 1\n    \n    for (row_chunk in row_chunks) {\n      row_start <- row_index * row_chunk_size - row_chunk_size + 1\n      row_stop <- row_start + nrow(row_chunk) - 1\n      \n      # Split columns into chunks for each row chunk\n      col_chunks <- suppressWarnings(split_data_frame_cols(row_chunk, col_chunk_size))\n      col_index <- 1\n      \n      for (col_chunk in col_chunks) {\n        col_start <- col_index * col_chunk_size - col_chunk_size + 1\n        col_stop <- col_start + ncol(col_chunk) - 1\n        \n        title <- paste(tabtitle,\"Subset Rows\", row_start, \"-\", row_stop, \"Cols\", col_start, \"-\", col_stop)\n        print_chunk(col_chunk, paste0(\"Row \", row_start, \"-\", row_stop, \", Col \", col_start, \"-\", col_stop), title)\n        \n        col_index <- col_index + 1\n      }\n      \n      row_index <- row_index + 1\n    }\n  }\n  \n  plot_sankey <- function(sample_metadata, contrast_variable_columns, covariate_columns = NULL) {\n    \n    # Prepare the data for the Sankey plot  \n    all_columns <- c(contrast_variable_columns, covariate_columns)\n    \n    if (length(all_columns) == 1) {\n      message(\"Cannot draw a Sankey plot with only one contrast variable column and no covariate columns.\")\n      return(NULL)\n    } else {\n      # Transform the data into a long format\n      long_data <- sample_metadata %>%\n        pivot_longer(cols = all_of(all_columns), names_to = \"Category\", values_to = \"Value\")\n      \n      # Create nodes\n      nodes <- data.frame(name = unique(long_data$Value))\n      \n      # Create links dynamically\n      links <- NULL\n      for (i in 1:(length(all_columns) - 1)) {\n        temp_links <- sample_metadata %>%\n          group_by(across(all_of(all_columns[c(i, i + 1)]))) %>%\n          summarise(value = n(), .groups = 'drop') %>%\n          mutate(source = match(.data[[all_columns[i]]], nodes$name) - 1,\n                 target = match(.data[[all_columns[i + 1]]], nodes$name) - 1) %>% select(source, target, value)\n        links <- bind_rows(links, temp_links)\n      }\n      \n      # Create the plotly Sankey plot\n      sankey <- plot_ly( type = \"sankey\",\n                         orientation = \"h\",\n                         node = list(\n                           label = nodes$name,\n                           pad = 15,\n                           thickness = 20,\n                           line = list(color = \"black\", width = 0.5)\n                         ),\n                         link = list(source = links$source,\n                                     target = links$target,\n                                     value = links$value\n                         )\n      ) \n      return(sankey)\n    }\n  }\n  \n  plot_sankey_with_confounders <- function(data, contrast_columns, covariate_column, confounder_names) {\n    # Transform data into long format\n    long_data <- data %>%\n      pivot_longer(cols = c(contrast_columns, covariate_column), names_to = \"Category\", values_to = \"Value\")\n    \n    # Create nodes\n    nodes <- data.frame(name = unique(long_data$Value))\n    \n    # Create links\n    long_data <- long_data %>%\n      group_by(.data[[sample_names_column]]) %>%\n      arrange(Category) %>%\n      mutate(Source = lag(Value), Target = Value) %>%\n      filter(!is.na(Source)) %>%\n      ungroup()\n    \n    links <- long_data %>%\n      group_by(Source, Target) %>%\n      summarise(count = n(), .groups = 'drop') %>%\n      mutate(source = match(Source, nodes$name) - 1,\n             target = match(Target, nodes$name) - 1) %>%\n      select(source, target, count)\n    \n    # Highlight confounded nodes\n    if(length(confounder_names) > 0) {\n      nodes$group <- ifelse(nodes$name %in% confounder_names, \"confounded\", \"non_confounded\")\n      nodes$color <- ifelse(nodes$name %in% confounder_names, \"red\", \"lightblue\")\n    } else { # give different colors to each name\n      nodes$group <- nodes$name\n      nodes$color <- scales::hue_pal()(length(unique(nodes$name)))\n    }\n    \n    # Highlight confounded links\n    links$group <- ifelse(nodes$name[links$source + 1] %in% confounder_names | nodes$name[links$target + 1] %in% confounder_names, \"confounded\", \"non_confounded\")\n    links$color <- ifelse(nodes$name[links$source + 1] %in% confounder_names | nodes$name[links$target + 1] %in% confounder_names, \"red\", \"lightblue\")\n    \n    # Check if there are any confounders\n    if (length(confounder_names) == 0) {\n      # If no confounders, use grey color for all links\n      links$color <- \"#A9A9A9\"\n    }\n    \n    # Create the plotly Sankey plot\n    sankey <- plot_ly(\n      type = \"sankey\",\n      orientation = \"h\",\n      node = list(\n        label = nodes$name,\n        color = nodes$color,\n        pad = 15,\n        thickness = 20,\n        line = list(color = \"black\", width = 0.5)\n      ),\n      link = list(\n        source = links$source,\n        target = links$target,\n        value = links$count,\n        color = links$color\n      )\n    ) %>%\n      layout(\n        title = \"Sankey Diagram\",\n        font = list(size = 10)\n      )\n    \n    return(sankey)\n  }\n  \n  # Function to check for confounders without using design matrix\n  check_confounders <- function(data, contrast_vars, covariate_column) {\n    confounders <- list()\n    confounder_names <- list()  \n    for (conf_var in contrast_vars) {\n      for (level in levels(data[[covariate_column]])) {\n        contingency_table <- table(data[[conf_var]], data[[covariate_column]] == level)\n        for (row_name in rownames(contingency_table)) {\n          if (contingency_table[row_name, 1] == 0 & contingency_table[row_name, 2] > 0) {\n            detailed_message <- paste(row_name, \"is completely confounded with\", covariate_column, level)\n            confounders[[conf_var]] <- c(confounders[[conf_var]], detailed_message)\n            confounder_names[[conf_var]] <- c(confounder_names[[conf_var]], row_name)\n          }\n        }\n      }\n    }\n    return(list(confounders = confounders, confounder_names = confounder_names))\n  }\n  \n  # Function to draw an error message with text wrapping and respecting newlines\n  draw_error_message <- function(message, color, width = 120) {\n    # Split the message by newlines\n    segments <- str_split(message, \"\\n\")[[1]]\n    # Wrap each segment\n    wrapped_segments <- lapply(segments, str_wrap, width = width)\n    # Combine the wrapped segments with newlines\n    wrapped_message <- paste(unlist(wrapped_segments), collapse = \"\\n\")\n    \n    grid.newpage()\n    grid.rect(gp = gpar(fill = color, col = NA))\n    grid.text(wrapped_message, x = 0.5, y = 0.5, \n              gp = gpar(fontface = \"italic\", cex = 3, col = \"black\"), \n              just = \"center\")\n  }\n  \n  #Function to get gene lists based on fold change and p-value thresholds\n  getgenelists <- function(FClimit,pvallimit,pval){\n    upreggenes <- list()\n    downreggenes <- list()  \n    for(i in 1:length(contrasts)){\n      if(pval == \"pval\"){\n        results %>% dplyr::filter(.data[[colnames(FC)[i]]] > FClimit & .data[[colnames(pvals)[i]]] < pvallimit) %>% pull(Gene) %>% length() -> upreggenes[[i]] \n        results %>% dplyr::filter(.data[[colnames(FC)[i]]] < -FClimit & .data[[colnames(pvals)[i]]] < pvallimit) %>% pull(Gene) %>% length() -> downreggenes[[i]]        \n      } else {\n        results %>% dplyr::filter(.data[[colnames(FC)[i]]] > FClimit & .data[[colnames(pvaladj)[i]]] < pvallimit) %>% pull(Gene) %>% length() -> upreggenes[[i]] \n        results %>% dplyr::filter(.data[[colnames(FC)[i]]] < -FClimit & .data[[colnames(pvaladj)[i]]] < pvallimit) %>% pull(Gene) %>% length() -> downreggenes[[i]] \n      }\n    }\n    names(upreggenes) <- contrasts\n    names(downreggenes) <- contrasts\n    allreggenes <- rbind(unlist(upreggenes),unlist(downreggenes))\n    rownames(allreggenes) <- c(paste0(\"upreg>\",FClimit, \", \",pval,\"<\",pvallimit),paste0(\"downreg<-\",FClimit, \", \",pval,\"<\",pvallimit))\n    return(allreggenes)\n  }\n  \n  # Function to calculate fold change from group means\n  calculate_fold_change <- function(group_means, contrast) {\n    # Split the contrast string into individual group names\n    groups <- strsplit(contrast, \"-\")[[1]]\n    \n    # Extract the two group names for the fold change calculation\n    group1 <- groups[1]\n    group2 <- groups[2]\n    \n    # Calculate fold change\n    fold_change <- group_means[[group1]] / group_means[[group2]]\n    fold_change[is.nan(fold_change)] <- 1\n    fold_change[fold_change < 1] <- -1/fold_change\n    return(fold_change)\n  }\n  \n  # Function to calculate the difference in fold changes\n  calculate_fold_change_difference <- function(group_means, contrast) {\n    # Split the contrast string into individual contrasts\n    contrasts <- strsplit(contrast, \"\\\\)-\\\\(\")[[1]]\n    \n    # Remove the residual parentheses\n    contrasts <- gsub(\"[()]\", \"\", contrasts)\n    \n    # Calculate fold changes for each contrast\n    fc1 <- calculate_fold_change(group_means, contrasts[1])\n    fc2 <- calculate_fold_change(group_means, contrasts[2])\n    delta <- fc1/fc2\n    delta[is.nan(delta)] <- 1\n    delta[delta < 1] <- -1/delta  \n    return(delta)\n  }\n  \n  # Custom function to calculate standard error\n  se <- function(x) {\n    n <- length(x[!is.na(x)])  # Only non-NA values should be counted\n    sd(x, na.rm = TRUE) / sqrt(n)\n  }\n  \n  wraplines <- function(y){\n    j = unlist(strsplit(y,\"-\"))\n    k = strwrap(j, width = 10)\n    l = paste(k,collapse=\"\\n-\")\n    return(l)\n  }\n  \n  ## --------------- ##\n  ## Main Code Block ##\n  ## --------------- ##\n  \n  #Make sure that sample metadata contains all the sample names\n  sample_metadata.filt <- sample_metadata %>% dplyr::filter(.data[[sample_names_column]] %in% samples_to_include)\n  rownames(sample_metadata.filt) <- sample_metadata.filt[[sample_names_column]]\n  \n  ##Make sure the counts matrix matches sample names selected:\n  counts_matrix.filt  <- counts_matrix %>% select(all_of(c(gene_names_column,samples_to_include))) \n  func <- match.fun(summarization_method)\n  counts_matrix.filt <- counts_matrix.filt %>% group_by(.data[[gene_names_column]]) %>% summarise_all(func) \n  counts_matrix.final <- counts_matrix.filt[,sample_metadata.filt[[sample_names_column]]] %>% as.data.frame()\n  rownames(counts_matrix.final) <- counts_matrix.filt[[gene_names_column]]\n  counts_matrix.final <- as.matrix(counts_matrix.final)\n  \n  # Check that all values in counts_matrix.final are numeric\n  if (!all(sapply(counts_matrix.final, is.numeric))) {\n    stop(\"Error: counts_matrix.final contains non-numeric values. Please ensure all values are numeric.\")\n  }\n  \n  #Ensure that there is only 1 sample per condition per subject, and print out the groups:\n  if(length(donor_variable_column) > 0){\n    sample_metadata.filt.dedup <- sample_metadata.filt %>%\n      group_by(across(all_of(c(donor_variable_column, contrast_variable_columns)))) %>%\n      slice(1) %>%\n      ungroup()\n    #Print out individual groups:\n    grouped_summary <- sample_metadata.filt.dedup %>%\n      group_by(across(all_of(c(donor_variable_column, contrast_variable_columns)))) %>%\n      summarise(Sample_Names = toString(.data[[sample_names_column]]),\n                .groups = 'drop')\n    wide_table <- grouped_summary %>%\n      pivot_wider(names_from = contrast_variable_columns, values_from = Sample_Names)\n    wide_table <- replace(wide_table, is.na(wide_table), \"\")\n  } else {\n    sample_metadata.filt.dedup <- sample_metadata.filt\n    wide_table <- NULL\n  }\n  \n  #Create another contrast column called contmerge if 2 factor:\n  if(length(contrast_variable_columns)>1){\n    sample_metadata.final <- sample_metadata.filt.dedup %>% dplyr::mutate(contmerge = paste0(.data[[contrast_variable_columns[1]]],\".\",.data[[contrast_variable_columns[2]]])) %>%\n      as.data.frame()\n  } else {\n    sample_metadata.final <- sample_metadata.filt.dedup %>% dplyr::mutate(contmerge = .data[[contrast_variable_columns]]) %>% as.data.frame()\n  }\n  \n  #Make design matrix:\n  if(length(covariate_columns) > 0) {\n    dm.formula <- as.formula(paste(\"~0 + contmerge + \", paste(covariate_columns, sep=\"+\", collapse=\"+\")))\n  } else {\n    dm.formula <- as.formula(\"~0 + contmerge\")\n  }\n  \n  cat(\"\\n\\nstatistical formula:\\n\")\n  print(dm.formula)\n  cat(sprintf(\"\\n\\n Contmerge factor created from %s \\n\\n\", paste(contrast_variable_columns, collapse = \", \")))\n  \n  #Set rownames of sample metadata before creating design matrix:\n  rownames(sample_metadata.final) = sample_metadata.final[[sample_names_column]]\n  # Convert covariate column to factor\n  sample_metadata.final <- sample_metadata.final %>%\n    mutate(across(all_of(covariate_columns), as.factor))\n  \n  design <- model.matrix(dm.formula,sample_metadata.final)\n  \n  for(i in 1:length(contrast_variable_columns)){\n    colnames(design) <- gsub(paste0(\"^\", contrast_variable_columns[i]), \"\", colnames(design))\n  }\n  colnames(design) <- gsub(\":\",\".\",colnames(design))\n  colnames(design) <- gsub(\"contmerge\", \"\", colnames(design))\n  \n  # Identify non-estimable factors\n  nonest0 <- colnames(design)[colSums(design) == 0]\n  nonest1 <- colnames(design)[colSums(design) == 1]\n  \n  # Combine non-estimable factors\n  nonest <- c(nonest0, nonest1)\n  \n  # Print out non-estimable factors\n  if (length(nonest) > 0) {\n    \n    # Print initial dimensions\n    print(\"Variables before removing non-estimable factors:\")\n    print(colnames(design))\n    \n    # Remove non-estimable factors from the design matrix\n    design <- design[, !colnames(design) %in% nonest]\n    \n    #Remove uncategorized samples from sample metadata and counts matrix\n    counts_matrix.final <- (counts_matrix.final[,rownames(design)]) %>% as.data.frame\n    sample_metadata.final <- sample_metadata.final %>% filter(.data[[sample_names_column]] %in% rownames(design))\n    \n    # Print dimensions after removing non-estimable factors\n    print(\"Variables after removing non-estimable factors:\")\n    print(colnames(design))\n    \n    message(\"The following non-estimable factors have been removed from the design matrix as they do not provide sufficient variability:\\n\",\n            \"Factors with all zero counts: \", paste(nonest0, collapse = \", \"), \"\\n\",\n            \"Factors with only one non-zero count: \", paste(nonest1, collapse = \", \"), \"\\n\")\n  } else {\n    message(\"All factors in the design matrix provide sufficient variability. No non-estimable factors were found.\")\n  }\n  \n  # Perform QR decomposition\n  qr_check <- qr(design)\n  \n  # Extract the rank from the QR object\n  qr_rank <- qr_check$rank\n  \n  # Get the number of columns in the design matrix\n  num_columns <- ncol(design)\n  \n  # Check for collinearity\n  if (qr_rank < num_columns) {\n    cat(\"Collinearity detected: The design matrix does not have full rank.\\n\")\n    confounded_covariates <- colnames(design)[qr_check$pivot[(qr_rank + 1):num_columns]]\n    print(confounded_covariates)\n  } else {\n    cat(\"No collinearity detected: The design matrix has full rank.\\n\")\n    confounded_covariates <- NULL\n  }\n  \n  if(!is.null(confounded_covariates)){   \n    # Identify confounded variables - column where confounding variables are found\n    confounding_variable_column <- covariate_columns[grepl(covariate_columns,confounded_covariates)][1]\n    confounder_info <- check_confounders(sample_metadata.final,  contrast_variable_columns, confounding_variable_column)\n    confounders <- confounder_info$confounders\n    confounder_names <- unique(unlist(confounder_info$confounder_names))\n    \n    # Draw Sankey Plot to show the experimental design\n    sankeyplot <- plot_sankey_with_confounders(sample_metadata.final, \n                                               c(contrast_variable_columns), \n                                               covariate_columns, confounder_names)\n    message <- paste0(\"Error: The following covariates are confounded:\\n\")#, \"\\n\", paste(confounders, collapse = \", \"), \"\\n\\n\")\n    for (covariate in names(confounders)) {\n      if (length(confounders[[covariate]]) > 0) {\n        message <- paste0(message, \"\\n\", covariate, \"\\n\",\n                          paste(confounders[[covariate]], collapse = \"\\n \"), \"\\n\")\n      } else {\n        message <- paste0(message, covariate, \" (no specific confounding variable identified)\\n\")}\n    }\n    message <- paste0(message, \"\\n\\nThis indicates that your experimental design contains confounding variables, which can bias your results.\\n\",\n                      \"Consider revising your experimental design to ensure that each covariate provides unique information.\\n\",\n                      \"You may need to collect more data or adjust the grouping of your samples.\")\n    draw_error_message(message, \"tomato3\")\n    print(sankeyplot)\n  } else {\n    sankeyplot <- plot_sankey(sample_metadata.final, \n                              c(contrast_variable_columns), \n                              covariate_columns)\n    message <- \"No collinearity was detected in the design matrix.\"\n    draw_error_message(message, \"lightgreen\")\n    if(!is.null(sankeyplot)){\n      print(sankeyplot)    \n    } \n    #Prepare plot for distribution of values across samples\n    counts.df <- as.data.frame(counts_matrix.final) %>% rownames_to_column(\"Features\")\n    \n    long_counts <- counts.df %>% pivot_longer(\n      cols = -Features, \n      names_to = \"SampleID\", \n      values_to = \"Count\"\n    ) \n    \n    # DrawBoxplot\n    p <- ggplot(long_counts, \n                aes(x = SampleID, y = Count, fill = factor(SampleID))) + \n      geom_boxplot() +\n      scale_fill_manual(values = rainbow(length(unique(long_counts$SampleID)))) +\n      ggtitle(\"Distribution of Values Across Samples\") +\n      theme_minimal() +\n      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),\n            legend.position = \"none\") +\n      labs(x = \"\", y = \"Value\")\n    \n    print(p)\n    \n    # Splitting and printing the pivoted table for donor samples\n    if(!is.null(wide_table )){\n      split_and_print_table(wide_table, row_number, column_number, \"Pivot Table of Different Groups by Donor\")\n    }\n    \n    #Run duplicate correlation and lmfit:\n    if(length(donor_variable_column) > 0){\n      cat(\"Running linear mixed model\\n\\n\")\n      donor_variable_column <- donor_variable_column[1]\n      corfit <- duplicateCorrelation(counts_matrix.final,design,block=sample_metadata.final[[donor_variable_column]]) \n      fit <- lmFit(counts_matrix.final, design, block=sample_metadata.final[[donor_variable_column]], correlation=corfit$consensus.correlation)\n    } else {\n      cat(\"Running linear model\\n\\n\")\n      fit <- lmFit(counts_matrix.final, design)\n    } \n    \n    cm <- makeContrasts(contrasts = contrasts, levels=design)\n    fit <- contrasts.fit(fit, cm)\n    fit2 <- eBayes(fit)\n    \n    #Calculate Group Means:\n    contgroups <- colnames(design)\n    group_means <- list() \n    group_se <- list()\n    for (group_name in contgroups) {\n      group_indices <- which(design[, group_name] == 1)\n      group_means[[group_name]] <- rowMeans(counts_matrix.final[, group_indices, drop = FALSE])\n      group_se[[group_name]] <- apply(counts_matrix.final[, group_indices, drop = FALSE], 1, se)\n    }\n    \n    #Put together the results dataframe:\n    tstat <- fit2$t\n    pvals <- fit2$p.value\n    logFC <- fit2$coefficients    \n    FC <- 2^fit2$coefficients\n    FC <- apply(FC, MARGIN = c(1,2), function(x) ifelse(x < 1, -1/x, x))\n    SE <- sqrt(fit2$s2.post) * fit2$stdev.unscaled\n    \n    #Format the final results table \n    group_means <- do.call(data.frame, group_means)\n    colnames(group_means) <- paste(colnames(group_means),\"Mean\",sep = \"_\") \n    group_se <- do.call(data.frame, group_se)\n    colnames(group_se) <- paste(colnames(group_se),\"SE\",sep = \"_\")\n    \n    colnames(logFC) <- paste(colnames(logFC),\"logFC\", sep=\"_\")\n    colnames(FC) <- paste(colnames(FC),\"FC\", sep=\"_\")\n    colnames(SE) = paste(colnames(SE), \"SE\", sep=\"_\")\n    colnames(tstat) <- paste(colnames(tstat),\"tstat\", sep=\"_\")\n    colnames(pvals) <- paste(colnames(pvals),\"pval\",sep=\"_\")\n    pvaladj <- apply(pvals,2,function(x) p.adjust(x,\"BH\"))\n    colnames(pvaladj) <- paste(colnames(fit$coefficients),\"adjpval\",sep=\"_\")\n    results <- cbind(group_means,group_se,FC,logFC,SE,tstat,pvals,pvaladj)\n    results <- as.data.frame(results) %>% rownames_to_column(\"Gene\") \n    \n    #Format group sample numbers:\n    sampsize <- colSums(design)\n    titleval <- \"Please note Sample size:\"\n    titletext <- paste(names(sampsize), sampsize, sep = \"=\", collapse = \" \\n \")\n    sampletitle <- textGrob(paste(titleval,\"\\n\",titletext,\"\\n\\n\\n\"),gp=gpar(fontsize=10))\n    contrast <- colnames(cm)\n    connames <- strsplit(contrast,\"-\")\n    connames <- lapply(connames,function(x) {gsub(\"\\\\(\",\"\",gsub(\"\\\\)\",\"\",x))})\n    contrastsize <- lapply(connames,function(x) sampsize[unlist(x)])\n    contrasttext <- paste(contrast, contrastsize, sep = \" : \", collapse = \"\\n\") \n    contrasttext <- textGrob(paste(\"\\n\\n\\nContrasts:\\n\",contrasttext),gp=gpar(fontsize=10))\n    \n    grid.newpage()\n    grid.draw(sampletitle)\n    grid.newpage()\n    grid.draw(contrasttext)\n    \n    #Format genelist sizes for typical cutoffs:\n    FCpval1 <- getgenelists(FClimit = fold_change_threshold, pvallimit = first_pvalue_threshold,\"pval\")\n    FCpval2 <- getgenelists(FClimit = fold_change_threshold, pvallimit = second_pvalue_threshold,\"pval\")\n    FCadjpval1 <- getgenelists(FClimit = fold_change_threshold, pvallimit = first_pvalue_threshold,\"adjpval\")\n    FCadjpval2 <- getgenelists(FClimit = fold_change_threshold, pvallimit = second_pvalue_threshold,\"adjpval\")\n    pvaltab <- rbind(FCpval1,FCpval2,FCadjpval1,FCadjpval2)\n    colnames(pvaltab) <- sapply(colnames(pvaltab), function(x) wraplines(x))\n    \n    #Splitting and printing the table for genelist sizes:\n    split_and_print_table(pvaltab, row_number, column_number, \"Number of contrasts\")\n    \n    colnames(results) <- gsub(\" - \",\"-\",colnames(results))\n    colnames(results) <- gsub(\"\\\\(\",\"\",gsub(\"\\\\)\",\"\",colnames(results)))\n    \n    if(return_matrix == TRUE){\n      results = as.data.frame(cbind(results, counts_matrix.final))\n    }    \n    \n    return(results)\n  }\n}\n\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n\n",
+	"columns": [
+		{
+			"key": "Sample_Names_Column",
+			"displayName": "Sample Names Column",
+			"description": "Specify the column in the metadata table that contains sample names. These should match the column names in the data matrix.",
+			"paramGroup": null,
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Samples_to_Include",
+			"displayName": "Samples to Include",
+			"description": "Samples to include in the analysis",
+			"paramGroup": null,
+			"sourceDataset": "Dataset",
+			"defaultValue": null,
+			"columnType": "NUMBER",
+			"isMulti": true
+		},
+		{
+			"key": "Gene_Names_Column",
+			"displayName": "Gene Names Column",
+			"description": "Column in the Dataset that contains Gene Names or Symbols",
+			"paramGroup": null,
+			"sourceDataset": "Dataset",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": null
+		},
+		{
+			"key": "Contrast_Variable_Column",
+			"displayName": "Contrast Variable Column",
+			"description": "Specify the column(s) for the factor(s) to be tested, with a maximum of 2 factors.",
+			"paramGroup": null,
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "STRING",
+			"isMulti": true
+		},
+		{
+			"key": "Covariate_Columns",
+			"displayName": "Covariate Columns",
+			"description": "Include one or more columns containing factors to be used as covariates in either linear or mixed effects models. These columns are typically used to handle batch effects. This field can be left empty if no covariates are needed.",
+			"paramGroup": null,
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "Donor_Variable_Column",
+			"displayName": "Donor Variable Column",
+			"description": "When running a mixed effects model, the Donor variable (e.g., Patient from whom paired samples are derived) is treated as a random effect. This field can be left empty if not applicable.",
+			"paramGroup": null,
+			"sourceDataset": "Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "Given a matrix (typically log-normalized gene expression) and a metadata table, this will run one- and two-factor statistical analyses on groups using linear or mixed effects models with limma. [Reference](https://rdrr.io/bioc/limma/man/ebayes.html). \n\n**There are 2 ways for treating Donor or Patient - one as a random effect and the other as a fixed effect**\n\n**When Using a Mixed Effects Model (Donor as random effect):**\n\n- Add Donor column to the Donor Variable Column\n- Do not add the Donor variable under Covariate Columns. It will be handled separately in the Donor Variable Column as a random effect.\n- The Covariate Columns field should include any other variables except the Donor.\n\n**When Using a Basic Linear Model (Donor as fixed effect):**\n\n- You can add the Donor column as a covariate under Covariate Columns, where it will be treated as a fixed effect.\n- Additional variables can be included under Covariate Columns\n- Ensure the Donor Variable Column is left blank.\n\n*This template is a Beta version and is undergoing active development. If you encounter problems, please contact CCBR* [NCICCBRNIDAP@mail.nih.gov](mailto:NCICCBRNIDAP@mail.nih.gov)",
+	"externalId": "Statistical_Analysis_using_Limma_CCBR_scRNA_seq_Bulk_Beta_",
+	"inputDatasets": [
+		{
+			"key": "Dataset",
+			"displayName": "Dataset",
+			"description": "Dataset that contains gene expression counts for several samples",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "Metadata_Table",
+			"displayName": "Metadata Table",
+			"description": "Metadata Table that contains information about the samples.  The sample names need to be identical to the column names in the Dataset",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Contrasts",
+			"displayName": "Contrasts",
+			"description": "Specify the group comparisons of interest.\n\t•\tFor 1 factor, enter the numerator followed by the denominator (e.g., Treatment-Control).\n\t•\tFor 2 factors, enter the comparisons separated by a dot (e.g., Treatment.Responder-Baseline.Responder).",
+			"paramType": "VECTOR",
+			"paramGroup": null,
+			"paramValues": null,
+			"defaultValue": "c()",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Summarization_Method",
+			"displayName": "Summarization Method",
+			"description": "For duplicate features, specify the method to summarize and remove duplicates. Use “max” for microarray data and “sum” for counts data.",
+			"paramType": "SELECT",
+			"paramGroup": null,
+			"paramValues": [
+				"mean",
+				"max",
+				"sum"
+			],
+			"defaultValue": "mean",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Return_Matrix",
+			"displayName": "Return Matrix",
+			"description": "Return original matrix along with the statistical results.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Fold_Change_Threshold",
+			"displayName": "Fold Change Threshold",
+			"description": "Used to determine the number of genes that are significantly upregulated or downregulated based on a fold change threshold. The default threshold is set at 1.2-fold.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "1.2",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "First_p_value_Threshold",
+			"displayName": "First p-value Threshold",
+			"description": "Used to determine the number of genes that are significantly up or downregulated using p-value threshold.  Set at 0.05 by default.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "0.05",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Second_p_value_Treshold",
+			"displayName": "Second p-value Treshold",
+			"description": "Used to determine the number of genes that are significantly up or downregulated using a more stringent p-value threshold.  Set at 0.01 by default.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "0.01",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Row_Number",
+			"displayName": "Row Number",
+			"description": "Specify the maximum number of rows to print per pivoted table.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "30",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Column_Number",
+			"displayName": "Column Number",
+			"description": "Specify the maximum number of columns to print per pivoted table.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "10",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Statistical Analysis using Limma [CCBR] [scRNA-seq] [Bulk] [Beta]",
+	"templateApiVersion": "0.1.0"
+}

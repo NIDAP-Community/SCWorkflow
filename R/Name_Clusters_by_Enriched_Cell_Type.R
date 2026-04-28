@@ -7,13 +7,16 @@
 #'
 #' @param object Seurat-class object with cluster IDs column and cell type 
 #'  column present
-#' @param cluster.numbers Vector containing cluster numbers that match the 
-#'  (numeric) cluster ID's in the cluster.column in Seurat Object metadata
-#' @param cluster.names Vector containing custom cluster labels
 #' @param cluster.column Column name containing cluster ID in the metadata slot
 #'  in the object
 #' @param labels.column Column name containing labels (usually cell type) in the
 #'  metadata slot in the object
+#' @param cluster.identities.table Data frame containing cluster IDs and custom
+#'  cluster labels
+#' @param cluster.numbers Column name in cluster.identities.table
+#'  containing cluster numbers that match values in cluster.column
+#' @param cluster.names Column name in cluster.identities.table
+#'  containing custom cluster labels
 #' @param order.clusters.by Vector containing order of clusters in graph. Can 
 #'  contain a subset of cluster numbers to plot that match at least some of
 #'  the values in the cluster.column. If NULL, use default order 
@@ -36,36 +39,57 @@
 #' @export
 #' @return Returns Seurat-class object with updated meta.data slot containing
 #' custom cluster annotation and a plot
+#' 
+#' @examples
+#' \dontrun{
+#' map_tbl <- data.frame(
+#'   cluster_id = c("0", "1"),
+#'   label = c("T cell", "B cell")
+#' )
+#' out <- nameClusters(
+#'   object = anno_so,
+#'   cluster.column = "seurat_clusters",
+#'   labels.column = "celltype",
+#'   cluster.identities.table = map_tbl,
+#'   cluster.numbers = "cluster_id",
+#'   cluster.names = "label"
+#' )
+#' }
 
 nameClusters <- function(object,
-                         cluster.numbers,
-                         cluster.names,
                          cluster.column,
                          labels.column,
+                         cluster.identities.table,
+                         cluster.numbers,
+                         cluster.names,
                          order.clusters.by = NULL,
                          order.celltypes.by = NULL,
                          interactive = FALSE)
 {
   
-  # Assign cluster numbers with custom cluster names 
-  cluster.numbers <- factor(cluster.numbers,
-                            str_sort(cluster.numbers, numeric = TRUE))
-  levels(cluster.numbers) <-
-    str_sort(cluster.numbers, numeric = TRUE)
-  names(cluster.names) <- as.character(cluster.numbers)
+  # # Assign cluster numbers with custom cluster names 
+  # cluster.numbers <- factor(cluster.numbers,
+  #                           str_sort(cluster.numbers, numeric = TRUE))
+  # levels(cluster.numbers) <-
+  #   str_sort(cluster.numbers, numeric = TRUE)
+  # # names(cluster.names) <- as.character(cluster.numbers)
+  
+  cluster.names= setNames(cluster.identities.table[[cluster.names]],cluster.identities.table[[cluster.numbers]])
+  
   
   # get metadata from object and get cluster column
   metadata.df <- object@meta.data
   colval <- metadata.df[[cluster.column]]
   
   
-  # If cluster numbers on input table match the cluster numbers in cluster 
-  # column in metadata, add new custom labels to seurat object
-  if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.numbers))) {
-    object <- AddMetaData(object,
-                          metadata = 
-                            deframe(tibble(metadata.df[[cluster.column]],
-                                        cluster.names[as.character(colval)])),
+  # # If cluster numbers on input table match the cluster numbers in cluster 
+  # # column in metadata, add new custom labels to seurat object
+  if (all(unique(metadata.df[[cluster.column]]) %in% unique(cluster.identities.table[[cluster.numbers]]))) {
+    object =
+    AddMetaData(object,
+                metadata =
+                  deframe(tibble(metadata.df[[cluster.column]],
+                                 cluster.names[as.character(colval)])),
                           col.name = "Clusternames")
   } else{
     stop("Cluster ID's have to match metadata column. Please check entry in
@@ -75,12 +99,12 @@ nameClusters <- function(object,
   clus.num <-
     as.data.frame.matrix(table(object@meta.data$Clusternames,
                                object@meta.data[[labels.column]]))
-  clusnum.df <- melt(as.matrix(clus.num))
+  clusnum.df <- reshape2::melt(as.matrix(clus.num))
   sums <- rowSums(clus.num)
   cluster.perc <- (clus.num / sums) * 100
   
   # draw plot 
-  clus.df <- melt(as.matrix(cluster.perc))
+  clus.df <- reshape2::melt(as.matrix(cluster.perc))
   clus.df$num <- clusnum.df$value
   colnames(clus.df) <-
     c("cluster", "celltype", "percent", "number")
@@ -108,7 +132,7 @@ nameClusters <- function(object,
       factor(clus.df$cluster, levels = order.clusters.by)
   } else {
     clus.df$cluster <- factor(clus.df$cluster,
-                              levels = str_sort(cluster.names, numeric = TRUE))
+                              levels = str_sort(unique(cluster.names), numeric = TRUE))
   }
   
   #For plot, optional if ordering by cell types
@@ -135,7 +159,11 @@ nameClusters <- function(object,
   
   clus.df <- clus.df %>%
     arrange(cluster, celltype)
-  
+
+  ## if % less then 5 do not plot (convert to NA)
+  clus.df[clus.df<5]=NA
+
+
   ## print clusters in log:
   clus <- clus.df %>%
     pull(cluster) %>%
@@ -153,6 +181,7 @@ nameClusters <- function(object,
   cat("celltypes:\n")
   cat(celltypes, sep = "\n")
   
+  
   # do plot (suppressMessages for ggplot2 scale replacemnt)
   g <- ggplot(clus.df,
               aes(
@@ -162,22 +191,22 @@ nameClusters <- function(object,
                 color = celltype,
                 label = number
               )) +
-        theme_classic() +
-        geom_point(alpha = 0.5) +
-        theme(axis.text.x = element_text(
-          angle = 90,
-          vjust = 0.5,
-          hjust = 1
-          )) +
-        ggtitle("Percentage of Cell Type within Clusters")
+    theme_classic() +
+    geom_point(alpha = 0.5) +
+    theme(axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    )) +
+    ggtitle("Percentage of Cell Type within Clusters")
   
   if (interactive == TRUE) {
     g <- ggplotly(g)
   }
-  
-  invisible(list(
-    object = object,
-    plot = g
+
+  return(list(
+    "object" = object,
+    "plots" = g
   ))
   
 }

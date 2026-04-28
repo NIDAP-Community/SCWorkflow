@@ -92,6 +92,16 @@
 #' 
 #' @return Seurat Objects and QC plots
 #' 
+#' @examples
+#' \dontrun{
+#' out <- combineNormalize(
+#'   object = filtered_so_list,
+#'   npcs = 30,
+#'   draw.umap = TRUE,
+#'   draw.tsne = TRUE
+#' )
+#' }
+#' 
 
 
 combineNormalize <- function(object,
@@ -124,7 +134,7 @@ combineNormalize <- function(object,
                              clust.res.bin = 0.2,
                              
                              # Select PCs
-                             methods.pca = NULL,
+                             methods.pca = 'none',
                              var.threshold = 0.1,
                              pca.reg.plot = FALSE,
                              jackstraw = FALSE,
@@ -596,7 +606,7 @@ combineNormalize <- function(object,
   
   ### Determin # of PCs ====
     #### create Elbow plot ====
-  if (is.null(methods.pca) == FALSE) {
+  if ('none'%in%methods.pca==F) {
     
     elbow.grob=lapply(names(object.merge.split),function(x){
       gg=
@@ -872,8 +882,8 @@ combineNormalize <- function(object,
     
   }
   
-  return(list(object=object.merge,
-              plots=grobsList))
+  return(list("object"=object.merge,
+              "plots"=grobsList))
 }
 
 

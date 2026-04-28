@@ -19,20 +19,44 @@
 #' @param cell.reverse.sort If TRUE, Reverse plot order of metadata category 
 #'  factors (default is FALSE)
 #' @param dot.color Dot color (default is "dark blue")
+#'
 #' @importFrom tidyr pivot_wider
 #' @importFrom Seurat Idents DotPlot
+#'
 #' @export 
 #' 
 #' @return Dotplot with markers and cell types. 
+#'
+#' @examples
+#' \dontrun{
+#' p <- dotPlotMet(
+#'   object = anno_so,
+#'   metadata = "celltype",
+#'   cells = c("T cell", "B cell"),
+#'   markers = c("CD3D", "MS4A1")
+#' )
+#' }
 
 dotPlotMet <- function(object,
                        metadata,
                        cells,
                        markers,
-                       use_assay = "SCT",
                        plot.reverse = FALSE,
                        cell.reverse.sort = FALSE,
                        dot.color = "darkblue") {
+
+### ignore extra labels:
+metadata.df <- object@meta.data
+ExtraValue <- sum(!cells %in% unique(metadata.df[[metadata]]))
+if (ExtraValue > 0) {
+         missinglab2 <- cells[!cells %in% unique(metadata.df[[metadata]])]
+         warning(sprintf("There are %s additional elements in your input categories\n that are missing from your metadata table: ", ExtraValue))
+         missinglab2 <- cat(paste(as.character(missinglab2), collapse = "\n"))
+#
+    cells <- cells[cells %in% unique(metadata.df[[metadata]])]
+#
+    }
+### End of the check  
   
   #Set up metadata as new identity:
   metadata.df <- object@meta.data
@@ -114,9 +138,10 @@ dotPlotMet <- function(object,
   
   #Run Seurat Dotplot function
   dp <- DotPlot(object,
-                assay = use_assay,
+                assay = "SCT",
                 features = markers,
                 dot.scale = 4,
+                dot.min = .1,
                 cols = c("lightgrey", dot.color)
                 )
   cells <- cells[cells %in% dp$data$id]
@@ -157,18 +182,20 @@ dotPlotMet <- function(object,
   
   #Provide Tabular format of Dotplot data 
   dp.pct.tab <- dp$data %>%
-    select(features.plot, pct.exp, id) %>%
+    plotly::select(features.plot, pct.exp, id) %>%
     tidyr::pivot_wider(names_from = features.plot,
                        values_from = pct.exp)
   dp.exp.tab <- dp$data %>%
-    select(features.plot, avg.exp.scaled, id) %>%
+    plotly::select(features.plot, avg.exp.scaled, id) %>%
     tidyr::pivot_wider(names_from = features.plot,
                        values_from = avg.exp.scaled)
   
   result.list <-
-    list("plot" = plot,
-         "pct" = dp.pct.tab,
-         "exp" = dp.exp.tab)
+    list("data"=list(
+            "pct" = dp.pct.tab,
+            "exp" = dp.exp.tab),
+          "plots" = plot
+    )
   
   return(result.list)
   

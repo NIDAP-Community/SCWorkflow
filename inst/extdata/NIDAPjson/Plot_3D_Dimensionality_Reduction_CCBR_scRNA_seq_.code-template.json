@@ -1,0 +1,163 @@
+{
+	"codeTemplate": "DimReduct3D_CellTypes <- function({{{Seurat_Object}}},{{{Metadata}}}) {\n\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    libs <- c(\"SCWorkflow\",\"plotly\")\n    nidapLoadPackages(libs)\n\n    library(plotly)\n    library(Seurat)\n    library(htmlwidgets)\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    #Primary Inputs:\n    seurat_object = {{{Seurat_Object}}}\n\n    #Basic Parameters:\n    color_variable = \"{{{Color_Variable}}}\" \n    label_variable = \"{{{Label_Variable}}}\"\n    plot_type = \"{{{Plot_Type}}}\"\n    \n    #Visualization Parameters:\n    dot_size = {{{Dot_Size}}}\n    colors = {{{Colors}}}\n\n    #Advanced Parameters:\n    number_of_pcs = {{{Number_of_PCs}}}\n    legend = {{{Legend}}}\n    save_plot = {{{Save_Plot}}}\n    filename = \"{{{Filename}}}\"\n    seurat_object_filename = \"{{{Seurat_Object_Filename}}}\"\n    \n\n    ## -------------------------------- ##\n    ## Parameter Misspecifation Errors  ##\n    ## -------------------------------- ##\n\n    ## -------------------------------- ##\n    ## Functions                        ##\n    ## -------------------------------- ##\n\nUMAP3D <- function(object,\n                   color.variable,\n                   label.variable,\n                   dot.size = 4,\n                   legend = TRUE,\n                   colors = c(\"darkblue\",\"purple4\",\"green\",\"red\",\"darkcyan\",\n                              \"magenta2\",\"orange\",\"yellow\",\"black\"),\n                   filename = \"plot.html\",\n                   save.plot = FALSE,\n                   npcs = 15) {\n  \n  #Run TSNE again to get 3d coordinates:\n  object <- RunUMAP(\n    object,\n    assay = \"SCT\",\n    dims = 1:npcs,\n    n.components = 3,\n    seed.use = 1\n  )\n  \n  umap.coord <-\n    as.data.frame(object@reductions$umap@cell.embeddings)\n  \n  if (is.null(object@meta.data[[label.variable]])) {\n    stop(\n      sprintf(\n        \"The metadata variable selected for labeling %s is not\n                 available in the seurat object\",\n        label.variable\n      )\n    )\n  }\n  if (is.null(object@meta.data[[color.variable]])) {\n    stop(\n      sprintf(\n        \"The metadata variable selected for color %s is not available\n                 in the seurat object\",\n        color.variable\n      )\n    )\n  }\n  \n  #Set up dataframe for plotly:\n  umap.df <- data.frame(\n    UMAP1 = umap.coord$UMAP_1,\n    UMAP2 = umap.coord$UMAP_2,\n    UMAP3 = umap.coord$UMAP_3,\n    colorvar = as.factor(object@meta.data[[color.variable]]),\n    label = object@meta.data[[label.variable]]\n  )\n  \n  fig <- plot_ly(\n    umap.df,\n    x = ~ UMAP1,\n    y = ~ UMAP2,\n    z = ~ UMAP3,\n    color = ~ colorvar,\n    colors = colors,\n    type = \"scatter3d\",\n    mode = \"markers\",\n    hoverinfo = 'text',\n    text = ~ label,\n    size = dot.size\n  )\n  \n  if (legend == FALSE) {\n    fig <- hide_legend(fig)\n  }\n  \n  #Save plot into html as embedded plotly image\n  if (save.plot == TRUE) {\n    htmlwidgets::saveWidget(as_widget(fig), filename, selfcontained = TRUE)\n  }\n  \n  umap.results <- list(\"plot\"  = fig, \"data\" = umap.df)\n  return(umap.results)\n}\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    so <- readRDS(path)\n    \n    #Convert the metadata columns to match NIDAP column names\n    metadata_df <- so@meta.data\n\tcolnames(metadata_df) <- gsub(\"\\\\.\", \"_\", colnames(metadata_df))\n    so@meta.data <- metadata_df \n\nif (plot_type == \"tSNE\") {\n    results <- tSNE3D(object = so,\n                   color.variable = color_variable,\n                   label.variable = label_variable,\n                   dot.size = dot_size,\n                   colors = colors,\n                   npcs = number_of_pcs,\n                   legend = legend,\n                   filename = filename,\n                   save.plot = save_plot)\n} else {\n\n    results <- UMAP3D(object = so,\n                   color.variable = color_variable,\n                   label.variable = label_variable,\n                   dot.size = dot_size,\n                   colors = colors,\n                   npcs = number_of_pcs,\n                   legend = legend,\n                   filename = filename,\n                   save.plot = save_plot)\n\n}\n\n\n    print(results$plot)\n    \n    # print(fig)\n    fileName <- \"plot.html\"\n    output <- new.output()      \n    output_fs <- output$fileSystem()\n    htmlwidgets::saveWidget(as_widget(results$plot), fileName, selfcontained=TRUE)\n    output_fs$upload(fileName, fileName)\n    return(NULL)\n}\n    \n\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# Functions defined here will be available to call in\n# the code for any table.\n\n",
+	"columns": [
+		{
+			"key": "Color_Variable",
+			"displayName": "Color Variable",
+			"description": "The variable used for coloring the 3D-TSNE plot",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		},
+		{
+			"key": "Label_Variable",
+			"displayName": "Label Variable",
+			"description": "Metadata Column to use for plot labels",
+			"paramGroup": "Basic",
+			"sourceDataset": "Metadata",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template creates 3D interactive UMAP or t-SNE plot. The plot is saved in the output folder as an HTML file that can be downloaded. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.5e2d1ec1-5747-44bf-9406-eb902eef75cf)",
+	"externalId": "Plot_3D_Dimensionality_Reduction_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "The input seurat object rds file.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "Metadata",
+			"displayName": "Metadata",
+			"description": "Metadata table accompanying the seurat object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Plot_Type",
+			"displayName": "Plot Type",
+			"description": "Select UMAP or tSNE for your dimensionality reduction.",
+			"paramType": "SELECT",
+			"paramGroup": "Basic",
+			"paramValues": [
+				"UMAP",
+				"tSNE"
+			],
+			"defaultValue": "UMAP",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Dot_Size",
+			"displayName": "Dot Size",
+			"description": "Size of dots in plot.  Default is 4.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "4",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Colors",
+			"displayName": "Colors",
+			"description": "",
+			"paramType": "MULTISELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"darkblue",
+				"purple4",
+				"green",
+				"red",
+				"darkcyan",
+				"magenta2",
+				"orange",
+				"yellow",
+				"black"
+			],
+			"defaultValue": "c(\"darkblue\",\"purple4\",\"green\",\"red\",\"darkcyan\",\"magenta2\",\"orange\",\"yellow\",\"black\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Legend",
+			"displayName": "Legend",
+			"description": "Add legends.  Default is TRUE",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Number_of_PCs",
+			"displayName": "Number of PCs",
+			"description": "Number of Principal Components to calculate t-SNE.  Default is 30.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "30",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Save_Plot",
+			"displayName": "Save Plot",
+			"description": "Save plot.  Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Filename",
+			"displayName": "Filename",
+			"description": "Output filename",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "plot.html",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Filename for RDS file containing the Seurat Object.  Default is seurat_object.rds",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Plot 3D Dimensionality Reduction [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

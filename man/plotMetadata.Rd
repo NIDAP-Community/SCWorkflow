@@ -59,3 +59,14 @@ For each column selected, this template will produce a plot
 This is a downstream template for the Single-cell RNA-seq workflow
 (requires dataset where Filter/QC/SingleR annotations have been run first)
 }
+\examples{
+\dontrun{
+out <- plotMetadata(
+  object = anno_so,
+  samples.to.include = c("sample1", "sample2"),
+  metadata.to.plot = c("celltype", "orig.ident"),
+  columns.to.summarize = c(),
+  reduction.type = "umap"
+)
+}
+}

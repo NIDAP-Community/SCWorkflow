@@ -30,6 +30,7 @@ Depends:
 Imports:
     anndata (>= 0.7.5.2),
     BiocManager,
+    BiocParallel,
     callr (>= 3.7.1),
     celldex,
     colorspace,
@@ -45,6 +46,7 @@ Imports:
     future.apply (>= 1.9.0),
     gargle (>= 1.2.0),
     gdata,
+    ggalluvial,
     ggExtra,
     ggplot2 (>= 3.3.6),
     ggpubr (>= 0.4.0),

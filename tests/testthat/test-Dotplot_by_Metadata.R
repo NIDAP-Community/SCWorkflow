@@ -3,7 +3,7 @@ test_that("dotplot run with normal parameters - TEC Data", {
   output <- do.call(dotPlotMet, tec.data)
 
   expect_type(output, "list")
-  expected.elements <- c("plot", "pct", "exp")
+  expected.elements <- c("plots","data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
@@ -19,7 +19,7 @@ test_that("dotplot run with reversed axes - TEC Data", {
   output <- do.call(dotPlotMet, tec.data)
   
   expect_type(output, "list")
-  expected.elements <- c("plot", "pct", "exp")
+  expected.elements <- c("plots","data")
   expect_setequal(names(output), expected.elements)
   
   skip_on_ci()
@@ -35,7 +35,7 @@ test_that("dotplot run with different color - TEC Data", {
   output <- do.call(dotPlotMet, tec.data)
 
   expect_type(output, "list")
-  expected.elements <- c("plot", "pct", "exp")
+  expected.elements <- c("plots","data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()
@@ -102,7 +102,7 @@ test_that("dotplot produced and contingency table returned - Chariou Data", {
   output <- do.call(dotPlotMet, chariou.data)
 
   expect_type(output, "list")
-  expected.elements <- c("plot", "pct", "exp")
+  expected.elements <- c("plots","data")
   expect_setequal(names(output), expected.elements)
   
   skip_on_ci()
@@ -118,7 +118,7 @@ test_that("dotplot produced and contingency table returned - PBMC-single Data",
         output <- do.call(dotPlotMet, pbmc.single.data)
 
         expect_type(output, "list")
-        expected.elements <- c("plot", "pct", "exp")
+        expected.elements <- c("plots","data")
         expect_setequal(names(output), expected.elements)
 
         skip_on_ci()
@@ -135,7 +135,7 @@ test_that("dotplot produced and contingency table returned - NSCLC-multi Data",
                      "^There are")
 
       expect_type(output, "list")
-      expected.elements <- c("plot", "pct", "exp")
+      expected.elements <- c("plots","data")
       expect_setequal(names(output), expected.elements)
 
       skip_on_ci()
@@ -151,7 +151,7 @@ test_that("dotplot produced and contingency table returned - BRCA Data", {
                  "^There are")
 
   expect_type(output, "list")
-  expected.elements <- c("plot", "pct", "exp")
+  expected.elements <- c("plots","data")
   expect_setequal(names(output), expected.elements)
 
   skip_on_ci()

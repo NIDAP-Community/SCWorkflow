@@ -1,0 +1,125 @@
+{
+	"codeTemplate": "DEGMarkers <- function({{{Seurat_Object}}},{{{sample_table}}},{{{metadata_table}}}) {\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n\n    seurat_object <- {{{Seurat_Object}}}\n    metadata_table <- {{{metadata_table}}}\n\n# Samples and Assay parameters\n    samples <- '{{{samples}}}'\n    assay_to_use <- \"{{{Assay_to_Use}}}\"\n\n# Contrasts parameters\n    parameter_to_test <- \"{{{parameter_to_test}}}\"\n    contrasts <- {{{contrasts}}}\n\n# Test parameters\n    test_to_use <- \"{{{Test_to_Use}}}\"\n    log_fc_threshold <- {{{Log_Fold_Change_Threshold}}}\n\n\n## Presetting to FALSE\n    use_spark <- FALSE\n\n\n    ##--------------- ##\n    ## Error Messages ##\n    ## -------------- ##\n    \n    \n    ## --------- ##\n    ## Functions ##\n    ## --------- ##\n\n\n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n\n\n   ## Load SO \n        cat(\"Reading Seurat Object from dataset: seurat_object.rds\\n\\n\")\n        fs <- seurat_object$fileSystem()\n        path <- fs$get_path(\"seurat_object.rds\", 'r')\n        SO <- readRDS(path)\n        print(SO)\n\nresults <- degGeneExpressionMarkers(object = SO,\n                                     samples = samples,\n                                     contrasts = contrasts,\n                                     parameter.to.test = parameter_to_test,\n                                     test.to.use = test_to_use,\n                                     log.fc.threshold = log_fc_threshold,\n                                     use.spark = use_spark,\n                                     assay.to.use = assay_to_use)\n\n### ----------------------------------------------- ###\n### Josh Edit 2024-08-20 through 2024-08-30 - Begin ###\n### ----------------------------------------------- ###\n\n### Purpose of this edit is to bring output table in-line with \n### column name expectations from GSEA downstream. Column names \n### should be more similar to those from Bulk DEG Analysis output\n### when we are done.\n\n# Original column names\noriginal_colnames <- colnames(results$df)\n\n# Function to rename columns based on pattern matching\nrename_columns <- function(colnames, pattern, suffix) {\n  # Identify columns that match the pattern\n  matched <- grepl(pattern, colnames)\n  \n  # Apply the transformation only to the matching columns\n  colnames[matched] <- gsub(\n    pattern = paste0(\"^\", pattern),             # Match the specific pattern at the start\n    replacement = \"C_\",                         # Replace pattern with \"C_\"\n    x = colnames[matched]\n  )\n  \n  # Append the suffix to the columns that were matched\n  colnames[matched] <- gsub(\n    pattern = \"C_(.*)_vs_(.*)\",                 # Capture the parts after \"C_\"\n    replacement = paste0(\"C_\\\\1_vs_\\\\2\", suffix), # Reconstruct the name and append the suffix\n    x = colnames[matched]\n  )\n  \n  return(colnames)\n}\n\n# Apply the renaming function for various patterns with their corresponding suffixes\nnew_colnames <- original_colnames\nnew_colnames <- rename_columns(new_colnames, \"p_val_adj_\", \"_adjpval\")\nnew_colnames <- rename_columns(new_colnames, \"avg_log2FC_\", \"_logFC\")\nnew_colnames <- rename_columns(new_colnames, \"pct.1_\", \"_pct1\")\nnew_colnames <- rename_columns(new_colnames, \"pct.2_\", \"_pct2\")\nnew_colnames <- rename_columns(new_colnames, \"p_val_\", \"_pval\")\n\n# Update the column names in the dataframe\ncolnames(results$df) <- new_colnames\n\n# # Function to calculate t-statistics after removing rows with NA values\n# calculate_tstat <- function(df, logfc_col, pval_col) {\n#   logFC <- df[[logfc_col]]\n#   pval <- df[[pval_col]]\n  \n#   # Ensure columns are numeric\n#   logFC <- as.numeric(logFC)\n#   pval <- as.numeric(pval)\n  \n#   # Remove rows with NA values in either column\n#   valid_indices <- !is.na(logFC) & !is.na(pval)\n#   logFC <- logFC[valid_indices]\n#   pval <- pval[valid_indices]\n  \n#   # Calculate t-statistic\n#   tstat <- sign(logFC) * sqrt(qchisq(1 - pval, df = 1))\n  \n#   # Initialize the tstat column with NA values and fill in the valid rows\n#   tstat_col <- rep(NA, nrow(df))\n#   tstat_col[valid_indices] <- tstat\n  \n#   return(tstat_col)\n# }\n\n# # Identify contrasts from column names, excluding non-contrast columns\n# all_colnames <- colnames(results$df)\n# contrast_patterns <- c(\"pval_\", \"logFC_\", \"pct1_\", \"pct2_\", \"adjpval_\")\n# contrast_cols <- all_colnames[grepl(\"^C_.*_(pval|logFC|pct1|pct2|adjpval)$\", all_colnames)]\n# contrasts <- unique(gsub(\"C_(.*?)_(pval|logFC|pct1|pct2|adjpval)$\", \"\\\\1\", contrast_cols))\n\n# # Exclude the \"Gene\" column from contrasts\n# contrasts <- contrasts[contrasts != \"Gene\"]\n\n# # Loop through each contrast and calculate the t-statistic\n# for (contrast in contrasts) {\n#   logfc_col <- paste0(\"C_\", contrast, \"_logFC\")\n#   pval_col <- paste0(\"C_\", contrast, \"_pval\")\n  \n#   # Ensure columns exist in the dataframe\n#   if (logfc_col %in% colnames(results$df) && pval_col %in% colnames(results$df)) {\n#     cat(\"Processing contrast:\", contrast, \"\\n\")\n    \n#     # Calculate t-statistic\n#     tstat <- calculate_tstat(results$df, logfc_col, pval_col)\n    \n#     # Add t-statistic column to the dataframe\n#     results$df[[paste0(\"C_\", contrast, \"_tstat\")]] <- tstat\n#   } else {\n#     warning(paste(\"Columns\", logfc_col, \"or\", pval_col, \"do not exist in the dataframe.\"))\n#   }\n# }\n\n# View the updated dataframe with updated column names\nhead(results$df)\n\n# View the updated column names\ncolnames(results$df)\n\n### --------------------------------------------- ###\n### Josh Edit 2024-08-20 through 2024-08-30 - End ###\n### --------------------------------------------- ###\n\n    return(results$df)\n\n}\n\n\n",
+	"columns": [
+		{
+			"key": "samples",
+			"displayName": "Samples",
+			"description": "Please select your samples that you would like to include. You may Add all and then deselect those you wish to exclude from analysis.",
+			"paramGroup": "Samples and Assay ",
+			"sourceDataset": "sample_table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "parameter_to_test",
+			"displayName": "Parameter to Test",
+			"description": "Please select the metadata column that you would like to use to perform your DEG analysis and construct your contrasts from.",
+			"paramGroup": "Contrasts",
+			"sourceDataset": "metadata_table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template performs a DE (differential expression) analysis on a merged Seurat object to identify expression markers between different groups of cells (contrasts). This analysis uses the FindMarkers() function of the Seurat Workflow. Final Potomac Compatible Version: v87. Final Sugarloaf V2: v93. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.b5a0a717-1f45-499b-8e9b-388299bf22a3)",
+	"externalId": "DE_with_Find_Markers_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Select an input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "sample_table",
+			"displayName": "Sample Table",
+			"description": "Select an input table with Sample Names for column headers. These samples names should match the orig.idents in the input Seurat Object. Usually, this is the output from the \"Get Sample Names\" template run on the same input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		},
+		{
+			"key": "metadata_table",
+			"displayName": "Metadata Table",
+			"description": "Select the Metadata Table from the input Seurat Object. This should be the output table from the \"Get Metadata Table\" template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Assay_to_Use",
+			"displayName": "Assay to Use",
+			"description": "This is the assay to use for your DEG analysis. Default is SCT, but can use linearly scaled data by selecting RNA instead.",
+			"paramType": "SELECT",
+			"paramGroup": "Samples and Assay ",
+			"paramValues": [
+				"SCT",
+				"RNA",
+				"Spatial"
+			],
+			"defaultValue": "SCT",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "contrasts",
+			"displayName": "Contrasts",
+			"description": "Please input your contrasts in the \"A-B\" format. For example, to test A vs. B, input \"A-B.\" To include \"B-C\", add a second contrast and input \"B-C.\" To test A vs all other cell groups, input \"A-all.\"",
+			"paramType": "VECTOR",
+			"paramGroup": "Contrasts",
+			"paramValues": null,
+			"defaultValue": "c(\"1-2\",\"3-all\")",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Test_to_Use",
+			"displayName": "Test to Use",
+			"description": "Please select the kind of algorithm you would like to use to perform your DEG analysis. Default is the MAST algorithm.",
+			"paramType": "SELECT",
+			"paramGroup": "Test",
+			"paramValues": [
+				"wilcox",
+				"bimod",
+				"roc",
+				"t",
+				"negbinom",
+				"poisson",
+				"LR",
+				"MAST",
+				"DESeq2"
+			],
+			"defaultValue": "MAST",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Log_Fold_Change_Threshold",
+			"displayName": "Log Fold-Change Threshold",
+			"description": "Input the minimum log fold-change between contrasts that you would like to analysize. Increasing the log-fold change will decrease the number of genes identified and raise the bar for genotypic difference between the two contrast groups. Lowering the log-fold change will increase the number of genes identified, but include genes with a lower degree of expression difference.",
+			"paramType": "NUMBER",
+			"paramGroup": "Test",
+			"paramValues": null,
+			"defaultValue": "0",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "DE with Find Markers [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

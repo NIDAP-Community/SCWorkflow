@@ -4,17 +4,19 @@ getModuleScoreParam <- function(data){
     
       object = selectCRObject("TEC")
       marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
-      ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+      ms.threshold = paste(colnames(marker.table)[1:3], rep(0, ncol(marker.table)))
+      use.columns = colnames(marker.table)[1:3]
       general.class = colnames(marker.table)[1:3]
-      #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
+      # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
 
   } else if (data == "chariou") {
     
       object = selectCRObject("Chariou")
       marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
-      ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+      ms.threshold = paste(colnames(marker.table)[1:3], rep(0, ncol(marker.table)))
+      use.columns = colnames(marker.table)[1:3]
       general.class = colnames(marker.table)[1:3]
-      #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
+      # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
       
   } else if (data == "pbmc.single") {
     
@@ -27,8 +29,9 @@ getModuleScoreParam <- function(data){
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
     ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    use.columns = colnames(marker.table)
     general.class = colnames(marker.table)
-    #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
+    # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
     
   } else if (data == "nsclc.multi") {
 
@@ -41,8 +44,9 @@ getModuleScoreParam <- function(data){
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
     ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    use.columns = colnames(marker.table)
     general.class = colnames(marker.table)
-    #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
+    # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
 
   } else if (data == "brca") {
 
@@ -55,21 +59,30 @@ getModuleScoreParam <- function(data){
                               rand_type3 = sample(rownames(object), 5, 
                                                   replace = FALSE))
     ms.threshold = paste(colnames(marker.table), rep(0, ncol(marker.table)))
+    use.columns = colnames(marker.table)
     general.class = colnames(marker.table)
-    #lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
+    # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
     
   }
   
   return(list("object" = object, 
               "ms.threshold"= ms.threshold, 
-              "lvl.vec" = lvl.vec, 
+               # "lvl.vec" = lvl.vec, 
               "marker.table" = marker.table, 
-              "general.class" = general.class
+              "general.class" = general.class,
+              "use.columns"=use.columns
               ))  
 }
 
-.drawMSfig <- function(x, width = 10, height = 10){
+.drawMSfig <- function(x, width = 10, height = 10, index = 1){
+  target <- x
+  if (is.list(x) && all(c("object", "figures") %in% names(x))) {
+    if (length(x$figures) < index) {
+      stop("Requested index exceeds available figures")
+    }
+    target <- x$figures[[index]]
+  }
   path <- tempfile(fileext = ".png")
-  ggsave(path, x, width = 10, height = 10)
+  ggsave(path, target, width = 10, height = 10)
   print(path)
 }

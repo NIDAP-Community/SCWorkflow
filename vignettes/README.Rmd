@@ -1,0 +1,99 @@
+---
+title: "SCWorkflow-Intro"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SCWorkflow-Intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# SCWorkflow
+
+The CCBR Single-cell RNA-seq Package (SCWorkflow) allows users to analyze their own single-cell RNA-seq datasets starting from CellRanger output files (H5 or mtx files, etc.).
+
+
+
+## Installation
+
+---
+
+You can install the SCWorkflow package from [GitHub](https://github.com/NIDAP-Community/SCWorkflow) with:
+
+```r
+# install.packages("remotes")
+remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)
+```
+
+
+
+There is also a Docker container available at 
+
+```sh
+
+```
+
+
+## Usage
+
+---
+
+Following this workflow you can perform these steps of a single-cell RNA-seq analysis, and more:
+
+- Quality Control:
+
+  - Import, Select, & Rename Samples
+
+  - Filter Cells based on QC metrics
+
+  - Combine Samples, Cluster, and Normalize your Data
+
+  - Batch Correction using Harmony
+
+- Cell Annotation:
+
+  - SingleR Automated Annotations
+
+  - Module Scores
+
+  - Co-Expression
+
+  - External Annotations
+
+- Visualizations:
+
+  - Dimensionality Reductions (t-SNE and UMAP Plots) colored by Marker Expression or by Metadata
+
+  - Heatmaps
+
+  - Violin Plots
+
+  - Trajectory
+
+- Differential Expression Analysis
+
+  - Seurat's FindMarkers()
+
+  - Pseudobulk Aggregation
+
+  - Pathway Analysis
+
+
+
+Please see the [introductory vignette](https://ccbr.github.io/SCWorkflow/articles/intro.html)
+for a quick start tutorial.
+Take a look at the [reference documentation](https://ccbr.github.io/SCWorkflow/reference/index.html)
+for detailed information on each function in the package.
+
+

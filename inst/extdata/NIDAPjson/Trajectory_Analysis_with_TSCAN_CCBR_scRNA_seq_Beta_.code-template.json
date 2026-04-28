@@ -1,0 +1,56 @@
+{
+	"codeTemplate": "Trajectory_CellTypes <- function({{{Seurat_Object}}},{{{MetaData}}}) {\n ## Trajectory analysis\n   \n ## Basic Parameters:\n    seurat_object = {{{Seurat_Object}}}\n    UserFacing_MetaData = {{{MetaData}}}\n    SelectedColumnName <- \"{{{Clusters_to_Use}}}\"\n ## Advanced Parameters:\n    seurat_object_filename <- \"seurat_object.rds\"\n    custom_gene_list <- \"{{{Custom_Gene_List}}}\"\n\n\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(\"SCWorkflow\")\n\n    library(Seurat)\n    library(ggplot2)\n    library(grid)\n    library(gridExtra)\n\n    library(scran)\n    library(scater)\n    library(TSCAN)\n    library(mclust)\n    #library(igraph)\n\n ## Modifying Custom Gene List:\n ## Replace commas with spaces and split the string\nsplit_values <- unlist(strsplit(gsub(\",\", \" \", custom_gene_list), \" \"))\ncustom_gene_list <- split_values[split_values != \"\"]\n\n ## Input SO.\n    cat(\"Reading Seurat Object from dataset: seurat_object.rds\\n\\n\")\n    path <- nidapGetPath(seurat_object,seurat_object_filename)\n    so <- readRDS(path)\n\n## Workaround Dots and Underscores\nRealMetadata <- so@meta.data\nLABEL <- colnames(RealMetadata[match(SelectedColumnName,names(UserFacing_MetaData))-1])\n\n## Cleaning a gene List\nGeneList <- rownames(so@assays$RNA@counts)\nprint(\"The following genes were used:\")\nprint(intersect(custom_gene_list, GeneList)) \n\nprint(\"The following genes were not found:\")\nprint(setdiff(custom_gene_list, GeneList))\n\ncustom_gene_list <- intersect(custom_gene_list, GeneList)\n\n## Part I: Trajectory\n\nIdents(so) <- LABEL\ndimplot <- DimPlot(so)\nsce <- as.SingleCellExperiment(so)\ncolLabels(sce) <- colData(sce)[[LABEL]] \n\nby.cluster <- aggregateAcrossCells(sce, ids=colLabels(sce))\ncentroids <- reducedDim(by.cluster, \"PCA\")\n\n# Set clusters=NULL as we have already aggregated above.\nmst <- TSCAN::createClusterMST(centroids, clusters=NULL)\n\nline.data <- reportEdges(by.cluster, mst=mst, clusters=NULL, use.dimred=\"TSNE\")\nplot_tsne1 <- plotTSNE(sce, colour_by=\"label\") + geom_line(data=line.data, mapping=aes(x=tSNE_1, y=tSNE_2, group=edge))\n\n# Lets also try UMAP:\nline.data.umap <- reportEdges(by.cluster, mst=mst, clusters=NULL, use.dimred=\"UMAP\")\nplot_umap1 <- plotUMAP(sce, colour_by=\"label\") + geom_line(data=line.data.umap, mapping=aes(x=UMAP_1, y=UMAP_2, group=edge))\n\nmap.tscan <- mapCellsToEdges(sce, mst=mst, use.dimred=\"PCA\")\ntscan.pseudo <- orderCells(map.tscan, mst)\n##head(tscan.pseudo)\n\ncommon.pseudo <- averagePseudotime(tscan.pseudo) \n\nplot_tsne2 <- plotTSNE(sce, colour_by=I(common.pseudo), \n                       text_by=\"label\", text_colour=\"red\") +\n  geom_line(data=line.data, mapping=aes(x=tSNE_1, y=tSNE_2, group=edge)) +\n  ggtitle(\"TSCAN-based MST\")\n\nplot_umap2 <- plotUMAP(sce, colour_by=I(common.pseudo), \n                       text_by=\"label\", text_colour=\"red\") +\n  geom_line(data=line.data.umap, mapping=aes(x=UMAP_1, y=UMAP_2, group=edge)) +\n  ggtitle(\"TSCAN-based MST\")\n\n\n## Part II: Pseudotime\n\npseudo.all <- TSCAN::quickPseudotime(sce, use.dimred=\"PCA\")\n#head(pseudo.all$ordering)\n\n\npseudo.mnn <- TSCAN::quickPseudotime(sce, use.dimred=\"PCA\", with.mnn=TRUE)\nmnn.pseudo <- averagePseudotime(pseudo.mnn$ordering)\nplot_tsne3 <- plotTSNE(sce, colour_by=I(mnn.pseudo), text_by=\"label\", text_colour=\"red\") +\n  geom_line(data=pseudo.mnn$connected$TSNE, mapping=aes(x=tSNE_1, y=tSNE_2, group=edge)) +\n  ggtitle(\"TSCAN with MNN distances-based MST\")\nplot_umap3 <- plotUMAP(sce, colour_by=I(mnn.pseudo), text_by=\"label\", text_colour=\"red\") +\n  geom_line(data=pseudo.mnn$connected$UMAP, mapping=aes(x=UMAP_1, y=UMAP_2, group=edge)) +\n  ggtitle(\"TSCAN with MNN distances-based MST\")\n              \n\n## Part III\n### From Chapter 10.3.2, Changes along a trajectory\nsce$Pseudotime <- pathStat(tscan.pseudo)[,1]\n#sce$TSCAN.first <- pathStat(tscan.pseudo)[,1]\n#sce$TSCAN.second <- pathStat(tscan.pseudo)[,2]\npseudo <- TSCAN::testPseudotime(sce, pseudotime=tscan.pseudo[,1])[[1]]\nsorted <- pseudo[order(pseudo$p.value),]\n\nup.left <- sorted[sorted$logFC < 0,]\nup.left$SYMBOL <- rownames(up.left)\nbest <- head(up.left$SYMBOL, 10)\n\nTopDecrease <- plotExpression(sce, features=best, x=\"Pseudotime\", colour_by=\"label\", ncol = 5) + ggtitle(\"Expression of the top 10 genes that decrease in expression with increasing pseudotime\")\n\nup.right <- sorted[sorted$logFC > 0,]\nup.right$SYMBOL <- rownames(up.right)\nbest <- head(up.right$SYMBOL, 10)\nTopIncrease <- plotExpression(sce, features=best, x=\"Pseudotime\", colour_by=\"label\", ncol = 5) + ggtitle(\"Expression of the top 10 genes that increase in expression with increasing pseudotime\")\n\n\non.first.path <- !is.na(sce$Pseudotime)\n\n\n## Printing Pretty Pics:\nprint(dimplot)\n\nset.seed(1)\nplot(pseudo.all$mst) \n\nprint(plot_tsne1)\ngrid.arrange(plot_tsne2, plot_tsne3, ncol = 2)\n\nprint(plot_umap1)\ngrid.arrange(plot_umap2, plot_umap3, ncol = 2)\n\nplot(TopDecrease)\nplot(TopIncrease)\nplotHeatmap(sce[,on.first.path], order_columns_by=\"Pseudotime\", colour_columns_by=\"label\", features=head(up.right$SYMBOL, 50), center=TRUE, main=\"Expression of the top 50 genes that increase in expression with increasing pseudotime\")\nplotHeatmap(sce[,on.first.path], order_columns_by=\"Pseudotime\", colour_columns_by=\"label\", features=head(up.left$SYMBOL, 50), center=TRUE, main=\"Expression of the top 50 genes that decrease in expression with increasing pseudotime\")\n\n\nif(length(custom_gene_list) > 0)\n   {\n     CustomScatter <- plotExpression(sce, features=custom_gene_list, x=\"Pseudotime\", colour_by=\"label\", ncol = 5) + \n          ggtitle(\"Expression of genes with increasing pseudotime\")\n     plot(CustomScatter)\n\n     plotHeatmap(sce[,on.first.path],\n          order_columns_by=\"Pseudotime\",\n          colour_columns_by=\"label\",\n          features=custom_gene_list,\n          center=TRUE,\n          main=\"Expression of genes with increasing pseudotime\")\n   }\n\n\nreturn(NULL)\n\n}\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# R.cache depends on a home folder\nSys.setenv(R_USER_CACHE_DIR = Sys.glob(file.path(R.home())));",
+	"columns": [
+		{
+			"key": "Clusters_to_Use",
+			"displayName": "Clusters to Use",
+			"description": "Please pick a column containing clustering information (such as \"SCT_snn_res.0.2\", for example) you want to be used in this analysis",
+			"paramGroup": null,
+			"sourceDataset": "MetaData",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "Application of TSCAN Trajectory Analysis method to preClustered Seurat Object.\n\n*This template is a Beta version and is undergoing active development. If you encounter problems, please contact CCBR* [NCICCBRNIDAP@mail.nih.gov](mailto:NCICCBRNIDAP@mail.nih.gov)",
+	"externalId": "Trajectory_Analysis_with_TSCAN_CCBR_scRNA_seq_Beta_",
+	"inputDatasets": [
+		{
+			"key": "Seurat_Object",
+			"displayName": "Seurat Object",
+			"description": "Please select a Seurat Object (with clusters) to use as INPUT",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "MetaData",
+			"displayName": "MetaData",
+			"description": "Please choose a metadata table for your Seurat Object. Usually this is an output of \"Get Metadata\" template",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Custom_Gene_List",
+			"displayName": "Custom Gene List",
+			"description": "If you want to create scatter plot and heatmap for your custom gene list, please provide your gene list here (comma-separated or space-separated)",
+			"paramType": "STRING",
+			"paramGroup": null,
+			"paramValues": null,
+			"defaultValue": null,
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Trajectory Analysis with TSCAN [CCBR] [scRNA-seq] [Beta]",
+	"templateApiVersion": "0.1.0"
+}

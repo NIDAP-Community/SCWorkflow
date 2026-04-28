@@ -1,0 +1,334 @@
+{
+	"codeTemplate": "CoExpression_SO <- function({{{seurat_object}}},{{{sample_names}}}) {  # produces 2 color channels and the overlay\n\n    ## --------- ##\n    ## Libraries ##\n    ## --------- ##\n\n    library(nidapFunctions)\n    nidapLoadPackages(c(\"SCWorkflow\",\"Seurat\",\"tibble\",\"dplyr\",\"ggplot2\",\"ggExtra\",\"grid\",\"gridExtra\",\"scales\"))\n\n    ## -------------------------------- ##\n    ## User-Defined Template Parameters ##\n    ## -------------------------------- ##\n    \n    #Primary inputs:\n    seurat_object <- {{{seurat_object}}}\n\n    #Basic Parameters:\n    samples <- {{{samples_to_include}}}\n    marker1 <- \"{{{marker_1}}}\"\n    marker_1_threshold <- {{{Marker_1_Threshold}}}\n    marker_1_type <- \"{{{Marker_1_Assay}}}\"\n    marker2 <- \"{{{marker_2}}}\"\n    marker_2_threshold <- {{{Marker_2_Threshold}}}\n    marker_2_type <- \"{{{Marker_2_Assay}}}\"\n    \n    #Filter Parameters:\n    filter_data <- TRUE\n    parameter_name <- \"{{{New_Metadata_Column_Name}}}\"\n    marker.1.filter.direction <- \"{{{Marker_1_Filter_Direction}}}\"\n    marker.2.filter.direction <- \"{{{Marker_2_Filter_Direction}}}\"\n    apply_filter_1 <- {{{Apply_Marker_1_Filter}}}\n    apply_filter_2 <- {{{Apply_Marker_2_Filter}}}\n    filter_condition <- {{{Filter_Type}}}\n    \n    #Visualization Parameters:\n    data_reduction <- \"{{{data_reduction}}}\"\n    add_marker_thresholds <- {{{Add_Marker_Thresholds}}}\n    point_size <- {{{Point_Size}}}\n    point_shape <- {{{Point_Shape}}}\n    point_transparency <- {{{point_transparency}}}\n\n    #Advanced Parameters:\n    trim_marker_1 <- {{{Trim_Marker_1}}}\n    trim_marker_2 <- {{{Trim_Marker_2}}}\n    pre_scale_trim <- {{{pre_scale_trim}}}    \n    display_unscaled_values <- {{{Display_Unscaled_Values}}}\n    seurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\n\n    ## -------------------------------- ##\n    ## Functions                        ##\n    ## -------------------------------- ##\n    \n    path <- nidapGetPath(seurat_object, seurat_object_filename)\n    so <- readRDS(path)\n    \n    #In case of NIDAPism:\n    colnames(so@meta.data)[colnames(so@meta.data) == \"orig_ident\"] <- \"orig.ident\"\n\n    so.result <- dualLabeling(object = so,\n                           samples = samples,\n                           marker.1 = marker1,\n                           marker.2 = marker2,\n                           marker.1.type = marker_1_type,\n                           marker.2.type = marker_2_type,\n                           data.reduction = data_reduction,\n                           point.size = point_size,\n                           point.shape = point_shape,\n                           point.transparency = point_transparency,\n                           add.marker.thresholds = add_marker_thresholds,\n                           marker.1.threshold = marker_1_threshold,\n                           marker.2.threshold = marker_2_threshold,\n                           filter.data = filter_data,\n                           marker.1.filter.direction = marker.1.filter.direction,\n                           marker.2.filter.direction = marker.2.filter.direction,\n                           apply.filter.1 = apply_filter_1,\n                           apply.filter.2 = apply_filter_2,\n                           filter.condition = filter_condition,\n                           parameter.name = parameter_name,\n                           trim.marker.1 = trim_marker_1,\n                           trim.marker.2 = trim_marker_2,\n                           pre.scale.trim = pre_scale_trim,\n                           display.unscaled.values = display_unscaled_values) \n\n    #First plot showing tSNE or UMAP \nif (data_reduction=='tsne'|data_reduction=='umap') {      \n      \n      grid.draw(so.result$plot)\n\n    } else if (data_reduction=='both'){\n      \n       grid.draw(so.result$plot_umap)\n       grid.newpage()\n       grid.draw(so.result$plot_tsne)\n    }\n\n\n\n    #First plot showing Density Heatmap\n    grid.newpage()\n    grid.draw(so.result$plot_densityHM)\n\n    #Second plot showing numbers of cells annotated for filtering\n    g <- so.result$plot_table\n    g$width <- g$width * 2\n    g$height <- g$height * 2\n    grid.newpage()\n    grid.draw(g)\n\n    output <- new.output()\n    output_fs <- output$fileSystem()\n    saveRDS(so.result$object, output_fs$get_path(\"seurat_object.rds\", 'w'))\n\n    return(so.result$object)\n}\n\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# Functions defined here will be available to call in\n# the code for any table.\n\ndualLabeling <- function (object, \n                          samples, \n                          marker.1, \n                          marker.2, \n                          marker.1.type = \"SCT\", \n                          marker.2.type = \"SCT\", \n                          data.reduction = \"both\", \n                          point.size = 0.5, \n                          point.shape = 16, \n                          point.transparency = 0.5, \n                          add.marker.thresholds = TRUE, \n                          marker.1.threshold = 0.5, \n                          marker.2.threshold = 0.5, \n                          filter.data = TRUE, \n                          marker.1.filter.direction = \"greater than\", \n                          marker.2.filter.direction = \"greater than\", \n                          apply.filter.1 = TRUE, \n                          apply.filter.2 = TRUE, \n                          filter.condition = TRUE, \n                          parameter.name = \"My_CoExp\", \n                          trim.marker.1 = FALSE, \n                          trim.marker.2 = FALSE, \n                          pre.scale.trim = 0.99, \n                          display.unscaled.values = FALSE) \n{\n    \n  #### Error Messages ####\n  \n  #Errors for genes not available in dataset/slot\n    if (!(marker.1 %in% rownames(object))) {\n        stop(sprintf(\"%s is not found in dataset\", marker.1))\n    }\n    if (!(marker.2 %in% rownames(object))) {\n        stop(sprintf(\"%s is not found in dataset\", marker.2))\n    }\n    if (!(marker.1.type %in% names(object@assays))) {\n        stop(sprintf(\"%s slot is not found in dataset\", marker.1.type))\n    }\n    if (!(marker.2.type %in% names(object@assays))) {\n        stop(sprintf(\"%s slot is not found in dataset\", marker.2.type))\n    }\n    if (data.reduction=='both') {\n      if(sum(c('tsne','umap')%in%names(object@reductions))<2){\n        rdctns=names(object@reductions)[names(object@reductions)%in%c('umap','tsne')]\n      stop(sprintf(\"Object does not contain both umap and tsne reductions.\n       Change Data Reduction parameter to %s\",\n                   paste(rdctns,collapse=' or ')\n                   )\n           )\n      }\n    }else{ \n      if (data.reduction%in%names(object@reductions)==F){\n        stop(sprintf(\"Object does not contain %s reduction. \\n    \",\n                     data.reduction),\n             sprintf(\"Change Data Reduction parameter to %s\",\n                c('tsne','umap')[c('tsne','umap')%in%names(object@reductions)])\n        )\n      }\n    }\n  #### Functions ####\n  \n  #Function for drawing overlay images for umap/tsne:\n    .ggOverlay <- function(so.sub, df, marker.1, marker.2,reduction) {\n        df <- df %>% arrange(mark1.scale)\n        \n        xmin <- min(df$dr1) - 0.1 * min(df$dr1)\n        xmax <- max(df$dr1) + 0.1 * min(df$dr1)\n        \n        #ggplot for umap/tsne (marker 1)\n        gg.z1 <- ggplot(df, aes(dr1, dr2)) + \n          geom_point(\n            color = rgb(\n            red = df$mark1.scale, \n            green = 0, \n            blue = 0\n            ), \n            shape = point.shape, \n            size = point.size, \n            alpha = point.transparency\n          ) + \n          theme_classic() + \n          xlab(paste0(reduction, \"-1\")) + \n          ylab(paste0(reduction, \"-2\")) + \n          ggtitle(marker.1) + \n          coord_fixed()\n        \n        df <- df %>% arrange(mark2.scale)\n        \n        #ggplot for umap/tsne (marker 2)\n        gg.z2 <- ggplot(df, aes(dr1, dr2)) + \n          geom_point(\n            color = rgb(\n              red = 0, \n              green = df$mark2.scale, \n              blue = 0\n              ), \n            shape = point.shape, \n            size = point.size, \n            alpha = point.transparency\n          ) + \n          theme_classic() + \n          xlab(paste0(reduction, \"-1\")) + \n          ylab(paste0(reduction, \"-2\")) + \n          ggtitle(marker.2) + \n            coord_fixed()\n        \n        df <- df %>% \n          mutate(avg = mark2.scale + mark1.scale) %>% \n            arrange(avg)\n        \n        #ggplot for umap/tsne (marker 1 & marker 2)\n        gg <- ggplot(df, aes(dr1, dr2)) + \n          geom_point(\n            color = rgb(\n              red = df$mark1.scale, \n              green = df$mark2.scale, \n              blue = 0\n            ), \n            shape = point.shape, \n            size = point.size, \n            alpha = point.transparency\n          ) + \n            theme_classic() + \n          xlab(paste0(reduction, \"-1\")) + \n          ylab(paste0(reduction, \"-2\")) + \n          ggtitle(\"Combined\") + \n          coord_fixed()\n        \n        return(list(gg.z1, gg.z2, gg))\n    }\n\n    #Function for plotting expression data in xy overlay format:\n    .ggOverlay2 <- function(so.sub, df, marker.1, marker.2) {\n        df <- df %>% arrange(mark1.scale)\n        # Create unscaled axis labels\n        \n        if (display.unscaled.values == TRUE) {\n            label1.min <- \n              paste(\"unscaled min:\", round(min(mark1),digits = 2))\n            label1.max <- paste(\"unscaled max:\", round(max(mark1), digits = 2))\n            label1 <- \n              paste(as.character(marker.1), label1.min, label1.max, sep = \"\\n\")\n            \n            label2.min <- \n              paste(\"unscaled min:\", round(min(mark2), digits = 2))\n            label2.max <- \n              paste(\"unscaled max:\", round(max(mark2), digits = 2))\n            label2 <- \n              paste(as.character(marker.2), label2.min, label2.max, sep = \"\\n\")\n        } else {\n          label1 <- as.character(marker.1)\n          label2 <- as.character(marker.2)\n        }\n        \n        #ggplot for scatter plot (marker 1)\n        gg.z1 <- ggplot(df, aes(mark1.scale, mark2.scale)) + \n            geom_point(\n              color = rgb(\n                red = df$mark1.scale, \n                green = 0, \n                blue = 0\n              ), \n              shape = 20, \n              size = point.size\n            ) + \n            theme_classic() + \n            xlab(label1) + \n            ylab(label2) + \n            coord_fixed()\n        \n        df <- df %>% arrange(mark2.scale)\n        \n        #ggplot for scatter plot (marker 2)\n        gg.z2 <- ggplot(df, aes(mark1.scale, mark2.scale)) + \n            geom_point(\n              color = rgb(\n                red = 0, \n                green = df$mark2.scale, \n                blue = 0\n              ), \n              shape = 20, \n              size = point.size\n            ) + \n            theme_classic() + \n            xlab(label1) + \n            ylab(label2) + \n            coord_fixed()\n        \n        df <- df %>% \n          mutate(avg = mark2.scale + mark1.scale) %>% \n          arrange(avg)\n        \n        #ggplot for scatter plot (marker 1 & marker.2)\n        gg <- ggplot(df, aes(mark1.scale, mark2.scale)) + \n          geom_point(\n            color = rgb(\n              red = df$mark1.scale, \n              green = df$mark2.scale, \n              blue = 0\n            ), \n            shape = 20, \n            size = point.size\n          ) + \n          theme_classic() + \n          xlab(label1) + \n          ylab(label2) + \n          coord_fixed()\n        \n        if (add.marker.thresholds == TRUE) {\n            gg.z1 <- gg.z1 + \n              geom_vline(xintercept = t1, linetype = \"dashed\") + \n              geom_hline(yintercept = t2, linetype = \"dashed\")\n            gg.z2 <- gg.z2 + \n              geom_vline(xintercept = t1, linetype = \"dashed\") + \n              geom_hline(yintercept = t2, linetype = \"dashed\")\n            gg <- gg + \n              geom_vline(xintercept = t1, linetype = \"dashed\") + \n              geom_hline(yintercept = t2, linetype = \"dashed\")\n        }\n        \n        return(list(gg.z1, gg.z2, gg))\n    }\n    \n    ## --------------- ##\n    ## Main Code Block ##\n    ## --------------- ##\n    \n    # Load and subset data using sample names\n    \n    if (\"active.ident\" %in% slotNames(object)) {\n        sample.name <- as.factor(object@meta.data$orig.ident)\n        names(sample.name) <- names(object@active.ident)\n        object@active.ident <- as.factor(vector())\n        object@active.ident <- sample.name\n        so.sub <- subset(object, ident = samples)\n    } else {\n        sample.name <- as.factor(object@meta.data$orig.ident)\n        names(sample.name) <- names(object@active.ident)\n        object@active.ident <- as.factor(vector())\n        object@active.ident <- sample.name\n        so.sub <- subset(object, ident = samples)\n    }\n    t1 <- marker.1.threshold\n    t2 <- marker.2.threshold\n    \n    \n    #Select marker 1 values and scale:\n    # use data slot for Spatial assay\n    if(marker.1.type == \"Spatial\"){\n        mark1 <- so.sub@assays[[marker.1.type]]@data[marker.1,]\n    } else {\n      mark1 <- so.sub@assays[[marker.1.type]]@scale.data[marker.1,]\n    }\n    if (trim.marker.1 == TRUE) {\n        q1 <- quantile(mark1, pre.scale.trim)\n        q0 <- quantile(mark1, 1 - pre.scale.trim)\n        mark1[mark1 < q0] <- q0\n        mark1[mark1 > q1] <- q1\n    }\n    mark1.scale <- rescale(mark1, to = c(0, 1))\n    \n    #Select marker 2 values and scale:\n    if(marker.2.type == \"Spatial\"){\n        mark2 <- so.sub@assays[[marker.2.type]]@data[marker.2, ]\n    } else {\n    mark2 <- so.sub@assays[[marker.2.type]]@scale.data[marker.2, ]\n    }\n\n    if (trim.marker.2 == TRUE) {\n        q1 <- quantile(mark2, pre.scale.trim)\n        q0 <- quantile(mark2, 1 - pre.scale.trim)\n        mark2[mark2 < q0] <- q0\n        mark2[mark2 > q1] <- q1\n    }\n    mark2.scale <- rescale(mark2, to = c(0, 1))\n    \n   \n    \n    if (data.reduction=='tsne'|data.reduction=='umap') {\n      \n      #Draw Plots:\n      df <- data.frame(\n        cbind(\n          dr1 = so.sub@reductions[[data.reduction]]@cell.embeddings[,1], \n          dr2 = so.sub@reductions[[data.reduction]]@cell.embeddings[,2], \n          mark1.scale, \n          mark2.scale\n        )\n      )\n      \n      gg.list <- .ggOverlay(so.sub, df, marker.1, marker.2,data.reduction)\n      gg.list2 <- .ggOverlay2(so.sub, df, marker.1, marker.2)\n      \n      grob <- \n        arrangeGrob(gg.list[[1]], \n                    gg.list[[2]], \n                    gg.list[[3]],\n                    gg.list2[[1]], \n                    gg.list2[[2]], \n                    gg.list2[[3]], \n                    ncol = 3)\n      \n      \n    } else if (data.reduction=='both'){\n      \n      #Draw Plots:\n      df.u <- data.frame(\n        cbind(\n          dr1 = so.sub@reductions[['umap']]@cell.embeddings[,1], \n          dr2 = so.sub@reductions[['umap']]@cell.embeddings[,2], \n          mark1.scale, \n          mark2.scale\n        )\n      )\n      gg.list.u <- .ggOverlay(so.sub, df.u, marker.1, marker.2,'umap')\n      \n      \n      #Draw Plots:\n      df.t <- data.frame(\n        cbind(\n          dr1 = so.sub@reductions[['tsne']]@cell.embeddings[,1], \n          dr2 = so.sub@reductions[['tsne']]@cell.embeddings[,2], \n          mark1.scale, \n          mark2.scale\n        )\n      )\n      gg.list.t <- .ggOverlay(so.sub, df.t, marker.1, marker.2,'tsne')\n      \n      \n      ## df.u being used is arbitrary. only difference between df.u and df.t is \n      ## reduction columns which are not being used by ggOverlay2\n      df=df.u[,colnames(df.u)%in%c('dr1','dr2')==F]\n      \n      gg.list2 <- .ggOverlay2(so.sub, df, marker.1, marker.2)\n     \n      \n      grob.u <- \n        arrangeGrob(gg.list.u[[1]], \n                    gg.list.u[[2]], \n                    gg.list.u[[3]],\n                    gg.list2[[1]], \n                    gg.list2[[2]], \n                    gg.list2[[3]], \n                    ncol = 3)\n      grob.t <- \n        arrangeGrob(gg.list.t[[1]], \n                    gg.list.t[[2]], \n                    gg.list.t[[3]],\n                    gg.list2[[1]], \n                    gg.list2[[2]], \n                    gg.list2[[3]], \n                    ncol = 3)\n      \n    } else {\n      stop(\"Incorrect selection for data.reduction: use either umap,tsne or both\")\n    }\n    \n    x = df$mark1.scale\n    y = df$mark2.scale\n\n        df_heatmap <- data.frame(\n          x = x, \n          y = y, \n          d <- densCols(\n            x, \n            y, \n            nbin = 1000, \n            bandwidth = 1, \n            colramp <- \n              colorRampPalette(rev(rainbow(10, end = 4/6)))\n          )\n        )\n        \n  p <- ggplot(df_heatmap) + \n    geom_point(aes(x, y, col = d), size = 1) + \n    scale_color_identity() + xlab(marker.1) + ylab(marker.2) + \n    theme_bw() + \n    geom_vline(xintercept = t1, linetype = \"dashed\") + \n    geom_hline(yintercept = t2, linetype = \"dashed\") \n            \n  p2 <- ggMarginal(p, df_heatmap, x = marker.1, y = marker.2, type = \"density\")\n\n\n    grobHM <- \n      arrangeGrob(p2,ncol=1,nrow=1)\n  \n    \n    #Applying Filters to Data using Thresholds:\n    if (filter.data == TRUE && \n        (apply.filter.1 == TRUE | apply.filter.2 == TRUE)\n        ){\n        df <- df %>% mutate(sample = so.sub@meta.data$orig.ident) %>% \n            mutate(cellbarcode = rownames(so.sub@meta.data))\n        \n        if (marker.1.filter.direction == \"greater than\") {\n            ind1 <- df$mark1.scale > t1\n        } else {\n            ind1 <- df$mark1.scale < t1\n        }\n        \n        cat(\"\\n\")\n        print(\"Marker 1 filter:\")\n        print(sum(ind1))\n        \n        if (marker.2.filter.direction == \"greater than\") {\n            ind2 <- df$mark2.scale > t2\n        } else {\n            ind2 <- df$mark2.scale < t2\n        }\n        \n        cat(\"\\n\")\n        print(\"Marker 2 filter:\")\n        print(sum(ind2))\n        \n        if (apply.filter.1 == TRUE) {\n            if (apply.filter.2 == TRUE) {\n                if (filter.condition == TRUE) {\n                  df <- df[c(ind1 & ind2), ]\n                } else {\n                  df <- df[c(ind1 | ind2), ]\n                }\n            } else {\n                df <- df[ind1, ]\n            }\n        } else {\n            if (apply.filter.2) {\n                df <- df[ind2, ]\n            }\n        }\n        \n        \n        # Print out numbers of cells that meet threshold cutoffs for marker 1,\n        # marker 2 and for either intersection or union of 2 thresholds:\n        \n        colnames(df)[1:2] <- c(marker.1, marker.2)\n        so.sub.df <- so.sub@meta.data %>% \n          mutate(x = case_when(\n            rownames(so.sub@meta.data) %in% df$cellbarcode ~ TRUE, \n            TRUE ~ FALSE\n          ))\n        \n        colnames(so.sub.df) <- sub(\"x\", parameter.name, \n                                   colnames(so.sub.df))\n        \n        data.filt <- \n          as.data.frame.matrix(table(so.sub.df[[parameter.name]], \n                                     so.sub.df$orig.ident))\n        data.filt$Total <- rowSums(data.filt)\n        data.filt <- data.filt %>% rownames_to_column(\"Passed Filter\")\n        \n        # Add a title:\n        if (filter.condition == TRUE) {\n            cond = \"and\"\n        } else {\n            cond = \"or\"\n        }\n        \n        if (apply.filter.1 == TRUE) {\n          if (apply.filter.2 == TRUE) {\n                titlename <- paste(\n                  \"Number of cells that pass filters:\\n\", \n                  marker.1, \n                  marker.1.filter.direction, \n                  marker.1.threshold, \n                  cond, \n                  marker.2, \n                  marker.2.filter.direction, \n                  marker.2.threshold\n                )\n            } else {\n                titlename <- paste(\n                  \"Number of cells that pass filter:\\n\", \n                  marker.1, \n                  marker.1.filter.direction, \n                  marker.1.threshold\n                )\n            }\n        } else {\n            titlename <- paste(\n              \"Number of cells that pass filter:\\n\",\n              marker.2, \n              marker.2.filter.direction, \n              marker.2.threshold\n            )\n        }\n        \n        title <- \n          textGrob(\n            titlename,\n            y = 1,\n            vjust = 1, \n            gp = gpar(fontsize = 15)\n          )\n        grid.table <- tableGrob(data.filt, rows = NULL)\n        g <- arrangeGrob(grid.table, top = title)\n        g$heights[[2]] <- unit(0.5, \"npc\") - max(g$grobs[[1]]$heights)\n        \n        rownames(so.sub.df) <- rownames(so.sub@meta.data)\n        so.sub@meta.data <- so.sub.df\n    } else {\n        g <- textGrob(\"No filtering thresholds applied\")\n    }\n    \n    \n    if (data.reduction=='tsne'|data.reduction=='umap') {\n      \n      result.list <- list(object = so.sub, \n                          plot = grob,\n                          plot_densityHM = grobHM,\n                          plot_table = g)\n      \n      \n    } else if (data.reduction=='both'){\n      \n      result.list <- list(object = so.sub, \n                          plot_tsne = grob.t,\n                          plot_umap = grob.u,\n                          plot_densityHM = grobHM,\n                          plot_table = g)\n    }\n\n    \n    return(result.list)\n}\n\n\n",
+	"columns": [
+		{
+			"key": "samples_to_include",
+			"displayName": "Samples to Include",
+			"description": "Select which samples to include.",
+			"paramGroup": "Select Markers",
+			"sourceDataset": "sample_names",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		}
+	],
+	"condaDependencies": [],
+	"description": "Display co-expression of two chosen markers in your Seurat Object. Creates a metadata column containing annotations for cells that correspond to the marker expression thresholds you set. Final Potomac Compatible Version: v93. Final Sugarloaf V1: v112. [View Documentation](https://nidap.nih.gov/workspace/notepad/view/ri.notepad.main.notepad.c01f91b3-a6e2-4862-845c-929298375f5b)",
+	"externalId": "Cell_Annotation_with_Co_Expression_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "seurat_object",
+			"displayName": "Seurat Object",
+			"description": "Select an input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "sample_names",
+			"displayName": "Sample Names",
+			"description": "Select an input dataset containing a table with sample names as column headers. Sample names must match the orig.idents in the input Seurat Object. This table can be created using the \"Get Sample Names\" template.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "marker_1",
+			"displayName": "Marker 1",
+			"description": "",
+			"paramType": "STRING",
+			"paramGroup": "Select Markers",
+			"paramValues": null,
+			"defaultValue": "FOXP3",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Marker_1_Threshold",
+			"displayName": "Marker 1 Threshold",
+			"description": "",
+			"paramType": "NUMBER",
+			"paramGroup": "Select Markers",
+			"paramValues": null,
+			"defaultValue": "0.5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Marker_1_Assay",
+			"displayName": "Marker 1 Assay",
+			"description": "Provide a Gene Symbol, set a threshold and the Seurat Object Assay to display expression values for Marker 1.",
+			"paramType": "SELECT",
+			"paramGroup": "Select Markers",
+			"paramValues": [
+				"SCT",
+				"RNA",
+				"Protein",
+				"Spatial",
+				"HTO"
+			],
+			"defaultValue": "SCT",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "marker_2",
+			"displayName": "Marker 2",
+			"description": "",
+			"paramType": "STRING",
+			"paramGroup": "Select Markers",
+			"paramValues": null,
+			"defaultValue": "CD25",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Marker_2_Threshold",
+			"displayName": "Marker 2 Threshold",
+			"description": "",
+			"paramType": "NUMBER",
+			"paramGroup": "Select Markers",
+			"paramValues": null,
+			"defaultValue": "0.5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Marker_2_Assay",
+			"displayName": "Marker 2 Assay",
+			"description": "Provide a Gene Symbol, set a threshold and select the Seurat Object Assay to display expression values for Marker 2.",
+			"paramType": "SELECT",
+			"paramGroup": "Select Markers",
+			"paramValues": [
+				"SCT",
+				"RNA",
+				"Protein",
+				"Spatial",
+				"HTO"
+			],
+			"defaultValue": "SCT",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "New_Metadata_Column_Name",
+			"displayName": "New Metadata Column Name",
+			"description": "Provide a name for the new metadata column created by applying the marker filters. Default is \"My_CoExp\".",
+			"paramType": "STRING",
+			"paramGroup": "Select Markers",
+			"paramValues": null,
+			"defaultValue": "My_CoExp",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Marker_1_Filter_Direction",
+			"displayName": "Marker 1 Filter Direction",
+			"description": "Filter to samples that have greater or less than Marker 1 Threshold. Default is greater than.",
+			"paramType": "SELECT",
+			"paramGroup": "Filter by Marker Expression",
+			"paramValues": [
+				"greater than",
+				"less than"
+			],
+			"defaultValue": "greater than",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Marker_2_Filter_Direction",
+			"displayName": "Marker 2 Filter Direction",
+			"description": "Filter to samples that have greater or less than Marker 2 Threshold. Default is greater than.",
+			"paramType": "SELECT",
+			"paramGroup": "Filter by Marker Expression",
+			"paramValues": [
+				"greater than",
+				"less than"
+			],
+			"defaultValue": "greater than",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Apply_Marker_1_Filter",
+			"displayName": "Apply Marker 1 Filter",
+			"description": "If TRUE, apply the Marker 1 Threshold as a filter. Set to FALSE to turn this filter off. Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Filter by Marker Expression",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Apply_Marker_2_Filter",
+			"displayName": "Apply Marker 2 Filter",
+			"description": "If TRUE, apply the Marker 2 Threshold as a filter. Set to FALSE to turn this filter off. Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Filter by Marker Expression",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Filter_Type",
+			"displayName": "Filter Type",
+			"description": "If TRUE, apply both Filters 1 and 2 and take the intersection.  If FALSE, apply both filters and take the union. Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Filter by Marker Expression",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "data_reduction",
+			"displayName": "Data Reduction",
+			"description": "Select the dimensionality reduction type to display on the visualization. Options include UMAP and tSNE. Default is both.",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"umap",
+				"tsne",
+				"both"
+			],
+			"defaultValue": "both",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Add_Marker_Thresholds",
+			"displayName": "Add Marker Thresholds",
+			"description": "Add dashed lines showing the Thresholds for Markers 1 and 2 to the three dual expression scatterplots. Set to FALSE to turn these dashed lines off. Default is TRUE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "TRUE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Shape",
+			"displayName": "Point Shape",
+			"description": "Set the shape of the points in the visualization. 16: Medium, 19: Large, 20: Small.",
+			"paramType": "SELECT",
+			"paramGroup": "Visualization",
+			"paramValues": [
+				"16",
+				"19",
+				"20"
+			],
+			"defaultValue": "16",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Point_Size",
+			"displayName": "Point Size",
+			"description": "Set the size of the points in the visualization.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "0.5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "point_transparency",
+			"displayName": "Point Transparency",
+			"description": "Set the transparency of the points on the visualization. Default is 0.5.",
+			"paramType": "NUMBER",
+			"paramGroup": "Visualization",
+			"paramValues": null,
+			"defaultValue": "0.5",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "pre_scale_trim",
+			"displayName": "Pre-Scale Trim",
+			"description": "Set trimming percentile values.",
+			"paramType": "NUMBER",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "0.99",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Trim_Marker_1",
+			"displayName": "Trim Marker 1",
+			"description": "Set to TRUE to trim top and bottom percentile of Marker 1 signal to pre-scale trim values (below) to remove extremely low and high values. Default is FALSE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Trim_Marker_2",
+			"displayName": "Trim Marker 2",
+			"description": "Set to TRUE to trim top and bottom percentile of Marker 2 signal to pre-scale trim values to remove extremely low and high values. Default is FALSE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Display_Unscaled_Values",
+			"displayName": "Display Unscaled Values",
+			"description": "Toggle to TRUE if you want to view the unscaled gene/protein expression values. Default is FALSE.",
+			"paramType": "BOOLEAN",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "FALSE",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		},
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "Filename of the RDS that holds the Seurat object.",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Cell Annotation with Co-Expression [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

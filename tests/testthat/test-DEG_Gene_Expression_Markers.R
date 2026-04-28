@@ -4,7 +4,7 @@ test_that("Test Plot Metadata using TEC (Mouse) dataset with normal parameters",
             output <- do.call(degGeneExpressionMarkers, tec.data)
             
             expect_type(output, "list")
-            expected.elements = c("df")
+            expected.elements = c("data")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -17,7 +17,7 @@ test_that("Test DEG Gene Expression Markers using negbinom (TEC Mouse dataset)",
             output <- do.call(degGeneExpressionMarkers, tec.data)
             
             expect_type(output, "list")
-            expected.elements = c("df")
+            expected.elements = c("data")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -27,7 +27,7 @@ test_that("Test DEG Gene Expression Markers using Chariou (Mouse) dataset", {
   output <- do.call(degGeneExpressionMarkers, chariou.data)
   
   expect_type(output, "list")
-  expected.elements = c("df")
+  expected.elements = c("data")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -37,7 +37,7 @@ test_that("Test DEG Gene Expression Markers using BRCA (Human) dataset", {
   output <- do.call(degGeneExpressionMarkers, brca.data)
   
   expect_type(output, "list")
-  expected.elements = c("df")
+  expected.elements = c("data")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -49,7 +49,7 @@ test_that("Test DEG Gene Expression Markers using NSCLCmulti (Human) dataset",
             output <- do.call(degGeneExpressionMarkers, nsclc.multi.data)
             
             expect_type(output, "list")
-            expected.elements = c("df")
+            expected.elements = c("data")
             expect_setequal(names(output), expected.elements)
           })
 
@@ -61,6 +61,6 @@ test_that("Test DEG Gene Expression Markers using PBMCsingle (Human) dataset",
             output <- do.call(degGeneExpressionMarkers, pbmc.single.data)
             
             expect_type(output, "list")
-            expected.elements = c("df")
+            expected.elements = c("data")
             expect_setequal(names(output), expected.elements)
           })

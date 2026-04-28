@@ -1,0 +1,76 @@
+{
+	"codeTemplate": "ExternalAnnotation_SO <- function({{{Input_Seurat_Object}}}, {{{External_Metadata_Table}}}) {\n    \n## --------- ##\n## Libraries ##\n## --------- ##\n\n# Load necessary libraries\nlibrary(nidapFunctions)\nnidapLoadPackages(c(\"SCWorkflow\", \"magrittr\", \"tibble\", \"dplyr\", \"Seurat\"))\n\n## -------------------------------- ##\n## User-Defined Template Parameters ##\n## -------------------------------- ##\n\nseurat_object <- {{{Input_Seurat_Object}}}\nexternal_metadata <- {{{External_Metadata_Table}}}\nseurat_object_filename <- \"{{{Seurat_Object_Filename}}}\"\nbarcode_column = \"{{{Column_Containing_Barcodes}}}\"\nexternal_cols_to_add = {{{External_Metadata_Columns_to_Add}}}\ncol_to_viz = \"{{{Column_to_Visualize_Optional_}}}\"\n\n## -------------------------------- ##\n## Errors                           ##\n## -------------------------------- ##\n\n## -------------------------------- ##\n## Functions                        ##\n## -------------------------------- ##\n\n## --------------- ##\n## Main Code Block ##\n## --------------- ##\n\n# Load Seurat Object\ncat(sprintf(\"\\nReading Seurat Object from dataset: %s\\n\\n\", paste(seurat_object_filename, collapse = \", \")))\npath <- nidapGetPath(seurat_object, seurat_object_filename)\nso <- readRDS(path)\nprint(so)\n\n# Extract meta.data from Seurat Object\ncat(\"Extracting Metadata Table from Seurat Object\\n\\n\")\nif (\"meta.data\" %in% slotNames(so)) {\n  met.df <- so@meta.data\n} else if (\"RNA\" %in% slotNames(so)) {\n  met.df <- so$RNA@meta.data\n} else {\n  stop(\"No recognizable meta.data found in the Seurat object.\")\n}\n\n# If no \"Barcode\" column exists, create it from rownames\nif (!(\"Barcode\" %in% colnames(met.df))) {\n  met.df <- met.df %>% rownames_to_column(\"Barcode\")\n}\n\n# Check if the user-specified barcode column exists\nif (!(barcode_column %in% colnames(external_metadata))) {\n    stop(paste(\"External metadata does not have the specified barcode column:\", barcode_column))\n}\n\n# Parse external columns to add\nif (!is.null(external_cols_to_add)) {\n    cols_to_import <- trimws(unlist(strsplit(external_cols_to_add, \",\")))\n  \n    # Always include Barcode in the subset\n    cols_to_keep <- unique(c(barcode_column, cols_to_import))\n    \n    # Ensure all requested columns exist in external_metadata\n    missing_cols <- setdiff(cols_to_keep, colnames(external_metadata))\n    if (length(missing_cols) > 0) {\n        stop(paste(\"These columns were not found in external_metadata:\", paste(missing_cols, collapse = \", \")))\n    }\n  \n    # Subset external_metadata to keep only the requested columns\n    external_metadata <- external_metadata[, cols_to_keep, drop = FALSE]\n}\n\n# Merge the external metadata table with the Seurat object metadata by barcode\nmerged_metadata <- merge(met.df, external_metadata, by.x = \"Barcode\", by.y = barcode_column, all.x = TRUE)\n\n## troubleshooting, check if any NULL rows appear in merged meta\nif (any(is.na(merged_metadata$Barcode))){\n    stop(\"STOP: Metadata not correctly merged. NA's produced.\")\n}\nif (nrow(met.df)!=nrow(merged_metadata)){\n    stop(\"STOP: Metadata not correctly merged. Incorrect number of rows when merged.\")\n}\nif(length(setdiff(met.df$Barcode, external_metadata[[barcode_column]]))>0){\n    warning(\"Warning: Not all cells from the Seurat Object are in the External Metadata table.\")\n}\nif(length(setdiff(external_metadata[[barcode_column]], met.df$Barcode))>0){\n    warning(\"Warning: Some cells in the External Metadata are not found in the Seurat Object.\")\n}\n\n# Print or save the merged metadata for review\ncat(\"Metadata successfully merged. Here is a preview:\\n\")\nprint(head(merged_metadata))\n\n# Ensure that rownames in merged_metadata are barcodes, not numbers \nmerged_metadata=column_to_rownames(merged_metadata,'Barcode')\n\n# Update Seurat object with the new merged metadata\nso <- AddMetaData(so, merged_metadata)\n\n# If col_to_viz isn't empty, print TSNE/UMAP colored by this column.\nif(length(col_to_viz) != 0) {\n    print(DimPlot(so, group.by = col_to_viz, label = FALSE, reduction = 'umap'))# + NoLegend()\n    print(DimPlot(so, group.by = col_to_viz, label = FALSE, reduction = 'tsne'))# + NoLegend()\n}\n\noutput <- new.output()\noutput_fs <- output$fileSystem()\nsaveRDS(so, output_fs$get_path(\"seurat_object.rds\", 'w'))\n\nreturn(NULL)\n\n}\n\n#################################################\n## Global imports and functions included below ##\n#################################################\n\n# R.cache depends on a home folder\nSys.setenv(R_USER_CACHE_DIR = Sys.glob(file.path(R.home())));",
+	"columns": [
+		{
+			"key": "Column_Containing_Barcodes",
+			"displayName": "Column Containing Barcodes",
+			"description": "Select the column in the external metadata table that has Barcodes you expect to correspond to those in the input Seurat Object. The selected column will be used to join the external metadata to the existing Seurat Object metadata.",
+			"paramGroup": "Basic",
+			"sourceDataset": "External_Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		},
+		{
+			"key": "External_Metadata_Columns_to_Add",
+			"displayName": "External Metadata Columns to Add",
+			"description": "Select columns in external metadata that you want to add to your input Seurat Object's metadata.",
+			"paramGroup": "Basic",
+			"sourceDataset": "External_Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": true
+		},
+		{
+			"key": "Column_to_Visualize_Optional_",
+			"displayName": "Column to Visualize (Optional)",
+			"description": "You may choose a single column from the External Metadata to visualize. TSNE & UMAP plots colored by this variable will be produced. You may leave this variable blank. Default is blank.",
+			"paramGroup": "Basic",
+			"sourceDataset": "External_Metadata_Table",
+			"defaultValue": null,
+			"columnType": "ALL",
+			"isMulti": null
+		}
+	],
+	"condaDependencies": [],
+	"description": "This template will merge an external table of cell annotations into an existing Seurat Object's metadata table. The input external metadata table must have a column named \"Barcode\" that contains barcodes matching those found in the metadata already present in the input Seurat Object. The output will be a new Seurat Object with metadata that now includes the additional columns from the external table.",
+	"externalId": "Add_External_Cell_Annotation_CCBR_scRNA_seq_",
+	"inputDatasets": [
+		{
+			"key": "Input_Seurat_Object",
+			"displayName": "Input Seurat Object",
+			"description": "Select the input Seurat Object.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_TRANSFORM_INPUT",
+			"tags": []
+		},
+		{
+			"key": "External_Metadata_Table",
+			"displayName": "External Metadata Table",
+			"description": "Select the input external metadata table.",
+			"paramGroup": null,
+			"anchorDataset": false,
+			"dataType": "R_NATIVE_DATAFRAME",
+			"tags": []
+		}
+	],
+	"vectorLanguage": "R",
+	"codeLanguage": "R",
+	"parameters": [
+		{
+			"key": "Seurat_Object_Filename",
+			"displayName": "Seurat Object Filename",
+			"description": "The name of the RDS within the input SO dataset. By default, this name is \"seurat_object.rds\".",
+			"paramType": "STRING",
+			"paramGroup": "Advanced",
+			"paramValues": null,
+			"defaultValue": "seurat_object.rds",
+			"condition": null,
+			"content": null,
+			"objectPropertyReference": null
+		}
+	],
+	"title": "Add External Cell Annotation [CCBR] [scRNA-seq]",
+	"templateApiVersion": "0.1.0"
+}

@@ -1,2 +1,9 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^docs$
+^Dockerfile$
+^Dockerfiles/.*$
+^Conda_Recipe/.*$
+^doc$
+^Meta$

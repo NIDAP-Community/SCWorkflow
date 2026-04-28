@@ -8,10 +8,12 @@ colorByMarkerTable(
   object,
   samples.subset,
   samples.to.display,
+  manual.genes = c(),
   marker.table,
   cells.of.interest,
   protein.presence = FALSE,
   assay = "SCT",
+  slot = "scale.data",
   reduction.type = "umap",
   point.transparency = 0.5,
   point.shape = 16,
@@ -27,6 +29,8 @@ colorByMarkerTable(
 samples not in the list would be colored gray in
 the background}
 
+\item{manual.genes}{additional list of genes to display}
+
 \item{marker.table}{Table of marker genes for each celltype
 (column names of the table), append "_prot" or "_neg" for
 proteins or negative markers}
@@ -36,6 +40,8 @@ proteins or negative markers}
 \item{protein.presence}{Set to TRUE if protein markers are used}
 
 \item{assay}{Assay to extract gene expression data from (Default: "SCT")}
+
+\item{slot}{Slot within assay to extract expression data from (Default: "scale.data")}
 
 \item{reduction.type}{Choose among tsne, umap, and pca (Default: "umap")}
 
@@ -59,4 +65,15 @@ Takes in a gene table inputted by the user, displays a panel of
 tsne, umap, or pca colored by marker expression. The panel will be
 organized in a similar format as the gene table, but with the
 omission of genes not found in the data
+}
+\examples{
+\dontrun{
+colorByMarkerTable(
+  object = seurat,
+  samples.subset = c("mouse1", "mouse2"),
+  samples.to.display = c("mouse1"),
+  marker.table = immuneCellMarkers,
+  cells.of.interest = c("CD4", "Treg")
+)
+}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/Filter_QC.R
 \name{filterQC}
 \alias{filterQC}
-\title{Filter & QC Samples}
+\title{Filter Low Quality Cells \link{CCBR} \link{scRNA-seq}}
 \usage{
 filterQC(
   object,
@@ -12,31 +12,27 @@ filterQC(
   mad.nfeature.limits = c(5, 5),
   ncounts.limits = c(NA, NA),
   mad.ncounts.limits = c(5, 5),
-  mitoch.limits = c(NA, 8),
+  mitoch.limits = c(NA, 25),
   mad.mitoch.limits = c(NA, 3),
   complexity.limits = c(NA, NA),
   mad.complexity.limits = c(5, NA),
   topNgenes.limits = c(NA, NA),
   mad.topNgenes.limits = c(5, 5),
-  n.topgnes = 20,
-  do.doublets.fitler = T,
-  plot.outliers = "FALSE",
+  n.topgenes = 20,
+  do.doublets.filter = TRUE,
+  plot.outliers = "None",
   group.column = NA,
   nfeatures = 2000,
-  low_cut = 0.1,
-  high_cut = 8,
-  low_cut_disp = 1,
-  high_cut_disp = 1e+05,
-  selection_method = "vst",
+  low.cut = 0.1,
+  high.cut = 8,
+  low.cut.disp = 1,
+  high.cut.disp = 1e+05,
+  selection.method = "vst",
   npcs = 30,
-  integratedata = FALSE,
-  clust_res_low = 0.2,
-  clust_res_high = 1.2,
-  clust_res_bin = 0.2,
-  only_var_genes = FALSE,
-  seed_for_PCA = 42,
-  seed_for_TSNE = 1,
-  seed_for_UMAP = 42
+  vars.to.regress = NULL,
+  seed.for.PCA = 42,
+  seed.for.TSNE = 1,
+  seed.for.UMAP = 42
 )
 }
 \arguments{
@@ -81,7 +77,7 @@ greater than the median. (Default: c(5,5))}
 exceed the selected lower or upper limits.
 Usage c(lower limit, Upper Limit). E.g. setting to c(0,8) will not set the
 lower limit and removes cells with more than 8\% mitochondrial RNA.
-(Default: c(NA,8))}
+(Default: c(NA,25))}
 
 \item{mad.mitoch.limits}{Set filter limits based on how many Median Absolute
 Deviations an outlier cell will have. Calculated from the Median percentage
@@ -117,34 +113,46 @@ Usage c(lower limit, Upper Limit). E.g. setting to c(NA,50) will not set a
 lower limit and remove cells with greater than 50\% of reads in the top N
 genes. (Default: c(NA,NA))}
 
-\item{n.topgnes}{Select the number of top highly expressed genes used to
-calculate the percentage of reads found in these genes.
-E.g. a value of 20 calculates the percentage of reads found in the top 20
-most highly expressed Genes.
-(Default: 20)}
-
-\item{do.doublets.fitler}{Use scDblFinder to identify and remove doublet
-cells. Doublets are defined as two cells that are sequenced under the same
-cellular barcode, for example, if they were captured in the same droplet.
-(Default: TRUE)}
-
-\item{mad.topNgenes.limitsSet}{Filter limits based on how many Median
+\item{mad.topNgenes.limits}{Filter limits based on how many Median
 Absolute Deviations an outlier cell will have. Calculated from the Median
 percentage of counts in the top N Genes.
 Usage c(lower limit, Upper Limit). E.g. setting to c(5,5) will remove all
 cells with more than 5 absolute deviations greater than or 5 absolute
 deviations less than the median percentage. (Default: c(5,5))}
+
+\item{n.topgenes}{Select the number of top highly expressed genes used to
+calculate the percentage of reads found in these genes.
+E.g. a value of 20 calculates the percentage of reads found in the top 20
+most highly expressed Genes.
+(Default: 20)}
+
+\item{do.doublets.filter}{Use scDblFinder to identify and remove doublet
+cells. Doublets are defined as two cells that are sequenced under the same
+cellular barcode, for example, if they were captured in the same droplet.
+(Default: TRUE)}
 }
 \value{
 Seurat Object and QC plots
 }
 \description{
-Filters cells and Genes for each sample and generates QC Plots
-to evaluate data before and after filtering.
+Filters cells and genes across various criteria for each sample.
+Multiple cell and gene filters can be selected to remove poor quality data
+and noise while generating QC plots before and after filtering.
 }
 \details{
 This is Step 2 in the basic Single-Cell RNA-seq workflow. Multiple
 cell and gene filters can be selected to remove poor quality data and noise.
-Returns data as a Seurat Object, and a variaty of figues to evaluate the
-quality of data and the effect of applied filters.
+Workflows can use this downstream of any Seurat Object. This tool is
+typically the second step in the Single Cell Workflow.
+}
+\examples{
+\dontrun{
+out <- filterQC(
+  object = so_list,
+  min.cells = 20,
+  n.topgenes = 20,
+  do.doublets.filter = TRUE
+)
+}
+
 }

@@ -1,0 +1,135 @@
+---
+title: "Getting Started"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SCWorkflow-Usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+```{r, include = FALSE}
+options(rmarkdown.html_vignette.check_title = FALSE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE, message = FALSE
+)
+
+library(data.table)
+library(dplyr)
+library(ggplot2)
+```
+
+## Use SCWorkflow Container  
+
+---
+
+The SCWorkflow docker container is available on Biowulf which can be used with RStudio to organize and rune the SCWorkflow package. 
+
+You will need 2 shells (terminals) to set up RStudio on Biowulf.
+
+<br>
+ 
+#### **Terminal 1: Set up RStudio Server on Biowulf**
+
+#### 1. Log in to Biowulf
+
+Open a terminal and login to biowulf then call an interactive session
+
+```
+ssh username@helix.nih.gov
+
+sinteractive --tunnel --time=12:00:00 --mem=50g --cpus-per-task=16 --gres=lscratch:50
+``` 
+ 
+#### 2. Get the PORT number for termal 2  
+
+```
+echo $PORT1
+
+example port is 46137 
+```
+
+#### 3. Load the Container
+
+The single cell container will emulate the environments from NIDAP
+
+```
+
+source /data/CCBR/NIDAP/container_singlecell.sh
+
+```
+<br> 
+
+#### **Terminal 2: Local shell**
+
+#### 4. Connect your local shell to the RStudio server on Biowulf using SSH tunneling.  
+
+Use the $PORT number from terminal 1 (step 2).
+
+```
+ ssh -N -L $PORT:localhost:$PORT yourusername@biowulf.nih.gov
+ 
+ login with nih password
+``` 
+ 
+#### 5. Open RStudio in your local web browser
+
+Open your web browser and go to: 
+
+```sh 
+localhost:$PORT 
+``` 
+
+Use the $PORT number from terminal 1 (step 2)
+
+
+This will open Rstudio in your browser that is connected to the biowulf container you opened in step 3.
+
+
+<br> 
+
+## Copy Files from Rstuido server to Helix
+
+---
+
+#### 1.	Log into Helix
+```
+ssh username@helix.nih.gov
+```
+#### 2.	Go to Working Directory for Project
+#### 3.	connect to Rstuido Server to copy files to Biowulf 
+```
+sftp username@ nciws-d2335-v.nci.nih.gov
+```
+#### 4.	copy files to biowulf
+
+**Examples:** 
+
+All files: 
+```
+mget -r *
+```
+Rscipts: 
+```
+mget -r *R
+```
+
+
+## Install Package
+
+---
+
+for general use SCWorkflow can be installed into your Rlibrary 
+
+```
+# install.packages("remotes")
+# remotes::install_github("NIDAP-Community/SCWorkflow", dependencies = TRUE)
+
+library(SCWorkflow)
+```
+<br>
+<br> 
+<br> 
