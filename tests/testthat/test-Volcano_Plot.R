@@ -1,7 +1,6 @@
 # Tests for Volcano_Plot function
 
 library(testthat)
-library(dplyr)
 
 # Helper function to create test data
 create_test_deg_data <- function(n_genes = 100) {
