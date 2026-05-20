@@ -60,7 +60,9 @@ Trajectory_CellTypes <- function(Seurat_Object,
       Sys.setenv(R_USER_CACHE_DIR = cache_original)
     }
   }, add = TRUE)
-  Sys.setenv(R_USER_CACHE_DIR = Sys.glob(file.path(R.home())))
+  cache_dir <- tools::R_user_dir("Trajectory_CellTypes", which = "cache")
+  dir.create(cache_dir, recursive = TRUE, showWarnings = FALSE)
+  Sys.setenv(R_USER_CACHE_DIR = cache_dir)
 
   if (!is.null(rownames(MetaData)) && all(colnames(seurat_object) %in% rownames(MetaData))) {
     MetaData <- MetaData[colnames(seurat_object), , drop = FALSE]
