@@ -121,12 +121,12 @@ Volcano_Plot <- function(DEGAnalysis,
       mutate(!!sym(sigcol) := replace_na(!!sym(sigcol), 1))
 
     if (use_custom_lab == TRUE){
-      if (nchar(change_lfc_name) == 0){lfc_name = lfc.col[i]}
-      if (nchar(change_sig_name) == 0){sig_name = sig.col[i]}
-      colnames(df) <- c(label.col, change_lfc_name, sig_name)
+      lfc_name <- if (nchar(change_lfc_name) == 0) lfc.col[i] else change_lfc_name
+      sig_name <- if (nchar(change_sig_name) == 0) sig.col[i] else change_sig_name
+      colnames(df) <- c(label.col, lfc_name, sig_name)
     } else {
-      lfc_name = lfc.col[i]
-      sig_name = sig.col[i]
+      lfc_name <- lfc.col[i]
+      sig_name <- sig.col[i]
     }
 
     group <- gsub("_pval|p_val_", "", sig_name)
