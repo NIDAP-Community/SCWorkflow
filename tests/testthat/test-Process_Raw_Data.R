@@ -82,6 +82,25 @@ for (data in c('BRCA')) {
 
 }
 
+for (data in c('BRCA')) {
+
+  test_that(paste0("Metadata sample count mismatch points to split h5 parameter (",data," dataset)"), {
+
+
+    data.run <- getParamRaw(data)
+    if(any(file.exists(data.run$input)==F)){next}
+    data.run$split.h5 <- F
+
+    expect_error(
+      do.call(processRawData, data.run),
+      "If an .h5 file contains multiple samples, check the split.h5 parameter and set it to TRUE",
+      fixed = TRUE
+    )
+
+  })
+
+}
+
 
 ################################################################
 ################################################################
@@ -208,7 +227,7 @@ for (data in c('TEC')) {
 #     Raw.out <- do.call(processRawData, data.run)
 #     
 #     expect_error(do.call(processRawData, data.run), 
-#           c("No Mitochondrial Genes Detetcted: Wrong Organism may be selected.
+#           c("No Mitochondrial Genes Detected: Wrong Organism may be selected.
 #            Supported Organisms are Human or Mouse"), ignore.case = TRUE)
 #     
 #   })
