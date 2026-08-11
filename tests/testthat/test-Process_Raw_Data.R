@@ -82,6 +82,26 @@ for (data in c('BRCA')) {
 
 }
 
+for (data in c('Chariou')) {
+
+  test_that(paste0("Blank rename column does not rename metadata-backed samples (",data," dataset)"), {
+
+
+    data.run <- getParamRaw(data)
+    if(any(file.exists(data.run$input)==F)){next}
+    data.run$rename.col <- ""
+
+    Raw.out <- do.call(processRawData, data.run)
+    meta.table <- read.delim(data.run$sample.metadata.table, header = T, sep = '\t')
+
+    expect_setequal(names(Raw.out$object), meta.table[[data.run$sample.name.column]])
+    expect_false(any(names(Raw.out$object) %in% meta.table$Rename))
+    expect_true("Rename" %in% colnames(Raw.out$object[[1]]@meta.data))
+
+  })
+
+}
+
 for (data in c('BRCA')) {
 
   test_that(paste0("Metadata sample count mismatch points to split h5 parameter (",data," dataset)"), {

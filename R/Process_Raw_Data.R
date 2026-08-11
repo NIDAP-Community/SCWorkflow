@@ -646,7 +646,7 @@ processRawData <- function(input,
   
   
   ### Rename Samples ####
-  if(is.null(sample.metadata.table)==F&is.null(rename.col)==F){
+  if(is.null(sample.metadata.table)==F&is.null(rename.col)==F && isTRUE(nzchar(rename.col))){
     if(sample.name.column!=rename.col){
       if(identical(sort(names(so.orig.nf)), 
                    sort(meta.table[[sample.name.column]]))){
