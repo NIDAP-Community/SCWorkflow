@@ -101,6 +101,26 @@ for (data in c('BRCA')) {
 
 }
 
+for (data in c('BRCA')) {
+
+  test_that(paste0("Metadata sample count mismatch points to split h5 parameter when sample column is blank (",data," dataset)"), {
+
+
+    data.run <- getParamRaw(data)
+    if(any(file.exists(data.run$input)==F)){next}
+    data.run$split.h5 <- F
+    data.run$sample.name.column <- ""
+
+    expect_error(
+      do.call(processRawData, data.run),
+      "If an .h5 file contains multiple samples, check the split.h5 parameter and set it to TRUE",
+      fixed = TRUE
+    )
+
+  })
+
+}
+
 
 ################################################################
 ################################################################

@@ -536,13 +536,26 @@ processRawData <- function(input,
   ### Split SO ####
 
     if(is.null(sample.metadata.table)==F){
-      input.h5.count <- length(input.dat[grepl('*h5$',input.dat)])
-      metadata.sample.count <- length(unique(meta.table[,sample.name.column]))
+      input.h5.count <- length(input.dat[grepl('\\.h5$',input.dat)])
+      has.sample.name.column <- !is.null(sample.name.column) &&
+        nzchar(sample.name.column) &&
+        sample.name.column %in% colnames(meta.table)
+      if (has.sample.name.column) {
+        metadata.sample.count <- length(unique(meta.table[,sample.name.column]))
+      } else {
+        metadata.sample.count <- nrow(meta.table)
+      }
       if (input.h5.count > 0 && metadata.sample.count != input.h5.count && split.h5 == FALSE) {
         stop(paste0(
           "The metadata table contains ", metadata.sample.count,
           " sample(s), but ", input.h5.count,
           " .h5 file(s) were provided. If an .h5 file contains multiple samples, check the split.h5 parameter and set it to TRUE."
+        ))
+      }
+      if (!has.sample.name.column) {
+        stop(paste0(
+          "sample.name.column must match a column in the metadata table. Available columns: ",
+          paste(colnames(meta.table), collapse = ", ")
         ))
       }
     }
