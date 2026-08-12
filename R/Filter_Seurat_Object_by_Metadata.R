@@ -240,6 +240,19 @@ filterSeuratObjectByMetadata <- function(object,
   ## --------------- ##
   ## Main Code Block ##
   ## --------------- ##
+
+  sample.name <- as.character(sample.name)
+  sample.name <- sample.name[nzchar(trimws(sample.name))]
+  if (length(sample.name) == 0) {
+    if ("orig.ident" %in% colnames(object@meta.data)) {
+      sample.name <- "orig.ident"
+    } else if ("orig_ident" %in% colnames(object@meta.data)) {
+      sample.name <- "orig_ident"
+    } else {
+      sample.name <- ".all_samples"
+      object@meta.data[[sample.name]] <- "All Samples"
+    }
+  }
   
   # Checking if samples are selected
   if(any(grepl('c\\(|\\[\\]',samples.to.include))) {

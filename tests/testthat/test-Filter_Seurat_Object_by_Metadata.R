@@ -51,6 +51,18 @@ test_that("Test Filter Seurat Object by Metadata using Chariou (Mouse) dataset",
             
           })
 
+test_that("Blank sample name column uses all samples", {
+  chariou.data <- getParamFSOBM("Chariou")
+  chariou.data$sample.name <- ""
+  chariou.data$samples.to.include <- ""
+  output <- do.call(filterSeuratObjectByMetadata, chariou.data)
+
+  expect_type(output, "list")
+  expected.elements = c("object", "plots")
+  expect_setequal(names(output), expected.elements)
+  expect_true(ncol(output$object) > 0)
+})
+
 
 
 test_that("Test Filter Seurat Object by Metadata using BRCA (Human) dataset",
