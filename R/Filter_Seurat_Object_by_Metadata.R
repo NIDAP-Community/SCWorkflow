@@ -271,6 +271,10 @@ filterSeuratObjectByMetadata <- function(object,
   ## Replace dots in metadata column names with underscores.
   colnames(object@meta.data) = gsub("\\.", "_", colnames(object@meta.data))
   new.sample.name <- gsub("\\.", "_", sample.name[1])
+  category.to.filter <- gsub("\\.", "_", category.to.filter)
+  if (!category.to.filter[1] %in% colnames(object@meta.data)) {
+    stop(paste0("category.to.filter column '", category.to.filter[1], "' was not found in object metadata."))
+  }
   
   ## If you have protien data, then ...
   if (use.cite.seq.data) {
