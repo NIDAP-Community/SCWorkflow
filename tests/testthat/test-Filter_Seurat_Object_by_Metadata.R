@@ -52,6 +52,9 @@ test_that("Test Filter Seurat Object by Metadata using Chariou (Mouse) dataset",
           })
 
 test_that("Blank sample name column uses all samples", {
+  expect_identical(deparse(formals(filterSeuratObjectByMetadata)$samples.to.include), "c(\"\")")
+  expect_identical(formals(filterSeuratObjectByMetadata)$sample.name, "")
+
   chariou.data <- getParamFSOBM("Chariou")
   chariou.data$sample.name <- ""
   chariou.data$samples.to.include <- ""

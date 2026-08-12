@@ -5,8 +5,10 @@
 #' Step 5 of the pipeline (SingleR Annotations on Seurat Object)
 #'
 #' @param object A dataset containing your SingleR annotated/merged seurat object
-#' @param samples.to.include Select which samples to include
-#' @param sample.name Sample Name Column
+#' @param samples.to.include Select which samples to include. Leave blank to
+#' include all samples.
+#' @param sample.name Sample Name Column. Leave blank to use all samples.
+#' Default is "".
 #' @param category.to.filter What kind of metadata you want to subset by.
 #' This should be one column in your Metadata table
 #' @param values.to.filter One or more values where you want to filter
@@ -64,8 +66,8 @@
 #'
 #'
 filterSeuratObjectByMetadata <- function(object,
-                                         samples.to.include,
-                                         sample.name,
+                                         samples.to.include = c(""),
+                                         sample.name = "",
                                          category.to.filter,
                                          values.to.filter,
                                          keep.or.remove = TRUE,
@@ -260,6 +262,8 @@ filterSeuratObjectByMetadata <- function(object,
   }else{
     samples=samples.to.include
   }
+  samples <- as.character(samples)
+  samples <- samples[nzchar(trimws(samples))]
   
   if (length(samples) == 0) {
     samples = unique(object@meta.data[[sample.name[1]]])
