@@ -8,7 +8,6 @@
 #' @param samples.to.include Select which samples to include. Leave blank to
 #' include all samples.
 #' @param sample.name Sample Name Column. Leave blank to use all samples.
-#' Default is "".
 #' @param category.to.filter What kind of metadata you want to subset by.
 #' This should be one column in your Metadata table
 #' @param values.to.filter One or more values where you want to filter
