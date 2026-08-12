@@ -267,13 +267,50 @@ filterSeuratObjectByMetadata <- function(object,
   if (length(samples) == 0) {
     samples = unique(object@meta.data[[sample.name[1]]])
   }
+
+  metadata.column.names <- colnames(object@meta.data)
+  normalized.metadata.column.names <- gsub("\\.", "_", metadata.column.names)
+  metadata.column.options <- paste0("  - ", metadata.column.names, collapse = "\n")
+  category.to.filter <- as.character(category.to.filter)
+  category.to.filter <- category.to.filter[nzchar(trimws(category.to.filter))]
+  if (length(category.to.filter) == 0) {
+    stop(paste0(
+      "category.to.filter is required.\n",
+      "Possible category.to.filter values are:\n",
+      metadata.column.options
+    ))
+  }
+  requested.category.to.filter <- category.to.filter[1]
+  category.to.filter <- gsub("\\.", "_", category.to.filter)
+  category.column.index <- match(category.to.filter[1], normalized.metadata.column.names)
+  if (is.na(category.column.index)) {
+    stop(paste0(
+      "category.to.filter column '", requested.category.to.filter, "' was not found in object metadata.\n",
+      "Possible category.to.filter values are:\n",
+      metadata.column.options
+    ))
+  }
+  category.display.name <- metadata.column.names[category.column.index]
   
   ## Replace dots in metadata column names with underscores.
-  colnames(object@meta.data) = gsub("\\.", "_", colnames(object@meta.data))
+  colnames(object@meta.data) = normalized.metadata.column.names
   new.sample.name <- gsub("\\.", "_", sample.name[1])
-  category.to.filter <- gsub("\\.", "_", category.to.filter)
-  if (!category.to.filter[1] %in% colnames(object@meta.data)) {
-    stop(paste0("category.to.filter column '", category.to.filter[1], "' was not found in object metadata."))
+  category.values <- object@meta.data[[category.to.filter[1]]]
+  if (!is.numeric(category.values)) {
+    possible.filter.values <- sort(unique(as.character(category.values)))
+    print(paste0("Possible values.to.filter for ", category.display.name, ":"))
+    print(possible.filter.values)
+    values.to.filter <- as.character(values.to.filter)
+    values.to.filter <- values.to.filter[nzchar(trimws(values.to.filter))]
+    missing.filter.values <- setdiff(values.to.filter, possible.filter.values)
+    if (length(missing.filter.values) > 0) {
+      stop(paste0(
+        "values.to.filter value(s) not found in category.to.filter column '", category.display.name, "': ",
+        paste(missing.filter.values, collapse = ", "), "\n",
+        "Possible values.to.filter values are:\n  - ",
+        paste(possible.filter.values, collapse = "\n  - ")
+      ))
+    }
   }
   
   ## If you have protien data, then ...

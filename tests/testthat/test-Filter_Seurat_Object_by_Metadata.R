@@ -68,10 +68,9 @@ test_that("Blank sample name column uses all samples", {
 
 test_that("Dotted metadata category names are matched after normalization", {
   chariou.data <- getParamFSOBM("Chariou")
-  chariou.data$object@meta.data[["SCT_snn_res.0.4"]] <- chariou.data$object@meta.data$seurat_clusters
   chariou.data$sample.name <- ""
   chariou.data$samples.to.include <- c("")
-  chariou.data$category.to.filter <- "SCT_snn_res.0.4"
+  chariou.data$category.to.filter <- "SCT_snn_res.2.4"
   chariou.data$values.to.filter <- c("0", "1")
   output <- do.call(filterSeuratObjectByMetadata, chariou.data)
 
@@ -79,6 +78,32 @@ test_that("Dotted metadata category names are matched after normalization", {
   expected.elements = c("object", "plots")
   expect_setequal(names(output), expected.elements)
   expect_true(ncol(output$object) > 0)
+})
+
+test_that("Invalid metadata category prints available category columns", {
+  chariou.data <- getParamFSOBM("Chariou")
+  chariou.data$category.to.filter <- "not_a_column"
+  err <- tryCatch({
+    do.call(filterSeuratObjectByMetadata, chariou.data)
+    NULL
+  }, error = identity)
+
+  expect_true(inherits(err, "error"))
+  expect_match(conditionMessage(err), "Possible category.to.filter values are", fixed = TRUE)
+  expect_match(conditionMessage(err), "seurat_clusters", fixed = TRUE)
+})
+
+test_that("Invalid categorical filter values print available values", {
+  chariou.data <- getParamFSOBM("Chariou")
+  chariou.data$values.to.filter <- "not_a_value"
+  err <- tryCatch({
+    do.call(filterSeuratObjectByMetadata, chariou.data)
+    NULL
+  }, error = identity)
+
+  expect_true(inherits(err, "error"))
+  expect_match(conditionMessage(err), "Possible values.to.filter values are", fixed = TRUE)
+  expect_match(conditionMessage(err), "not_a_value", fixed = TRUE)
 })
 
 
