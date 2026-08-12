@@ -68,9 +68,10 @@ test_that("Blank sample name column uses all samples", {
 
 test_that("Dotted metadata category names are matched after normalization", {
   chariou.data <- getParamFSOBM("Chariou")
+  chariou.data$object@meta.data[["SCT_snn_res.0.4"]] <- chariou.data$object@meta.data$seurat_clusters
   chariou.data$sample.name <- ""
   chariou.data$samples.to.include <- c("")
-  chariou.data$category.to.filter <- "SCT_snn_res.2.4"
+  chariou.data$category.to.filter <- "SCT_snn_res.0.4"
   chariou.data$values.to.filter <- c("0", "1")
   output <- do.call(filterSeuratObjectByMetadata, chariou.data)
 
