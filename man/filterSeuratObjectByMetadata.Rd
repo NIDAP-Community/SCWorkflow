@@ -43,8 +43,7 @@ filterSeuratObjectByMetadata(
 \item{samples.to.include}{Select which samples to include. Leave blank to
 include all samples.}
 
-\item{sample.name}{Sample Name Column. Leave blank to use all samples.
-Default is "".}
+\item{sample.name}{Sample Name Column. Leave blank to use all samples.}
 
 \item{category.to.filter}{What kind of metadata you want to subset by.
 This should be one column in your Metadata table}
