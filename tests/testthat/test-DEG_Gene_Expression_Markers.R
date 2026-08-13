@@ -60,19 +60,18 @@ test_that("Omitted samples uses all samples", {
 })
 
 
-test_that("Omitted parameter prints discrete metadata columns and defaults", {
+test_that("Omitted parameter errors with discrete metadata column options", {
   chariou.data <- getParamDGEM("Chariou")
   chariou.data$parameter.to.test <- NULL
-  logs <- capture.output(output <- do.call(degGeneExpressionMarkers, chariou.data))
+  error <- tryCatch({
+    do.call(degGeneExpressionMarkers, chariou.data)
+    NULL
+  }, error = function(e) e)
   
-  expect_type(output, "list")
-  expected.elements = c("data")
-  expect_setequal(names(output), expected.elements)
-  expect_gt(nrow(output$data$DEG_Table), 0)
-  expect_true(any(grepl("Possible parameter.to.test columns with categorical/discrete values:", logs)))
-  expect_true(any(grepl("SCT_snn_res_2_4", logs)))
-  expect_true(any(grepl("No parameter selected, defaulting to", logs)))
-  expect_true(any(grepl("Possible values for", logs)))
+  expect_s3_class(error, "error")
+  expect_match(conditionMessage(error), "parameter.to.test is required.", fixed = TRUE)
+  expect_match(conditionMessage(error), "Possible parameter.to.test columns with categorical/discrete values:", fixed = TRUE)
+  expect_match(conditionMessage(error), "SCT_snn_res_2_4", fixed = TRUE)
 })
 
 

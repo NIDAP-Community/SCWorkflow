@@ -11,8 +11,7 @@
 #' @param contrasts Contrasts in the "A-B" format
 #' @param parameter.to.test Select the metadata column that you would like
 #' to use to perform your DEG analysis and construct your contrasts from.
-#' Leave blank to print categorical/discrete metadata columns and default to
-#' the first clustering-like column.
+#' Leave blank to stop and print categorical/discrete metadata columns.
 #' @param test.to.use The kind of algorithm you would like to use
 #' to perform your DEG analysis. Default is the MAST algorithm
 #' (wilcox,bimod,roc,t,negbinom,poisson,LR,MAST,DESeq2).
@@ -166,21 +165,17 @@ degGeneExpressionMarkers <- function (object, samples = c(""), contrasts, parame
     discrete.metadata.columns <- metadata.columns[vapply(object.sub@meta.data, .isDiscreteMetadataColumn, logical(1))]
     discrete.metadata.column.options <- paste0("  - ", discrete.metadata.columns, collapse = "\n")
     param.to.test <- gsub("\\.", "_", parameter.to.test)
+    param.to.test <- as.character(param.to.test)
+    param.to.test <- param.to.test[nzchar(trimws(param.to.test))]
     
-    if (param.to.test == "") {
-        print("Possible parameter.to.test columns with categorical/discrete values:")
-        cat(discrete.metadata.column.options, "\n")
-        default.columns <- metadata.columns[grepl("RNA_snn|SCT_snn|seurat_clusters", metadata.columns)]
-        default.columns <- default.columns[default.columns %in% discrete.metadata.columns]
-        if (length(default.columns) == 0) {
-            default.columns <- discrete.metadata.columns
-        }
-        if (length(default.columns) == 0) {
-            stop("No categorical/discrete metadata columns found for parameter.to.test.")
-        }
-        param.to.test <- default.columns[[1]]
-        print(paste("No parameter selected, defaulting to", param.to.test))
+    if (length(param.to.test) == 0) {
+        stop(paste0(
+            "parameter.to.test is required.\n",
+            "Possible parameter.to.test columns with categorical/discrete values:\n",
+            if (length(discrete.metadata.columns) == 0) "  - <none>" else discrete.metadata.column.options
+        ), call. = FALSE)
     }
+    param.to.test <- param.to.test[[1]]
     if (!(param.to.test %in% metadata.columns)) {
         print(paste(param.to.test, "is not a valid parameter.to.test metadata column."))
         print("Possible parameter.to.test columns with categorical/discrete values:")
