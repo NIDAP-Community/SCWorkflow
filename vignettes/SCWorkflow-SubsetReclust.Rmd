@@ -44,9 +44,9 @@ This  function subsets your Seurat object. Select a metadata column and values m
 filter_SO=filterSeuratObjectByMetadata(
                    object = Anno_SO$object,
                    samples.to.include = c("PBS","ENT","NHSIL12","Combo","CD8dep"),
-                   sample.name = 'orig.ident',
-                   category.to.filter = 'immgen_main',
-                   values.to.filter = c('Monocytes','Macrophages','DC'),
+                   sample.name = "orig.ident",
+                   category.to.filter = "immgen_main",
+                   values.to.filter = c("Monocytes","Macrophages","DC"),
                    keep.or.remove = FALSE,
                    greater.less.than = "greater than",
                    colors = c(
@@ -111,12 +111,14 @@ reClust_SO=reclusterSeuratObject(
                               )
 
 ```
+
 ```{r,echo=F,eval=run_Chunks}
 saveRDS(reClust_SO, file="./images/reClust_SO.rds")
 
 ggsave(reClust_SO$plots, filename = "./images/SubRec_recl.png", width = 18, height = 10)
 
 ```
+
 ![](./images/SubRec_recl.png){width=600}
    
 <br><br>    

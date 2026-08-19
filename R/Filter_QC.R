@@ -1,6 +1,7 @@
-#' @title Filter & QC Samples 
-#' @description Filters cells and Genes for each sample and generates QC Plots 
-#' to evaluate data before and after filtering. 
+#' @title Filter Low Quality Cells (CCBR scRNA-seq)
+#' @description Filters cells and genes across various criteria for each sample.
+#' Multiple cell and gene filters can be selected to remove poor quality data
+#' and noise while generating QC plots before and after filtering.
 #' @details This is Step 2 in the basic Single-Cell RNA-seq workflow. Multiple 
 #' cell and gene filters can be selected to remove poor quality data and noise. 
 #' Workflows can use this downstream of any Seurat Object. This tool is 
@@ -71,18 +72,18 @@
 #' Usage c(lower limit, Upper Limit). E.g. setting to c(NA,50) will not set a 
 #' lower limit and remove cells with greater than 50% of reads in the top N 
 #' genes. (Default: c(NA,NA))
-#' @param mad.topNgenes.limitsSet Filter limits based on how many Median 
+#' @param mad.topNgenes.limits Filter limits based on how many Median 
 #' Absolute Deviations an outlier cell will have. Calculated from the Median 
 #' percentage of counts in the top N Genes.
 #' Usage c(lower limit, Upper Limit). E.g. setting to c(5,5) will remove all 
 #' cells with more than 5 absolute deviations greater than or 5 absolute 
 #' deviations less than the median percentage. (Default: c(5,5))
-#' @param n.topgnes Select the number of top highly expressed genes used to 
+#' @param n.topgenes Select the number of top highly expressed genes used to 
 #' calculate the percentage of reads found in these genes. 
 #' E.g. a value of 20 calculates the percentage of reads found in the top 20 
 #' most highly expressed Genes.
 #' (Default: 20)
-#' @param do.doublets.fitler Use scDblFinder to identify and remove doublet 
+#' @param do.doublets.filter Use scDblFinder to identify and remove doublet 
 #' cells. Doublets are defined as two cells that are sequenced under the same 
 #' cellular barcode, for example, if they were captured in the same droplet.
 #' (Default: TRUE)
@@ -104,12 +105,22 @@
 #' @importFrom stringr str_split_fixed
 #' @importFrom stats mad median
 #' @importFrom grid grobHeight textGrob grid.newpage gTree grid.draw
-
+#'
 #' 
 #' @export
 #' 
 #' @return Seurat Object and QC plots
-
+#' 
+#' @examples
+#' \dontrun{
+#' out <- filterQC(
+#'   object = so_list,
+#'   min.cells = 20,
+#'   n.topgenes = 20,
+#'   do.doublets.filter = TRUE
+#' )
+#' }
+#'
 filterQC <- function(object,
                      
                      ## Filter Samples
@@ -125,8 +136,8 @@ filterQC <- function(object,
                      mad.complexity.limits = c(5,NA),
                      topNgenes.limits = c(NA,NA),
                      mad.topNgenes.limits = c(5,5),
-                     n.topgnes=20,
-                     do.doublets.fitler=T,
+                     n.topgenes=20,
+                     do.doublets.filter=TRUE,
                      
                      ## dim Reduction settings
                      plot.outliers="None", #options(None,UMAP,tSNE) 
@@ -138,7 +149,7 @@ filterQC <- function(object,
                      high.cut.disp = 100000,
                      selection.method = "vst",
                      npcs = 30,
-                     vars_to_regress=NULL,
+                     vars.to.regress=NULL,
                      seed.for.PCA = 42,
                      seed.for.TSNE = 1,
                      seed.for.UMAP = 42
@@ -155,7 +166,7 @@ filterQC <- function(object,
   
   ### Helper Functions #####
   
-  .topNGenes <- function(so,n.topgnes) { 
+  .topNGenes <- function(so,n.topgenes) { 
     ##Extract counts table
     counts_matrix = GetAssayData(so, slot="counts")
     
@@ -163,7 +174,7 @@ filterQC <- function(object,
     tbl=  apply(counts_matrix,2,function(i){
       cnts=i[order(i,decreasing=T)]
       
-      t20=sum(cnts[1:n.topgnes])
+      t20=sum(cnts[1:n.topgenes])
       total=sum(cnts)
       
       pertop20=(t20/total)*100
@@ -214,7 +225,7 @@ filterQC <- function(object,
   .plotViolin2=function(count.df,value){
     axis.lab = unique(count.df$filt)
     ylabs=gsub(" \\(", "\n\\(",value)
-    ylabs=gsub(paste0(" Top",n.topgnes), paste0("\nTop",n.topgnes),ylabs)
+    ylabs=gsub(paste0(" Top",n.topgenes), paste0("\nTop",n.topgenes),ylabs)
     
     ### Set up table fore cut off lines
     ## clean up cutoff values
@@ -301,7 +312,7 @@ filterQC <- function(object,
     # count.df$filt=factor(count.df$filt,levels = c('filt','raw'))
     count.df$filt=factor(count.df$filt,levels = c('raw','filt'))
     ylabs=gsub(" \\(", "\n\\(",value)
-    ylabs=gsub(paste0(" Top",n.topgnes), paste0("\nTop",n.topgnes),ylabs)
+    ylabs=gsub(paste0(" Top",n.topgenes), paste0("\nTop",n.topgenes),ylabs)
     
     ### Set up table fore cut off lines
     ## clean up cutoff values
@@ -469,7 +480,7 @@ filterQC <- function(object,
     xlab = as.character(xaxis)	
     ylab = as.character(yaxis)	
     ylab=gsub(" \\(", "\n\\(",ylab)
-    ylab=gsub(paste0(" Top",n.topgnes), paste0("\nTop",n.topgnes),ylab)
+    ylab=gsub(paste0(" Top",n.topgenes), paste0("\nTop",n.topgenes),ylab)
     
     name = paste(ylab,"vs.",xlab)          
     g =ggplot(count.df, aes(x=.data[[xaxis]], y=.data[[yaxis]],color = Sample))+
@@ -510,7 +521,7 @@ filterQC <- function(object,
   .plotViolinPost2=function(count.df,yaxis){
     axis.lab = unique(count.df$Sample)
     ylabs=gsub(" \\(", "\n\\(",yaxis)
-    ylabs=gsub(paste0(" Top",n.topgnes), paste0("\nTop",n.topgnes),ylabs)
+    ylabs=gsub(paste0(" Top",n.topgenes), paste0("\nTop",n.topgenes),ylabs)
     
     
     g=ggplot(count.df, aes(x=Sample, y=(.data[[yaxis]]))) +
@@ -548,7 +559,7 @@ filterQC <- function(object,
     
     if(plot.outliers!="none"){
       so.nf.qcFiltr <- SCTransform(so.nf,do.correct.umi = TRUE,
-                                vars.to.regress=vars_to_regress, 
+                                vars.to.regress=vars.to.regress, 
                                 return.only.var.genes = FALSE)
       so.nf.qcFiltr = FindVariableFeatures(object = so.nf.qcFiltr, 
                              nfeatures = nfeatures, 
@@ -625,7 +636,7 @@ filterQC <- function(object,
     ## Caluclate filter Metrics
     
     ## calculate Counts in Top 20 Genes
-    so=.topNGenes(so,n.topgnes)
+    so=.topNGenes(so,n.topgenes)
     
     ## Counts(umi) Filter 
     mad.ncounts.limits=.madCalc(so,'nCount_RNA',mad.ncounts.limits)
@@ -700,7 +711,7 @@ filterQC <- function(object,
     )    
     
     ## doublets Filter
-    if(do.doublets.fitler==T){
+    if(do.doublets.filter==T){
       doublets.fitler <- so@meta.data$Doublet%in%"singlet"
     }else{
       doublets.fitler=rep(TRUE,nrow(so@meta.data))
@@ -749,7 +760,7 @@ filterQC <- function(object,
       filtSum[,"Cells before Filtering"]=nrow(filter_matrix)
       filtSum[,"Cells after all Filters"]=sum(filterIndex)
       filtSum[,"Percent Remaining"]=perc.remain
-    topN.filterRename=paste0('% Counts in Top',n.topgnes,' Genes filter')
+    topN.filterRename=paste0('% Counts in Top',n.topgenes,' Genes filter')
     filtTbl=colSums(filter_matrix==F)%>%t()%>%as.data.frame()
     filtTbl=rename(filtTbl,
                    'UMI Count (nCount_RNA)' = 'ncounts.filter',
@@ -767,7 +778,7 @@ filterQC <- function(object,
         
     ########################################################## #    
     ## create Filter Limits table
-        topN.filterRename=paste0('% Counts in Top',n.topgnes,' Genes')
+        topN.filterRename=paste0('% Counts in Top',n.topgenes,' Genes')
   cat('VDJ Genes Removed: ',length(VDJgenesOut), '\n')      
   cat('Minimum Cells per Gene: ',min.cells,'\n')
   cat('UMI Count (nCount_RNA) Limits: ',ncounts.limits,'\n')
@@ -780,7 +791,7 @@ filterQC <- function(object,
   cat('MAD Complexity (log10GenesPerUMI) Limits: ',mad.complexity.limits,'\n')
   cat(topN.filterRename,' Limits: ',topNgenes.limits,'\n')
   cat('MAD ',topN.filterRename,' Limits: ',mad.topNgenes.limits,'\n')
-  cat('Doublets Filter: ',do.doublets.fitler,'\n')
+  cat('Doublets Filter: ',do.doublets.filter,'\n')
   
     
     
@@ -821,7 +832,7 @@ filterQC <- function(object,
       paste0(c("Low:","High:"),topNgenes.limits)%>%paste(collapse = "\n")
     FiltLmts[,paste0('MAD ',topN.filterRename,'')]=
       paste0(c("Low:","High:"),mad.topNgenes.limits)%>%paste(collapse = "\n")
-    FiltLmts[,'DoubletFinder (scDblFinder)']=do.doublets.fitler
+    FiltLmts[,'DoubletFinder (scDblFinder)']=do.doublets.filter
     rownames(FiltLmts)=i
     
     ### Apply Filters ####
@@ -878,13 +889,13 @@ filterQC <- function(object,
     
     ## calculate Counts in Top 20 Genes
     ##calculated after min.cell filter as well
-    so=.topNGenes(so,n.topgnes) 
+    so=.topNGenes(so,n.topgenes) 
     
     ## Annotate Doublets: ####
     ## Gene filter does not effect doublet ident and so not recalculated
     
     
-    if( do.doublets.fitler==T){
+    if( do.doublets.filter==T){
     sce <- as.SingleCellExperiment(so)
       
       set.seed(123)
@@ -995,7 +1006,7 @@ filterQC <- function(object,
   table.meta$nFeature_RNA=as.numeric(table.meta$nFeature_RNA)
   table.meta$filt=factor(table.meta$filt,levels = c('raw','filt'))
   
-  topN.filterRename=paste0('% Counts in Top',n.topgnes,' Genes')
+  topN.filterRename=paste0('% Counts in Top',n.topgenes,' Genes')
   
   table.meta=rename(table.meta,
                     'UMI Count (nCount_RNA)' = 'nCount_RNA',

@@ -2,12 +2,12 @@
 % Please edit documentation in R/Filter_Seurat_Object_by_Metadata.R
 \name{filterSeuratObjectByMetadata}
 \alias{filterSeuratObjectByMetadata}
-\title{Filter Seurat Object by Metadata}
+\title{Subset Seurat Object \link{CCBR} \link{scRNA-seq}}
 \usage{
 filterSeuratObjectByMetadata(
   object,
-  samples.to.include,
-  sample.name,
+  samples.to.include = c(""),
+  sample.name = "",
   category.to.filter,
   values.to.filter,
   keep.or.remove = TRUE,
@@ -40,9 +40,10 @@ filterSeuratObjectByMetadata(
 \arguments{
 \item{object}{A dataset containing your SingleR annotated/merged seurat object}
 
-\item{samples.to.include}{Select which samples to include}
+\item{samples.to.include}{Select which samples to include. Leave blank to
+include all samples.}
 
-\item{sample.name}{Sample Name Column}
+\item{sample.name}{Sample Name Column. Leave blank to use all samples.}
 
 \item{category.to.filter}{What kind of metadata you want to subset by.
 This should be one column in your Metadata table}
@@ -89,9 +90,23 @@ from CITEseq instead of scRNA.}
 a subset Seurat object
 }
 \description{
-Filter and subset your Seurat object based on metadata column
+This function subsets your Seurat object by selecting a
+metadata column and values matching the cells to pass forward in analysis.
 }
 \details{
 This is a downstream template that should be loaded after
 Step 5 of the pipeline (SingleR Annotations on Seurat Object)
+}
+\examples{
+\dontrun{
+out <- filterSeuratObjectByMetadata(
+  object = anno_so,
+  samples.to.include = c("sample1", "sample2"),
+  sample.name = "orig.ident",
+  category.to.filter = "celltype",
+  values.to.filter = c("T cell", "B cell")
+)
+}
+
+
 }

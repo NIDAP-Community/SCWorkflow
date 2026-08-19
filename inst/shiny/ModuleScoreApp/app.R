@@ -82,7 +82,7 @@ ui <- fluidPage(
       numericInput("nbins", "nbins", value = 10, min = 5, max = 50),
       numericInput("gradient_size", "Gradient axis text size", value = 6, min = 4, max = 14),
       numericInput("violin_size", "Violin axis text size", value = 6, min = 4, max = 14),
-      numericInput("step_size", "Axis step size", value = 0.1, min = 0.05, max = 0.5, step = 0.05)
+      numericInput("step.size", "Axis step size", value = 0.1, min = 0.05, max = 0.5, step = 0.05)
     ),
     mainPanel(
       uiOutput("plots_ui"),
@@ -325,10 +325,10 @@ server <- function(input, output, session) {
         list(
         object = object_rv(),
         markers = marker_rv(),
-        use_columns = names(marker_rv()),
+        use.columns = names(marker_rv()),
         reduction = input$reduction,
         nbins = input$nbins,
-        group_var = input$meta_var
+        group.var = input$meta_var
       )
     })
 
@@ -339,49 +339,49 @@ server <- function(input, output, session) {
       req(args$object, length(args$markers) > 0)
       compute_fun(
         object = args$object, 
-        marker_list = args$markers, 
-        use_columns = args$use_columns,
+        marker.list = args$markers, 
+        use.columns = args$use.columns,
         reduction = args$reduction,
         nbins = args$nbins, 
-        group_var = args$group_var)
+        group.var = args$group.var)
     }) %>% bindCache(
       compute_args()$object,
       compute_args()$markers,
       compute_args()$reduction,
       compute_args()$nbins,
-      compute_args()$group_var
+      compute_args()$group.var
     )
 
   observeEvent(input$compute, {
 
     req(object_rv(), input$meta_var)
-    marker_list <- marker_rv()
+    marker.list <- marker_rv()
 
-    if (length(marker_list) == 0) {
+    if (length(marker.list) == 0) {
       showNotification("Marker table is empty. Add celltypes + genes first.", type = "error")
       return(NULL)
     }
 
-    use_columns <- names(marker_list)
-    celltypes_rv(use_columns)
+    use.columns <- names(marker.list)
+    celltypes_rv(use.columns)
 
     # reconcile thresholds per current celltypes
     old_th <- thresholds_rv()
-    new_th <- setNames(numeric(length(use_columns)), use_columns)
-    for (ct in use_columns) {
+    new_th <- setNames(numeric(length(use.columns)), use.columns)
+    for (ct in use.columns) {
       new_th[ct] <- if (!is.null(old_th[ct])) old_th[ct] else 0
     }
     thresholds_rv(new_th)
 
-    present_counts <- vapply(marker_list, function(genes)
+    present_counts <- vapply(marker.list, function(genes)
       sum(genes %in% rownames(object_rv()@assays$SCT@data)), numeric(1))
     if (any(present_counts == 0)) {
       missing <- names(present_counts)[present_counts == 0]
       showNotification(sprintf("Skipping celltypes with all genes missing: %s",
                                paste(missing, collapse = ", ")), type = "warning")
-      marker_list <- marker_list[present_counts > 0]
-      use_columns <- names(marker_list)
-      celltypes_rv(use_columns)
+      marker.list <- marker.list[present_counts > 0]
+      use.columns <- names(marker.list)
+      celltypes_rv(use.columns)
     }
 
     # capture printed output and messages from compute
@@ -390,7 +390,7 @@ server <- function(input, output, session) {
     sink(con); sink(con, type = "message")
 
     # decide whether to use cached compute based on marker snapshot
-    current_snapshot <- canonicalize_markers(marker_list)
+    current_snapshot <- canonicalize_markers(marker.list)
     use_cache <- !is.null(last_markers_snapshot()) && identical(last_markers_snapshot(), current_snapshot)
     res <- try({
         if (use_cache) {
@@ -400,11 +400,11 @@ server <- function(input, output, session) {
           args <- compute_args()
           compute_fun(
             object      = args$object,
-            marker_list = args$markers,
-            use_columns = args$use_columns,
+            marker.list = args$markers,
+            use.columns = args$use.columns,
             reduction   = args$reduction,
             nbins       = args$nbins,
-            group_var   = args$group_var
+            group.var   = args$group.var
           )
         }
     }, silent = TRUE)
@@ -452,14 +452,14 @@ server <- function(input, output, session) {
             object = entry$object,
             m = entry$m,
             coords = entry$coords,
-            clusid_df = entry$clusid_df,
+            clusid.df = entry$clusid.df,
             d = entry$density,
             threshold = thr,
-            gradient_ft_size = input$gradient_size,
-            violin_ft_size = input$violin_size,
-            step_size = input$step_size,
+            gradient.ft.size = input$gradient_size,
+            violin.ft.size = input$violin_size,
+            step.size = input$step.size,
             reduction = input$reduction,
-            group_var = input$meta_var
+            group.var = input$meta_var
           )
           p$g
         })
@@ -474,14 +474,14 @@ server <- function(input, output, session) {
             object = entry$object,
             m = entry$m,
             coords = entry$coords,
-            clusid_df = entry$clusid_df,
+            clusid.df = entry$clusid.df,
             d = entry$density,
             threshold = thr,
-            gradient_ft_size = input$gradient_size,
-            violin_ft_size = input$violin_size,
-            step_size = input$step_size,
+            gradient.ft.size = input$gradient_size,
+            violin.ft.size = input$violin_size,
+            step.size = input$step.size,
             reduction = input$reduction,
-            group_var = input$meta_var
+            group.var = input$meta_var
           )
           p$g1
         })
@@ -496,14 +496,14 @@ server <- function(input, output, session) {
             object = entry$object,
             m = entry$m,
             coords = entry$coords,
-            clusid_df = entry$clusid_df,
+            clusid.df = entry$clusid.df,
             d = entry$density,
             threshold = thr,
-            gradient_ft_size = input$gradient_size,
-            violin_ft_size = input$violin_size,
-            step_size = input$step_size,
+            gradient.ft.size = input$gradient_size,
+            violin.ft.size = input$violin_size,
+            step.size = input$step.size,
             reduction = input$reduction,
-            group_var = input$meta_var
+            group.var = input$meta_var
           )
           p$g3
         })

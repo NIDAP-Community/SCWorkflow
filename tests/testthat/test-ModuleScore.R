@@ -7,19 +7,19 @@ test_that("modScore returns metadata with scores and cell calls for tec", {
   
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[1]]),
   #   "tec_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[2]]),
   #   "tec_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[3]]),
   #   "tec_MS_3.png"
   # )
   
@@ -46,19 +46,19 @@ test_that("modScore returns metadata with scores and cell calls for chariou", {
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[1]]),
   #   "chariou_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[2]]),
   #   "chariou_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[3]]),
   #   "chariou_MS_3.png"
   # )
 
@@ -86,19 +86,19 @@ test_that("modScore returns metadata with scores and cell calls for
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[1]]),
   #   "pbmc_single_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[2]]),
   #   "pbmc_single_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[3]]),
   #   "pbmc_single_MS_3.png"
   # )
 
@@ -126,19 +126,19 @@ test_that("modScore returns metadata with scores and cell calls for
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[1]]),
   #   "nsclc_multi_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[2]]),
   #   "nsclc_multi_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[3]]),
   #   "nsclc_multi_MS_3.png"
   # )
 
@@ -165,19 +165,19 @@ test_that("modScore returns metadata with scores and cell calls for brca", {
 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[1]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[1]]),
   #   "brca_multi_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[2]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[2]]),
   #   "brca_multi_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
-  #   .drawMSfig(modscore.demo[["object"]]$ms.figures[[3]]),
+  #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[3]]),
   #   "brca_multi_MS_3.png"
   # )
 
@@ -204,9 +204,9 @@ test_that("modScore detects when no genes are found in the data", {
   expect_error(suppressWarnings(modscore.demo <- modScore(
     object = chariou$object,
     marker.table = apply(chariou$marker.table,2, function(x) toupper(x)),
-    ms_threshold = chariou$ms_threshold,
+    ms.threshold = chariou$ms.threshold,
     general.class = chariou$general.class,
-    ms_threshold = chariou$ms_threshold,
+    ms.threshold = chariou$ms.threshold,
     nbins = 10), "No genes from list was found in data"))
 
 })
@@ -223,7 +223,7 @@ test_that("modScore detects when no genes are found in the data", {
 #     marker.table = chariou$marker.table,
 #     celltypes = chariou$celltypes,
 #     general.class = chariou$general.class,
-#     ms_threshold = chariou$ms_threshold,
+#     ms.threshold = chariou$ms.threshold,
 #     threshold = rep(0.1,5),
 #     nbins = 10),
 #     "Threshold length does not match # celltypes to analyze"))

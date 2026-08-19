@@ -1,16 +1,17 @@
-#' @title DEG (Gene Expression Markers)
-#' @description This function performs a DEG (differential expression of genes)
-#' analysis on a merged Seurat object to identify expression markers
-#' between different groups of cells (contrasts).
+#' @title DE with Find Markers [CCBR] [scRNA-seq]
+#' @description This function performs DE (differential expression) analysis on
+#' a merged Seurat object to identify expression markers between different
+#' groups of cells (contrasts).
 #' @details The recommended input is a merged Seurat object
 #' with SingleR annotations, along with its associated sample names and metadata
 #'
 #' @param object Seurat-class object
-#' @param samples Samples to be included in the analysis
+#' @param samples Samples to be included in the analysis. Leave blank to
+#' include all samples.
 #' @param contrasts Contrasts in the "A-B" format
 #' @param parameter.to.test Select the metadata column that you would like
 #' to use to perform your DEG analysis and construct your contrasts from.
-#' Default is "orig_ident"
+#' Leave blank to stop and print categorical/discrete metadata columns.
 #' @param test.to.use The kind of algorithm you would like to use
 #' to perform your DEG analysis. Default is the MAST algorithm
 #' (wilcox,bimod,roc,t,negbinom,poisson,LR,MAST,DESeq2).
@@ -20,8 +21,8 @@
 #' Default is FALSE
 #' @param assay.to.use The assay to use for your DEG analysis.
 #' Default is SCT, but can use linearly scaled data by selecting RNA instead
-
-
+#'
+#'
 #' @import Seurat
 #' @import ggplot2
 #' @import RColorBrewer
@@ -41,10 +42,20 @@
 #' @export
 #'
 #' @return a dataframe with DEG.
-
-
-
-degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.test = "orig_ident", 
+#'
+#' @examples
+#' \dontrun{
+#' deg <- degGeneExpressionMarkers(
+#'   object = anno_so,
+#'   samples = c("sample1", "sample2"),
+#'   contrasts = c("A-B"),
+#'   parameter.to.test = "cluster"
+#' )
+#' }
+#'
+#'
+#'
+degGeneExpressionMarkers <- function (object, samples = c(""), contrasts, parameter.to.test = "", 
     test.to.use = "MAST", log.fc.threshold = 0.25, use.spark = FALSE, 
     assay.to.use = "SCT") 
 {
@@ -69,6 +80,21 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
             first.cluster, "vs", second.cluster.name, sep = "_"))
         return(markers)
     }
+
+    .isDiscreteMetadataColumn <- function(values) {
+        values <- values[!is.na(values)]
+        if (length(values) == 0) {
+            return(FALSE)
+        }
+        if (is.factor(values) || is.character(values) || is.logical(values)) {
+            return(TRUE)
+        }
+        if (is.numeric(values) || is.integer(values)) {
+            unique.values <- unique(values)
+            return(length(unique.values) <= 100 && all(abs(unique.values - round(unique.values)) < sqrt(.Machine$double.eps)))
+        }
+        FALSE
+    }
     
     ## --------------- ##
     ## Main Code Block ##
@@ -82,23 +108,34 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
     }else{
       samples=samples
     }
-    
-    if (length(samples) == 0) {
-        samples = unique(object@meta.data$sample_name)
-    }
-    
-    
+    samples <- as.character(samples)
+    samples <- samples[nzchar(trimws(samples))]
+
     colnames(object@meta.data) <- gsub("orig_ident", "orig.ident", 
         colnames(object@meta.data))
+    sample.column <- if ("orig.ident" %in% colnames(object@meta.data)) {
+        "orig.ident"
+    } else if ("sample_name" %in% colnames(object@meta.data)) {
+        "sample_name"
+    } else {
+        stop("No sample column found. Expected 'orig.ident', 'orig_ident', or 'sample_name' in object metadata.")
+    }
+    possible.samples <- sort(unique(as.character(object@meta.data[[sample.column]])))
+    possible.samples <- possible.samples[nzchar(trimws(possible.samples))]
+    print("Possible sample names:")
+    print(possible.samples)
+    if (length(samples) == 0) {
+        samples = possible.samples
+    }
     if ("active.ident" %in% slotNames(object)) {
-        sample.name = as.factor(object@meta.data$orig.ident)
+        sample.name = as.factor(object@meta.data[[sample.column]])
         names(sample.name) = names(object@active.ident)
         object@active.ident <- as.factor(vector())
         object@active.ident <- sample.name
         object.sub = subset(object, ident = samples)
     }
     else {
-        sample.name = as.factor(object@meta.data$orig.ident)
+        sample.name = as.factor(object@meta.data[[sample.column]])
         names(sample.name) = names(object@active.ident)
         object@active.ident <- as.factor(vector())
         object@active.ident <- sample.name
@@ -124,14 +161,32 @@ degGeneExpressionMarkers <- function (object, samples, contrasts, parameter.to.t
             valid.columns <- c(valid.columns, i)
         }
     }
-    param.to.test <- parameter.to.test
+    metadata.columns <- colnames(object.sub@meta.data)
+    discrete.metadata.columns <- metadata.columns[vapply(object.sub@meta.data, .isDiscreteMetadataColumn, logical(1))]
+    discrete.metadata.column.options <- paste0("  - ", discrete.metadata.columns, collapse = "\n")
+    param.to.test <- gsub("\\.", "_", parameter.to.test)
+    param.to.test <- as.character(param.to.test)
+    param.to.test <- param.to.test[nzchar(trimws(param.to.test))]
     
-    if (param.to.test == "") {
-        mcols = colnames(object.sub@meta.data)
-        param.to.test <- mcols[grepl("RNA_snn", mcols)][[1]]
-        print(paste("No parameter selected, defaulting to", param.to.test))
+    if (length(param.to.test) == 0) {
+        stop(paste0(
+            "parameter.to.test is required.\n",
+            "Possible parameter.to.test columns with categorical/discrete values:\n",
+            if (length(discrete.metadata.columns) == 0) "  - <none>" else discrete.metadata.column.options
+        ), call. = FALSE)
+    }
+    param.to.test <- param.to.test[[1]]
+    if (!(param.to.test %in% metadata.columns)) {
+        print(paste(param.to.test, "is not a valid parameter.to.test metadata column."))
+        print("Possible parameter.to.test columns with categorical/discrete values:")
+        cat(discrete.metadata.column.options, "\n")
+        stop("You have entered an invalid metadata column for parameter.to.test.")
     }
     contrast.target <- object.sub@meta.data[[param.to.test]]
+    possible.parameter.values <- sort(unique(as.character(contrast.target)))
+    possible.parameter.values <- possible.parameter.values[nzchar(trimws(possible.parameter.values))]
+    print(paste0("Possible values for ", param.to.test, ":"))
+    cat(paste0("  - ", possible.parameter.values, collapse = "\n"), "\n")
     contrast.type <- param.to.test
     contrast.counts = as.data.frame(table(contrast.target))
     valid.contrasts = subset(contrast.counts, Freq > 2)[[1]]

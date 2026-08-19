@@ -249,8 +249,8 @@ compareCellPopulations <- function(
   
   # Return results
   result <- list(
-    'Plots' = list('Barplot' = p2, 'Boxplot' = p2_Box),
-    'Table' = ColTables$OutTable
+    'plots' = list('Barplot' = p2, 'Boxplot' = p2_Box),
+    'data' = ColTables$OutTable
   )
   
   return(result)

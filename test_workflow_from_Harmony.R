@@ -126,12 +126,12 @@ source('/data/bianjh/SCWorkflow/R/Violin_Plots_by_Metadata.R')
 group = "orig_ident"
 assay = 'Harmony'
 slot = 'scale.data'
-jitter_points = T
-jitter_dot_size = 4
-filter_outliers = F
-outlier_low = 0.05
-outlier_high = 0.95
-facet_by = ""
+jitter.points = T
+jitter.dot.size = 4
+filter.outliers = F
+outlier.low = 0.05
+outlier.high = 0.95
+facet.by = ""
 set.seed(82)
 genes = sample(rownames(object$Harmony@scale.data), 5,
                replace = FALSE)
@@ -141,12 +141,12 @@ violinPlot_mod(harm_object,
               slot, 
               genes, 
               group, 
-              facet_by = "", 
-              filter_outliers = F,
-              outlier_low = 0.05,
-              outlier_high = 0.95,
-              jitter_points, 
-              jitter_dot_size) 
+              facet.by = "", 
+              filter.outliers = F,
+              outlier.low = 0.05,
+              outlier.high = 0.95,
+              jitter.points, 
+              jitter.dot.size) 
 
 source('/data/bianjh/SCWorkflow/R/Heatmap.R')
 

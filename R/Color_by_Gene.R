@@ -35,8 +35,17 @@
 #' @export
 #'
 #' @return a Seurat object with additional metadata or gene table and plot
-
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- colorByGene(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   gene = c("CD3D", "MS4A1"),
+#'   reduction.type = "umap"
+#' )
+#' }
+#'
 
 colorByGene <- function(object,
                         samples.to.include,
@@ -65,16 +74,14 @@ colorByGene <- function(object,
   ## --------------- ##
   
   
-  print(object)
   # checking for samples
-  if(any(grepl('c\\(|\\[\\]',samples))) {
-    samples = eval(parse(text = gsub('\\[\\]', 'c()', samples)))
-  }else{
-    samples=samples
+  if (is.character(samples.to.include) && length(samples.to.include) == 1 &&
+      grepl('c\\(|\\[\\]', samples.to.include)) {
+    samples.to.include <- eval(parse(text = gsub('\\[\\]', 'c()', samples.to.include)))
   }
   # if none specified, using ALL
-  if (length(samples) == 0) {
-    samples = unique(object@meta.data$orig.ident)
+  if (length(samples.to.include) == 0) {
+    samples.to.include = unique(object@meta.data$orig.ident)
   }
   
   # Fix for underscore
@@ -85,13 +92,13 @@ colorByGene <- function(object,
     names(sample.name) = names(object@active.ident)
     object@active.ident <- as.factor(vector())
     object@active.ident <- sample.name
-    object.sub = subset(object, ident = samples)
+    object.sub = subset(object, ident = samples.to.include)
   } else {
     sample.name = as.factor(object@meta.data$orig.ident)
     names(sample.name) = names(object@active.ident)
     object@active.ident <- as.factor(vector())
     object@active.ident <- sample.name
-    object.sub = subset(object, ident = samples)
+    object.sub = subset(object, ident = samples.to.include)
   }
   
   #Check input for missing genes

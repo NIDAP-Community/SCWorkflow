@@ -4,7 +4,7 @@ test_that("Color by Gene using TEC (Mouse) dataset with normal parameters", {
   
   ggsave(
     "output/TEC_colbygeneplot_Gapdh.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
@@ -12,14 +12,14 @@ test_that("Color by Gene using TEC (Mouse) dataset with normal parameters", {
   
   ggsave(
     "output/TEC_colbygeneplot_Il2ra.png",
-    output$plot[[2]],
+    output$plots[[2]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "TEC_colbygeneplot_Il2ra.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -29,14 +29,14 @@ test_that("Color by Gene using Chariou (Mouse) dataset", {
   
   ggsave(
     "output/Chariou_colbygeneplot_Gapdh.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "Chariou_colbygeneplot_Gapdh.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -47,14 +47,14 @@ test_that("Color by Gene using BRCA (Human) dataset", {
   
   ggsave(
     "output/BRCA_colbygeneplot_PARP8.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "BRCA_colbygeneplot_PARP8.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -65,7 +65,7 @@ test_that("Test Annotate Cell Types using NSCLCmulti (Human) dataset", {
   
   ggsave(
     "output/NSCLCmulti_colbygeneplot_AMER2.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
@@ -73,7 +73,7 @@ test_that("Test Annotate Cell Types using NSCLCmulti (Human) dataset", {
 
   ggsave(
     "output/NSCLCmulti_colbygeneplot_CD9.png",
-    output$plot[[2]],
+    output$plots[[2]],
     width = 10,
     height = 10
   )
@@ -81,14 +81,14 @@ test_that("Test Annotate Cell Types using NSCLCmulti (Human) dataset", {
   
   ggsave(
     "output/NSCLCmulti_colbygeneplot_CEBPD.png",
-    output$plot[[3]],
+    output$plots[[3]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "NSCLCmulti_colbygeneplot_CEBPD.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -100,14 +100,14 @@ test_that("Test Annotate Cell Types using PBMCsingle (Human) dataset", {
   
   ggsave(
     "output/PBMCsingle_colbygeneplot_MYC.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "PBMCsingle_colbygeneplot_MYC.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -120,7 +120,7 @@ test_that("Color by Gene using TEC (Mouse) dataset, TSNE", {
   
   ggsave(
     "output/TEC_colbygeneplot_Gapdh.tsne.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
@@ -128,14 +128,14 @@ test_that("Color by Gene using TEC (Mouse) dataset, TSNE", {
   
   ggsave(
     "output/TEC_colbygeneplot_Il2ra.tsne.png",
-    output$plot[[2]],
+    output$plots[[2]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "TEC_colbygeneplot_Il2ra.tsne.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
 
@@ -148,7 +148,7 @@ test_that("Color by Gene using TEC (Mouse) dataset, Blue color", {
   
   ggsave(
     "output/TEC_colbygeneplot_Gapdh.tsne.png",
-    output$plot[[1]],
+    output$plots[[1]],
     width = 10,
     height = 10
   )
@@ -156,13 +156,13 @@ test_that("Color by Gene using TEC (Mouse) dataset, Blue color", {
   
   ggsave(
     "output/TEC_colbygeneplot_Il2ra.tsne.png",
-    output$plot[[2]],
+    output$plots[[2]],
     width = 10,
     height = 10
   )
   expect_snapshot_file("output", "TEC_colbygeneplot_Il2ra.blue.png")
   
   expect_type(output, "list")
-  expected.elements <- c("object", "plot")
+  expected.elements <- c("data", "plots")
   expect_setequal(names(output), expected.elements)
 })
