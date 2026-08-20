@@ -184,7 +184,7 @@ processRawData <- function(input,
     ## Error Check for Correct Organism using mitochondrial count
     mt.cell.count=(so.nf[["percent.mt"]]>0)%>%sum()
     if(mt.cell.count<length(so.nf[["percent.mt"]])){
-      stop("No Mitochondrial Genes Detetcted: Wrong Organism may be selected.
+      stop("No Mitochondrial Genes Detected: Wrong Organism may be selected.
            Supported Organisms are Human or Mouse")
     }
 
@@ -429,6 +429,21 @@ processRawData <- function(input,
                             function(x) gsub("_filtered(\\w+)?.h5","", x))
   names(obj.list) <- sapply(names(obj.list), 
                             function(x) gsub("\\.(\\w+)?","", x))
+
+
+  ### Read Metadata table ####
+  if(is.null(sample.metadata.table)==F){
+    meta_class <- getClass(class(sample.metadata.table)) 
+    if (meta_class@className=='character'){
+      
+      meta.table=read.delim(file = sample.metadata.table,
+                            header = T,sep = '\t')%>%
+        suppressWarnings()
+      
+    } else {
+      meta.table=sample.metadata.table
+    }
+  }
   
   
   if (length(input.tcr)>0) {
@@ -518,8 +533,32 @@ processRawData <- function(input,
   }
   
   
-  
   ### Split SO ####
+
+    if(is.null(sample.metadata.table)==F){
+      input.h5.count <- length(input.dat[grepl('\\.h5$',input.dat)])
+      has.sample.name.column <- !is.null(sample.name.column) &&
+        nzchar(sample.name.column) &&
+        sample.name.column %in% colnames(meta.table)
+      if (has.sample.name.column) {
+        metadata.sample.count <- length(unique(meta.table[,sample.name.column]))
+      } else {
+        metadata.sample.count <- nrow(meta.table)
+      }
+      if (input.h5.count > 0 && metadata.sample.count != input.h5.count && split.h5 == FALSE) {
+        stop(paste0(
+          "The metadata table contains ", metadata.sample.count,
+          " sample(s), but ", input.h5.count,
+          " .h5 file(s) were provided. If an .h5 file contains multiple samples, check the split.h5 parameter and set it to TRUE."
+        ))
+      }
+      if (!has.sample.name.column) {
+        stop(paste0(
+          "sample.name.column must match a column in the metadata table. Available columns: ",
+          paste(colnames(meta.table), collapse = ", ")
+        ))
+      }
+    }
   
   if(split.h5 == TRUE){
     if (length(so.orig.nf)==1) {
@@ -556,18 +595,8 @@ processRawData <- function(input,
   so.orig.nf <- lapply(so.orig.nf, CC_FVF_so) %>%suppressWarnings()
   
   
-  ### Process Metadata table ####
+  ### Check Metadata table ####
   if(is.null(sample.metadata.table)==F){
-    meta_class <- getClass(class(sample.metadata.table)) 
-    if (meta_class@className=='character'){
-      
-      meta.table=read.delim(file = sample.metadata.table,
-                            header = T,sep = '\t')%>%
-        suppressWarnings()
-      
-    } else {
-      meta.table=sample.metadata.table
-    }
     if (length(setdiff(meta.table[,sample.name.column],names(so.orig.nf)))>0) {
       stop(paste0("
                   Names in the sample metadata column: '",sample.name.column,
@@ -617,7 +646,7 @@ processRawData <- function(input,
   
   
   ### Rename Samples ####
-  if(is.null(sample.metadata.table)==F&is.null(rename.col)==F){
+  if(is.null(sample.metadata.table)==F&is.null(rename.col)==F && isTRUE(nzchar(rename.col))){
     if(sample.name.column!=rename.col){
       if(identical(sort(names(so.orig.nf)), 
                    sort(meta.table[[sample.name.column]]))){

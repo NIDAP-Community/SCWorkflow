@@ -6,8 +6,8 @@
 \usage{
 filterSeuratObjectByMetadata(
   object,
-  samples.to.include,
-  sample.name,
+  samples.to.include = c(""),
+  sample.name = "",
   category.to.filter,
   values.to.filter,
   keep.or.remove = TRUE,
@@ -40,9 +40,10 @@ filterSeuratObjectByMetadata(
 \arguments{
 \item{object}{A dataset containing your SingleR annotated/merged seurat object}
 
-\item{samples.to.include}{Select which samples to include}
+\item{samples.to.include}{Select which samples to include. Leave blank to
+include all samples.}
 
-\item{sample.name}{Sample Name Column}
+\item{sample.name}{Sample Name Column. Leave blank to use all samples.}
 
 \item{category.to.filter}{What kind of metadata you want to subset by.
 This should be one column in your Metadata table}
