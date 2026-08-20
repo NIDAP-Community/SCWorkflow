@@ -1,0 +1,33 @@
+name: gh-projects
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: read
+
+jobs:
+  NIDAP-projects:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate a token
+        id: generate-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.CCBR_BOT_APP_ID }}
+          private-key: ${{ secrets.CCBR_BOT_PRIVATE_KEY }}
+          owner: NIDAP-Community
+
+      - name: add to NIDAP SCWorkflow project
+        uses: actions/add-to-project@v1.0.2
+        if: github.event_name == 'issues'
+        with:
+          project-url: https://github.com/orgs/NIDAP-Community/projects/6
+          github-token: ${{ steps.generate-token.outputs.token }}
