@@ -3,7 +3,7 @@
 title: "Import Data and Quality Control"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{SCWorkflow-Overview}
+  %\VignetteIndexEntry{SCWorkflow-QC}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 
@@ -52,10 +52,10 @@ A corresponding Metadata table can be used to add sample level information to th
 #                      'TNBC','TNBC','TNBC'))%>%
 #   head()%>%knitr::kable()
 
-SampleMetadataTable=data.table(Sample_Name=c('SCAF1713_1_1','SCAF1714_2_1','SCAF1715_3_1',
-                                'SCAF1716_4_1','SCAF1717_5_1'),
+SampleMetadataTable=data.table(Sample_Name=c("SCAF1713_1_1","SCAF1714_2_1","SCAF1715_3_1",
+                                "SCAF1716_4_1","SCAF1717_5_1"),
                  Rename=c("PBS","ENT","NHSIL12","Combo","CD8dep"),
-                Treatment=c('WT',"Entinostat","NHS-IL12","Entinostat + NHS-IL12",'Entinostat + NHS-IL12'))
+                Treatment=c("WT","Entinostat","NHS-IL12","Entinostat + NHS-IL12","Entinostat + NHS-IL12"))
 write.table(SampleMetadataTable,
             file = "./images/Sample_Metadata.txt",
             sep = '\t',
@@ -76,9 +76,9 @@ files=list.files(path="../tests/testthat/fixtures/Chariou/h5files",full.names = 
 
 SOlist=processRawData(input=files,
                sample.metadata.table=SampleMetadataTable,
-               sample.name.column='Sample_Name',
+               sample.name.column="Sample_Name",
                organism="Mouse",
-               rename.col='Rename',
+               rename.col="Rename",
                keep=T,
                file.filter.regex=c(),
                split.h5=F,
@@ -123,7 +123,7 @@ The function will return a filtered Seurat Object and various figures showing me
 SO_filtered=filterQC(object=SOlist$object,
                      ## Filter Genes
                      min.cells = 20,
-                     filter.vdj.genes=F,
+                     filter.vdj.genes=FALSE,
                      
                      ## Filter Cells
                      nfeature.limits=c(NA,NA),
@@ -136,9 +136,8 @@ SO_filtered=filterQC(object=SOlist$object,
                      mad.complexity.limits = c(5,NA),
                      topNgenes.limits = c(NA,NA),
                      mad.topNgenes.limits = c(5,5),
-                     n.topgnes=20,
-                     do.doublets.fitler=T
-                                 
+                     n.topgenes=20,
+                     do.doublets.filter=TRUE
             )
 
 
@@ -177,7 +176,7 @@ Comb_SO=combineNormalize(
                          high.cut = 8,
                          low.cut.disp = 1,
                          high.cut.disp = 100000,
-                         selection.method = 'vst',
+                         selection.method = "vst",
                      # Dim Reduction
                          only.var.genes = FALSE,
                          draw.umap = TRUE,
@@ -199,7 +198,7 @@ Comb_SO=combineNormalize(
                          exclude.sample = NULL,
                          cell.count.limit= 35000,
                          reduce.so = FALSE,
-                         project.name = 'scRNAProject',
+                         project.name = "scRNAProject",
                          cell.hashing.data = FALSE
 )
 

@@ -1,6 +1,15 @@
 # CHANGELOG
 
+## v1.0.3 (in development)
 
+### Feature
+
+* feat: Add compareCellPopulations() function for comparing cell population distributions across experimental groups
+  - Visualizes cell population frequencies or absolute counts across multiple groups
+  - Generates alluvial flow bar plots and faceted box plots
+  - Supports custom group ordering and color palettes
+  - Added ggalluvial dependency for flow visualizations
+  - Generated from JSON template using json2r.prompt.md instructions
 
 ## v1.0.2 (2024-02-01)
 

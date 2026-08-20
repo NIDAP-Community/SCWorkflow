@@ -45,7 +45,7 @@ This function visualizes your plot based on selected metadata. Users can customi
 FigOut=plotMetadata(
             object=Anno_SO$object,
             samples.to.include=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-            metadata.to.plot=c('SCT_snn_res.0.4','Phase'),
+            metadata.to.plot=c("SCT_snn_res.0.4","Phase"),
             columns.to.summarize=NULL,
             summarization.cut.off = 5,
             reduction.type = "umap",
@@ -84,8 +84,8 @@ The algorithm employs an iterative process to adjust the positions of cells in a
 
 FigOut=tSNE3D(
            object=Anno_SO$object,
-           color.variable='SCT_snn_res.0.4',
-           label.variable='SCT_snn_res.0.4',
+           color.variable="SCT_snn_res.0.4",
+           label.variable="SCT_snn_res.0.4",
            dot.size = 4,
            legend = TRUE,
            colors = c("darkblue","purple4","green","red","darkcyan",
@@ -108,10 +108,10 @@ saveWidget(as_widget(FigOut$plots), file = "./images/Vis_3D.html")
 library(rvest)
 library(htmltools)
 # readRDS("./images/Vis_3D.rds")
-# htmltools::includeHTML('./images/Vis_3D.html')
-# shiny::includeHTML('./images/Vis_3D.html')
+# htmltools::includeHTML("./images/Vis_3D.html")
+# shiny::includeHTML("./images/Vis_3D.html")
 
-html_content <- read_html('./images/Vis_3D.html')
+html_content <- read_html("./images/Vis_3D.html")
 print(html_content)
 ```
 
@@ -132,7 +132,7 @@ This function visualizes expression values of the chosen gene or protein in diff
 FigOut=colorByGene(
             object=Anno_SO$object,
             samples.to.include=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-            gene='Itgam',
+            gene="Itgam",
             reduction.type = "umap",
             number.of.rows = 0,
             return.seurat.object = FALSE,
@@ -173,24 +173,24 @@ You can choose how the plot looks - whether it's laid out like a grid, in rows, 
 
 ```{r,eval=run_Chunks}
 
-FigOut=violinPlot_mod(
+FigOut=violinPlot(
                 object=Anno_SO$object, 
-                assay='SCT', 
-                slot='scale.data', 
-                genes=c('Cd163','Cd38'), 
-                group='SCT_snn_res.0.4', 
-                facet_by = "", 
-                filter_outliers = F,
-                outlier_low = 0.05,
-                outlier_high = 0.95,
-                jitter_points = TRUE, 
-                jitter_dot_size = 1
+                assay="SCT", 
+                layer="scale.data", 
+                genes=c("Itgam","Cd38"), 
+                group="SCT_snn_res.0.4", 
+                facet.by = "", 
+                filter.outliers = F,
+                outlier.low = 0.05,
+                outlier.high = 0.95,
+                jitter.points = TRUE, 
+                jitter.dot.size = 1
           )
 
 ```
 ```{r,eval=run_Chunks,echo=F,results='hide'}
 
-ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 5)
+ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 7)
 
 # png(filename="./images/Vis_Violin.png",width = 500,height = 350,pointsize = 10)
 # (FigOut$plot)
@@ -198,7 +198,7 @@ ggsave(FigOut$plots, filename = "./images/Vis_Violin.png", width = 12, height = 
 
 ```
 
-![](./images/Vis_Violin.png){width=600} 
+![](./images/Vis_Violin.png)
 
 <br>
 
@@ -225,9 +225,9 @@ The heatmap is produced by a package called ComplexHeatmap [3] and presents the 
 FigOut=heatmapSC(
           object=Anno_SO$object,
           sample.names=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
-          metadata='SCT_snn_res.0.4',
-          transcripts=c('Cd163','Cd38','Itgam','Cd4','Cd8a','Pdcd1','Ctla4'),
-          use_assay = 'SCT',
+          metadata="SCT_snn_res.0.4",
+          transcripts=c("Cd163","Cd38","Itgam","Cd4","Cd8a","Pdcd1","Ctla4"),
+          use.assay = "SCT",
           proteins = NULL,
           heatmap.color = "Bu Yl Rd",
           plot.title = "Heatmap",
@@ -260,7 +260,7 @@ dev.off()
 
 ```
 
-![](./images/Vis_HM.png){width=600} 
+![](./images/Vis_HM.png)
 
 <br>
 
@@ -281,13 +281,13 @@ This function can be useful for exploratory data analysis and visualizing the di
 1. Seurat package Dotplot Documentation https://satijalab.org/seurat/reference/dotplot
 
 
-```{r,eval=F}
+```{r,eval=run_Chunks}
 
 FigOut=dotPlotMet(
            object=Anno_SO$object,
-           metadata='SCT_snn_res.0.4',
+           metadata="SCT_snn_res.0.4",
            cells=unique(Anno_SO$object$SCT_snn_res.0.4),
-           markers=c('Itgam','Cd163','Cd38','Cd4','Cd8a','Pdcd1','Ctla4'),
+           markers=c("Itgam","Cd163","Cd38","Cd4","Cd8a","Pdcd1","Ctla4"),
            plot.reverse = FALSE,
            cell.reverse.sort = FALSE,
            dot.color = "darkblue"
@@ -304,7 +304,62 @@ ggsave(FigOut$plots, filename = "./images/Vis_DPM.png", width = 9, height = 5)
 
 ```
 
-![](./images/Vis_DPM.png){width=500} 
+![](./images/Vis_DPM.png)
+
+<br>
+
+## Compare Cell Populations
+
+---
+
+This function compares cell population composition across experimental groups (for example sample, treatment, timepoints, or donor cohorts) using metadata already stored in the Seurat object. It is useful after clustering and annotation, when you want to quantify how specific cell populations shift between conditions.
+<!-- `compareCellPopulations()` returns two complementary visualizations:
+
+- **Barplot**: stacked group-level composition with alluvial-style flows between groups to show changes in relative structure.
+- **Boxplot**: per-sample distributions for each annotated cell population, faceted by cluster/cell type.
+ -->
+The function supports both **Frequency** (percent) and **Counts** (absolute cell numbers) modes. In most biological comparisons with unequal total cell recovery across samples, frequency mode is preferred for interpretation. Counts mode can be useful for QC and yield-focused assessments.
+
+<!-- To use this function effectively:
+
+- `annotation.column` should be a stable cell identity label (for example `immgen_main`, `seurat_clusters`, or curated cell types).
+- `group.column` should represent the condition being compared (for example `Treatment`).
+- `sample.column` should uniquely identify biological samples/replicates (default `orig.ident`).
+- `group.order` can be set to enforce display order when plotting conditions. -->
+
+**Methodology**  
+The method first aggregates metadata by annotation and group to compute percentages and counts. It then links these summaries to sample-level metadata and generates a composition-focused barplot for sample-level variability. Together, these plots help distinguish overall compositional shifts from replicate-level dispersion.
+
+
+```{r,eval=run_Chunks}
+
+FigOut=compareCellPopulations(
+            object=Anno_SO$object,
+            annotation.column="immgen_main",
+            group.column="Treatment",
+            sample.column = "orig.ident",
+            counts.type = "Frequency",
+            group.order = NULL,
+            wrap.ncols = 5
+)
+ 
+
+```
+
+```{r,eval=run_Chunks,echo=F,results='hide'}
+
+ggsave(FigOut$plots$Barplot, filename = "./images/Vis_CCPbar.png", width = 10, height = 6)
+ggsave(FigOut$plots$Boxplot, filename = "./images/Vis_CCPbox.png", width = 15, height = 9)
+
+# png(filename="./images/Vis_HM.png",width = 700,height = 300,pointsize = 10)
+# (FigOut$plot)
+# dev.off()
+```
+
+![](./images/Vis_CCPbar.png){width=600} 
+<!-- ![](./images/Vis_CCPbox.png){width=600}  -->
+
+<br> 
 
 <!-- ## Trajectory Analysis with TSCAN -->
 

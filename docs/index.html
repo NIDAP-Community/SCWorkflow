@@ -68,10 +68,47 @@
 <!-- <center>**Click Figure to Navigate Workflow**.</center> -->
 <p><br><br></p>
 <p>The Single Cell Workflow streamlines the analysis of multimodal Single Cell RNA-Seq data produced from 10x Genomics. It can be run in a docker container, and for biologists, in user-friendly web-based interactive notebooks (NIDAP, Palantir Foundry). Much of it is based on the Seurat workflow in Bioconductor, and supports CITE-Seq data. It incorporates a cell identification step (ModScore) that utilizes module scores obtained from Seurat and also includes Harmony for batch correction.</p>
+<div class="section level2">
+<h2 id="key-functions">Key Functions<a class="anchor" aria-label="anchor" href="#key-functions"></a>
+</h2>
+<div class="section level3">
+<h3 id="sequential-workflow">Sequential Workflow<a class="anchor" aria-label="anchor" href="#sequential-workflow"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>
+<strong>processRawData()</strong> - Process H5 files into Seurat objects</li>
+<li>
+<strong>filterQC()</strong> - Quality control and filtering<br>
+</li>
+<li>
+<strong>combineNormalize()</strong> - Merge samples, normalize, dimension reduction</li>
+<li>
+<strong>Harmony integration</strong> (optional) - Batch correction</li>
+<li>
+<strong>annotateCellTypes()</strong> - Automatic cell type annotation via SingleR</li>
+</ol>
+</div>
+<div class="section level3">
+<h3 id="analysis--visualization">Analysis &amp; Visualization<a class="anchor" aria-label="anchor" href="#analysis--visualization"></a>
+</h3>
+<ul>
+<li>
+<strong>compareCellPopulations()</strong> - Compare cell population distributions across groups</li>
+<li>
+<strong>degGeneExpressionMarkers()</strong> - Differential expression analysis</li>
+<li>
+<strong>reclusterSeuratObject()</strong> / <strong>reclusterFilteredSeuratObject()</strong> - Subset and re-cluster</li>
+<li>
+<strong>colorByGene()</strong>, <strong>heatmapSC()</strong>, <strong>violinPlot()</strong> - Visualization functions</li>
+<li>
+<strong>plotMetadata()</strong>, <strong>dotPlotMet()</strong> - Metadata visualization</li>
+</ul>
 <p><br></p>
 <p>For further documentation see our detailed <a href="https://nidap-community.github.io/SCWorkflow/">Docs Website</a></p>
 <p><br><br></p>
 <p>Future Developments include addition of support for multiomics (TCR-Seq, ATAC-Seq) single cell data and integration with spatial transcriptomics data.</p>
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
@@ -104,7 +141,8 @@
 <div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a></li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
 

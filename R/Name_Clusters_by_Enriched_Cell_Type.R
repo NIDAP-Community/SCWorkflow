@@ -7,13 +7,16 @@
 #'
 #' @param object Seurat-class object with cluster IDs column and cell type 
 #'  column present
-#' @param cluster.numbers Vector containing cluster numbers that match the 
-#'  (numeric) cluster ID's in the cluster.column in Seurat Object metadata
-#' @param cluster.names Vector containing custom cluster labels
 #' @param cluster.column Column name containing cluster ID in the metadata slot
 #'  in the object
 #' @param labels.column Column name containing labels (usually cell type) in the
 #'  metadata slot in the object
+#' @param cluster.identities.table Data frame containing cluster IDs and custom
+#'  cluster labels
+#' @param cluster.numbers Column name in cluster.identities.table
+#'  containing cluster numbers that match values in cluster.column
+#' @param cluster.names Column name in cluster.identities.table
+#'  containing custom cluster labels
 #' @param order.clusters.by Vector containing order of clusters in graph. Can 
 #'  contain a subset of cluster numbers to plot that match at least some of
 #'  the values in the cluster.column. If NULL, use default order 
@@ -36,13 +39,29 @@
 #' @export
 #' @return Returns Seurat-class object with updated meta.data slot containing
 #' custom cluster annotation and a plot
+#' 
+#' @examples
+#' \dontrun{
+#' map_tbl <- data.frame(
+#'   cluster_id = c("0", "1"),
+#'   label = c("T cell", "B cell")
+#' )
+#' out <- nameClusters(
+#'   object = anno_so,
+#'   cluster.column = "seurat_clusters",
+#'   labels.column = "celltype",
+#'   cluster.identities.table = map_tbl,
+#'   cluster.numbers = "cluster_id",
+#'   cluster.names = "label"
+#' )
+#' }
 
 nameClusters <- function(object,
+                         cluster.column,
+                         labels.column,
                          cluster.identities.table,
                          cluster.numbers,
                          cluster.names,
-                         cluster.column,
-                         labels.column,
                          order.clusters.by = NULL,
                          order.celltypes.by = NULL,
                          interactive = FALSE)

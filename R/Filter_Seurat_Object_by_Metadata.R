@@ -1,11 +1,13 @@
-#' @title Filter Seurat Object by Metadata
-#' @description Filter and subset your Seurat object based on metadata column
+#' @title Subset Seurat Object [CCBR] [scRNA-seq]
+#' @description This function subsets your Seurat object by selecting a
+#' metadata column and values matching the cells to pass forward in analysis.
 #' @details This is a downstream template that should be loaded after
 #' Step 5 of the pipeline (SingleR Annotations on Seurat Object)
 #'
 #' @param object A dataset containing your SingleR annotated/merged seurat object
-#' @param samples.to.include Select which samples to include
-#' @param sample.name Sample Name Column
+#' @param samples.to.include Select which samples to include. Leave blank to
+#' include all samples.
+#' @param sample.name Sample Name Column. Leave blank to use all samples.
 #' @param category.to.filter What kind of metadata you want to subset by.
 #' This should be one column in your Metadata table
 #' @param values.to.filter One or more values where you want to filter
@@ -32,7 +34,7 @@
 #' which have been highlighted. Default is 0.5
 #' @param use.cite.seq.data TRUE if you would like to plot Antibody clusters
 #' from CITEseq instead of scRNA.
-
+#'
 #'
 #' @import Seurat
 #' @import ggplot2
@@ -49,11 +51,22 @@
 #' @export
 #'
 #' @return a subset Seurat object
-
-
+#'
+#' @examples
+#' \dontrun{
+#' out <- filterSeuratObjectByMetadata(
+#'   object = anno_so,
+#'   samples.to.include = c("sample1", "sample2"),
+#'   sample.name = "orig.ident",
+#'   category.to.filter = "celltype",
+#'   values.to.filter = c("T cell", "B cell")
+#' )
+#' }
+#'
+#'
 filterSeuratObjectByMetadata <- function(object,
-                                         samples.to.include,
-                                         sample.name,
+                                         samples.to.include = c(""),
+                                         sample.name = "",
                                          category.to.filter,
                                          values.to.filter,
                                          keep.or.remove = TRUE,
@@ -228,6 +241,19 @@ filterSeuratObjectByMetadata <- function(object,
   ## --------------- ##
   ## Main Code Block ##
   ## --------------- ##
+
+  sample.name <- as.character(sample.name)
+  sample.name <- sample.name[nzchar(trimws(sample.name))]
+  if (length(sample.name) == 0) {
+    if ("orig.ident" %in% colnames(object@meta.data)) {
+      sample.name <- "orig.ident"
+    } else if ("orig_ident" %in% colnames(object@meta.data)) {
+      sample.name <- "orig_ident"
+    } else {
+      sample.name <- ".all_samples"
+      object@meta.data[[sample.name]] <- "All Samples"
+    }
+  }
   
   # Checking if samples are selected
   if(any(grepl('c\\(|\\[\\]',samples.to.include))) {
@@ -235,14 +261,57 @@ filterSeuratObjectByMetadata <- function(object,
   }else{
     samples=samples.to.include
   }
+  samples <- as.character(samples)
+  samples <- samples[nzchar(trimws(samples))]
   
   if (length(samples) == 0) {
     samples = unique(object@meta.data[[sample.name[1]]])
   }
+
+  metadata.column.names <- colnames(object@meta.data)
+  normalized.metadata.column.names <- gsub("\\.", "_", metadata.column.names)
+  metadata.column.options <- paste0("  - ", metadata.column.names, collapse = "\n")
+  category.to.filter <- as.character(category.to.filter)
+  category.to.filter <- category.to.filter[nzchar(trimws(category.to.filter))]
+  if (length(category.to.filter) == 0) {
+    stop(paste0(
+      "category.to.filter is required.\n",
+      "Possible category.to.filter values are:\n",
+      metadata.column.options
+    ))
+  }
+  requested.category.to.filter <- category.to.filter[1]
+  category.to.filter <- gsub("\\.", "_", category.to.filter)
+  category.column.index <- match(category.to.filter[1], normalized.metadata.column.names)
+  if (is.na(category.column.index)) {
+    stop(paste0(
+      "category.to.filter column '", requested.category.to.filter, "' was not found in object metadata.\n",
+      "Possible category.to.filter values are:\n",
+      metadata.column.options
+    ))
+  }
+  category.display.name <- metadata.column.names[category.column.index]
   
   ## Replace dots in metadata column names with underscores.
-  colnames(object@meta.data) = gsub("\\.", "_", colnames(object@meta.data))
+  colnames(object@meta.data) = normalized.metadata.column.names
   new.sample.name <- gsub("\\.", "_", sample.name[1])
+  category.values <- object@meta.data[[category.to.filter[1]]]
+  if (!is.numeric(category.values)) {
+    possible.filter.values <- sort(unique(as.character(category.values)))
+    print(paste0("Possible values.to.filter for ", category.display.name, ":"))
+    print(possible.filter.values)
+    values.to.filter <- as.character(values.to.filter)
+    values.to.filter <- values.to.filter[nzchar(trimws(values.to.filter))]
+    missing.filter.values <- setdiff(values.to.filter, possible.filter.values)
+    if (length(missing.filter.values) > 0) {
+      stop(paste0(
+        "values.to.filter value(s) not found in category.to.filter column '", category.display.name, "': ",
+        paste(missing.filter.values, collapse = ", "), "\n",
+        "Possible values.to.filter values are:\n  - ",
+        paste(possible.filter.values, collapse = "\n  - ")
+      ))
+    }
+  }
   
   ## If you have protien data, then ...
   if (use.cite.seq.data) {

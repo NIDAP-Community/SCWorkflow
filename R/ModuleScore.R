@@ -11,11 +11,13 @@
 #'                      as the column names, and marker(s) as the entries 
 #'                      in each column. 
 #'                      Requires SCT@data to be present within Seurat Object
-#' @param use_columns Select specific columns within Marker Table to analyze. 
+#' @param group.var Metadata column used for grouping in diagnostic plots.
+#'                  (Default: "orig.ident")
+#' @param use.columns Select specific columns within Marker Table to analyze. 
 #'                      Markers from unselected columns won't be included.
-#' @param ms_threshold Allow user-specified module score thresholds. 
+#' @param ms.threshold Allow user-specified module score thresholds. 
 #'                    Provide one threshold for each Celltype you included 
-#'                    in the "use_columns" parameter. 
+#'                    in the "use.columns" parameter. 
 #'                    For each Celltype, provide the Celltype name, 
 #'                    then a space, then type your threshold for that Celltype. 
 #'                    This threshold must be a number between 0.0 and 1.0. 
@@ -68,6 +70,7 @@
 #' @import grid
 #' @import data.table
 #' @import utils
+#' @import stringr str_split
 #' @importFrom dplyr select
 #'   
 #' @export
@@ -76,8 +79,8 @@
 #' modScore(
 #'   object = seuratObject,
 #'   marker.table = immuneCellMarkers,
-#'   use_columns = c("CD4_T", "Treg", "Monocytes"),
-#'   ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+#'   use.columns = c("CD4_T", "Treg", "Monocytes"),
+#'   ms.threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
 #'   general.class = c("CD4_T", "Monocytes"),
 #'   multi.lvl = FALSE
 #' )
@@ -85,8 +88,8 @@
 #' modScore(
 #'   object = seuratObject,
 #'   marker.table = immuneCellMarkers,
-#'   use_columns = c("CD4_T", "Treg", "Monocytes"),
-#'   ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+#'   use.columns = c("CD4_T", "Treg", "Monocytes"),
+#'   ms.threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
 #'   general.class = c("CD4_T", "Monocytes"),
 #'   multi.lvl = TRUE,
 #'   lvl.df = parentChildTable
@@ -99,9 +102,9 @@
 
 modScore <- function(object, 
                      marker.table, 
-                     group_var = "orig.ident",
-                     use_columns,
-                     ms_threshold, 
+                     group.var = "orig.ident",
+                     use.columns,
+                     ms.threshold, 
                      general.class, 
                      multi.lvl = FALSE, 
                      lvl.df=NULL,
@@ -111,18 +114,12 @@ modScore <- function(object,
                      violin.ft.size = 6, 
                      step.size = 0.1) 
 {
-    library(Seurat)
-    library(gridExtra)
-    library(grid)
-    library(dplyr)
-    library(stringr)
-    library(ggplot2)
 
     # Function for separating and calling cells by bimodal thresholds
-    .modScoreCall <- function(ms.meta, numeric_threshold, reject) {
+    .modScoreCall <- function(ms.meta, numeric.threshold, reject) {
         thres.ls <- list()
         for (i in 1:ncol(ms.meta)) {
-            thres.ls[[i]] <- rep(numeric_threshold[i], nrow(ms.meta))
+            thres.ls[[i]] <- rep(numeric.threshold[i], nrow(ms.meta))
         }
         thres.df <- data.frame(matrix(unlist(thres.ls), nrow = nrow(ms.meta)))
         thres.filter <- ms.meta > thres.df
@@ -138,7 +135,7 @@ modScore <- function(object,
 
     # Upstream processing
     # String split celltype_thresholds - numeric portion
-    numeric_threshold <- sapply(stringr::str_split(ms_threshold, " "), function(x) as.numeric(x[2]))
+    numeric.threshold <- sapply(stringr::str_split(ms.threshold, " "), function(x) as.numeric(x[2]))
 
     if (!"Barcode" %in% colnames(object@meta.data)) {
         object@meta.data$Barcode <- rownames(object@meta.data)
@@ -147,12 +144,12 @@ modScore <- function(object,
         colnames(object@meta.data))
     
     # Marker table processing
-    marker.table <- marker.table[,use_columns]
+    marker.table <- marker.table[,use.columns]
     marker.tab <- unlist(marker.table)
-    celltypes <- sapply(str_split(ms_threshold, " "), function(x) as.character(x[1]))
+    celltypes <- sapply(str_split(ms.threshold, " "), function(x) as.character(x[1]))
 
-    if (any(!celltypes %in% use_columns)){
-        unmatched_celltypes <- celltypes[!celltypes %in% use_columns]
+    if (any(!celltypes %in% use.columns)){
+        unmatched_celltypes <- celltypes[!celltypes %in% use.columns]
         celltype_mismatch_message <- paste0("Labels from thresholds does not match columns from marker table: ",paste(unmatched_celltypes, collapse = ", "))
         stop(celltype_mismatch_message) 
     }
@@ -163,9 +160,9 @@ modScore <- function(object,
         0) {
         stop("No genes from list was found in data")
     }
-    if (length(numeric_threshold) != length(celltypes)) {
-        if (sum(numeric_threshold) == 0) {
-            numeric_threshold <- rep(0, length(celltypes))
+    if (length(numeric.threshold) != length(celltypes)) {
+        if (sum(numeric.threshold) == 0) {
+            numeric.threshold <- rep(0, length(celltypes))
             print("Module Score threshold set to zero - outputing preliminary data")
         } else {
             stop("Threshold length does not match # celltypes to analyze")
@@ -173,7 +170,7 @@ modScore <- function(object,
     }
 
     # For each celltype, print out present / nonpresent genes, calculate MS and generate plots
-    names(numeric_threshold) <- celltypes
+    names(numeric.threshold) <- celltypes
     figures <- list()
     exclude_cells <- c()
     h = 0
@@ -238,26 +235,26 @@ modScore <- function(object,
         umap.pos <- clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1), umap2.mean = mean(umap2))
         title = as.character(m)
         clusmat <- clusmat %>% dplyr::arrange(clusid)
-        clusid.df <- data.frame(id = object@meta.data[[group_var]], 
+        clusid.df <- data.frame(id = object@meta.data[[group.var]], 
             ModuleScore = object@meta.data[[m]])
 
         g <- ggplot(clusmat, aes(x = umap1, y = umap2)) + theme_bw() + 
             theme(legend.title = element_blank()) + geom_point(aes(colour = sample_clusid), alpha = 0.5, shape = 20, size = 1) + scale_color_gradientn(colours = c("blue4", "lightgrey", "red"), values = scales::rescale(c(0, 
-            numeric_threshold[celltype_name]/2, numeric_threshold[celltype_name], (numeric_threshold[celltype_name] + 1)/2, 
+            numeric.threshold[celltype_name]/2, numeric.threshold[celltype_name], (numeric.threshold[celltype_name] + 1)/2, 
             1), limits = c(0, 1))) + guides(colour = guide_legend(override.aes = list(size = 5, alpha = 1))) + theme(panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(), panel.background = element_blank()) + xlab("tsne-1") + ylab("tsne-2")
 
-        g1 <- RidgePlot(object, features = m, group.by = group_var) + 
+        g1 <- RidgePlot(object, features = m, group.by = group.var) + 
             theme(legend.position = "none", title = element_blank(), 
                 axis.text.x = element_text(size = gradient.ft.size)) + 
-            geom_vline(xintercept = numeric_threshold[celltype_name], linetype = "dashed", 
+            geom_vline(xintercept = numeric.threshold[celltype_name], linetype = "dashed", 
                 color = "red3") + scale_x_continuous(breaks = seq(0, 
             1, step.size))
 
         g2 <- ggplot(clusid.df, aes(x = id, y = ModuleScore)) + 
             geom_violin(aes(fill = id)) + theme_classic() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), legend.title = element_blank(), panel.background = element_blank(), axis.text.x = element_blank(), legend.text = element_text(size = rel(0.8)), legend.position = "top", axis.text.y = element_text(size = violin.ft.size)) + 
             guides(colour = guide_legend(override.aes = list(size = 5, 
-                alpha = 1))) + geom_hline(yintercept = numeric_threshold[celltype_name], 
+                alpha = 1))) + geom_hline(yintercept = numeric.threshold[celltype_name], 
             linetype = "dashed", color = "red3") + scale_y_continuous(breaks = seq(0, 1, step.size))
 
         g3 <- ggplot(data.frame(x = d$x, y = d$y), aes(x, y)) + 
@@ -265,9 +262,9 @@ modScore <- function(object,
             geom_segment(aes(xend = d$x, yend = 0, colour = x)) + 
             scale_y_log10() + scale_color_gradientn(colours = c("blue4", 
             "lightgrey", "red"), values = scales::rescale(c(0, 
-            numeric_threshold[celltype_name]/2, numeric_threshold[celltype_name], (numeric_threshold[celltype_name] + 1)/2, 
-            1), limits = c(0, 1))) + geom_vline(xintercept = numeric_threshold[celltype_name], 
-            linetype = "dashed", color = "red3") + geom_vline(xintercept = numeric_threshold[celltype_name], linetype = "dashed", color = "red3") + scale_x_continuous(breaks = seq(0, 1, step.size)) + theme(legend.title = element_blank(), 
+            numeric.threshold[celltype_name]/2, numeric.threshold[celltype_name], (numeric.threshold[celltype_name] + 1)/2, 
+            1), limits = c(0, 1))) + geom_vline(xintercept = numeric.threshold[celltype_name], 
+            linetype = "dashed", color = "red3") + geom_vline(xintercept = numeric.threshold[celltype_name], linetype = "dashed", color = "red3") + scale_x_continuous(breaks = seq(0, 1, step.size)) + theme(legend.title = element_blank(), 
             axis.text.x = element_text(size = 6))
 
         figures[[celltype_name]] = arrangeGrob(g, g1, g2, g3, ncol = 2, top = textGrob(paste0(celltype_name," (General Class)"), gp = gpar(fontsize = 14, fontface = "bold")))
@@ -281,7 +278,7 @@ modScore <- function(object,
     # Heirarchical classification: general.class > subtypes
     general.class <- general.class[general.class %in% colnames(object@meta.data)]
     trunc.meta.gen <- object@meta.data[general.class]
-    gen.thrs.vec <- numeric_threshold[general.class]
+    gen.thrs.vec <- numeric.threshold[general.class]
     call.res <- .modScoreCall(trunc.meta.gen, gen.thrs.vec, reject = "unknown")
     call.res$Barcode <- rownames(call.res)
 
@@ -313,14 +310,14 @@ modScore <- function(object,
 
                     figures <- append(figures, list(NA), after = gap_ind)
 
-                  figures[[gap_ind+1]] <- ggplot(trunc.meta.parent, aes_string(x = child)) + geom_density() + ggtitle(plot.title) + geom_vline(xintercept = numeric_threshold[child], linetype = "dashed", color = "red3") + theme_classic()
+                  figures[[gap_ind+1]] <- ggplot(trunc.meta.parent, aes_string(x = child)) + geom_density() + ggtitle(plot.title) + geom_vline(xintercept = numeric.threshold[child], linetype = "dashed", color = "red3") + theme_classic()
                   names(figures)[gap_ind+1] <- child
                   }
 
                 trunc.meta.no.parent <- call.res[!call.res$MS_Celltype == 
                   parent, ]
                 non.parent <- rownames(trunc.meta.no.parent)
-                child.thres.vec <- numeric_threshold[children_class]
+                child.thres.vec <- numeric.threshold[children_class]
 
             sub.class.call[[match(parent, parent.class)]] <- .modScoreCall(trunc.meta.parent, child.thres.vec, reject = parent) %>% select(MS_Celltype)}
 
@@ -338,7 +335,7 @@ modScore <- function(object,
 
     return(
         list("object"=object,
-        "figures" = figures)
+        "plots" = figures)
     )
 }
  

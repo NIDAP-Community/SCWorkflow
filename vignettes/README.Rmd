@@ -1,6 +1,10 @@
-
 ---
-output: github_document
+title: "SCWorkflow-Intro"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{SCWorkflow-Intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 
 ---
 

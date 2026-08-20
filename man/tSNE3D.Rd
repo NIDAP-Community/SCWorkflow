@@ -37,8 +37,23 @@ tSNE3D(
 \item{npcs}{Number of principal components used for tSNE calculations
 (default is 15)}
 }
+\value{
+A list with a plotly 3D TSNE plot (\code{figure}) and TSNE coordinates
+(\code{tsne.df}).
+}
 \description{
 This method provides visualization of 3D-tSNE plot given a
 Seurat Object and returns a plotly plot and a dataframe of TSNE
 coordinates. It optionally saves the plotly image embedded in an html file.
+}
+\examples{
+\dontrun{
+out <- tSNE3D(
+  object = seurat_obj,
+  color.variable = "cell_type",
+  label.variable = "orig.ident",
+  npcs = 15,
+  save.plot = FALSE
+)
+}
 }

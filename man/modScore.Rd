@@ -7,8 +7,9 @@
 modScore(
   object,
   marker.table,
-  use_columns,
-  ms_threshold,
+  group.var = "orig.ident",
+  use.columns,
+  ms.threshold,
   general.class,
   multi.lvl = FALSE,
   lvl.df = NULL,
@@ -29,12 +30,15 @@ as the column names, and marker(s) as the entries
 in each column.
 Requires SCT@data to be present within Seurat Object}
 
-\item{use_columns}{Select specific columns within Marker Table to analyze.
+\item{group.var}{Metadata column used for grouping in diagnostic plots.
+(Default: "orig.ident")}
+
+\item{use.columns}{Select specific columns within Marker Table to analyze.
 Markers from unselected columns won't be included.}
 
-\item{ms_threshold}{Allow user-specified module score thresholds.
+\item{ms.threshold}{Allow user-specified module score thresholds.
 Provide one threshold for each Celltype you included
-in the "use_columns" parameter.
+in the "use.columns" parameter.
 For each Celltype, provide the Celltype name,
 then a space, then type your threshold for that Celltype.
 This threshold must be a number between 0.0 and 1.0.
@@ -106,8 +110,8 @@ control features are randomly selected from each bin.
 modScore(
   object = seuratObject,
   marker.table = immuneCellMarkers,
-  use_columns = c("CD4_T", "Treg", "Monocytes"),
-  ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+  use.columns = c("CD4_T", "Treg", "Monocytes"),
+  ms.threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
   general.class = c("CD4_T", "Monocytes"),
   multi.lvl = FALSE
 )
@@ -115,8 +119,8 @@ modScore(
 modScore(
   object = seuratObject,
   marker.table = immuneCellMarkers,
-  use_columns = c("CD4_T", "Treg", "Monocytes"),
-  ms_threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
+  use.columns = c("CD4_T", "Treg", "Monocytes"),
+  ms.threshold = c("CD4_T 0.1", "Treg 0.4", "Monocytes 0.3"),
   general.class = c("CD4_T", "Monocytes"),
   multi.lvl = TRUE,
   lvl.df = parentChildTable
