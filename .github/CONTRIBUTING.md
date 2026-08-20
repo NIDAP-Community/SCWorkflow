@@ -22,14 +22,14 @@ SCWorkflow.
 
 ### Clone the repo
 
-If you are a member of [CCBR](https://github.com/CCBR),
+If you are a member of [NIDAP-Community](https://github.com/NIDAP-Community),
 you can clone this repository to your computer or development environment.
 Otherwise, you will first need to
 [fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 the repo and clone your fork. You only need to do this step once.
 
 ```sh
-git clone https://github.com/CCBR/SCWorkflow
+git clone https://github.com/NIDAP-Community/SCWorkflow
 ```
 
 > Cloning into 'SCWorkflow'... <br>
@@ -214,22 +214,22 @@ git push --set-upstream origin iss-10
 > remote: Resolving deltas: 100% (3/3), completed with 3 local objects. <br>
 > remote: <br>
 > remote: Create a pull request for 'iss-10' on GitHub by visiting: <br>
-> remote: https://github.com/CCBR/SCWorkflow/pull/new/iss-10 <br>
+> remote: https://github.com/NIDAP-Community/SCWorkflow/pull/new/iss-10 <br>
 > remote: <br>
-> To https://github.com/CCBR/SCWorkflow <br>
+> To https://github.com/NIDAP-Community/SCWorkflow <br>
 > <br>
 >   [new branch] iss-10 -> iss-10 <br>
 >   branch 'iss-10' set up to track 'origin/iss-10'. <br>
 
 We recommend pushing your commits often so they will be backed up on GitHub.
 You can view the files in your branch on GitHub at
-`https://github.com/CCBR/SCWorkflow/tree/<your-branch-name>`
+`https://github.com/NIDAP-Community/SCWorkflow/tree/<your-branch-name>`
 (replace `<your-branch-name>` with the actual name of your branch).
 
 ### Create the PR
 
 Once your branch is ready, create a PR on GitHub:
-<https://github.com/CCBR/SCWorkflow/pull/new/>
+<https://github.com/NIDAP-Community/SCWorkflow/pull/new/>
 
 Select the branch you just pushed:
 
