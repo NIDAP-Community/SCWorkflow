@@ -1,5 +1,4 @@
 
-
 for (data in c(
   'TEC','Chariou',
   'NSCLC_Single')) {
@@ -20,9 +19,9 @@ for (data in c(
       # figure slot is a grob
       expect_equal(class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
       # SO slot contains data
-      expect( nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+      expect_true(nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
       # plot slot contains data
-      expect( object.size(combine.renormalize.out$plot),'> 0' )
+      expect_true(object.size(combine.renormalize.out$plots) > 0)
 
       skip_on_ci()
       expect_snapshot_file(
@@ -60,10 +59,10 @@ for (data in c('NSCLC_Multi')) {
       # figure slot is a grob
       expect_equal(class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
       # SO slot contains data
-      expect( nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+      expect_true(nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
       # plot slot contains data
-      expect( object.size(combine.renormalize.out$plot),'> 0' )
-      expect( object.size(combine.renormalize.out$plot$`CITEseq UMAP`),'> 0' )
+      expect_true(object.size(combine.renormalize.out$plots) > 0)
+      expect_true(object.size(combine.renormalize.out$plots$`CITEseq UMAP`) > 0)
       
       skip_on_ci()
       expect_snapshot_file(
@@ -100,9 +99,9 @@ for (data in c('TEC')) {
       # figure slot is a grob
       expect_equal(class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
       # SO slot contains data
-      expect( nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+      expect_true(nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
       # plot slot contains data
-      expect( object.size(combine.renormalize.out$plot),'> 0' )
+      expect_true(object.size(combine.renormalize.out$plots) > 0)
 
       skip_on_ci()
       expect_snapshot_file(
@@ -138,15 +137,16 @@ for (data in c('TEC')) {
       # figure slot is a grob
       expect_equal(class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
       # SO slot contains data
-      expect( nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+      expect_true(nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
       # plot slot contains data
-      expect( object.size(combine.renormalize.out$plot),'> 0' )
-      
+      expect_true(object.size(combine.renormalize.out$plots) > 0)
+
       skip_on_ci()
       expect_snapshot_file(
         .drawFig(combine.renormalize.out$plots$TSNE),
         paste0(data,"_SCTlevel_TSNE.png")
       )
+
       # expect_snapshot_file(
       #   .saveSO(combine.renormalize.out$object),
       #   paste0(data,"_SCTlevel.rds")
@@ -173,9 +173,9 @@ for (data in c('TEC')) {
       # figure slot is a grob
       expect_equal(class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
       # SO slot contains data
-      expect( nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+      expect_true(nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
       # plot slot contains data
-      expect( object.size(combine.renormalize.out$plot),'> 0' )
+      expect_true(object.size(combine.renormalize.out$plots) > 0)
       # sample is removed
       expect_false(
         data.run$exclude.sample%in%
@@ -215,9 +215,9 @@ for (data in c('TEC')) {
              # figure slot is a grob
              expect_equal(class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
              # SO slot contains data
-             expect( nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+             expect_true(nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
              # plot slot contains data
-             expect( object.size(combine.renormalize.out$plot),'> 0' )
+             expect_true(object.size(combine.renormalize.out$plots) > 0)
              
              skip_on_ci()
              expect_snapshot_file(
@@ -257,19 +257,19 @@ for (data in c('TEC')) {
              expect_equal(
                class(combine.renormalize.out$plots$TSNE)[3], 'ggplot')
              # SO slot contains data
-             expect( 
-               nrow(combine.renormalize.out$object@assays$RNA@counts),'> 0' )
+             expect_true(
+               nrow(combine.renormalize.out$object@assays$RNA@counts) > 0)
              # plot slot contains data
-             expect( 
-               object.size(combine.renormalize.out$plots$TSNE),'> 0' )
-             expect( 
-               object.size(combine.renormalize.out$plots$UMAP),'> 0' )
-             expect( 
-               object.size(combine.renormalize.out$plot$`Elbow Plot`),'> 0' )
-             expect( object.size(
-               combine.renormalize.out$plot$`Regression Plots`[[1]]),'> 0' )
-             expect( 
-               object.size(combine.renormalize.out$plot$JackStraw),'> 0' )
+             expect_true(
+               object.size(combine.renormalize.out$plots$TSNE) > 0)
+             expect_true(
+               object.size(combine.renormalize.out$plots$UMAP) > 0)
+             expect_true(
+               object.size(combine.renormalize.out$plots$`Elbow Plot`) > 0)
+             expect_true(object.size(
+               combine.renormalize.out$plots$`Regression Plots`[[1]]) > 0)
+             expect_true(
+               object.size(combine.renormalize.out$plots$JackStraw) > 0)
              
              skip_on_ci()
              expect_snapshot_file(

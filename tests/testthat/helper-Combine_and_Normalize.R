@@ -26,8 +26,8 @@ getParamCN <- function(data){
     
   } else if (data == "NSCLC_Single") {
     object <- readRDS(test_path(
-      paste0("fixtures/",data), paste0('NSCLCsingle','_Filtered_SO_downsample.rds')))
-    object=object$so
+      paste0("fixtures/",data), paste0('NSCLC_Single','_Filtered_SO_downsample.rds')))
+    object=object
     print('got data')
     print(object)
     npcs = 30
