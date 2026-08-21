@@ -61,7 +61,7 @@ getParamHM <- function(data) {
     
     plot.title <- "Heatmap_Single_NSCLC"
   } else if (data == "nsclc-multi") {
-    object <- selectSRObject("nsclc-multi")
+    object <- selectCRObject("nsclc-multi")
     sample.names <-
       c("Donor_1",
         "Donor_2",
@@ -70,7 +70,7 @@ getParamHM <- function(data) {
         "Donor_5",
         "Donor_6",
         "Donor_7")
-    metadata <- c("HPCA_main", "BP_encode_main")
+    metadata <- c("orig.ident", "Phase")
     set.seed(15)
     transcripts <- sample(rownames(object), 10, replace = FALSE)
     proteins <- c("CD3", "CD8")
