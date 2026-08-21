@@ -45,7 +45,7 @@ getParamRaw <- function(data){
     
     
     
-  } else if (data == "NSCLC_Single") {
+  } else if (data == "PBMC_Single") {
     
     data.table(Sample_Name=c('20k_PBMC_3p_HT_nextgem_Chromium_X'),
                Rename=c("PBMC_Single"))%>%

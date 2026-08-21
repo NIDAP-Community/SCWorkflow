@@ -1,5 +1,5 @@
 
-for (data in c('TEC','Chariou','NSCLC_Multi','NSCLC_Single')) {
+for (data in c('TEC','Chariou','NSCLC_Multi','PBMC_Single')) {
   
   
   
@@ -23,9 +23,9 @@ for (data in c('TEC','Chariou','NSCLC_Multi','NSCLC_Single')) {
     # figure slot is a ggplot
     expect_equal(class(Raw.out$plots[[1]])[2], 'ggplot')
     # SO slot contains data
-    expect( object.size(Raw.out$object[[1]]@assays$RNA@counts),'> 0' )
+    expect_true(object.size(Raw.out$object[[1]]@assays$RNA@counts) > 0)
     # plot slot contains data
-    expect( object.size(Raw.out$plots),'= 0' )
+    expect_true(object.size(Raw.out$plots) > 0)
     
     
     # Check for Identical files
@@ -63,9 +63,9 @@ for (data in c('BRCA')) {
     # figure slot is a ggplot
     expect_equal(class(Raw.out$plots[[1]])[2], 'ggplot')
     # SO slot contains data
-    expect( object.size(Raw.out$object[[1]]@assays$RNA@counts),'> 0' )
+    expect_true(object.size(Raw.out$object[[1]]@assays$RNA@counts) > 0)
     # plot slot contains data
-    expect( object.size(Raw.out$plots),'= 0' )
+    expect_true(object.size(Raw.out$plots) > 0)
 
     # Check for Identical files
     skip_on_ci()
@@ -164,9 +164,9 @@ for (data in c('Chariou')) {
     # figure slot is a ggplot
     expect_equal(class(Raw.out$plots[[1]])[2], 'ggplot')
     # SO slot contains data
-    expect( object.size(Raw.out$object[[1]]@assays$RNA@counts),'> 0' )
+    expect_true(object.size(Raw.out$object[[1]]@assays$RNA@counts) > 0)
     # plot slot contains data
-    expect( object.size(Raw.out$plots),'= 0' )
+    expect_true(object.size(Raw.out$plots) > 0)
     
     TCRmeta=c("ab_pair","cell_beta_seq_list","cell_beta_reads_list",
               "cell_unique_betas","cell_TRBV_list",
@@ -200,7 +200,7 @@ for (data in c('Chariou')) {
     skip_on_ci()
     expect_snapshot_file(
       .drawFig(Raw.out$plots$CombinedQC),
-      paste0(data,"_Standard_combFig.png")
+      paste0(data,"_TCR_combFig.png")
     )
     # expect_snapshot_file( # Test failed each run with no changes
     #   .saveSO(Raw.out$object),
@@ -235,9 +235,9 @@ for (data in c('TEC')) {
     # figure slot is a ggplot
     expect_equal(class(Raw.out$plots[[1]])[2], 'ggplot')
     # SO slot contains data
-    expect( object.size(Raw.out$object[[1]]@assays$RNA@counts),'> 0' )
+    expect_true(object.size(Raw.out$object[[1]]@assays$RNA@counts) > 0)
     # plot slot contains data
-    expect( object.size(Raw.out$plots),'>0' )
+    expect_true(object.size(Raw.out$plots) > 0)
     
     # Check for Identical files
     skip_on_ci()
