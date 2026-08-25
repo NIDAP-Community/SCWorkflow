@@ -1,4 +1,4 @@
-#' @title DE with Find Markers [CCBR] [scRNA-seq]
+#' @title DE with Find Markers
 #' @description This function performs DE (differential expression) analysis on
 #' a merged Seurat object to identify expression markers between different
 #' groups of cells (contrasts).

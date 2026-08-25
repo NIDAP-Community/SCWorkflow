@@ -70,7 +70,8 @@
 #' @import grid
 #' @import data.table
 #' @import utils
-#' @import stringr str_split
+#' @import stringr
+#' @importFrom stringr str_split
 #' @importFrom dplyr select
 #'   
 #' @export

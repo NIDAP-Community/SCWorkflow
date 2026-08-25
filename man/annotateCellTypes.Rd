@@ -2,7 +2,7 @@
 % Please edit documentation in R/Annotate_Cell_Types.R
 \name{annotateCellTypes}
 \alias{annotateCellTypes}
-\title{Cell Type Annotation with SingleR \link{CCBR} \link{scRNA-seq}}
+\title{Cell Type Annotation with SingleR}
 \usage{
 annotateCellTypes(
   object,

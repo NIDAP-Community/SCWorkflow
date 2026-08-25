@@ -1,4 +1,4 @@
-#' @title Filter Low Quality Cells (CCBR scRNA-seq)
+#' @title Filter Low Quality Cells
 #' @description Filters cells and genes across various criteria for each sample.
 #' Multiple cell and gene filters can be selected to remove poor quality data
 #' and noise while generating QC plots before and after filtering.

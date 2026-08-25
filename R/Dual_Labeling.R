@@ -1,4 +1,4 @@
-#' @title Cell Annotation with Co-Expression [CCBR] [scRNA-seq]
+#' @title Cell Annotation with Co-Expression
 #' @description Display co-expression of two chosen markers in your Seurat
 #' object. Creates a metadata column containing annotations for cells that
 #' correspond to marker expression thresholds.

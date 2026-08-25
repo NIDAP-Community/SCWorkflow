@@ -2,7 +2,7 @@
 % Please edit documentation in R/Filter_Seurat_Object_by_Metadata.R
 \name{filterSeuratObjectByMetadata}
 \alias{filterSeuratObjectByMetadata}
-\title{Subset Seurat Object \link{CCBR} \link{scRNA-seq}}
+\title{Subset Seurat Object}
 \usage{
 filterSeuratObjectByMetadata(
   object,

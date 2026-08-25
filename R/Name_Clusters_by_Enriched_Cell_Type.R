@@ -28,8 +28,7 @@
 #'
 #' @importFrom dplyr pull
 #' @importFrom reshape2 melt
-#' @importFrom ggplot2 ggplot geom_point aes theme_classic ylim scale_y_reverse
-#' theme ggtitle
+#' @importFrom ggplot2 ggplot geom_point aes theme_classic ylim scale_y_reverse theme ggtitle
 #' @importFrom plotly ggplotly
 #' @importFrom Seurat AddMetaData
 #' @importFrom tibble deframe tibble

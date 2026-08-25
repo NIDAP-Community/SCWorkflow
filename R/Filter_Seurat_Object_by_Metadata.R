@@ -1,4 +1,4 @@
-#' @title Subset Seurat Object [CCBR] [scRNA-seq]
+#' @title Subset Seurat Object
 #' @description This function subsets your Seurat object by selecting a
 #' metadata column and values matching the cells to pass forward in analysis.
 #' @details This is a downstream template that should be loaded after

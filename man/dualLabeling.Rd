@@ -2,7 +2,7 @@
 % Please edit documentation in R/Dual_Labeling.R
 \name{dualLabeling}
 \alias{dualLabeling}
-\title{Cell Annotation with Co-Expression \link{CCBR} \link{scRNA-seq}}
+\title{Cell Annotation with Co-Expression}
 \usage{
 dualLabeling(
   object,

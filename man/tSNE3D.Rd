@@ -8,6 +8,7 @@ tSNE3D(
   object,
   color.variable,
   label.variable,
+  plot.type = "tSNE",
   dot.size = 4,
   legend = TRUE,
   colors = c("darkblue", "purple4", "green", "red", "darkcyan", "magenta2", "orange",
@@ -24,6 +25,9 @@ tSNE3D(
 
 \item{label.variable}{Metadata column in Seurat Object to use for label}
 
+\item{plot.type}{Dimensionality reduction to calculate and plot. One of
+"tSNE" or "UMAP" (default is "tSNE")}
+
 \item{dot.size}{Dot size for plot (default is 4)}
 
 \item{legend}{If TRUE, show legend (default is TRUE)}
@@ -34,7 +38,7 @@ tSNE3D(
 
 \item{save.plot}{Save plot as widget in html file (default is FALSE)}
 
-\item{npcs}{Number of principal components used for tSNE calculations
+\item{npcs}{Number of principal components used for t-SNE or UMAP calculations
 (default is 15)}
 }
 \value{
@@ -42,8 +46,8 @@ A list with a plotly 3D TSNE plot (\code{figure}) and TSNE coordinates
 (\code{tsne.df}).
 }
 \description{
-This method provides visualization of 3D-tSNE plot given a
-Seurat Object and returns a plotly plot and a dataframe of TSNE
+This method provides visualization of a 3D t-SNE or UMAP plot
+given a Seurat Object and returns a plotly plot and a dataframe of embedding
 coordinates. It optionally saves the plotly image embedded in an html file.
 }
 \examples{
@@ -52,6 +56,7 @@ out <- tSNE3D(
   object = seurat_obj,
   color.variable = "cell_type",
   label.variable = "orig.ident",
+  plot.type = "UMAP",
   npcs = 15,
   save.plot = FALSE
 )

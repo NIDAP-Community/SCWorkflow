@@ -2,7 +2,7 @@
 % Please edit documentation in R/Filter_QC.R
 \name{filterQC}
 \alias{filterQC}
-\title{Filter Low Quality Cells \link{CCBR} \link{scRNA-seq}}
+\title{Filter Low Quality Cells}
 \usage{
 filterQC(
   object,

@@ -1,4 +1,4 @@
-#' @title Cell Type Annotation with SingleR [CCBR] [scRNA-seq]
+#' @title Cell Type Annotation with SingleR
 #' @description Annotate the cell types of your cells using SingleR (Aran et al., 2019). This
 #' function takes a combined Seurat object after PC reduction and assigns cells
 #' to a category (for example, stem cells or T cells) based on genomic profile.

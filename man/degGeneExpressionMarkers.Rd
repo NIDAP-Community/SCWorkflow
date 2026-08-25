@@ -2,13 +2,13 @@
 % Please edit documentation in R/DEG_Gene_Expression_Markers.R
 \name{degGeneExpressionMarkers}
 \alias{degGeneExpressionMarkers}
-\title{DE with Find Markers \link{CCBR} \link{scRNA-seq}}
+\title{DE with Find Markers}
 \usage{
 degGeneExpressionMarkers(
   object,
-  samples,
+  samples = c(""),
   contrasts,
-  parameter.to.test = "orig_ident",
+  parameter.to.test = "",
   test.to.use = "MAST",
   log.fc.threshold = 0.25,
   use.spark = FALSE,
@@ -18,13 +18,14 @@ degGeneExpressionMarkers(
 \arguments{
 \item{object}{Seurat-class object}
 
-\item{samples}{Samples to be included in the analysis}
+\item{samples}{Samples to be included in the analysis. Leave blank to
+include all samples.}
 
 \item{contrasts}{Contrasts in the "A-B" format}
 
 \item{parameter.to.test}{Select the metadata column that you would like
 to use to perform your DEG analysis and construct your contrasts from.
-Default is "orig_ident"}
+Leave blank to stop and print categorical/discrete metadata columns.}
 
 \item{test.to.use}{The kind of algorithm you would like to use
 to perform your DEG analysis. Default is the MAST algorithm
