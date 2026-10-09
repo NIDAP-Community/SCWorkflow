@@ -1,3 +1,75 @@
+test_that("plotMetadata errors when metadata.to.plot is empty", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$metadata.to.plot <- "c()"
+
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "metadata.to.plot.*Available metadata columns:.*SCT_snn_res.2.4"
+  )
+})
+
+test_that("plotMetadata accepts exact metadata names without renaming object columns", {
+  chariou.data <- getParamPM("Chariou")
+  original.metadata.columns <- colnames(chariou.data$object@meta.data)
+  expect_true("SCT_snn_res.2.4" %in% original.metadata.columns)
+  expect_false("SCT_snn_res_2_4" %in% original.metadata.columns)
+
+  chariou.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
+  captured.output <- capture.output(
+    output <- do.call(plotMetadata, chariou.data)
+  )
+
+  expect_type(output, "list")
+  expect_length(output$plots, 1)
+  expect_identical(colnames(output$object@meta.data), original.metadata.columns)
+  expect_equal(sum(grepl("^Available metadata columns:", captured.output)), 1)
+  expect_match(
+    paste(captured.output, collapse = "\n"),
+    "Available metadata columns:.*SCT_snn_res.2.4"
+  )
+})
+
+test_that("plotMetadata errors when metadata.to.plot is not an exact column name", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$metadata.to.plot <- 'c("SCT_snn_res_2_4")'
+
+  captured.output <- capture.output(
+    expect_error(
+      do.call(plotMetadata, chariou.data),
+      "not found in the object: SCT_snn_res_2_4.*Available metadata columns:.*SCT_snn_res.2.4"
+    )
+  )
+  expect_false(any(grepl("^Available metadata columns:", captured.output)))
+})
+
+test_that("plotMetadata accepts dotted and underscore metadata names when both exist", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$object@meta.data$SCT_snn_res_2_4 <-
+    chariou.data$object@meta.data[["SCT_snn_res.2.4"]]
+  original.metadata.columns <- colnames(chariou.data$object@meta.data)
+  expect_true("SCT_snn_res.2.4" %in% original.metadata.columns)
+  expect_true("SCT_snn_res_2_4" %in% original.metadata.columns)
+
+  dotted.data <- chariou.data
+  dotted.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
+  dotted.captured.output <- capture.output(
+    dotted.output <- do.call(plotMetadata, dotted.data)
+  )
+
+  underscore.data <- chariou.data
+  underscore.data$metadata.to.plot <- 'c("SCT_snn_res_2_4")'
+  underscore.captured.output <- capture.output(
+    underscore.output <- do.call(plotMetadata, underscore.data)
+  )
+
+  expect_length(dotted.output$plots, 1)
+  expect_identical(colnames(dotted.output$object@meta.data), original.metadata.columns)
+  expect_equal(sum(grepl("^Available metadata columns:", dotted.captured.output)), 1)
+  expect_length(underscore.output$plots, 1)
+  expect_identical(colnames(underscore.output$object@meta.data), original.metadata.columns)
+  expect_equal(sum(grepl("^Available metadata columns:", underscore.captured.output)), 1)
+})
+
 test_that("Test Plot Metadata using TEC (Mouse) dataset", {
   tec.data <- getParamPM("TEC")
   output <- do.call(plotMetadata,tec.data)
