@@ -70,6 +70,25 @@ test_that("plotMetadata accepts dotted and underscore metadata names when both e
   expect_equal(sum(grepl("^Available metadata columns:", underscore.captured.output)), 1)
 })
 
+test_that("plotMetadata accepts orig_ident without renaming metadata columns", {
+  chariou.data <- getParamPM("Chariou")
+  colnames(chariou.data$object@meta.data)[colnames(chariou.data$object@meta.data) == "orig.ident"] <-
+    "orig_ident"
+  chariou.data$samples.to.include <- "c()"
+  chariou.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
+  original.metadata.columns <- colnames(chariou.data$object@meta.data)
+  expect_true("orig_ident" %in% original.metadata.columns)
+  expect_false("orig.ident" %in% original.metadata.columns)
+
+  captured.output <- capture.output(
+    output <- do.call(plotMetadata, chariou.data)
+  )
+
+  expect_length(output$plots, 1)
+  expect_identical(colnames(output$object@meta.data), original.metadata.columns)
+  expect_equal(sum(grepl("^Available metadata columns:", captured.output)), 1)
+})
+
 test_that("Test Plot Metadata using TEC (Mouse) dataset", {
   tec.data <- getParamPM("TEC")
   output <- do.call(plotMetadata,tec.data)

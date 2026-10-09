@@ -370,8 +370,18 @@ plotMetadata <- function(
   ##   MAIN CODE   ##
   ###################    
     
-    meta.df <- object@meta.data
     summarize.cut.off <- min(summarization.cut.off, 20)
+
+    metadata.columns <- colnames(object@meta.data)
+    sample.metadata.column <- if ("orig.ident" %in% metadata.columns) {
+      "orig.ident"
+    } else if ("orig_ident" %in% metadata.columns) {
+      "orig_ident"
+    } else {
+      stop(
+        "Found neither orig.ident nor orig_ident in object metadata. Please provide an object with one of these metadata column names."
+      )
+    }
     
     # checking for samples included:
     samples <- samples.to.include
@@ -380,40 +390,24 @@ plotMetadata <- function(
     }
     
     if (length(samples) == 0) {
-      samples = unique(object@meta.data$orig.ident)
-    }
-    
-    ## Goal is to have column 1 of the new metadata be named "orig.ident"
-    ## for downstream compatibility.
-    ## Check new metadata for "orig.ident" column,
-    ## else fix the "orig_ident" column name, else print an error message.
-    if ("orig.ident" %in% colnames(object@meta.data)) {
-      ## If orig.ident already is the first column ...
-    } else if ("orig_ident" %in% colnames(object@meta.data)) {
-      ## Else if "orig_ident" is the first column ...
-      colnames(object@meta.data)[colnames(object@meta.data) == "orig_ident"] <-
-        "orig.ident"
-    } else {
-      ## Else print an error message explaining we expect one of the two above
-      ## as the first column in the new metadata.
-      stop(
-        "Found neither orig.ident nor orig_ident in object metadata. Please provide an object with one of these metadata column names."
-      )
+      samples = unique(object@meta.data[[sample.metadata.column]])
     }
     
     if ("active.ident" %in% slotNames(object)) {
-      sample_name = as.factor(object@meta.data$orig.ident)
+      sample_name = as.factor(object@meta.data[[sample.metadata.column]])
       names(sample_name) = names(object@active.ident)
       object@active.ident <- as.factor(vector())
       object@active.ident <- sample_name
       object.sub = subset(object, ident = samples)
     } else {
-      sample_name = as.factor(object@meta.data$orig.ident)
+      sample_name = as.factor(object@meta.data[[sample.metadata.column]])
       names(sample_name) = names(object@active.ident)
       object@active.ident <- as.factor(vector())
       object@active.ident <- sample_name
       object.sub = subset(object, ident = samples)
     }
+
+    meta.df <- object.sub@meta.data
     
     available.metadata.columns <- colnames(object.sub@meta.data)
     available.metadata.columns <-
