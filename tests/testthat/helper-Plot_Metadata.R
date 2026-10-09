@@ -2,43 +2,43 @@
 
 getParamPM <- function(data) {
   if (data == "TEC") {
-    object <- selectCRObject("TEC")
+    invisible(capture.output(object <- selectCRObject("TEC")))
     samples.to.include <-
       'c("1_Embryo_13_5",
       "2_Embryo_15",
       "3_Newborn",
       "4_Adult")'
     metadata.to.plot <-
-      'c("SCT_snn_res_0_2",
-         "SCT_snn_res_0_4",
-         "SCT_snn_res_0_6",
-         "SCT_snn_res_0_8",
-         "SCT_snn_res_1",
-         "SCT_snn_res_1_2")'
+      'c("SCT_snn_res.0.2",
+        "SCT_snn_res.0.4",
+        "SCT_snn_res.0.6",
+        "SCT_snn_res.0.8",
+        "SCT_snn_res.1",
+        "SCT_snn_res.1.2")'
     columns.to.summarize = "c()"
   } else if (data == "Chariou") {
-    object <- selectCRObject("Chariou")
+    invisible(capture.output(object <- selectCRObject("Chariou")))
     samples.to.include = 'c("CD8dep",
                             "Combo",
                             "ENT",
                             "NHSIL12",
                             "PBS")'
-    metadata.to.plot = 'c("SCT_snn_res_2_4",
-                          "SCT_snn_res_2_6",
-                          "SCT_snn_res_2_8")'
+    metadata.to.plot = 'c("SCT_snn_res.2.4",
+                "SCT_snn_res.2.6",
+                "SCT_snn_res.2.8")'
     columns.to.summarize = "c()"
   } else if (data == "pbmc-single") {
-    object <- selectCRObject("pbmc-single")
+    invisible(capture.output(object <- selectCRObject("pbmc-single")))
     samples.to.include = 'c("PBMC_Single")'
-    metadata.to.plot = 'c("SCT_snn_res_0_2",
-                          "SCT_snn_res_0_4",
-                          "SCT_snn_res_0_6",
-                          "SCT_snn_res_0_8",
-                          "SCT_snn_res_1",
-                          "SCT_snn_res_1_2")'
+    metadata.to.plot = 'c("SCT_snn_res.0.2",
+                "SCT_snn_res.0.4",
+                "SCT_snn_res.0.6",
+                "SCT_snn_res.0.8",
+                "SCT_snn_res.1",
+                "SCT_snn_res.1.2")'
     columns.to.summarize = "c()"
   } else if (data == "nsclc-multi") {
-    object <- selectCRObject("nsclc-multi")
+    invisible(capture.output(object <- selectCRObject("nsclc-multi")))
     samples.to.include = 'c("Donor_1",
                             "Donor_2",
                             "Donor_3",
@@ -46,15 +46,15 @@ getParamPM <- function(data) {
                             "Donor_5",
                             "Donor_6",
                             "Donor_7")'
-    metadata.to.plot = 'c("SCT_snn_res_0_2",
-                          "SCT_snn_res_0_4",
-                          "SCT_snn_res_0_6",
-                          "SCT_snn_res_0_8",
-                          "SCT_snn_res_1",
-                          "SCT_snn_res_1_2")'
+    metadata.to.plot = 'c("SCT_snn_res.0.2",
+                "SCT_snn_res.0.4",
+                "SCT_snn_res.0.6",
+                "SCT_snn_res.0.8",
+                "SCT_snn_res.1",
+                "SCT_snn_res.1.2")'
     columns.to.summarize = "c()"
   } else if (data == "BRCA") {
-    object <- selectCRObject("BRCA")
+    invisible(capture.output(object <- selectCRObject("BRCA")))
     samples.to.include = 'c("CID3586",
                             "CID3838",
                             "CID3921",
@@ -81,12 +81,12 @@ getParamPM <- function(data) {
                             "CID4523",
                             "CID4530N",
                             "CID4535")'
-    metadata.to.plot = 'c("SCT_snn_res_0_2",
-                          "SCT_snn_res_0_4",
-                          "SCT_snn_res_0_6",
-                          "SCT_snn_res_0_8",
-                          "SCT_snn_res_1",
-                          "SCT_snn_res_1_2")'
+    metadata.to.plot = 'c("SCT_snn_res.0.2",
+                "SCT_snn_res.0.4",
+                "SCT_snn_res.0.6",
+                "SCT_snn_res.0.8",
+                "SCT_snn_res.1",
+                "SCT_snn_res.1.2")'
     columns.to.summarize = "c()"
   }
   
