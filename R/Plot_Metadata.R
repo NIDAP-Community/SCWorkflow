@@ -10,7 +10,8 @@
 #' you would like to plot
 #' @param columns.to.summarize The columns you would like to summarize
 #' @param summarization.cut.off Select the number of categories you want
-#' to display, while marking all other cells as "other." Default is 5
+#' to display, while marking all other cells as "other." Must be smaller than
+#' the number of unique values in each column to summarize. Default is 5
 #' @param reduction.type What kind of visualization you would like to use
 #' to plot your cells and metadata (tsne, umap, pca). Default is tsne
 #' @param use.cite.seq TRUE if you would like to plot Antibody clusters
@@ -374,6 +375,14 @@ plotMetadata <- function(
       ))
     }
 
+    if (length(summarization.cut.off) != 1 ||
+        !is.numeric(summarization.cut.off) ||
+        !is.finite(summarization.cut.off) ||
+        summarization.cut.off < 1 ||
+        summarization.cut.off != as.integer(summarization.cut.off)) {
+      stop("summarization.cut.off must be a single positive whole number.")
+    }
+
     meta.df <- object@meta.data
     summarize.cut.off <- min(summarization.cut.off, 20)
     
@@ -479,6 +488,14 @@ plotMetadata <- function(
       for (i in cols.to.summarize) {
         col <- meta.df[[i]]
         val.count <- length(unique(col))
+        if (summarize.cut.off >= val.count) {
+          stop(sprintf(
+            "summarization.cut.off (%s) must be less than the number of unique values (%s) in columns.to.summarize column '%s'.",
+            summarize.cut.off,
+            val.count,
+            i
+          ))
+        }
         
         if ((val.count >= summarize.cut.off) &
             (i != 'Barcode') &

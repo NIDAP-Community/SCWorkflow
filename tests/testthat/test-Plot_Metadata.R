@@ -103,6 +103,39 @@ test_that("plotMetadata errors on unsupported reduction types", {
   )
 })
 
+test_that("plotMetadata validates summarization.cut.off", {
+  invalid.cutoffs <- list(0, -1, 1.5, NA_real_, Inf, "five")
+
+  for (cutoff in invalid.cutoffs) {
+    chariou.data <- getParamPM("Chariou")
+    chariou.data$summarization.cut.off <- cutoff
+
+    expect_error(
+      do.call(plotMetadata, chariou.data),
+      "summarization.cut.off must be a single positive whole number.",
+      fixed = TRUE
+    )
+  }
+})
+
+test_that("plotMetadata requires summary cutoffs below unique-value counts", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$object@meta.data$summary_group <- rep(
+    c("group_a", "group_b"),
+    length.out = nrow(chariou.data$object@meta.data)
+  )
+  chariou.data$columns.to.summarize <- 'c("summary_group")'
+  chariou.data$summarization.cut.off <- 2
+
+  invisible(capture.output(
+    expect_error(
+      do.call(plotMetadata, chariou.data),
+      "summarization.cut.off (2) must be less than the number of unique values (2) in columns.to.summarize column 'summary_group'.",
+      fixed = TRUE
+    )
+  ))
+})
+
 test_that("plotMetadata errors when selected metadata column contains NA values", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$object@meta.data$metadata_with_na <- "present"
@@ -153,6 +186,42 @@ test_that("plotMetadata accepts orig_ident without renaming metadata columns", {
   expect_true("orig_ident" %in% colnames(output$object@meta.data))
   expect_false("orig.ident" %in% colnames(output$object@meta.data))
   expect_true(any(grepl('^\\[1\\] "Found orig_ident in object metadata[.]"$', captured.output)))
+})
+
+test_that("plotMetadata adds labels only when show.labels is TRUE", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
+
+  chariou.data$show.labels <- FALSE
+  output.without.labels <- quietPlotMetadata(chariou.data)
+  layer.geoms.without.labels <- vapply(
+    output.without.labels$plots[[1]]$layers,
+    function(layer) class(layer$geom)[1],
+    character(1)
+  )
+  expect_false("GeomLabelRepel" %in% layer.geoms.without.labels)
+
+  chariou.data$show.labels <- TRUE
+  output.with.labels <- quietPlotMetadata(chariou.data)
+  layer.geoms.with.labels <- vapply(
+    output.with.labels$plots[[1]]$layers,
+    function(layer) class(layer$geom)[1],
+    character(1)
+  )
+  expect_true("GeomLabelRepel" %in% layer.geoms.with.labels)
+})
+
+test_that("plotMetadata applies legend text size and position", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
+  chariou.data$legend.text.size <- 1.5
+  chariou.data$legend.position <- "bottom"
+
+  output <- quietPlotMetadata(chariou.data)
+  plot <- output$plots[[1]]
+
+  expect_identical(plot$theme$legend.position, "bottom")
+  expect_equal(plot$theme$legend.text$size, ggplot2::rel(1.5))
 })
 
 test_that("Test Plot Metadata using TEC (Mouse) dataset", {
