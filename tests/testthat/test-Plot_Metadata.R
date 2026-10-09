@@ -45,6 +45,19 @@ test_that("plotMetadata errors when object has neither orig.ident nor orig_ident
   )
 })
 
+test_that("plotMetadata errors when requested samples are not in the object", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$samples.to.include <- 'c("unknown_sample")'
+
+  invisible(capture.output(
+    expect_error(
+      do.call(plotMetadata, chariou.data),
+      "samples.to.include contains sample names not found in the object: unknown_sample.",
+      fixed = TRUE
+    )
+  ))
+})
+
 test_that("plotMetadata errors on metadata columns not found without renaming", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$metadata.to.plot <- 'c("SCT_snn_res_2_4")'
@@ -63,6 +76,30 @@ test_that("plotMetadata errors on metadata columns not found without renaming", 
   expect_equal(
     tail(log.lines, 1),
     "metadata.to.plot contains metadata columns not found in the object: SCT_snn_res_2_4. See Possible metadata columns to select above."
+  )
+})
+
+test_that("plotMetadata errors when summary columns are not in the object", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$columns.to.summarize <- 'c("missing_summary_column")'
+
+  invisible(capture.output(
+    expect_error(
+      do.call(plotMetadata, chariou.data),
+      "columns.to.summarize contains metadata columns not found in the object: missing_summary_column.",
+      fixed = TRUE
+    )
+  ))
+})
+
+test_that("plotMetadata errors on unsupported reduction types", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$reduction.type <- "invalid_reduction"
+
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "reduction.type must be one of: tsne, umap, pca.",
+    fixed = TRUE
   )
 })
 

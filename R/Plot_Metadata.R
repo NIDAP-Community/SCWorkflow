@@ -365,7 +365,15 @@ plotMetadata <- function(
   ###################
   ##   MAIN CODE   ##
   ###################    
-    
+
+    valid.reduction.types <- c("tsne", "umap", "pca")
+    if (!reduction.type %in% valid.reduction.types) {
+      stop(sprintf(
+        "reduction.type must be one of: %s.",
+        paste(valid.reduction.types, collapse = ", ")
+      ))
+    }
+
     meta.df <- object@meta.data
     summarize.cut.off <- min(summarization.cut.off, 20)
     
@@ -389,6 +397,13 @@ plotMetadata <- function(
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
       samples = unique(object@meta.data[[sample.metadata.column]])
+    }
+    missing.samples <- setdiff(samples, unique(object@meta.data[[sample.metadata.column]]))
+    if (length(missing.samples) > 0) {
+      stop(sprintf(
+        "samples.to.include contains sample names not found in the object: %s.",
+        paste(missing.samples, collapse = ", ")
+      ))
     }
 
     if ("active.ident" %in% slotNames(object)) {
@@ -450,6 +465,13 @@ plotMetadata <- function(
     # Checking for content of "Columns to Summarize"
     cols.to.summarize <-
       eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
+    missing.summary.columns <- setdiff(cols.to.summarize, colnames(meta.df))
+    if (length(missing.summary.columns) > 0) {
+      stop(sprintf(
+        "columns.to.summarize contains metadata columns not found in the object: %s.",
+        paste(missing.summary.columns, collapse = ", ")
+      ))
+    }
     m = unique(c(m, cols.to.summarize))
     
     if (length(cols.to.summarize) > 0) {
