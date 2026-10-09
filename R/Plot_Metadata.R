@@ -71,19 +71,25 @@ plotMetadata <- function(
   ###################
   ##   Functions   ##
   ###################
+  .collapseForMessage <- function(values, max.items = 30) {
+    values <- unique(as.character(values))
+    values <- values[!is.na(values) & nzchar(values)]
+    if (length(values) == 0) {
+      return("none")
+    }
+    suffix <- if (length(values) > max.items) ", ..." else ""
+    paste0(paste(head(values, max.items), collapse = ", "), suffix)
+  }
   
   .drawMetadata <- function(m) {
     #check if there are NaNs in metadata, if there are, catch
     if (any(is.na(meta.df[[m]]))) {
-      print(
-        "ERROR: Metadata column appears to contain NA values.
-         This is not recommended for clustering plots."
-      )
-      print("Please review your selected metadata column")
-      print(head(meta.df[[m]]))
-      print("Below are valid metadata to select for this plot:")
-      print(valid.columns)
-      stop("End of error message.")
+      stop(sprintf(
+        "Metadata column '%s' contains NA values and cannot be plotted. Non-NA values in this column include: %s. Available metadata columns without NA values: %s",
+        m,
+        .collapseForMessage(meta.df[[m]]),
+        .collapseForMessage(valid.columns)
+      ))
     }
     #Making a plot based on tsne/umap/pca and CiteSeq settings:
     reduction = reduction.type
@@ -335,9 +341,7 @@ plotMetadata <- function(
       clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1),
                                                  umap2.mean = mean(umap2)) -> umap.pos
       title = as.character(m)
-      print(environmentName(environment(arrange)))
       clusmat %>% dplyr::arrange(clusid) -> clusmat
-      print(environmentName(environment(arrange)))
       g <- ggplot(clusmat, aes(x = umap1, y = umap2)) +
         theme_bw() +
         theme(legend.title = element_blank()) +
@@ -366,8 +370,18 @@ plotMetadata <- function(
   ##   MAIN CODE   ##
   ###################    
     
-    meta.df <- object@meta.data
     summarize.cut.off <- min(summarization.cut.off, 20)
+
+    metadata.columns <- colnames(object@meta.data)
+    sample.metadata.column <- if ("orig.ident" %in% metadata.columns) {
+      "orig.ident"
+    } else if ("orig_ident" %in% metadata.columns) {
+      "orig_ident"
+    } else {
+      stop(
+        "Found neither orig.ident nor orig_ident in object metadata. Please provide an object with one of these metadata column names."
+      )
+    }
     
     # checking for samples included:
     samples <- samples.to.include
@@ -376,54 +390,34 @@ plotMetadata <- function(
     }
     
     if (length(samples) == 0) {
-      print("No samples specified. Using all samples...")
-      samples = unique(object@meta.data$orig.ident)
-    }
-    
-    ## Goal is to have column 1 of the new metadata be named "orig.ident"
-    ## for downstream compatibility.
-    ## Check new metadata for "orig.ident" column,
-    ## else fix the "orig_ident" column name, else print an error message.
-    if ("orig.ident" %in% colnames(object@meta.data)) {
-      ## If orig.ident already is the first column ...
-      print("Found orig.ident in column 1 of object metadata.")
-    } else if ("orig_ident" %in% colnames(object@meta.data)) {
-      ## Else if "orig_ident" is the first column ...
-      colnames(object@meta.data)[colnames(object@meta.data) == "orig_ident"] <-
-        "orig.ident"
-      print(
-        "Found orig_ident in column 1 of new metadata table.
-       Changed to orig.ident for downstream compatibility."
-      )
-    } else {
-      ## Else print an error message explaining we expect one of the two above
-      ## as the first column in the new metadata.
-      print(
-        "ERROR: Found neither orig.ident nor orig_ident in column 1 of new
-       metadata table. Please try again with a new metadata table with one of
-       these as the column name of the first column in the dataframe."
-      )
+      samples = unique(object@meta.data[[sample.metadata.column]])
     }
     
     if ("active.ident" %in% slotNames(object)) {
-      sample_name = as.factor(object@meta.data$orig.ident)
+      sample_name = as.factor(object@meta.data[[sample.metadata.column]])
       names(sample_name) = names(object@active.ident)
       object@active.ident <- as.factor(vector())
       object@active.ident <- sample_name
       object.sub = subset(object, ident = samples)
     } else {
-      sample_name = as.factor(object@meta.data$orig.ident)
+      sample_name = as.factor(object@meta.data[[sample.metadata.column]])
       names(sample_name) = names(object@active.ident)
       object@active.ident <- as.factor(vector())
       object@active.ident <- sample_name
       object.sub = subset(object, ident = samples)
     }
+
+    meta.df <- object.sub@meta.data
     
-    print("selected object:")
-    print(object)
-    
-    # converting dots to underscores in column names:
-    colnames(object.sub@meta.data) = gsub("\\.", "_", colnames(object.sub@meta.data))
+    available.metadata.columns <- colnames(object.sub@meta.data)
+    available.metadata.columns <-
+      available.metadata.columns[!grepl("Barcode", available.metadata.columns)]
+    available.metadata.columns.message <-
+      if (length(available.metadata.columns) > 0) {
+        paste(available.metadata.columns, collapse = ", ")
+      } else {
+        "none"
+      }
     
     
     # checking metadata for sanity
@@ -432,15 +426,23 @@ plotMetadata <- function(
     }else{
       m=metadata.to.plot
     }
-    m = gsub("\\.", "_", m)
+    m <- trimws(m)
+    m <- m[!is.na(m) & nzchar(m)]
     
     m = m[!grepl("Barcode", m)]
     if (length(m) == 0) {
-      print("No metadata columns specified.
-           Plotting sample names and RNA clusters...")
-      x = colnames(object.sub@meta.data)
-      x = x[grepl("RNA", x)]
-      m = c("sample_name", x)
+      stop(sprintf(
+        "metadata.to.plot must include at least one metadata column. Available metadata columns: %s",
+        available.metadata.columns.message
+      ))
+    }
+    missing.metadata.columns <- setdiff(m, colnames(object.sub@meta.data))
+    if (length(missing.metadata.columns) > 0) {
+      stop(sprintf(
+        "metadata.to.plot contains metadata columns not found in the object: %s. Available metadata columns: %s",
+        paste(missing.metadata.columns, collapse = ", "),
+        available.metadata.columns.message
+      ))
     }
     
     #ERROR CATCHING
@@ -455,6 +457,8 @@ plotMetadata <- function(
     # Checking for content of "Columns to Summarize"
     cols.to.summarize <-
       eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
+    cols.to.summarize <- trimws(cols.to.summarize)
+    cols.to.summarize <- cols.to.summarize[!is.na(cols.to.summarize) & nzchar(cols.to.summarize)]
     m = unique(c(m, cols.to.summarize))
     
     if (length(cols.to.summarize) > 0) {
@@ -467,39 +471,31 @@ plotMetadata <- function(
             (i != 'Barcode') &
             (!is.element(class(meta.df[[i]][1]), c("numeric", "integer")))) {
           freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarize.cut.off]
-          print(freq.vals)
           summarized.col = list()
           count <- 0
           for (j in col) {
-            print(j)
-            print(paste("count is", count))
-            
             if (is.na(j) || is.null(j) || (j == "None")) {
               count <- count + 1
               summarized.col[count] <- "NULLorNA"
-              print("NULLorNA")
             } else if (j %in% freq.vals) {
               count <- count + 1
               summarized.col[count] <- j
-              print("valid")
             } else {
               count <- count + 1
               summarized.col[count] <- "Other"
-              print("Other")
             }
           }
           meta.df[[i]] <- summarized.col
         }
       }
       #assign new metadata
-      colnames(meta.df) = gsub("\\.", "_", colnames(meta.df))
       object.sub@meta.data <- meta.df
-      colnames(object.sub@meta.data) = gsub("\\.", "_", colnames(object.sub@meta.data))
     }
     
     
   
   grobs <- lapply(m, function(x) .drawMetadata(x))
+  cat("Available metadata columns: ", available.metadata.columns.message, "\n", sep = "")
   
 
   result.list <- list(
