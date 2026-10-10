@@ -152,6 +152,26 @@ test_that("plotMetadata requires summary cutoffs below unique-value counts", {
   )
 })
 
+test_that("plotMetadata validates summary cutoffs against selected samples", {
+  chariou.data <- getParamPM("Chariou")
+  selected.sample <- "CD8dep"
+  selected.cells <- chariou.data$object@meta.data$orig.ident == selected.sample
+  chariou.data$object@meta.data$summary_group <- ifelse(
+    selected.cells,
+    rep(c("group_a", "group_b"), length.out = sum(selected.cells)),
+    rep(c("group_c", "group_d"), length.out = sum(!selected.cells))
+  )
+  chariou.data$samples.to.include <- sprintf('c("%s")', selected.sample)
+  chariou.data$columns.to.summarize <- 'c("summary_group")'
+  chariou.data$summarization.cut.off <- 2
+
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "Too many categories were requested for columns.to.summarize column 'summary_group': 2 requested, but 1 categories are possible.",
+    fixed = TRUE
+  )
+})
+
 test_that("plotMetadata permits summary cutoffs above 20 when values are available", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$object@meta.data$summary_group <- rep(

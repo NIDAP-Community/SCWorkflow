@@ -396,8 +396,6 @@ plotMetadata <- function(
       stop("summarization.cut.off must be a single positive whole number.")
     }
 
-    meta.df <- object@meta.data
-    
     # checking for samples included:
     samples <- samples.to.include
     if (is.character(samples) && any(grepl('c\\(|\\[\\]', samples))) {
@@ -443,7 +441,9 @@ plotMetadata <- function(
     
     print("selected object:")
     print(object)
-    
+
+    meta.df <- object.sub@meta.data
+
     possible.metadata.columns <- colnames(object.sub@meta.data)
     possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
     message(
