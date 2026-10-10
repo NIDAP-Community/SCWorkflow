@@ -116,6 +116,22 @@ test_that("plotMetadata errors on unsupported reduction types", {
     "reduction.type must be one of: tsne, umap, pca.",
     fixed = TRUE
   )
+
+  chariou.data$reduction.type <- c("umap", "tsne")
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "reduction.type must be a single character value.",
+    fixed = TRUE
+  )
+})
+
+test_that("plotMetadata defaults an empty reduction type to umap", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$reduction.type <- character()
+
+  output <- quietPlotMetadata(chariou.data)
+
+  expect_length(output$plots, 3)
 })
 
 test_that("plotMetadata validates summarization.cut.off", {

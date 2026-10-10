@@ -13,7 +13,7 @@
 #' to display, while marking all other cells as "other." Must be smaller than
 #' the number of unique values in each column to summarize. Default is 5
 #' @param reduction.type What kind of visualization you would like to use
-#' to plot your cells and metadata (tsne, umap, pca). Default is tsne
+#' to plot your cells and metadata (tsne, umap, pca). Default is umap
 #' @param use.cite.seq TRUE if you would like to plot Antibody clusters
 #' from CITEseq instead of scRNA. Default is FALSE
 #' @param show.labels Whether to add labels or not to your reduction map.
@@ -61,7 +61,7 @@ plotMetadata <- function(
                         metadata.to.plot,
                         columns.to.summarize,
                         summarization.cut.off = 5,
-                        reduction.type = "tsne",
+                        reduction.type = "umap",
                         use.cite.seq = FALSE,
                         show.labels = FALSE,
                         legend.text.size = 1,
@@ -367,7 +367,20 @@ plotMetadata <- function(
   ##   MAIN CODE   ##
   ###################    
 
+    if (length(reduction.type) == 0 ||
+        (length(reduction.type) == 1 &&
+         is.character(reduction.type) &&
+         (is.na(reduction.type) || !nzchar(trimws(reduction.type))))) {
+      reduction.type <- "umap"
+    }
+
     valid.reduction.types <- c("tsne", "umap", "pca")
+    if (length(reduction.type) != 1 ||
+        !is.character(reduction.type) ||
+        is.na(reduction.type)) {
+      stop("reduction.type must be a single character value.")
+    }
+    reduction.type <- trimws(reduction.type)
     if (!reduction.type %in% valid.reduction.types) {
       stop(sprintf(
         "reduction.type must be one of: %s.",
