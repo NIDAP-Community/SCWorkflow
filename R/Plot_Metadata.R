@@ -500,13 +500,18 @@ plotMetadata <- function(
         if ((val.count >= summarize.cut.off) &
             (i != 'Barcode') &
             (!is.element(class(meta.df[[i]][1]), c("numeric", "integer")))) {
+          print(sprintf(
+            "Summarizing metadata column '%s': retaining the %s most frequent values, labeling non-retained values as Other, and labeling missing values as NA.",
+            i,
+            summarize.cut.off
+          ))
           freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarize.cut.off]
           summarized.col = list()
           count <- 0
           for (j in col) {
             if (is.na(j) || is.null(j) || (j == "None")) {
               count <- count + 1
-              summarized.col[count] <- "NULLorNA"
+              summarized.col[count] <- "NA"
             } else if (j %in% freq.vals) {
               count <- count + 1
               summarized.col[count] <- j

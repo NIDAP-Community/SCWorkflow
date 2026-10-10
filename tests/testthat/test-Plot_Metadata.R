@@ -136,6 +136,36 @@ test_that("plotMetadata requires summary cutoffs below unique-value counts", {
   ))
 })
 
+test_that("plotMetadata logs applied metadata summarization", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$columns.to.summarize <- 'c("SCT_snn_res.2.4")'
+  chariou.data$summarization.cut.off <- 5
+
+  captured.output <- capture.output(
+    output <- do.call(plotMetadata, chariou.data)
+  )
+
+  expect_length(output$plots, 3)
+  expect_true(any(captured.output == paste0(
+    "[1] \"Summarizing metadata column 'SCT_snn_res.2.4': retaining the 5 most frequent values, labeling non-retained values as Other, and labeling missing values as NA.\""
+  )))
+})
+
+test_that("plotMetadata labels missing summarized values as NA", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$object@meta.data$summary_with_missing <- rep(
+    c("group_a", "group_b", "group_c", NA_character_),
+    length.out = nrow(chariou.data$object@meta.data)
+  )
+  chariou.data$metadata.to.plot <- 'c("Status")'
+  chariou.data$columns.to.summarize <- 'c("summary_with_missing")'
+  chariou.data$summarization.cut.off <- 2
+
+  output <- quietPlotMetadata(chariou.data)
+
+  expect_true("NA" %in% output$plots[[2]]$data$clusid)
+})
+
 test_that("plotMetadata errors when selected metadata column contains NA values", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$object@meta.data$metadata_with_na <- "present"
