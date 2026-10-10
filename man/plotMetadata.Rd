@@ -10,7 +10,7 @@ plotMetadata(
   metadata.to.plot,
   columns.to.summarize,
   summarization.cut.off = 5,
-  reduction.type = "tsne",
+  reduction.type = "umap",
   use.cite.seq = FALSE,
   show.labels = FALSE,
   legend.text.size = 1,
@@ -29,10 +29,11 @@ you would like to plot}
 \item{columns.to.summarize}{The columns you would like to summarize}
 
 \item{summarization.cut.off}{Select the number of categories you want
-to display, while marking all other cells as "other." Default is 5}
+to display, while marking all other cells as "other." Must be smaller than
+the number of unique values in each column to summarize. Default is 5}
 
 \item{reduction.type}{What kind of visualization you would like to use
-to plot your cells and metadata (tsne, umap, pca). Default is tsne}
+to plot your cells and metadata (tsne, umap, pca). Default is umap}
 
 \item{use.cite.seq}{TRUE if you would like to plot Antibody clusters
 from CITEseq instead of scRNA. Default is FALSE}

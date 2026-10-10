@@ -10,9 +10,10 @@
 #' you would like to plot
 #' @param columns.to.summarize The columns you would like to summarize
 #' @param summarization.cut.off Select the number of categories you want
-#' to display, while marking all other cells as "other." Default is 5
+#' to display, while marking all other cells as "other." Must be smaller than
+#' the number of unique values in each column to summarize. Default is 5
 #' @param reduction.type What kind of visualization you would like to use
-#' to plot your cells and metadata (tsne, umap, pca). Default is tsne
+#' to plot your cells and metadata (tsne, umap, pca). Default is umap
 #' @param use.cite.seq TRUE if you would like to plot Antibody clusters
 #' from CITEseq instead of scRNA. Default is FALSE
 #' @param show.labels Whether to add labels or not to your reduction map.
@@ -60,7 +61,7 @@ plotMetadata <- function(
                         metadata.to.plot,
                         columns.to.summarize,
                         summarization.cut.off = 5,
-                        reduction.type = "tsne",
+                        reduction.type = "umap",
                         use.cite.seq = FALSE,
                         show.labels = FALSE,
                         legend.text.size = 1,
@@ -71,25 +72,19 @@ plotMetadata <- function(
   ###################
   ##   Functions   ##
   ###################
-  .collapseForMessage <- function(values, max.items = 30) {
-    values <- unique(as.character(values))
-    values <- values[!is.na(values) & nzchar(values)]
-    if (length(values) == 0) {
-      return("none")
-    }
-    suffix <- if (length(values) > max.items) ", ..." else ""
-    paste0(paste(head(values, max.items), collapse = ", "), suffix)
-  }
   
   .drawMetadata <- function(m) {
     #check if there are NaNs in metadata, if there are, catch
     if (any(is.na(meta.df[[m]]))) {
-      stop(sprintf(
-        "Metadata column '%s' contains NA values and cannot be plotted. Non-NA values in this column include: %s. Available metadata columns without NA values: %s",
-        m,
-        .collapseForMessage(meta.df[[m]]),
-        .collapseForMessage(valid.columns)
-      ))
+      print(
+        "ERROR: Metadata column appears to contain NA values.
+         This is not recommended for clustering plots."
+      )
+      print("Please review your selected metadata column")
+      print(head(meta.df[[m]]))
+      print("Below are valid metadata to select for this plot:")
+      print(valid.columns)
+      stop("End of error message.")
     }
     #Making a plot based on tsne/umap/pca and CiteSeq settings:
     reduction = reduction.type
@@ -341,7 +336,9 @@ plotMetadata <- function(
       clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1),
                                                  umap2.mean = mean(umap2)) -> umap.pos
       title = as.character(m)
+      print(environmentName(environment(arrange)))
       clusmat %>% dplyr::arrange(clusid) -> clusmat
+      print(environmentName(environment(arrange)))
       g <- ggplot(clusmat, aes(x = umap1, y = umap2)) +
         theme_bw() +
         theme(legend.title = element_blank()) +
@@ -369,13 +366,46 @@ plotMetadata <- function(
   ###################
   ##   MAIN CODE   ##
   ###################    
-    
-    summarize.cut.off <- min(summarization.cut.off, 20)
 
-    metadata.columns <- colnames(object@meta.data)
-    sample.metadata.column <- if ("orig.ident" %in% metadata.columns) {
+    if (length(reduction.type) == 0 ||
+        (length(reduction.type) == 1 &&
+         is.character(reduction.type) &&
+         (is.na(reduction.type) || !nzchar(trimws(reduction.type))))) {
+      reduction.type <- "umap"
+    }
+
+    valid.reduction.types <- c("tsne", "umap", "pca")
+    if (length(reduction.type) != 1 ||
+        !is.character(reduction.type) ||
+        is.na(reduction.type)) {
+      stop("reduction.type must be a single character value.")
+    }
+    reduction.type <- trimws(reduction.type)
+    if (!reduction.type %in% valid.reduction.types) {
+      stop(sprintf(
+        "reduction.type must be one of: %s.",
+        paste(valid.reduction.types, collapse = ", ")
+      ))
+    }
+
+    if (length(summarization.cut.off) != 1 ||
+        !is.numeric(summarization.cut.off) ||
+        !is.finite(summarization.cut.off) ||
+        summarization.cut.off < 1 ||
+        summarization.cut.off != as.integer(summarization.cut.off)) {
+      stop("summarization.cut.off must be a single positive whole number.")
+    }
+
+    # checking for samples included:
+    samples <- samples.to.include
+    if (is.character(samples) && any(grepl('c\\(|\\[\\]', samples))) {
+      samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
+    }
+    sample.metadata.column <- if ("orig.ident" %in% colnames(object@meta.data)) {
+      print("Found orig.ident in object metadata.")
       "orig.ident"
-    } else if ("orig_ident" %in% metadata.columns) {
+    } else if ("orig_ident" %in% colnames(object@meta.data)) {
+      print("Found orig_ident in object metadata.")
       "orig_ident"
     } else {
       stop(
@@ -383,16 +413,18 @@ plotMetadata <- function(
       )
     }
     
-    # checking for samples included:
-    samples <- samples.to.include
-    if (is.character(samples) && any(grepl('c\\(|\\[\\]', samples))) {
-      samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
-    }
-    
     if (length(samples) == 0) {
+      print("No samples specified. Using all samples...")
       samples = unique(object@meta.data[[sample.metadata.column]])
     }
-    
+    missing.samples <- setdiff(samples, unique(object@meta.data[[sample.metadata.column]]))
+    if (length(missing.samples) > 0) {
+      stop(sprintf(
+        "samples.to.include contains sample names not found in the object: %s.",
+        paste(missing.samples, collapse = ", ")
+      ))
+    }
+
     if ("active.ident" %in% slotNames(object)) {
       sample_name = as.factor(object@meta.data[[sample.metadata.column]])
       names(sample_name) = names(object@active.ident)
@@ -406,19 +438,18 @@ plotMetadata <- function(
       object@active.ident <- sample_name
       object.sub = subset(object, ident = samples)
     }
+    
+    print("selected object:")
+    print(object)
 
     meta.df <- object.sub@meta.data
-    
-    available.metadata.columns <- colnames(object.sub@meta.data)
-    available.metadata.columns <-
-      available.metadata.columns[!grepl("Barcode", available.metadata.columns)]
-    available.metadata.columns.message <-
-      if (length(available.metadata.columns) > 0) {
-        paste(available.metadata.columns, collapse = ", ")
-      } else {
-        "none"
-      }
-    
+
+    possible.metadata.columns <- colnames(object.sub@meta.data)
+    possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
+    message(
+      "Possible metadata columns to select:\n",
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
+    )
     
     # checking metadata for sanity
     if (is.character(metadata.to.plot) && any(grepl('c\\(|\\[\\]', metadata.to.plot))) {
@@ -431,17 +462,13 @@ plotMetadata <- function(
     
     m = m[!grepl("Barcode", m)]
     if (length(m) == 0) {
-      stop(sprintf(
-        "metadata.to.plot must include at least one metadata column. Available metadata columns: %s",
-        available.metadata.columns.message
-      ))
+      stop("metadata.to.plot must include at least one metadata column. See Possible metadata columns to select above.")
     }
     missing.metadata.columns <- setdiff(m, colnames(object.sub@meta.data))
     if (length(missing.metadata.columns) > 0) {
       stop(sprintf(
-        "metadata.to.plot contains metadata columns not found in the object: %s. Available metadata columns: %s",
-        paste(missing.metadata.columns, collapse = ", "),
-        available.metadata.columns.message
+        "metadata.to.plot contains metadata columns not found in the object: %s. See Possible metadata columns to select above.",
+        paste(missing.metadata.columns, collapse = ", ")
       ))
     }
     
@@ -455,10 +482,19 @@ plotMetadata <- function(
     }
     
     # Checking for content of "Columns to Summarize"
-    cols.to.summarize <-
-      eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
-    cols.to.summarize <- trimws(cols.to.summarize)
-    cols.to.summarize <- cols.to.summarize[!is.na(cols.to.summarize) & nzchar(cols.to.summarize)]
+    cols.to.summarize <- columns.to.summarize
+    if (is.character(cols.to.summarize) &&
+        length(cols.to.summarize) == 1L &&
+        any(grepl('c\\(|\\[\\]', cols.to.summarize))) {
+      cols.to.summarize <- eval(parse(text = gsub('\\[\\]', 'c()', cols.to.summarize)))
+    }
+    missing.summary.columns <- setdiff(cols.to.summarize, colnames(meta.df))
+    if (length(missing.summary.columns) > 0) {
+      stop(sprintf(
+        "columns.to.summarize contains metadata columns not found in the object: %s.",
+        paste(missing.summary.columns, collapse = ", ")
+      ))
+    }
     m = unique(c(m, cols.to.summarize))
     
     if (length(cols.to.summarize) > 0) {
@@ -466,17 +502,31 @@ plotMetadata <- function(
       for (i in cols.to.summarize) {
         col <- meta.df[[i]]
         val.count <- length(unique(col))
+        max.categories <- val.count - 1
+        if (summarization.cut.off > max.categories) {
+          stop(sprintf(
+            "Too many categories were requested for columns.to.summarize column '%s': %s requested, but %s categories are possible.",
+            i,
+            summarization.cut.off,
+            max.categories
+          ))
+        }
         
-        if ((val.count >= summarize.cut.off) &
+        if ((val.count >= summarization.cut.off) &
             (i != 'Barcode') &
             (!is.element(class(meta.df[[i]][1]), c("numeric", "integer")))) {
-          freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarize.cut.off]
+          print(sprintf(
+            "Summarizing metadata column '%s': retaining the %s most frequent values, labeling non-retained values as Other, and labeling missing values as NA.",
+            i,
+            summarization.cut.off
+          ))
+          freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarization.cut.off]
           summarized.col = list()
           count <- 0
           for (j in col) {
             if (is.na(j) || is.null(j) || (j == "None")) {
               count <- count + 1
-              summarized.col[count] <- "NULLorNA"
+              summarized.col[count] <- "NA"
             } else if (j %in% freq.vals) {
               count <- count + 1
               summarized.col[count] <- j
@@ -495,7 +545,6 @@ plotMetadata <- function(
     
   
   grobs <- lapply(m, function(x) .drawMetadata(x))
-  cat("Available metadata columns: ", available.metadata.columns.message, "\n", sep = "")
   
 
   result.list <- list(
