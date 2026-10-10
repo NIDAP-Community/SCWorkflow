@@ -470,8 +470,12 @@ plotMetadata <- function(
     }
     
     # Checking for content of "Columns to Summarize"
-    cols.to.summarize <-
-      eval(parse(text = gsub('\\[\\]', 'c()', columns.to.summarize)))
+    cols.to.summarize <- columns.to.summarize
+    if (is.character(cols.to.summarize) &&
+        length(cols.to.summarize) == 1L &&
+        any(grepl('c\\(|\\[\\]', cols.to.summarize))) {
+      cols.to.summarize <- eval(parse(text = gsub('\\[\\]', 'c()', cols.to.summarize)))
+    }
     missing.summary.columns <- setdiff(cols.to.summarize, colnames(meta.df))
     if (length(missing.summary.columns) > 0) {
       stop(sprintf(
