@@ -4,7 +4,9 @@
 Rcheck.txt
 #*.pdf
 tests/testthat/otherData/
-tests/testthat/_snaps
+tests/testthat/_snaps/*
+!tests/testthat/_snaps/Plot_Metadata/
+!tests/testthat/_snaps/Plot_Metadata/*.png
 tests/testthat/fixtures/
 tests/testthat/output/
 
