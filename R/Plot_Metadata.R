@@ -397,7 +397,6 @@ plotMetadata <- function(
     }
 
     meta.df <- object@meta.data
-    summarize.cut.off <- min(summarization.cut.off, 20)
     
     # checking for samples included:
     samples <- samples.to.include
@@ -503,24 +502,25 @@ plotMetadata <- function(
       for (i in cols.to.summarize) {
         col <- meta.df[[i]]
         val.count <- length(unique(col))
-        if (summarize.cut.off >= val.count) {
+        max.categories <- val.count - 1
+        if (summarization.cut.off > max.categories) {
           stop(sprintf(
-            "summarization.cut.off (%s) must be less than the number of unique values (%s) in columns.to.summarize column '%s'.",
-            summarize.cut.off,
-            val.count,
-            i
+            "Too many categories were requested for columns.to.summarize column '%s': %s requested, but %s categories are possible.",
+            i,
+            summarization.cut.off,
+            max.categories
           ))
         }
         
-        if ((val.count >= summarize.cut.off) &
+        if ((val.count >= summarization.cut.off) &
             (i != 'Barcode') &
             (!is.element(class(meta.df[[i]][1]), c("numeric", "integer")))) {
           print(sprintf(
             "Summarizing metadata column '%s': retaining the %s most frequent values, labeling non-retained values as Other, and labeling missing values as NA.",
             i,
-            summarize.cut.off
+            summarization.cut.off
           ))
-          freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarize.cut.off]
+          freq.vals <- as.data.frame(-sort(-table(col)))$col[1:summarization.cut.off]
           summarized.col = list()
           count <- 0
           for (j in col) {

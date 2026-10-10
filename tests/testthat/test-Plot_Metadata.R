@@ -1,13 +1,3 @@
-quietPlotMetadata <- function(params) {
-  invisible(capture.output(
-    output <- tryCatch(do.call(plotMetadata, params), error = identity)
-  ))
-  if (inherits(output, "error")) {
-    stop(conditionMessage(output), call. = FALSE)
-  }
-  output
-}
-
 test_that("plotMetadata prints metadata options and errors when metadata.to.plot is empty", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$samples.to.include <- "c()"
@@ -57,13 +47,11 @@ test_that("plotMetadata errors when requested samples are not in the object", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$samples.to.include <- 'c("unknown_sample")'
 
-  invisible(capture.output(
-    expect_error(
-      do.call(plotMetadata, chariou.data),
-      "samples.to.include contains sample names not found in the object: unknown_sample.",
-      fixed = TRUE
-    )
-  ))
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "samples.to.include contains sample names not found in the object: unknown_sample.",
+    fixed = TRUE
+  )
 })
 
 test_that("plotMetadata errors on metadata columns not found without renaming", {
@@ -98,13 +86,11 @@ test_that("plotMetadata errors when summary columns are not in the object", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$columns.to.summarize <- 'c("missing_summary_column")'
 
-  invisible(capture.output(
-    expect_error(
-      do.call(plotMetadata, chariou.data),
-      "columns.to.summarize contains metadata columns not found in the object: missing_summary_column.",
-      fixed = TRUE
-    )
-  ))
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "columns.to.summarize contains metadata columns not found in the object: missing_summary_column.",
+    fixed = TRUE
+  )
 })
 
 test_that("plotMetadata errors on unsupported reduction types", {
@@ -129,7 +115,7 @@ test_that("plotMetadata defaults an empty reduction type to umap", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$reduction.type <- character()
 
-  output <- quietPlotMetadata(chariou.data)
+  output <- do.call(plotMetadata, chariou.data)
 
   expect_length(output$plots, 3)
 })
@@ -147,6 +133,7 @@ test_that("plotMetadata validates summarization.cut.off", {
       fixed = TRUE
     )
   }
+
 })
 
 test_that("plotMetadata requires summary cutoffs below unique-value counts", {
@@ -158,13 +145,25 @@ test_that("plotMetadata requires summary cutoffs below unique-value counts", {
   chariou.data$columns.to.summarize <- 'c("summary_group")'
   chariou.data$summarization.cut.off <- 2
 
-  invisible(capture.output(
-    expect_error(
-      do.call(plotMetadata, chariou.data),
-      "summarization.cut.off (2) must be less than the number of unique values (2) in columns.to.summarize column 'summary_group'.",
-      fixed = TRUE
-    )
-  ))
+  expect_error(
+    do.call(plotMetadata, chariou.data),
+    "Too many categories were requested for columns.to.summarize column 'summary_group': 2 requested, but 1 categories are possible.",
+    fixed = TRUE
+  )
+})
+
+test_that("plotMetadata permits summary cutoffs above 20 when values are available", {
+  chariou.data <- getParamPM("Chariou")
+  chariou.data$object@meta.data$summary_group <- rep(
+    sprintf("group_%02d", 1:22),
+    length.out = nrow(chariou.data$object@meta.data)
+  )
+  chariou.data$columns.to.summarize <- 'c("summary_group")'
+  chariou.data$summarization.cut.off <- 21
+
+  output <- do.call(plotMetadata, chariou.data)
+
+  expect_length(output$plots, 4)
 })
 
 test_that("plotMetadata logs applied metadata summarization", {
@@ -192,7 +191,7 @@ test_that("plotMetadata labels missing summarized values as NA", {
   chariou.data$columns.to.summarize <- 'c("summary_with_missing")'
   chariou.data$summarization.cut.off <- 2
 
-  output <- quietPlotMetadata(chariou.data)
+  output <- do.call(plotMetadata, chariou.data)
 
   expect_true("NA" %in% output$plots[[2]]$data$clusid)
 })
@@ -261,7 +260,7 @@ test_that("plotMetadata adds labels only when show.labels is TRUE", {
   chariou.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
 
   chariou.data$show.labels <- FALSE
-  output.without.labels <- quietPlotMetadata(chariou.data)
+  output.without.labels <- do.call(plotMetadata, chariou.data)
   layer.geoms.without.labels <- vapply(
     output.without.labels$plots[[1]]$layers,
     function(layer) class(layer$geom)[1],
@@ -270,7 +269,7 @@ test_that("plotMetadata adds labels only when show.labels is TRUE", {
   expect_false("GeomLabelRepel" %in% layer.geoms.without.labels)
 
   chariou.data$show.labels <- TRUE
-  output.with.labels <- quietPlotMetadata(chariou.data)
+  output.with.labels <- do.call(plotMetadata, chariou.data)
   layer.geoms.with.labels <- vapply(
     output.with.labels$plots[[1]]$layers,
     function(layer) class(layer$geom)[1],
@@ -285,7 +284,7 @@ test_that("plotMetadata applies legend text size and position", {
   chariou.data$legend.text.size <- 1.5
   chariou.data$legend.position <- "bottom"
 
-  output <- quietPlotMetadata(chariou.data)
+  output <- do.call(plotMetadata, chariou.data)
   plot <- output$plots[[1]]
 
   expect_identical(plot$theme$legend.position, "bottom")
@@ -294,7 +293,7 @@ test_that("plotMetadata applies legend text size and position", {
 
 test_that("Test Plot Metadata using TEC (Mouse) dataset", {
   tec.data <- getParamPM("TEC")
-  output <- quietPlotMetadata(tec.data)
+  output <- do.call(plotMetadata, tec.data)
 
   ggsave("output/TEC_plotmet.png", output$plot[[1]], width = 10, height = 10)
   expect_snapshot_file("output", "TEC_plotmet1.png")
@@ -316,7 +315,7 @@ test_that("Test Plot Metadata using TEC (Mouse) dataset", {
 
 test_that("Test Plot Metadata using Chariou (Mouse) dataset", {
   chariou.data <- getParamPM("Chariou")
-  output <- quietPlotMetadata(chariou.data)
+  output <- do.call(plotMetadata, chariou.data)
 
   ggsave("output/Chariou_plotmet.png", output$plot[[1]], width = 10, height = 10)
   expect_snapshot_file("output", "Chariou_plotmet1.png")
@@ -332,7 +331,7 @@ test_that("Test Plot Metadata using Chariou (Mouse) dataset", {
 
 test_that("Test Plot Metadata using BRCA (Human) dataset", {
   brca.data <- getParamPM("BRCA")
-  output <- quietPlotMetadata(brca.data)
+  output <- do.call(plotMetadata, brca.data)
 
   ggsave("output/BRCA_plotmet.png", output$plot[[1]], width = 10, height = 10)
   expect_snapshot_file("output", "BRCA_plotmet1.png")
@@ -354,7 +353,7 @@ test_that("Test Plot Metadata using BRCA (Human) dataset", {
 
 test_that("Test Plot Metadata using NSCLCmulti (Human) dataset", {
   nsclc.multi.data <- getParamPM("nsclc-multi")
-  output <- quietPlotMetadata(nsclc.multi.data)
+  output <- do.call(plotMetadata, nsclc.multi.data)
 
   ggsave("output/NSCLCmulti_plotmet.png", output$plot[[1]], width = 10, height = 10)
   expect_snapshot_file("output", "NSCLCmulti_plotmet1.png")
@@ -376,7 +375,7 @@ test_that("Test Plot Metadata using NSCLCmulti (Human) dataset", {
 
 test_that("Test Plot Metadata using PBMCsingle (Human) dataset", {
   pbmc.single.data <- getParamPM("pbmc-single")
-  output <- quietPlotMetadata(pbmc.single.data)
+  output <- do.call(plotMetadata, pbmc.single.data)
 
   ggsave("output/PBMCsingle_plotmet.png", output$plot[[1]], width = 10, height = 10)
   expect_snapshot_file("output", "PBMCsingle_plotmet1.png")
@@ -399,7 +398,7 @@ test_that("Test Plot Metadata using PBMCsingle (Human) dataset", {
 test_that("Test Plot Metadata using TEC (Mouse) dataset; UMAP", {
   tec.data <- getParamPM("TEC")
   tec.data$reduction.type <- "umap"
-  output <- quietPlotMetadata(tec.data)
+  output <- do.call(plotMetadata, tec.data)
 
   ggsave("output/TEC_plotmet.png", output$plot[[1]], width = 10, height = 10)
   expect_snapshot_file("output", "TEC_plotmet1.umap.png")
