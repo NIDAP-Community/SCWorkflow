@@ -18,7 +18,7 @@ test_that("plotMetadata prints metadata options and errors when metadata.to.plot
   )
   log.lines <- c(captured.output, captured.messages, conditionMessage(error))
 
-  expect_true(any(grepl("Found orig.ident in column 1 of object metadata.", captured.output, fixed = TRUE)))
+  expect_true(any(grepl("Found orig.ident in object metadata.", captured.output, fixed = TRUE)))
   expect_true(any(grepl("No samples specified. Using all samples...", captured.output, fixed = TRUE)))
   expect_equal(length(captured.messages), 1)
   expect_match(captured.messages, "Possible metadata columns to select:", fixed = TRUE)

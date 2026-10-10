@@ -402,7 +402,7 @@ plotMetadata <- function(
       samples <- eval(parse(text = gsub('\\[\\]', 'c()', samples)))
     }
     sample.metadata.column <- if ("orig.ident" %in% colnames(object@meta.data)) {
-      print("Found orig.ident in column 1 of object metadata.")
+      print("Found orig.ident in object metadata.")
       "orig.ident"
     } else if ("orig_ident" %in% colnames(object@meta.data)) {
       print("Found orig_ident in object metadata.")
