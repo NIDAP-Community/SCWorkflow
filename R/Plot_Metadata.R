@@ -434,11 +434,9 @@ plotMetadata <- function(
     
     possible.metadata.columns <- colnames(object.sub@meta.data)
     possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
-    cat(
+    message(
       "Possible metadata columns to select:\n",
-      paste0("  - ", possible.metadata.columns, collapse = "\n"),
-      "\n",
-      sep = ""
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
     )
     
     # checking metadata for sanity

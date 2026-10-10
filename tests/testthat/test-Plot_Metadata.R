@@ -13,19 +13,27 @@ test_that("plotMetadata prints metadata options and errors when metadata.to.plot
   chariou.data$samples.to.include <- "c()"
   chariou.data$metadata.to.plot <- "c()"
 
+  captured.messages <- character()
   captured.output <- capture.output(
-    error <- expect_error(
-      do.call(plotMetadata, chariou.data),
-      "metadata.to.plot must include at least one metadata column"
+    error <- withCallingHandlers(
+      expect_error(
+        do.call(plotMetadata, chariou.data),
+        "metadata.to.plot must include at least one metadata column"
+      ),
+      message = function(condition) {
+        captured.messages <<- c(captured.messages, conditionMessage(condition))
+        invokeRestart("muffleMessage")
+      }
     )
   )
-  log.lines <- c(captured.output, conditionMessage(error))
+  log.lines <- c(captured.output, captured.messages, conditionMessage(error))
 
   expect_true(any(grepl("Found orig.ident in column 1 of object metadata.", captured.output, fixed = TRUE)))
   expect_true(any(grepl("No samples specified. Using all samples...", captured.output, fixed = TRUE)))
-  expect_equal(sum(captured.output == "Possible metadata columns to select:"), 1)
-  expect_true(any(captured.output == "  - SCT_snn_res.2.4"))
-  expect_false(any(captured.output == "  - SCT_snn_res_2_4"))
+  expect_equal(length(captured.messages), 1)
+  expect_match(captured.messages, "Possible metadata columns to select:", fixed = TRUE)
+  expect_true(any(grepl("  - SCT_snn_res.2.4", captured.messages, fixed = TRUE)))
+  expect_false(any(grepl("  - SCT_snn_res_2_4", captured.messages, fixed = TRUE)))
   expect_equal(
     tail(log.lines, 1),
     "metadata.to.plot must include at least one metadata column. See Possible metadata columns to select above."
@@ -62,17 +70,24 @@ test_that("plotMetadata errors on metadata columns not found without renaming", 
   chariou.data <- getParamPM("Chariou")
   chariou.data$metadata.to.plot <- 'c("SCT_snn_res_2_4")'
 
+  captured.messages <- character()
   captured.output <- capture.output(
-    error <- expect_error(
-      do.call(plotMetadata, chariou.data),
-      "metadata.to.plot contains metadata columns not found in the object"
+    error <- withCallingHandlers(
+      expect_error(
+        do.call(plotMetadata, chariou.data),
+        "metadata.to.plot contains metadata columns not found in the object"
+      ),
+      message = function(condition) {
+        captured.messages <<- c(captured.messages, conditionMessage(condition))
+        invokeRestart("muffleMessage")
+      }
     )
   )
-  log.lines <- c(captured.output, conditionMessage(error))
+  log.lines <- c(captured.output, captured.messages, conditionMessage(error))
 
-  expect_equal(sum(captured.output == "Possible metadata columns to select:"), 1)
-  expect_true(any(captured.output == "  - SCT_snn_res.2.4"))
-  expect_false(any(captured.output == "  - SCT_snn_res_2_4"))
+  expect_equal(length(captured.messages), 1)
+  expect_true(any(grepl("  - SCT_snn_res.2.4", captured.messages, fixed = TRUE)))
+  expect_false(any(grepl("  - SCT_snn_res_2_4", captured.messages, fixed = TRUE)))
   expect_equal(
     tail(log.lines, 1),
     "metadata.to.plot contains metadata columns not found in the object: SCT_snn_res_2_4. See Possible metadata columns to select above."
@@ -190,14 +205,21 @@ test_that("plotMetadata preserves exact metadata column names", {
   original.metadata.columns <- colnames(chariou.data$object@meta.data)
   chariou.data$metadata.to.plot <- 'c("SCT_snn_res.2.4")'
 
+  captured.messages <- character()
   captured.output <- capture.output(
-    output <- do.call(plotMetadata, chariou.data)
+    output <- withCallingHandlers(
+      do.call(plotMetadata, chariou.data),
+      message = function(condition) {
+        captured.messages <<- c(captured.messages, conditionMessage(condition))
+        invokeRestart("muffleMessage")
+      }
+    )
   )
 
   expect_length(output$plots, 1)
   expect_identical(colnames(output$object@meta.data), original.metadata.columns)
-  expect_true(any(captured.output == "  - SCT_snn_res.2.4"))
-  expect_false(any(captured.output == "  - SCT_snn_res_2_4"))
+  expect_true(any(grepl("  - SCT_snn_res.2.4", captured.messages, fixed = TRUE)))
+  expect_false(any(grepl("  - SCT_snn_res_2_4", captured.messages, fixed = TRUE)))
 })
 
 test_that("plotMetadata accepts orig_ident without renaming metadata columns", {
