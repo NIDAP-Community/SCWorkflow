@@ -6,4 +6,4 @@
 
 ## heatmapSC
 
-* Add `sample.name.column` to select the metadata column used for sample filtering, defaulting to `orig.ident`.
+* Add `sample.name.column` to select the metadata column used for sample filtering, defaulting to `orig.ident` (#100).
