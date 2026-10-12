@@ -29,10 +29,10 @@ test_that("Heatmap scaled vs unscaled", {
 
 })
 
-test_that("Heatmap resolves orig_ident without renaming metadata columns", {
+test_that("Heatmap uses orig.ident without renaming metadata columns", {
   cr.object <- getParamHM("Chariou")
   metadata.names <- colnames(cr.object$object@meta.data)
-  cr.object$metadata <- "orig_ident"
+  cr.object$metadata <- "orig.ident"
 
   output <- do.call(heatmapSC, cr.object)
 
@@ -40,6 +40,19 @@ test_that("Heatmap resolves orig_ident without renaming metadata columns", {
   expect_identical(colnames(cr.object$object@meta.data), metadata.names)
   expect_true("orig.ident" %in% colnames(cr.object$object@meta.data))
   expect_false("orig_ident" %in% colnames(cr.object$object@meta.data))
+})
+
+test_that("Heatmap supports a custom sample name column", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$object@meta.data[["sample.name_1.2"]] <-
+    cr.object$object@meta.data[["orig.ident"]]
+  metadata.names <- colnames(cr.object$object@meta.data)
+  cr.object$sample.name.column <- "sample.name_1.2"
+
+  output <- do.call(heatmapSC, cr.object)
+
+  expect_setequal(names(output), c("plots", "data"))
+  expect_identical(colnames(cr.object$object@meta.data), metadata.names)
 })
 
 test_that("Heatmap run with bad gene name", {

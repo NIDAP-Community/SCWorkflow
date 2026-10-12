@@ -5,6 +5,8 @@
 #'
 #' @param object Seurat-class object
 #' @param sample.names Sample names
+#' @param sample.name.column Metadata column containing sample names (default is
+#'   "orig.ident")
 #' @param metadata Metadata column to plot
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
@@ -82,7 +84,8 @@ heatmapSC <- function(object,
                       trim.outliers = TRUE,
                       trim.outliers.percentage = 0.01,
                       order.heatmap.rows = FALSE,
-                      row.order = c()) {
+                      row.order = c(),
+                      sample.name.column = "orig.ident") {
   
   #### Functions ####
   n <- 2e3
@@ -386,16 +389,18 @@ heatmapSC <- function(object,
     cluster.rows <- TRUE
   }
   
-  metadata.names <- colnames(object@meta.data)
-  if ("orig_ident" %in% metadata &&
-      !"orig_ident" %in% metadata.names &&
-      "orig.ident" %in% metadata.names) {
-    metadata[metadata == "orig_ident"] <- "orig.ident"
+  if (length(sample.name.column) != 1 ||
+      !is.character(sample.name.column) ||
+      !sample.name.column %in% colnames(object@meta.data)) {
+    stop("Could not find requested sample name column: ", sample.name.column)
   }
   
   #Set up annotation track:
-  metadata.table <- object@meta.data %>%
-    dplyr::filter(orig.ident %in% samples.to.include)
+  metadata.table <- object@meta.data[
+    object@meta.data[[sample.name.column]] %in% samples.to.include,
+    ,
+    drop = FALSE
+  ]
   
   annot <- metadata.table %>% select(all_of(metadata))
   a = dim(annot)[2] - 1

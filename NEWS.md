@@ -6,4 +6,4 @@
 
 ## heatmapSC
 
-* Accept `orig_ident` as an alias for `orig.ident` without renaming Seurat metadata columns.
+* Add `sample.name.column` to select the metadata column used for sample filtering, defaulting to `orig.ident`.
