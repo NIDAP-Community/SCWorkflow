@@ -28,7 +28,8 @@ heatmapSC(
   trim.outliers = TRUE,
   trim.outliers.percentage = 0.01,
   order.heatmap.rows = FALSE,
-  row.order = c()
+  row.order = c(),
+  sample.name.column = "orig.ident"
 )
 }
 \arguments{
@@ -83,6 +84,9 @@ heatmapSC(
 
 \item{row.order}{Gene vector to set row order. If empty, use cluster order
 (default is empty vector)}
+
+\item{sample.name.column}{Metadata column containing sample names (default is
+"orig.ident")}
 }
 \value{
 This function returns a heatmap plot and the data underlying the
