@@ -53,6 +53,36 @@ reclusterSeuratObject <- function(object,
   ## --------------- ##
   ## Main Code Block ##
   ## --------------- ##
+
+  if (length(number.of.pcs) != 1 ||
+      !is.numeric(number.of.pcs) ||
+      !is.finite(number.of.pcs) ||
+      number.of.pcs < 0 ||
+      number.of.pcs != floor(number.of.pcs)) {
+    stop("number.of.pcs must be a non-negative whole number.")
+  }
+
+  resolution.parameters <- list(
+    cluster.resolution.low.range,
+    cluster.resolution.high.range,
+    cluster.resolution.range.bins
+  )
+  if (!all(vapply(
+    resolution.parameters,
+    function(value) is.numeric(value) && length(value) == 1 && is.finite(value),
+    logical(1)
+  ))) {
+    stop("Cluster resolution parameters must be finite numeric values.")
+  }
+  if (cluster.resolution.low.range > cluster.resolution.high.range) {
+    stop(
+      "cluster.resolution.low.range must be less than or equal to ",
+      "cluster.resolution.high.range."
+    )
+  }
+  if (cluster.resolution.range.bins <= 0) {
+    stop("cluster.resolution.range.bins must be greater than zero.")
+  }
   
   ## Check columns without altering the object's metadata names.
   missing.columns <- setdiff(old.columns.to.save, colnames(object[[]]))
