@@ -386,7 +386,12 @@ heatmapSC <- function(object,
     cluster.rows <- TRUE
   }
   
-  metadata <- sub("orig_ident", "orig.ident", metadata)
+  metadata.names <- colnames(object@meta.data)
+  if ("orig_ident" %in% metadata &&
+      !"orig_ident" %in% metadata.names &&
+      "orig.ident" %in% metadata.names) {
+    metadata[metadata == "orig_ident"] <- "orig.ident"
+  }
   
   #Set up annotation track:
   metadata.table <- object@meta.data %>%
