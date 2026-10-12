@@ -62,8 +62,14 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
   input <- getParamsReclusterSeuratObject("Chariou")
   input$object@meta.data[["batch.name_1.2"]] <-
     seq_len(nrow(input$object@meta.data))
+  input$object@meta.data[["SCT_snn_res_2_4"]] <-
+    seq_len(nrow(input$object@meta.data))
   input$old.columns.to.save <-
-    c(input$old.columns.to.save, "batch.name_1.2")
+    c(
+      input$old.columns.to.save,
+      "batch.name_1.2",
+      "SCT_snn_res_2_4"
+    )
   preserved.metadata <- input$object@meta.data[, input$old.columns.to.save, drop = FALSE]
   preserved.names <- paste0("old_", input$old.columns.to.save)
   colnames(preserved.metadata) <- preserved.names
@@ -91,6 +97,10 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
   expect_equal(
     output$object@meta.data[["old_batch.name_1.2"]],
     preserved.metadata[["old_batch.name_1.2"]]
+  )
+  expect_equal(
+    output$object@meta.data[["old_SCT_snn_res_2_4"]],
+    preserved.metadata[["old_SCT_snn_res_2_4"]]
   )
   expect_true("batch.name_1.2" %in% colnames(output$object@meta.data))
   }
