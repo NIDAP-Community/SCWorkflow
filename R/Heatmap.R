@@ -400,6 +400,16 @@ heatmapSC <- function(object,
     }
     stop("Could not find requested sample name column: ", sample.name.column)
   }
+
+  requested.samples <- if (length(samples.to.include) > 0) {
+    paste(shQuote(samples.to.include), collapse = ", ")
+  } else {
+    "<none>"
+  }
+  message(
+    "Filtering samples using metadata column '", sample.name.column, "': ",
+    requested.samples
+  )
   
   #Set up annotation track:
   metadata.table <- object@meta.data[
@@ -414,6 +424,9 @@ heatmapSC <- function(object,
       sample.name.column
     )
   }
+  message(
+    "Displaying ", nrow(metadata.table), "/", nrow(object@meta.data), " cells."
+  )
   
   annot <- metadata.table %>% select(all_of(metadata))
   a = dim(annot)[2] - 1

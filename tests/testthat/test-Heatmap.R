@@ -54,7 +54,22 @@ test_that("Heatmap supports a custom sample name column", {
     cr.object$object@meta.data[["sample.name_1.2"]] == selected.sample
   ]
 
-  output <- do.call(heatmapSC, cr.object)
+  expect_message(
+    output <- do.call(heatmapSC, cr.object),
+    paste0(
+      "Filtering samples using metadata column 'sample.name_1.2': '",
+      selected.sample, "'"
+    ),
+    fixed = TRUE
+  )
+  expect_message(
+    do.call(heatmapSC, cr.object),
+    paste0(
+      "Displaying ", length(expected.cells), "/",
+      nrow(cr.object$object@meta.data), " cells."
+    ),
+    fixed = TRUE
+  )
 
   expect_setequal(names(output), c("plots", "data"))
   expect_setequal(colnames(output$data)[-1], expected.cells)
