@@ -163,14 +163,60 @@ test_that("Heatmap run with bad gene name", {
 
   #Spike in with bad gene name
   cr.object$transcripts <- c("badgene", cr.object$transcripts)
+  missing.transcript.message <- paste0(
+    "There are 1 gene(s) absent from dataset: 'badgene'. Possible reasons are ",
+    "that gene is not official gene symbol or gene is not highly expressed and ",
+    "has been filtered."
+  )
 
-  expect_warning(do.call(heatmapSC, cr.object), "^There are")
+  expect_warning(
+    expect_message(
+      do.call(heatmapSC, cr.object),
+      missing.transcript.message,
+      fixed = TRUE
+    ),
+    missing.transcript.message,
+    fixed = TRUE
+  )
+})
 
-  #Actual warning:
-  #There are 1 gene(s) absent from dataset:'badgene'.
-  #Possible reasons are that gene is not official gene symbol
-  #or gene is not highly expressed and has been filtered.
+test_that("Heatmap reports missing proteins and retains available proteins", {
+  cr.object <- getParamHM("nsclc-multi")
+  cr.object$proteins <- c("CD3", "not_a_protein")
+  cr.object$protein.annotations <- NULL
 
+  expect_warning(
+    expect_message(
+      output <- do.call(heatmapSC, cr.object),
+      "Proteins not found in Protein assay: not_a_protein. They will be excluded."
+    ),
+    "Proteins not found in Protein assay: not_a_protein. They will be excluded."
+  )
+
+  expect_true("CD3_Prot" %in% output$data$gene)
+  expect_false("not_a_protein_Prot" %in% output$data$gene)
+})
+
+test_that("Heatmap requires the selected transcript assay", {
+  cr.object <- getParamHM("TEC")
+  cr.object$use.assay <- "Harmony"
+
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    "Transcript assay 'Harmony' was not found in the Seurat object."
+  )
+})
+
+test_that("Heatmap requires a CITE-seq Protein assay for proteins", {
+  cr.object <- getParamHM("TEC")
+  cr.object$transcripts <- character()
+  cr.object$proteins <- "CD3"
+
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    "Protein assay was not found.",
+    fixed = TRUE
+  )
 })
 
 test_that("Heatmap run with duplicate gene names", {
@@ -188,8 +234,23 @@ test_that("Heatmap run with error for missing all genes", {
   cr.object <- getParamHM("TEC")
   cr.object$transcripts <-
     c("APOE", "ARG1", "CD38", "CD3D", "CD3E", "CD3G")
-  expect_error(do.call(heatmapSC, cr.object),
-               "No genes listed are found in dataset.")
+  missing.transcript.message <- paste0(
+    "There are 6 gene(s) absent from dataset: 'APOE', 'ARG1', 'CD38', 'CD3D', ",
+    "'CD3E', 'CD3G'. Possible reasons are that gene is not official gene symbol ",
+    "or gene is not highly expressed and has been filtered."
+  )
+  expect_warning(
+    expect_message(
+      expect_error(
+        do.call(heatmapSC, cr.object),
+        "No requested transcripts or proteins were found in the selected assays."
+      ),
+      missing.transcript.message,
+      fixed = TRUE
+    ),
+    missing.transcript.message,
+    fixed = TRUE
+  )
 
 })
 
