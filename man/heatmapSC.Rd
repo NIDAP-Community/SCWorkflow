@@ -85,8 +85,8 @@ heatmapSC(
 \item{row.order}{Gene vector to set row order. If empty, use cluster order
 (default is empty vector)}
 
-\item{sample.name.column}{Metadata column containing sample names (default is
-"orig.ident")}
+\item{sample.name.column}{Metadata column containing sample names. Blank
+values default to "orig.ident". Sample values are matched exactly.}
 }
 \value{
 This function returns a heatmap plot and the data underlying the

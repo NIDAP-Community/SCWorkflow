@@ -5,8 +5,8 @@
 #'
 #' @param object Seurat-class object
 #' @param sample.names Sample names
-#' @param sample.name.column Metadata column containing sample names (default is
-#'   "orig.ident")
+#' @param sample.name.column Metadata column containing sample names. Blank
+#'   values default to "orig.ident".
 #' @param metadata Metadata column to plot
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
@@ -244,7 +244,6 @@ heatmapSC <- function(object,
   # Select samples to include
   samples.to.include = sample.names
   samples.to.include <- samples.to.include[samples.to.include != ""]
-  samples.to.include <- gsub("-", "_", samples.to.include)
   
   #Error messaging for metadata 
   
@@ -389,9 +388,26 @@ heatmapSC <- function(object,
     cluster.rows <- TRUE
   }
   
+  if (is.null(sample.name.column) ||
+      (is.character(sample.name.column) &&
+       (length(sample.name.column) == 0 ||
+        (length(sample.name.column) == 1 &&
+         !is.na(sample.name.column) &&
+         !nzchar(trimws(sample.name.column)))))) {
+    sample.name.column <- "orig.ident"
+  }
+
   if (length(sample.name.column) != 1 ||
       !is.character(sample.name.column) ||
-      !sample.name.column %in% colnames(object@meta.data)) {
+      is.na(sample.name.column) ||
+      !nzchar(trimws(sample.name.column))) {
+    stop("sample.name.column must be a single, non-empty metadata column name.")
+  }
+
+  if (!sample.name.column %in% colnames(object@meta.data)) {
+    if (identical(sample.name.column, "orig.ident")) {
+      warning("Default sample name column 'orig.ident' was not found in Seurat metadata.")
+    }
     stop("Could not find requested sample name column: ", sample.name.column)
   }
   
@@ -401,6 +417,13 @@ heatmapSC <- function(object,
     ,
     drop = FALSE
   ]
+
+  if (nrow(metadata.table) == 0) {
+    stop(
+      "No cells matched the requested sample names in metadata column: ",
+      sample.name.column
+    )
+  }
   
   annot <- metadata.table %>% select(all_of(metadata))
   a = dim(annot)[2] - 1

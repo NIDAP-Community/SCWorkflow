@@ -48,11 +48,114 @@ test_that("Heatmap supports a custom sample name column", {
     cr.object$object@meta.data[["orig.ident"]]
   metadata.names <- colnames(cr.object$object@meta.data)
   cr.object$sample.name.column <- "sample.name_1.2"
+  selected.sample <- unique(cr.object$object@meta.data[["sample.name_1.2"]])[[1]]
+  cr.object$sample.names <- selected.sample
+  expected.cells <- rownames(cr.object$object@meta.data)[
+    cr.object$object@meta.data[["sample.name_1.2"]] == selected.sample
+  ]
 
   output <- do.call(heatmapSC, cr.object)
 
   expect_setequal(names(output), c("plots", "data"))
+  expect_setequal(colnames(output$data)[-1], expected.cells)
   expect_identical(colnames(cr.object$object@meta.data), metadata.names)
+})
+
+test_that("Heatmap preserves punctuation in sample names", {
+  cr.object <- getParamHM("Chariou")
+  sample.column <- "sample.name_1.2"
+  sample.values <- rep(
+    c("sample.1-A", "sample.2-B"),
+    length.out = nrow(cr.object$object@meta.data)
+  )
+  cr.object$object@meta.data[[sample.column]] <- sample.values
+  metadata.names <- colnames(cr.object$object@meta.data)
+  cr.object$sample.name.column <- sample.column
+  cr.object$sample.names <- "sample.1-A"
+  expected.cells <- rownames(cr.object$object@meta.data)[
+    cr.object$object@meta.data[[sample.column]] == "sample.1-A"
+  ]
+
+  output <- do.call(heatmapSC, cr.object)
+
+  expect_setequal(colnames(output$data)[-1], expected.cells)
+  expect_identical(colnames(cr.object$object@meta.data), metadata.names)
+})
+
+test_that("Heatmap defaults blank sample name columns to orig.ident", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$sample.name.column <- ""
+
+  output <- do.call(heatmapSC, cr.object)
+
+  expect_setequal(names(output), c("plots", "data"))
+})
+
+test_that("Heatmap warns when the default sample name column is absent", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$sample.name.column <- ""
+  cr.object$object@meta.data[["orig.ident"]] <- NULL
+
+  expect_warning(
+    expect_error(
+      do.call(heatmapSC, cr.object),
+      "Could not find requested sample name column: orig.ident"
+    ),
+    "Default sample name column 'orig.ident' was not found in Seurat metadata."
+  )
+})
+
+test_that("Heatmap rejects invalid sample name columns", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$sample.name.column <- c("orig.ident", "Phase")
+
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    "sample.name.column must be a single, non-empty metadata column name."
+  )
+
+  cr.object$sample.name.column <- "not_a_metadata_column"
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    "Could not find requested sample name column: not_a_metadata_column"
+  )
+})
+
+test_that("Heatmap errors clearly when no cells match selected samples", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$sample.names <- "not_a_sample"
+
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    "No cells matched the requested sample names in metadata column: orig.ident"
+  )
+})
+
+test_that("Heatmap supports a single transcript", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$transcripts <- cr.object$transcripts[[1]]
+  cr.object$add.gene.or.protein <- FALSE
+  cr.object$rna.annotations <- NULL
+
+  output <- do.call(heatmapSC, cr.object)
+
+  expect_identical(output$data$gene, cr.object$transcripts)
+})
+
+test_that("Heatmap supports a single protein", {
+  cr.object <- getParamHM("nsclc-multi")
+  cr.object$transcripts <- cr.object$transcripts[[1]]
+  cr.object$proteins <- cr.object$proteins[[1]]
+  cr.object$add.gene.or.protein <- FALSE
+  cr.object$rna.annotations <- NULL
+  cr.object$protein.annotations <- NULL
+
+  output <- do.call(heatmapSC, cr.object)
+
+  expect_setequal(
+    output$data$gene,
+    c(cr.object$transcripts, paste0(cr.object$proteins, "_Prot"))
+  )
 })
 
 test_that("Heatmap run with bad gene name", {
