@@ -5,6 +5,8 @@
 #'
 #' @param object Seurat-class object
 #' @param sample.names Sample names
+#' @param sample.name.column Metadata column containing sample names. Blank
+#'   values default to "orig.ident".
 #' @param metadata Metadata column to plot
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
@@ -82,7 +84,8 @@ heatmapSC <- function(object,
                       trim.outliers = TRUE,
                       trim.outliers.percentage = 0.01,
                       order.heatmap.rows = FALSE,
-                      row.order = c()) {
+                      row.order = c(),
+                      sample.name.column = "orig.ident") {
   
   #### Functions ####
   n <- 2e3
@@ -177,8 +180,12 @@ heatmapSC <- function(object,
     leg.breaks = sapply(leg.breaks, signif, 4)
     
     #Run cluster method:
-    hc = hclust(dist(t(dat)), method = "complete")
-    hcrow = hclust(dist(dat), method = "complete")
+    if (ncol(dat) > 1) {
+      hc = hclust(dist(t(dat)), method = "complete")
+    }
+    if (nrow(dat) > 1) {
+      hcrow = hclust(dist(dat), method = "complete")
+    }
     
     if (clus.col == TRUE) {
       .sortHClust <-
@@ -189,7 +196,7 @@ heatmapSC <- function(object,
         as.hclust(dendsort(as.dendrogram(...)))
     }
     
-    if (clus.row == TRUE) {
+    if (clus.row == TRUE && nrow(dat) > 1) {
       row.clus <- .sortHClust(hcrow)
     } else {
       row.clus = FALSE
@@ -218,7 +225,7 @@ heatmapSC <- function(object,
       main = plot.title,
       clustering_method = "complete",
       cluster_rows = row.clus,
-      cluster_cols = clus.col,
+      cluster_cols = clus.col && ncol(dat) > 1,
       clustering_distance_rows = "euclidean",
       clustering_distance_cols = "euclidean",
       annotation_col = annotation.col,
@@ -241,7 +248,6 @@ heatmapSC <- function(object,
   # Select samples to include
   samples.to.include = sample.names
   samples.to.include <- samples.to.include[samples.to.include != ""]
-  samples.to.include <- gsub("-", "_", samples.to.include)
   
   #Error messaging for metadata 
   
@@ -254,65 +260,76 @@ heatmapSC <- function(object,
     metadata <- metadata[!grepl('Barcode', metadata, ignore.case=TRUE)]
   }
   
-  #Clean up transcript names and print missing genes:
-  transcripts = gsub(" ", "", transcripts)
+  # Clean up and validate transcript and protein names.
+  if (is.null(transcripts)) {
+    transcripts <- character()
+  }
+  if (is.null(proteins)) {
+    proteins <- character()
+  }
+  transcripts <- gsub(" ", "", transcripts)
+  proteins <- gsub(" ", "", proteins)
+  transcripts <- transcripts[nzchar(transcripts)]
+  proteins <- proteins[nzchar(proteins)]
   
-  l1 <- length(transcripts)
-  p1 <- length(proteins)
-  
-  if(l1 + p1 == 0){
+  if (length(transcripts) + length(proteins) == 0) {
     stop(sprintf("At least 1 transcript and/or protein is needed for plotting"))
   }
   
   dups <- transcripts[duplicated(transcripts)]
   transcripts <- transcripts[!duplicated(transcripts)]
-  
-  
-  l2 <- length(transcripts)
-  sprintf("There are %s total unique genes/proteins in the dataset", l2)
-  if (l1 > l2) {
+  if (length(dups) > 0) {
     warning(sprintf("\n\nThe following duplicate genes were removed: %s",
                     dups))
   }
   
-  if (transcripts[1] != "") {
-    missing.genes = setdiff(transcripts, rownames(object$SCT@scale.data))
-    if (length(missing.genes) > 0) {
-      print(paste("missing genes:", missing.genes))
-    }
+  if (!use.assay %in% c("SCT", "Harmony")) {
+    stop("use.assay must be either 'SCT' or 'Harmony'.")
   }
-  
-  #missing.genes <- transcripts[!transcripts %in% rownames(object)]
-  l3 <- length(missing.genes)
-  missing.genes <- paste(shQuote(missing.genes), collapse = ", ")
-  if (l3 == l2) {
-    stop("No genes listed are found in dataset.")
+  if (length(transcripts) > 0 && !use.assay %in% names(object@assays)) {
+    stop("Transcript assay '", use.assay, "' was not found in the Seurat object.")
   }
-  if (l3 > 0) {
-    warning(
-      sprintf(
-        "There are %s gene(s) absent from dataset:
-            %s. Possible reasons are that gene is not official
-            gene symbol or gene is not highly expressed and
-            has been filtered.\n ",
-        l3,
-        missing.genes
-      )
+  transcript.data <- object@assays[[use.assay]]@scale.data
+  missing.genes <- setdiff(transcripts, rownames(transcript.data))
+  if (length(missing.genes) > 0) {
+    missing.transcript.message <- paste0(
+      "There are ", length(missing.genes), " gene(s) absent from dataset: ",
+      paste(shQuote(missing.genes), collapse = ", "),
+      ". Possible reasons are that gene is not official gene symbol or gene is ",
+      "not highly expressed and has been filtered."
     )
+    message(missing.transcript.message)
+    warning(missing.transcript.message)
   }
-  
-  transcripts <- transcripts[transcripts %in% rownames(object)]
-  
-  #Clean up protein names and print missing proteins:
-  if (!is.null(object@assays$Protein)) {
-    proteins = gsub(" ", "", proteins)
-    if (proteins[1] != "") {
-      protmiss = setdiff(proteins, rownames(object$Protein@scale.data))
-      if (length(protmiss) > 0) {
-        sprintf("missing proteins: %s", protmiss)
-      }
+  transcripts <- transcripts[transcripts %in% rownames(transcript.data)]
+  if (length(transcripts) > 0) {
+    message("Transcripts found in ", use.assay, ": ",
+            paste(transcripts, collapse = ", "))
+  }
+
+  if (length(proteins) > 0 && !"Protein" %in% names(object@assays)) {
+    stop("Protein assay was not found.")
+  }
+
+  if (length(proteins) > 0) {
+    missing.proteins <- setdiff(proteins, rownames(object$Protein@scale.data))
+    if (length(missing.proteins) > 0) {
+      missing.protein.message <- paste0(
+        "Proteins not found in Protein assay: ",
+        paste(missing.proteins, collapse = ", "), ". They will be excluded."
+      )
+      message(missing.protein.message)
+      warning(missing.protein.message)
     }
-    proteins = proteins[proteins %in% rownames(object$Protein@scale.data)]
+    proteins <- proteins[proteins %in% rownames(object$Protein@scale.data)]
+    if (length(proteins) > 0) {
+      message("Proteins found in Protein assay: ",
+              paste(proteins, collapse = ", "))
+    }
+  }
+
+  if (length(transcripts) + length(proteins) == 0) {
+    stop("No requested transcripts or proteins were found in the selected assays.")
   }
   
   #Error messaging for protein annotation tracks:
@@ -325,24 +342,13 @@ heatmapSC <- function(object,
   #collect transcript expression data from SCT / Harmony slot
   df.mat1 = NULL
   if (length(transcripts) > 0) {
-    if (length(transcripts) == 1) {
-      if(use.assay == 'SCT'){
-        df.mat1 <-
-          vector(mode = "numeric",
-                 length = length(object$SCT@scale.data[transcripts,]))
-        df.mat1 <- object$SCT@scale.data[transcripts,]
-      } else if (use.assay == 'Harmony'){
-        df.mat1 <-
-          vector(mode = "numeric",
-                 length = length(object$Harmony@scale.data[transcripts,]))
-        df.mat1 <- object$Harmony@scale.data[transcripts,]
-        }
-    } else {
-      if(use.assay == 'SCT'){
-        df.mat1 <- as.matrix(object$SCT@scale.data[transcripts,])
-      } else if (use.assay == 'Harmony'){
-        df.mat1 <- as.matrix(object$Harmony@scale.data[transcripts,])
-        }
+    if(use.assay == 'SCT'){
+      df.mat1 <- object$SCT@scale.data[transcripts, , drop = FALSE]
+    } else if (use.assay == 'Harmony'){
+      df.mat1 <- object$Harmony@scale.data[transcripts, , drop = FALSE]
+    }
+    if (!is.null(df.mat1)) {
+      rownames(df.mat1) <- transcripts
     }
   }
   
@@ -350,15 +356,9 @@ heatmapSC <- function(object,
   df.mat2 = NULL
   if (!is.null(object@assays$Protein)) {
     if (length(proteins) > 0) {
-      if (length(proteins) == 1) {
-        df.mat2 <-
-          vector(mode = "numeric",
-                 length = length(object$Protein@scale.data[proteins,]))
-        df.mat2 <- object$Protein@scale.data[proteins,]
-        protname <- paste0(proteins, "_Prot")
-      } else {
-        df.mat2 <- as.matrix(object$Protein@scale.data[proteins,])
-        protname <- paste0(proteins, "_Prot")
+      df.mat2 <- object$Protein@scale.data[proteins, , drop = FALSE]
+      protname <- paste0(proteins, "_Prot")
+      if (!is.null(df.mat2)) {
         rownames(df.mat2) <- protname
       }
     }
@@ -366,15 +366,7 @@ heatmapSC <- function(object,
   
   #Put together transcript and protein data
   df.mat <- rbind(df.mat1, df.mat2)
-  if (!is.null(df.mat1)) {
-    rownames(df.mat)[rownames(df.mat) == "df.mat1"] <- transcripts
-  }
-  
-  if (!is.null(df.mat2)) {
-    rownames(df.mat)[rownames(df.mat) == "df.mat2"] <- protname
-  }
-  
-  df.mat <- df.mat[sort(rownames(df.mat)),]
+  df.mat <- df.mat[sort(rownames(df.mat)), , drop = FALSE]
   
   #Set row order to specific genes/proteins
   if (order.heatmap.rows == TRUE) {
@@ -386,11 +378,42 @@ heatmapSC <- function(object,
     cluster.rows <- TRUE
   }
   
-  metadata <- sub("orig_ident", "orig.ident", metadata)
+  if (is.null(sample.name.column) ||
+      (is.character(sample.name.column) &&
+       (length(sample.name.column) == 0 ||
+        (length(sample.name.column) == 1 &&
+         !is.na(sample.name.column) &&
+         !nzchar(trimws(sample.name.column)))))) {
+    sample.name.column <- "orig.ident"
+  }
+
+  if (length(sample.name.column) != 1 ||
+      !is.character(sample.name.column) ||
+      is.na(sample.name.column) ||
+      !nzchar(trimws(sample.name.column))) {
+    stop("sample.name.column must be a single, non-empty metadata column name.")
+  }
+
+  if (!sample.name.column %in% colnames(object@meta.data)) {
+    if (identical(sample.name.column, "orig.ident")) {
+      warning("Default sample name column 'orig.ident' was not found in Seurat metadata.")
+    }
+    stop("Could not find requested sample name column: ", sample.name.column)
+  }
   
   #Set up annotation track:
-  metadata.table <- object@meta.data %>%
-    dplyr::filter(orig.ident %in% samples.to.include)
+  metadata.table <- object@meta.data[
+    object@meta.data[[sample.name.column]] %in% samples.to.include,
+    ,
+    drop = FALSE
+  ]
+
+  if (nrow(metadata.table) == 0) {
+    stop(
+      "No cells matched the requested sample names in metadata column: ",
+      sample.name.column
+    )
+  }
   
   annot <- metadata.table %>% select(all_of(metadata))
   a = dim(annot)[2] - 1
@@ -433,10 +456,10 @@ heatmapSC <- function(object,
   #Arrange columns by metadata tracks:
   if (arrange.by.metadata == TRUE) {
     annot <- annot %>% arrange(across(all_of(colnames(annot)))) 
-    df.mat <- df.mat[, match(rownames(annot), colnames(df.mat))]
+    df.mat <- df.mat[, match(rownames(annot), colnames(df.mat)), drop = FALSE]
     df.mat <-
       df.mat[, apply(df.mat, 2, function(x)
-        ! any(is.na(x)))]
+        ! any(is.na(x))), drop = FALSE]
     cluster.cols = FALSE
   } else {
     cluster.cols = TRUE
@@ -498,7 +521,7 @@ heatmapSC <- function(object,
   # Apply scaling to data (optional)
   if (scale.data == TRUE) {
     tmean.scale = t(scale(t(df.mat)))
-    tmean.scale = tmean.scale[is.finite(rowSums(tmean.scale)),]
+    tmean.scale = tmean.scale[is.finite(rowSums(tmean.scale)), , drop = FALSE]
   } else {
     tmean.scale = df.mat
   }
