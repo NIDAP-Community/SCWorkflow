@@ -216,8 +216,6 @@ Key features include:
 
 The Function returns a heatmap plot along with the underlying data used to generate it. It also allows the user to set a seed for color generation and specify outlier data parameters. This function is particularly useful for exploratory data analysis and preliminary data visualization in single cell studies.
 
-Sample filtering uses the `orig.ident` metadata column by default. Set `sample.name.column` to another existing metadata column when sample names are stored elsewhere.
-
 **Methodology**  
 In this method, two hierarchical clustering processes are performed: one on the rows and one on the columns of the dataset unless ordered by annotations. Hierarchical clustering is a method of cluster analysis that aims to build a hierarchy of clusters. The result is a tree-like diagram called a dendrogram, where similar data points (e.g., genes or samples) are joined together into clusters at the "branches", based on a mathematical measure of similarity such as Euclidean or Manhattan distance.
 The heatmap is produced by a package called ComplexHeatmap [3] and presents the data matrix where rows represent individual genes (or proteins, metabolites, etc.) and columns represent different samples (e.g., tissue samples, cells, experimental conditions). The color at each position in the grid corresponds to the expression level of a gene in a particular sample, with one color representing upregulation (higher expression), another representing downregulation (lower expression), and usually a neutral color representing no change. This allows for easy visual interpretation of patterns or correlations in the data.
