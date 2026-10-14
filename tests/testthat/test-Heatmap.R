@@ -197,14 +197,16 @@ test_that("Heatmap run with bad gene name", {
     "has been filtered."
   )
 
-  expect_warning(
-    expect_message(
+  expect_no_warning(
+    logs <- capture.output(
       do.call(heatmapSC, cr.object),
-      missing.transcript.message,
-      fixed = TRUE
-    ),
-    missing.transcript.message,
-    fixed = TRUE
+      type = "message"
+    )
+  )
+  expect_true(any(grepl(missing.transcript.message, logs, fixed = TRUE)))
+  expect_lt(
+    grep("Transcripts found in", logs, fixed = TRUE)[[1]],
+    grep(missing.transcript.message, logs, fixed = TRUE)[[1]]
   )
 })
 
@@ -213,12 +215,18 @@ test_that("Heatmap reports missing proteins and retains available proteins", {
   cr.object$proteins <- c("CD3", "not_a_protein")
   cr.object$protein.annotations <- NULL
 
-  expect_warning(
-    expect_message(
+  expect_no_warning(
+    logs <- capture.output(
       output <- do.call(heatmapSC, cr.object),
-      "Proteins not found in Protein assay: not_a_protein. They will be excluded."
-    ),
+      type = "message"
+    )
+  )
+  missing.protein.message <-
     "Proteins not found in Protein assay: not_a_protein. They will be excluded."
+  expect_true(any(grepl(missing.protein.message, logs, fixed = TRUE)))
+  expect_lt(
+    grep("Proteins found in", logs, fixed = TRUE)[[1]],
+    grep(missing.protein.message, logs, fixed = TRUE)[[1]]
   )
 
   expect_true("CD3_Prot" %in% output$data$gene)
@@ -267,7 +275,7 @@ test_that("Heatmap run with error for missing all genes", {
     "'CD3E', 'CD3G'. Possible reasons are that gene is not official gene symbol ",
     "or gene is not highly expressed and has been filtered."
   )
-  expect_warning(
+  expect_no_warning(
     expect_message(
       expect_error(
         do.call(heatmapSC, cr.object),
@@ -275,9 +283,7 @@ test_that("Heatmap run with error for missing all genes", {
       ),
       missing.transcript.message,
       fixed = TRUE
-    ),
-    missing.transcript.message,
-    fixed = TRUE
+    )
   )
 
 })
