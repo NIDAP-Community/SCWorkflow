@@ -3,7 +3,6 @@
 #*.png
 Rcheck.txt
 #*.pdf
-Rplots.pdf
 tests/testthat/otherData/
 tests/testthat/_snaps
 tests/testthat/fixtures/
