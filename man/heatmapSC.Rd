@@ -35,7 +35,8 @@ heatmapSC(
 \arguments{
 \item{object}{Seurat-class object}
 
-\item{sample.names}{Sample names}
+\item{sample.names}{Select which samples to include. Leave blank to use all
+samples.}
 
 \item{metadata}{Metadata column to plot}
 
@@ -86,7 +87,7 @@ heatmapSC(
 (default is empty vector)}
 
 \item{sample.name.column}{Metadata column containing sample names. Blank
-values default to "orig.ident". Sample values are matched exactly.}
+values default to "orig.ident".}
 }
 \value{
 This function returns a heatmap plot and the data underlying the

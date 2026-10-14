@@ -4,7 +4,8 @@
 #'  gene or protein expression levels. Method is based on ComplexHeatmap::pheatmap
 #'
 #' @param object Seurat-class object
-#' @param sample.names Sample names
+#' @param sample.names Select which samples to include. Leave blank to use all
+#'   samples.
 #' @param sample.name.column Metadata column containing sample names. Blank
 #'   values default to "orig.ident".
 #' @param metadata Metadata column to plot
@@ -399,6 +400,11 @@ heatmapSC <- function(object,
       warning("Default sample name column 'orig.ident' was not found in Seurat metadata.")
     }
     stop("Could not find requested sample name column: ", sample.name.column)
+  }
+
+  if (length(samples.to.include) == 0) {
+    message("No samples specified. Using all samples.")
+    samples.to.include <- unique(object@meta.data[[sample.name.column]])
   }
 
   requested.samples <- if (length(samples.to.include) > 0) {
