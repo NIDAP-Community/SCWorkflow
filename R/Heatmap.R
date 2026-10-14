@@ -292,20 +292,19 @@ heatmapSC <- function(object,
   }
   transcript.data <- object@assays[[use.assay]]@scale.data
   missing.genes <- setdiff(transcripts, rownames(transcript.data))
-  if (length(missing.genes) > 0) {
-    missing.transcript.message <- paste0(
-      "There are ", length(missing.genes), " gene(s) absent from dataset: ",
-      paste(shQuote(missing.genes), collapse = ", "),
-      ". Possible reasons are that gene is not official gene symbol or gene is ",
-      "not highly expressed and has been filtered."
-    )
-    message(missing.transcript.message)
-    warning(missing.transcript.message)
-  }
   transcripts <- transcripts[transcripts %in% rownames(transcript.data)]
   if (length(transcripts) > 0) {
     message("Transcripts found in ", use.assay, ": ",
             paste(transcripts, collapse = ", "))
+  }
+  if (length(missing.genes) > 0) {
+    missing.transcript.message <- paste0(
+      "There are ", length(missing.genes), " gene(s) absent from dataset: ",
+      paste(shQuote(missing.genes), collapse = ", "),
+      ".\n          Possible reasons are that gene is not official gene symbol ",
+      "or gene is not highly expressed and has been filtered."
+    )
+    message(missing.transcript.message)
   }
 
   if (length(proteins) > 0 && !"Protein" %in% names(object@assays)) {
@@ -314,18 +313,17 @@ heatmapSC <- function(object,
 
   if (length(proteins) > 0) {
     missing.proteins <- setdiff(proteins, rownames(object$Protein@scale.data))
+    proteins <- proteins[proteins %in% rownames(object$Protein@scale.data)]
+    if (length(proteins) > 0) {
+      message("Proteins found in Protein assay: ",
+              paste(proteins, collapse = ", "))
+    }
     if (length(missing.proteins) > 0) {
       missing.protein.message <- paste0(
         "Proteins not found in Protein assay: ",
         paste(missing.proteins, collapse = ", "), ". They will be excluded."
       )
       message(missing.protein.message)
-      warning(missing.protein.message)
-    }
-    proteins <- proteins[proteins %in% rownames(object$Protein@scale.data)]
-    if (length(proteins) > 0) {
-      message("Proteins found in Protein assay: ",
-              paste(proteins, collapse = ", "))
     }
   }
 

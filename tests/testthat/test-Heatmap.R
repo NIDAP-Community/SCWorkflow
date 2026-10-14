@@ -192,19 +192,22 @@ test_that("Heatmap run with bad gene name", {
   #Spike in with bad gene name
   cr.object$transcripts <- c("badgene", cr.object$transcripts)
   missing.transcript.message <- paste0(
-    "There are 1 gene(s) absent from dataset: 'badgene'. Possible reasons are ",
-    "that gene is not official gene symbol or gene is not highly expressed and ",
-    "has been filtered."
+    "There are 1 gene(s) absent from dataset: 'badgene'.\n",
+    "          Possible reasons are that gene is not official gene symbol or gene ",
+    "is not highly expressed and has been filtered."
   )
 
-  expect_warning(
-    expect_message(
+  expect_no_warning(
+    logs <- capture.output(
       do.call(heatmapSC, cr.object),
-      missing.transcript.message,
-      fixed = TRUE
-    ),
-    missing.transcript.message,
-    fixed = TRUE
+      type = "message"
+    )
+  )
+  log.text <- paste(logs, collapse = "\n")
+  expect_true(grepl(missing.transcript.message, log.text, fixed = TRUE))
+  expect_lt(
+    grep("Transcripts found in", logs, fixed = TRUE)[[1]],
+    grep("There are 1 gene(s) absent from dataset", logs, fixed = TRUE)[[1]]
   )
 })
 
@@ -213,12 +216,18 @@ test_that("Heatmap reports missing proteins and retains available proteins", {
   cr.object$proteins <- c("CD3", "not_a_protein")
   cr.object$protein.annotations <- NULL
 
-  expect_warning(
-    expect_message(
+  expect_no_warning(
+    logs <- capture.output(
       output <- do.call(heatmapSC, cr.object),
-      "Proteins not found in Protein assay: not_a_protein. They will be excluded."
-    ),
+      type = "message"
+    )
+  )
+  missing.protein.message <-
     "Proteins not found in Protein assay: not_a_protein. They will be excluded."
+  expect_true(any(grepl(missing.protein.message, logs, fixed = TRUE)))
+  expect_lt(
+    grep("Proteins found in", logs, fixed = TRUE)[[1]],
+    grep(missing.protein.message, logs, fixed = TRUE)[[1]]
   )
 
   expect_true("CD3_Prot" %in% output$data$gene)
@@ -264,10 +273,10 @@ test_that("Heatmap run with error for missing all genes", {
     c("APOE", "ARG1", "CD38", "CD3D", "CD3E", "CD3G")
   missing.transcript.message <- paste0(
     "There are 6 gene(s) absent from dataset: 'APOE', 'ARG1', 'CD38', 'CD3D', ",
-    "'CD3E', 'CD3G'. Possible reasons are that gene is not official gene symbol ",
-    "or gene is not highly expressed and has been filtered."
+    "'CD3E', 'CD3G'.\n          Possible reasons are that gene is not official ",
+    "gene symbol or gene is not highly expressed and has been filtered."
   )
-  expect_warning(
+  expect_no_warning(
     expect_message(
       expect_error(
         do.call(heatmapSC, cr.object),
@@ -275,9 +284,7 @@ test_that("Heatmap run with error for missing all genes", {
       ),
       missing.transcript.message,
       fixed = TRUE
-    ),
-    missing.transcript.message,
-    fixed = TRUE
+    )
   )
 
 })
