@@ -76,6 +76,19 @@ test_that("Heatmap supports a custom sample name column", {
   expect_identical(colnames(cr.object$object@meta.data), metadata.names)
 })
 
+test_that("Heatmap uses all samples when sample selection is blank", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$sample.names <- c("")
+
+  expect_message(
+    output <- do.call(heatmapSC, cr.object),
+    "No samples specified. Using all samples.",
+    fixed = TRUE
+  )
+
+  expect_setequal(colnames(output$data)[-1], rownames(cr.object$object@meta.data))
+})
+
 test_that("Heatmap preserves punctuation in sample names", {
   cr.object <- getParamHM("Chariou")
   sample.column <- "sample.name_1.2"
