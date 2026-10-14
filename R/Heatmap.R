@@ -301,8 +301,8 @@ heatmapSC <- function(object,
     missing.transcript.message <- paste0(
       "There are ", length(missing.genes), " gene(s) absent from dataset: ",
       paste(shQuote(missing.genes), collapse = ", "),
-      ". Possible reasons are that gene is not official gene symbol or gene is ",
-      "not highly expressed and has been filtered."
+      ".\n          Possible reasons are that gene is not official gene symbol ",
+      "or gene is not highly expressed and has been filtered."
     )
     message(missing.transcript.message)
   }
