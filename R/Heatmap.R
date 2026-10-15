@@ -400,9 +400,26 @@ heatmapSC <- function(object,
     stop("Could not find requested sample name column: ", sample.name.column)
   }
 
+  available.samples <- sort(unique(as.character(
+    object@meta.data[[sample.name.column]]
+  )))
+  available.samples <- available.samples[!is.na(available.samples)]
+
   if (length(samples.to.include) == 0) {
     message("No samples specified. Using all samples.")
-    samples.to.include <- unique(object@meta.data[[sample.name.column]])
+    samples.to.include <- available.samples
+  }
+
+  missing.samples <- setdiff(samples.to.include, available.samples)
+  if (length(missing.samples) > 0) {
+    stop(
+      "Requested sample name(s) not found in metadata column '",
+      sample.name.column,
+      "': ",
+      paste(shQuote(missing.samples), collapse = ", "),
+      ". Available sample names: ",
+      paste(shQuote(available.samples), collapse = ", ")
+    )
   }
 
   requested.samples <- if (length(samples.to.include) > 0) {

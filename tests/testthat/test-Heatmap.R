@@ -149,13 +149,25 @@ test_that("Heatmap rejects invalid sample name columns", {
   )
 })
 
-test_that("Heatmap errors clearly when no cells match selected samples", {
+test_that("Heatmap identifies unavailable requested sample names", {
   cr.object <- getParamHM("Chariou")
-  cr.object$sample.names <- "not_a_sample"
+  available.samples <- sort(unique(as.character(
+    cr.object$object@meta.data[["orig.ident"]]
+  )))
+  selected.sample <- available.samples[[1]]
+  unavailable.sample <- "not_a_sample"
+  cr.object$sample.names <- c(selected.sample, unavailable.sample)
+  expected.message <- paste0(
+    "Requested sample name(s) not found in metadata column 'orig.ident': '",
+    unavailable.sample,
+    "'. Available sample names: ",
+    paste(shQuote(available.samples), collapse = ", ")
+  )
 
   expect_error(
     do.call(heatmapSC, cr.object),
-    "No cells matched the requested sample names in metadata column: orig.ident"
+    expected.message,
+    fixed = TRUE
   )
 })
 
