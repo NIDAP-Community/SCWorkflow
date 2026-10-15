@@ -417,7 +417,7 @@ heatmapSC <- function(object,
       sample.name.column,
       "': ",
       paste(shQuote(missing.samples), collapse = ", "),
-      ". Available sample names: ",
+      ".\nAvailable sample names: ",
       paste(shQuote(available.samples), collapse = ", ")
     )
   }

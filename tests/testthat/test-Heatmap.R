@@ -160,7 +160,7 @@ test_that("Heatmap identifies unavailable requested sample names", {
   expected.message <- paste0(
     "Requested sample name(s) not found in metadata column 'orig.ident': '",
     unavailable.sample,
-    "'. Available sample names: ",
+    "'.\nAvailable sample names: ",
     paste(shQuote(available.samples), collapse = ", ")
   )
 
