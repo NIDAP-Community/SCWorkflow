@@ -110,12 +110,15 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
 test_that("Recluster requires exact metadata column names.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
-  metadata.names <- colnames(input$object@meta.data)
+  possible.metadata.columns <- colnames(input$object@meta.data)
+  possible.metadata.columns <- possible.metadata.columns[
+    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+  ]
   input$old.columns.to.save <- "SCT_snn_res_2_4"
   expected.message <- paste0(
-    "Could not find requested metadata columns: 'SCT_snn_res_2_4'.\n",
-    "Available metadata columns: ",
-    paste(shQuote(metadata.names), collapse = ", ")
+    "Old column(s) to save not found in metadata: 'SCT_snn_res_2_4'.\n",
+    "Possible metadata columns to select:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
   )
 
   expect_error(
@@ -129,23 +132,27 @@ test_that("Recluster reports all missing metadata columns without mutation.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
   metadata.names <- colnames(input$object@meta.data)
+  possible.metadata.columns <- metadata.names[
+    !grepl("Barcode", metadata.names, ignore.case = TRUE)
+  ]
   input$old.columns.to.save <- c(
     "SCT_snn_res.2.4",
     "missing.column_1",
     "missing.column.2"
   )
 
-  expect_error(
-    do.call(reclusterSeuratObject, input),
+  expect_message(
+    output <- do.call(reclusterSeuratObject, input),
     paste0(
-      "Could not find requested metadata columns: ",
+      "Old column(s) to save not found in metadata: ",
       "'missing.column_1', 'missing.column.2'.\n",
-      "Available metadata columns: ",
-      paste(shQuote(metadata.names), collapse = ", ")
+      "Possible metadata columns to select:\n",
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
     ),
     fixed = TRUE
   )
   expect_identical(colnames(input$object@meta.data), metadata.names)
+  expect_true("old_SCT_snn_res.2.4" %in% colnames(output$object@meta.data))
 })
 
 
@@ -153,15 +160,29 @@ test_that("Recluster supports empty metadata preservation selections.", {
 
   for (old.columns.to.save in list(NULL, character(0))) {
     input <- getParamsReclusterSeuratObject("Chariou")
+    possible.metadata.columns <- colnames(input$object@meta.data)
+    possible.metadata.columns <- possible.metadata.columns[
+      !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+    ]
     input$number.of.pcs <- if (is.null(old.columns.to.save)) 0 else 10
     input$cluster.resolution.low.range <- 0.4
     input$cluster.resolution.high.range <- 0.4
     input$cluster.resolution.range.bins <- 0.1
 
     input$old.columns.to.save <- NULL
-    output <- do.call(
-      reclusterSeuratObject,
-      c(input, list(old.columns.to.save = old.columns.to.save))
+    expected.message <- paste0(
+      "No old columns were saved.\n",
+      "Possible metadata columns to select:\n",
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
+    )
+    output <- NULL
+    expect_message(
+      output <- do.call(
+        reclusterSeuratObject,
+        c(input, list(old.columns.to.save = old.columns.to.save))
+      ),
+      expected.message,
+      fixed = TRUE
     )
 
     expect_true("SCT_snn_res.0.4" %in% colnames(output$object@meta.data))

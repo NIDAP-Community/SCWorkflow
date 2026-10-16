@@ -84,15 +84,30 @@ reclusterSeuratObject <- function(object,
     stop("cluster.resolution.range.bins must be greater than zero.")
   }
 
-  ## Check columns without altering the object's metadata names.
-  missing.columns <- setdiff(old.columns.to.save, colnames(object[[]]))
-  if (length(missing.columns) > 0) {
-    stop(
-      "Could not find requested metadata columns: ",
-      paste(shQuote(missing.columns), collapse = ", "),
-      ".\nAvailable metadata columns: ",
-      paste(shQuote(colnames(object[[]])), collapse = ", ")
-    )
+  possible.metadata.columns <- colnames(object[[]])
+  possible.metadata.columns <- possible.metadata.columns[
+    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+  ]
+  possible.metadata.message <- paste0(
+    "Possible metadata columns to select:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
+  )
+  if (length(old.columns.to.save) == 0) {
+    message("No old columns were saved.\n", possible.metadata.message)
+  } else {
+    missing.columns <- setdiff(old.columns.to.save, possible.metadata.columns)
+    if (length(missing.columns) > 0) {
+      missing.columns.message <- paste0(
+        "Old column(s) to save not found in metadata: ",
+        paste(shQuote(missing.columns), collapse = ", "),
+        ".\n", possible.metadata.message
+      )
+      old.columns.to.save <- setdiff(old.columns.to.save, missing.columns)
+      if (length(old.columns.to.save) == 0) {
+        stop(missing.columns.message)
+      }
+      message(missing.columns.message)
+    }
   }
   
   ## Get old columns and modify the names to prepend "old_" to the column names.
