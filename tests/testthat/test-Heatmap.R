@@ -191,11 +191,17 @@ test_that("Heatmap warns when the default sample name column is absent", {
   cr.object <- getParamHM("Chariou")
   cr.object$sample.name.column <- ""
   cr.object$object@meta.data[["orig.ident"]] <- NULL
+  expected.message <- paste0(
+    "Could not find requested sample name column: orig.ident.\n",
+    "Available metadata columns: ",
+    paste(shQuote(colnames(cr.object$object@meta.data)), collapse = ", ")
+  )
 
   expect_warning(
     expect_error(
       do.call(heatmapSC, cr.object),
-      "Could not find requested sample name column: orig.ident"
+      expected.message,
+      fixed = TRUE
     ),
     "Default sample name column 'orig.ident' was not found in Seurat metadata."
   )

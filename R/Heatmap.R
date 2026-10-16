@@ -403,7 +403,11 @@ heatmapSC <- function(object,
     if (identical(sample.name.column, "orig.ident")) {
       warning("Default sample name column 'orig.ident' was not found in Seurat metadata.")
     }
-    stop("Could not find requested sample name column: ", sample.name.column)
+    stop(
+      "Could not find requested sample name column: ", sample.name.column,
+      ".\nAvailable metadata columns: ",
+      paste(shQuote(colnames(object@meta.data)), collapse = ", ")
+    )
   }
 
   available.samples <- sort(unique(as.character(
