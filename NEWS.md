@@ -4,6 +4,10 @@
 
 * Improved metadata selection, validation, and run logging for `plotMetadata()` (#95).
 
+## reclusterSeuratObject
+
+* Preserve requested metadata columns by their exact names during reclustering (#96).
+
 ## heatmapSC
 
 * Add `sample.name.column` to select the metadata column used for sample filtering, defaulting to `orig.ident` (#100).

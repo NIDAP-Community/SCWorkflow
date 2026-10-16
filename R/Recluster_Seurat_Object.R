@@ -53,15 +53,46 @@ reclusterSeuratObject <- function(object,
   ## --------------- ##
   ## Main Code Block ##
   ## --------------- ##
-  
-  ## Check columns.
-  if (length(old.columns.to.save) > 0 &
-      !all(old.columns.to.save %in% colnames(object[[]]))) {
-    ## TJM: ERROR PRESENT ON LINE BELOW. RELATES TO DOTS & UNDERSCORES NIDAPism ====
-    colnames(object[[]]) <- gsub("\\.", "_", colnames(object[[]]))
-    if (!all(old.columns.to.save %in% colnames(object[[]]))) {
-      stop("Could not find requested metadata columns!")
-    }
+
+  if (length(number.of.pcs) != 1 ||
+      !is.numeric(number.of.pcs) ||
+      !is.finite(number.of.pcs) ||
+      number.of.pcs < 0 ||
+      number.of.pcs != floor(number.of.pcs)) {
+    stop("number.of.pcs must be a non-negative whole number.")
+  }
+
+  resolution.parameters <- list(
+    cluster.resolution.low.range,
+    cluster.resolution.high.range,
+    cluster.resolution.range.bins
+  )
+  if (!all(vapply(
+    resolution.parameters,
+    function(value) is.numeric(value) && length(value) == 1 && is.finite(value),
+    logical(1)
+  ))) {
+    stop("Cluster resolution parameters must be finite numeric values.")
+  }
+  if (cluster.resolution.low.range > cluster.resolution.high.range) {
+    stop(
+      "cluster.resolution.low.range must be less than or equal to ",
+      "cluster.resolution.high.range."
+    )
+  }
+  if (cluster.resolution.range.bins <= 0) {
+    stop("cluster.resolution.range.bins must be greater than zero.")
+  }
+
+  ## Check columns without altering the object's metadata names.
+  missing.columns <- setdiff(old.columns.to.save, colnames(object[[]]))
+  if (length(missing.columns) > 0) {
+    stop(
+      "Could not find requested metadata columns: ",
+      paste(shQuote(missing.columns), collapse = ", "),
+      ".\nAvailable metadata columns: ",
+      paste(shQuote(colnames(object[[]])), collapse = ", ")
+    )
   }
   
   ## Get old columns and modify the names to prepend "old_" to the column names.
