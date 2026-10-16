@@ -205,14 +205,27 @@ test_that("Recluster supports empty metadata preservation selections.", {
 test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
-  input$old.columns.to.save <- "SCT_snn_res.2.4"
+  input$object <- FindNeighbors(
+    input$object,
+    reduction = "pca",
+    dims = 1:10,
+    graph.name = c("harmony_nn", "harmony_snn"),
+    verbose = FALSE
+  )
+  input$object@meta.data[["harmony_snn_res.2.4"]] <-
+    input$object@meta.data[["SCT_snn_res.2.4"]]
+  input$old.columns.to.save <- c(
+    "SCT_snn_res.2.4",
+    "harmony_snn_res.2.4"
+  )
   input$prepend.txt <- "prior.batch-1.2"
   input$number.of.pcs <- 10
   input$reduction.type <- "pca"
   input$cluster.resolution.low.range <- 0.4
   input$cluster.resolution.high.range <- 0.4
   input$cluster.resolution.range.bins <- 0.1
-  expected.values <- input$object@meta.data[[input$old.columns.to.save]]
+  expected.sct.values <- input$object@meta.data[["SCT_snn_res.2.4"]]
+  expected.harmony.values <- input$object@meta.data[["harmony_snn_res.2.4"]]
 
   messages <- character()
   output <- withCallingHandlers(
@@ -229,6 +242,11 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
     messages,
     fixed = TRUE
   )))
+  expect_true(any(grepl(
+    "harmony_snn_res.2.4 -> prior.batch-1.2_harmony_snn_res.2.4",
+    messages,
+    fixed = TRUE
+  )))
   removal.messages <- messages[grepl(
     "Removing original clustering columns",
     messages,
@@ -241,7 +259,11 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
   )))
   expect_equal(
     output$object@meta.data[["prior.batch-1.2_SCT_snn_res.2.4"]],
-    expected.values
+    expected.sct.values
+  )
+  expect_equal(
+    output$object@meta.data[["prior.batch-1.2_harmony_snn_res.2.4"]],
+    expected.harmony.values
   )
   expect_setequal(cluster.columns, "SCT_snn_res.0.4")
 })

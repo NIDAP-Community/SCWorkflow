@@ -86,12 +86,26 @@ reclusterSeuratObject <- function(object,
   }
 
   metadata.column.names <- colnames(object[[]])
+  clustering.graph.name <- paste0(DefaultAssay(object), "_snn")
+  assay.graph.names <- as.vector(outer(
+    names(object@assays),
+    c("_nn", "_snn"),
+    paste0
+  ))
+  clustering.graph.names <- unique(c(
+    names(object@graphs),
+    assay.graph.names
+  ))
+  clustering.column.prefix <- paste0(clustering.graph.name, "_res.")
   clustering.columns.to.replace <- unique(c(
     intersect(
       c("seurat_clusters", "seurat.clusters"),
       metadata.column.names
     ),
-    grep("^SCT_snn_res", metadata.column.names, value = TRUE)
+    unlist(lapply(
+      paste0(clustering.graph.names, "_res."),
+      function(prefix) metadata.column.names[startsWith(metadata.column.names, prefix)]
+    ))
   ))
   possible.metadata.columns <- clustering.columns.to.replace
   possible.metadata.message <- paste0(
@@ -196,7 +210,10 @@ reclusterSeuratObject <- function(object,
       ## TJM: Why is this seed different from the one for PCA or UMAP? ====
       seed.use = 1
     )
-  object <- FindNeighbors(object, dims = 1:number.of.pcs)
+  object <- FindNeighbors(
+    object,
+    dims = 1:number.of.pcs
+  )
   
   ## Find Clusters.
   resolutions <-
@@ -207,7 +224,11 @@ reclusterSeuratObject <- function(object,
     )
   
   for (r in resolutions) {
-    object <- FindClusters(object, resolution = r, algorithm = 1)
+    object <- FindClusters(
+      object,
+      resolution = r,
+      algorithm = 1
+    )
   }
   print("Clustering successful!")
   
@@ -216,7 +237,7 @@ reclusterSeuratObject <- function(object,
     "orig.ident"
   
   plot.list <-
-    lapply(paste0("SCT_snn_res.", resolutions), function(z)
+    lapply(paste0(clustering.column.prefix, resolutions), function(z)
       DimPlot(object, reduction = reduction.type, group.by = z) +
         labs(title = z) +
         theme(plot.title = element_text(hjust = 0.5)))
