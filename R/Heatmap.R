@@ -10,8 +10,10 @@
 #'   values default to "orig.ident".
 #' @param metadata One or more metadata columns to plot as heatmap annotation
 #'   tracks. Each value must name a column in the object metadata; at least one
-#'   valid column is required. When multiple columns are supplied, tracks and
-#'   metadata-based sorting follow their input order from bottom to top.
+#'   valid column is required. When multiple columns are supplied, annotation
+#'   tracks follow their input order from bottom to top. When
+#'   `arrange.by.metadata` is `TRUE`, cells are also ordered by those tracks;
+#'   otherwise, columns are clustered without using metadata.
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
 #'  "SCT" or "Harmony" (default is "SCT")

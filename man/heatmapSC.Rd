@@ -40,8 +40,10 @@ samples.}
 
 \item{metadata}{One or more metadata columns to plot as heatmap annotation
 tracks. Each value must name a column in the object metadata; at least one
-valid column is required. When multiple columns are supplied, tracks and
-metadata-based sorting follow their input order from bottom to top.}
+valid column is required. When multiple columns are supplied, annotation
+tracks follow their input order from bottom to top. When
+\code{arrange.by.metadata} is \code{TRUE}, cells are also ordered by those tracks;
+otherwise, columns are clustered without using metadata.}
 
 \item{transcripts}{Transcripts to plot}
 
