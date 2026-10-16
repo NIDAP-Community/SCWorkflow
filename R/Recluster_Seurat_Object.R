@@ -10,7 +10,8 @@
 #' @param prepend.txt Text to prepend to old columns to make them unique from
 #' new. Default is "old".
 #' @param old.columns.to.save Old seurat clustering columns (e.g.
-#' SCT_snn_res.0.4) to save.
+#' SCT_snn_res.0.4) to save. Select only columns that will be replaced during
+#' reclustering.
 #' @param number.of.pcs Select the number of principal components for your
 #' analysis. Set to 0 to automatically decide. Default is 50.
 #' @param cluster.resolution.low.range Select minimum resolution for clustering
@@ -84,12 +85,17 @@ reclusterSeuratObject <- function(object,
     stop("cluster.resolution.range.bins must be greater than zero.")
   }
 
-  possible.metadata.columns <- colnames(object[[]])
-  possible.metadata.columns <- possible.metadata.columns[
-    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
-  ]
+  metadata.column.names <- colnames(object[[]])
+  clustering.columns.to.replace <- unique(c(
+    intersect(
+      c("seurat_clusters", "seurat.clusters"),
+      metadata.column.names
+    ),
+    grep("^SCT_snn_res", metadata.column.names, value = TRUE)
+  ))
+  possible.metadata.columns <- clustering.columns.to.replace
   possible.metadata.message <- paste0(
-    "Possible metadata columns to select:\n",
+    "Possible clustering columns to save before replacement:\n",
     paste0("  - ", possible.metadata.columns, collapse = "\n")
   )
   if (length(old.columns.to.save) == 0) {
@@ -119,9 +125,11 @@ reclusterSeuratObject <- function(object,
   }
   
   ## Remove original cluster columns because they are about to be replaced.
-  columns_to_remove <-
-    c("seurat_clusters",
-      grep("^SCT_snn_res", colnames(object[[]]), value = TRUE))
+  columns_to_remove <- clustering.columns.to.replace
+  message(
+    "Removing original clustering columns before reclustering:\n",
+    paste0("  - ", columns_to_remove, collapse = "\n")
+  )
   object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
   
   ## Find the new reclustered clusters.
@@ -166,14 +174,14 @@ reclusterSeuratObject <- function(object,
   object <-
     RunUMAP(
       object = object,
-      reduction.type = "pca",
+      reduction = "pca",
       dims = 1:number.of.pcs,
       seed.use = 42
     )
   object <-
     RunTSNE(
       object = object,
-      reduction.type = "pca",
+      reduction = "pca",
       dim.embed = 2,
       dims = 1:number.of.pcs,
       ## TJM: Why is this seed different from the one for PCA or UMAP? ====
