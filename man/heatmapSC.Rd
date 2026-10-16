@@ -38,7 +38,10 @@ heatmapSC(
 \item{sample.names}{Select which samples to include. Leave blank to use all
 samples.}
 
-\item{metadata}{Metadata column to plot. At least one column is required.}
+\item{metadata}{One or more metadata columns to plot as heatmap annotation
+tracks. Each value must name a column in the object metadata; at least one
+valid column is required. When multiple columns are supplied, tracks and
+metadata-based sorting follow their input order from bottom to top.}
 
 \item{transcripts}{Transcripts to plot}
 

@@ -8,7 +8,10 @@
 #'   samples.
 #' @param sample.name.column Metadata column containing sample names. Blank
 #'   values default to "orig.ident".
-#' @param metadata Metadata column to plot. At least one column is required.
+#' @param metadata One or more metadata columns to plot as heatmap annotation
+#'   tracks. Each value must name a column in the object metadata; at least one
+#'   valid column is required. When multiple columns are supplied, tracks and
+#'   metadata-based sorting follow their input order from bottom to top.
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
 #'  "SCT" or "Harmony" (default is "SCT")
