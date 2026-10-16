@@ -506,8 +506,8 @@ heatmapSC <- function(object,
   
   
   #Set up annotation track and colors:
-  annotation.col <- NULL
-  annot.col <- NULL
+  annotation.col <- NA
+  annot.col <- NA
   if (ncol(annot) > 0) {
     annotation.col = as.data.frame(unclass(annot[, !(names(annot) %in%
                                                        "Barcode")]))

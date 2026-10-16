@@ -91,7 +91,7 @@ test_that("Heatmap uses all samples when sample selection is blank", {
 
 test_that("Heatmap supports no metadata annotation tracks", {
   cr.object <- getParamHM("Chariou")
-  cr.object$metadata <- NULL
+  cr.object["metadata"] <- list(NULL)
   cr.object$add.gene.or.protein <- FALSE
   cr.object$rna.annotations <- NULL
   cr.object$protein.annotations <- NULL
