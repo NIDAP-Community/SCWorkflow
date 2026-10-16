@@ -236,9 +236,15 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
   )
   input$object@meta.data[["harmony_snn_res.2.4"]] <-
     input$object@meta.data[["SCT_snn_res.2.4"]]
+  input$object@meta.data[["SCT_snn_res_2_4"]] <-
+    input$object@meta.data[["SCT_snn_res.2.4"]]
+  input$object@meta.data[["SCT-snn-res:2.4"]] <-
+    input$object@meta.data[["SCT_snn_res.2.4"]]
   input$old.columns.to.save <- c(
     "SCT_snn_res.2.4",
-    "harmony_snn_res.2.4"
+    "harmony_snn_res.2.4",
+    "SCT_snn_res_2_4",
+    "SCT-snn-res:2.4"
   )
   input$prepend.txt <- "prior.batch-1.2"
   input$number.of.pcs <- 10
@@ -248,6 +254,8 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
   input$cluster.resolution.range.bins <- 0.1
   expected.sct.values <- input$object@meta.data[["SCT_snn_res.2.4"]]
   expected.harmony.values <- input$object@meta.data[["harmony_snn_res.2.4"]]
+  expected.underscore.values <- input$object@meta.data[["SCT_snn_res_2_4"]]
+  expected.mixed.separator.values <- input$object@meta.data[["SCT-snn-res:2.4"]]
 
   messages <- character()
   output <- withCallingHandlers(
@@ -269,6 +277,16 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
     messages,
     fixed = TRUE
   )))
+  expect_true(any(grepl(
+    "SCT_snn_res_2_4 -> prior.batch-1.2_SCT_snn_res_2_4",
+    messages,
+    fixed = TRUE
+  )))
+  expect_true(any(grepl(
+    "SCT-snn-res:2.4 -> prior.batch-1.2_SCT-snn-res:2.4",
+    messages,
+    fixed = TRUE
+  )))
   removal.messages <- messages[grepl(
     "Removing original clustering columns",
     messages,
@@ -286,6 +304,14 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
   expect_equal(
     output$object@meta.data[["prior.batch-1.2_harmony_snn_res.2.4"]],
     expected.harmony.values
+  )
+  expect_equal(
+    output$object@meta.data[["prior.batch-1.2_SCT_snn_res_2_4"]],
+    expected.underscore.values
+  )
+  expect_equal(
+    output$object@meta.data[["prior.batch-1.2_SCT-snn-res:2.4"]],
+    expected.mixed.separator.values
   )
   expect_setequal(cluster.columns, "SCT_snn_res.0.4")
 })

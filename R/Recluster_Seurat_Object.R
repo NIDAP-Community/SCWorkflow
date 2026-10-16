@@ -97,15 +97,25 @@ reclusterSeuratObject <- function(object,
     assay.graph.names
   ))
   clustering.column.prefix <- paste0(clustering.graph.name, "_res.")
+  normalized.clustering.prefixes <- paste0(
+    gsub("[^[:alnum:]]", "", clustering.graph.names),
+    "res"
+  )
+  normalized.metadata.column.names <- gsub(
+    "[^[:alnum:]]",
+    "",
+    metadata.column.names
+  )
   clustering.columns.to.replace <- unique(c(
     intersect(
       c("seurat_clusters", "seurat.clusters"),
       metadata.column.names
     ),
-    unlist(lapply(
-      paste0(clustering.graph.names, "_res."),
-      function(prefix) metadata.column.names[startsWith(metadata.column.names, prefix)]
-    ))
+    metadata.column.names[vapply(
+      normalized.metadata.column.names,
+      function(name) any(startsWith(name, normalized.clustering.prefixes)),
+      logical(1)
+    )]
   ))
   possible.metadata.columns <- clustering.columns.to.replace
   possible.metadata.message <- paste0(
