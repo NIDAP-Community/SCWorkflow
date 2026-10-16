@@ -89,17 +89,72 @@ test_that("Heatmap uses all samples when sample selection is blank", {
   expect_setequal(colnames(output$data)[-1], rownames(cr.object$object@meta.data))
 })
 
-test_that("Heatmap supports no metadata annotation tracks", {
+test_that("Heatmap requires at least one metadata column", {
   cr.object <- getParamHM("Chariou")
   cr.object["metadata"] <- list(NULL)
   cr.object$add.gene.or.protein <- FALSE
   cr.object$rna.annotations <- NULL
   cr.object$protein.annotations <- NULL
 
-  output <- do.call(heatmapSC, cr.object)
+  possible.metadata.columns <- colnames(cr.object$object@meta.data)
+  possible.metadata.columns <- possible.metadata.columns[
+    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+  ]
+  expected.message <- paste0(
+    "No metadata columns selected. Select at least one metadata column.\n",
+    "Possible metadata columns to select:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
+  )
+
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    expected.message,
+    fixed = TRUE
+  )
+})
+
+test_that("Heatmap rejects a metadata selection with no valid columns", {
+  cr.object <- getParamHM("Chariou")
+  unavailable.column <- "not_a_metadata_column"
+  cr.object$metadata <- unavailable.column
+  possible.metadata.columns <- colnames(cr.object$object@meta.data)
+  possible.metadata.columns <- possible.metadata.columns[
+    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+  ]
+  expected.message <- paste0(
+    "Metadata column(s) not found in metadata: '", unavailable.column, "'.\n",
+    "Possible metadata columns to select:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
+  )
+
+  expect_error(
+    do.call(heatmapSC, cr.object),
+    expected.message,
+    fixed = TRUE
+  )
+})
+
+test_that("Heatmap skips unavailable metadata columns when valid columns remain", {
+  cr.object <- getParamHM("Chariou")
+  unavailable.column <- "not_a_metadata_column"
+  cr.object$metadata <- c("orig.ident", unavailable.column)
+  possible.metadata.columns <- colnames(cr.object$object@meta.data)
+  possible.metadata.columns <- possible.metadata.columns[
+    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+  ]
+  expected.message <- paste0(
+    "Metadata column(s) not found in metadata: '", unavailable.column, "'.\n",
+    "Possible metadata columns to select:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
+  )
+
+  expect_message(
+    output <- do.call(heatmapSC, cr.object),
+    expected.message,
+    fixed = TRUE
+  )
 
   expect_setequal(names(output), c("plots", "data"))
-  expect_setequal(colnames(output$data)[-1], rownames(cr.object$object@meta.data))
 })
 
 test_that("Heatmap preserves punctuation in sample names", {

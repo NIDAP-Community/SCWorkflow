@@ -8,8 +8,7 @@
 #'   samples.
 #' @param sample.name.column Metadata column containing sample names. Blank
 #'   values default to "orig.ident".
-#' @param metadata Metadata column to plot. Leave blank for no metadata
-#'   annotation tracks.
+#' @param metadata Metadata column to plot. At least one column is required.
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
 #'  "SCT" or "Harmony" (default is "SCT")
@@ -450,6 +449,35 @@ heatmapSC <- function(object,
   message(
     "Displaying ", nrow(metadata.table), "/", nrow(object@meta.data), " cells."
   )
+
+  possible.metadata.columns <- colnames(metadata.table)
+  possible.metadata.columns <- possible.metadata.columns[
+    !grepl("Barcode", possible.metadata.columns, ignore.case = TRUE)
+  ]
+  possible.metadata.message <- paste0(
+    "Possible metadata columns to select:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
+  )
+  if (length(metadata) == 0) {
+    stop(
+      "No metadata columns selected. Select at least one metadata column.\n",
+      possible.metadata.message
+    )
+  } else {
+    missing.metadata.columns <- setdiff(metadata, possible.metadata.columns)
+    if (length(missing.metadata.columns) > 0) {
+      missing.metadata.message <- paste0(
+        "Metadata column(s) not found in metadata: ",
+        paste(shQuote(missing.metadata.columns), collapse = ", "),
+        ".\n", possible.metadata.message
+      )
+      metadata <- setdiff(metadata, missing.metadata.columns)
+      if (length(metadata) == 0) {
+        stop(missing.metadata.message)
+      }
+      message(missing.metadata.message)
+    }
+  }
   
   if (length(metadata) > 0) {
     annot <- metadata.table %>% select(all_of(metadata))
