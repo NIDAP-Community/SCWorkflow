@@ -225,6 +225,7 @@ The heatmap is produced by a package called ComplexHeatmap [3] and presents the 
 FigOut=heatmapSC(
           object=Anno_SO$object,
           sample.names=c("PBS","ENT","NHSIL12","Combo","CD8dep" ),
+          sample.name.column = "orig.ident",
           metadata="SCT_snn_res.0.4",
           transcripts=c("Cd163","Cd38","Itgam","Cd4","Cd8a","Pdcd1","Ctla4"),
           use.assay = "SCT",

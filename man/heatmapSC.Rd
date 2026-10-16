@@ -28,15 +28,22 @@ heatmapSC(
   trim.outliers = TRUE,
   trim.outliers.percentage = 0.01,
   order.heatmap.rows = FALSE,
-  row.order = c()
+  row.order = c(),
+  sample.name.column = "orig.ident"
 )
 }
 \arguments{
 \item{object}{Seurat-class object}
 
-\item{sample.names}{Sample names}
+\item{sample.names}{Select which samples to include. Leave blank to use all
+samples.}
 
-\item{metadata}{Metadata column to plot}
+\item{metadata}{One or more metadata columns to plot as heatmap annotation
+tracks. Each value must name a column in the object metadata; at least one
+valid column is required. When multiple columns are supplied, annotation
+tracks follow their input order from bottom to top. When
+\code{arrange.by.metadata} is \code{TRUE}, cells are also ordered by those tracks;
+otherwise, columns are clustered without using metadata.}
 
 \item{transcripts}{Transcripts to plot}
 
@@ -83,6 +90,9 @@ heatmapSC(
 
 \item{row.order}{Gene vector to set row order. If empty, use cluster order
 (default is empty vector)}
+
+\item{sample.name.column}{Metadata column containing sample names. Blank
+values default to "orig.ident".}
 }
 \value{
 This function returns a heatmap plot and the data underlying the
