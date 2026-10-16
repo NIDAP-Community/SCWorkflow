@@ -38,7 +38,8 @@ heatmapSC(
 \item{sample.names}{Select which samples to include. Leave blank to use all
 samples.}
 
-\item{metadata}{Metadata column to plot}
+\item{metadata}{Metadata column to plot. Leave blank for no metadata
+annotation tracks.}
 
 \item{transcripts}{Transcripts to plot}
 

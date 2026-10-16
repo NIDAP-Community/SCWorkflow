@@ -8,7 +8,8 @@
 #'   samples.
 #' @param sample.name.column Metadata column containing sample names. Blank
 #'   values default to "orig.ident".
-#' @param metadata Metadata column to plot
+#' @param metadata Metadata column to plot. Leave blank for no metadata
+#'   annotation tracks.
 #' @param transcripts Transcripts to plot
 #' @param use.assay Assay to use for transcript expression values. Choices are
 #'  "SCT" or "Harmony" (default is "SCT")
@@ -251,10 +252,11 @@ heatmapSC <- function(object,
   samples.to.include <- samples.to.include[samples.to.include != ""]
   
   #Error messaging for metadata 
-  
-  if(is.null(metadata)){
-    stop("Error: You should choose at least one annotation track under metadata_to_plot")
+
+  if (is.null(metadata)) {
+    metadata <- character()
   }
+  metadata <- metadata[!is.na(metadata) & nzchar(metadata)]
   
   if(sum(grepl("Barcode",metadata,ignore.case=TRUE)) > 0){
     sprintf("Annotation Track cannot include Barcode")
@@ -449,8 +451,11 @@ heatmapSC <- function(object,
     "Displaying ", nrow(metadata.table), "/", nrow(object@meta.data), " cells."
   )
   
-  annot <- metadata.table %>% select(all_of(metadata))
-  a = dim(annot)[2] - 1
+  if (length(metadata) > 0) {
+    annot <- metadata.table %>% select(all_of(metadata))
+  } else {
+    annot <- data.frame(row.names = rownames(metadata.table))
+  }
   
   #Addition of gene and/or protein expression data to annotation tracks:
   if (add.gene.or.protein == TRUE) {
@@ -488,7 +493,7 @@ heatmapSC <- function(object,
   }
   
   #Arrange columns by metadata tracks:
-  if (arrange.by.metadata == TRUE) {
+  if (arrange.by.metadata == TRUE && ncol(annot) > 0) {
     annot <- annot %>% arrange(across(all_of(colnames(annot)))) 
     df.mat <- df.mat[, match(rownames(annot), colnames(df.mat)), drop = FALSE]
     df.mat <-
@@ -501,52 +506,56 @@ heatmapSC <- function(object,
   
   
   #Set up annotation track and colors:
-  annotation.col = as.data.frame(unclass(annot[, !(names(annot) %in%
-                                                     "Barcode")]))
-  annotation.col <- annotation.col %>%
-    mutate_if(is.logical, as.factor)
-  rownames(annotation.col) <- rownames(annot)
-  if (dim(annot)[2] == 1) {
-    annottitle = colnames(annot)[1]
-    colnames(annotation.col) = annottitle
-  }
-  annot.col = list()
-  groups = colnames(annotation.col)
-  colnames(annot) <- groups
-  
-  q = 0
-  for (i in 1:dim(annotation.col)[2]) {
-    if (class(annot[[groups[i]]]) != "numeric") {
-      annotation.col[, i] = factor(annotation.col[, i])
-      q = q + length(levels(annotation.col[, i]))
-    }
-  }
-  
-  colors = .distinctColorPalette(q, 5)
-  
-  b = 1
-  i = 1
-  nam = NULL
-  col <- NULL
+  annotation.col <- NULL
   annot.col <- NULL
-  for (i in 1:length(groups)) {
-    nam <- groups[i]
-    if (class(annotation.col[, i]) != "numeric") {
-      grp <- as.factor(annotation.col[, i])
-      c <- b + length(levels(grp)) - 1
-      col = colors[b:c]
-      names(col) <- levels(grp)
-      assign(nam, col)
-      annot.col = append(annot.col, mget(nam))
-      b = c + 1
-      i = i + 1
+  if (ncol(annot) > 0) {
+    annotation.col = as.data.frame(unclass(annot[, !(names(annot) %in%
+                                                       "Barcode")]))
+    annotation.col <- annotation.col %>%
+      mutate_if(is.logical, as.factor)
+    rownames(annotation.col) <- rownames(annot)
+    if (dim(annot)[2] == 1) {
+      annottitle = colnames(annot)[1]
+      colnames(annotation.col) = annottitle
     }
-    else{
-      grp <- annotation.col[, i]
-      np5 = colorRampPalette(c("steelblue", "white", "red"))(length(grp))
-      col = np5
-      assign(nam, col)
-      annot.col = append(annot.col, mget(nam))
+    annot.col = list()
+    groups = colnames(annotation.col)
+    colnames(annot) <- groups
+
+    q = 0
+    for (i in 1:dim(annotation.col)[2]) {
+      if (class(annot[[groups[i]]]) != "numeric") {
+        annotation.col[, i] = factor(annotation.col[, i])
+        q = q + length(levels(annotation.col[, i]))
+      }
+    }
+
+    colors = .distinctColorPalette(q, 5)
+
+    b = 1
+    i = 1
+    nam = NULL
+    col <- NULL
+    annot.col <- NULL
+    for (i in 1:length(groups)) {
+      nam <- groups[i]
+      if (class(annotation.col[, i]) != "numeric") {
+        grp <- as.factor(annotation.col[, i])
+        c <- b + length(levels(grp)) - 1
+        col = colors[b:c]
+        names(col) <- levels(grp)
+        assign(nam, col)
+        annot.col = append(annot.col, mget(nam))
+        b = c + 1
+        i = i + 1
+      }
+      else{
+        grp <- annotation.col[, i]
+        np5 = colorRampPalette(c("steelblue", "white", "red"))(length(grp))
+        col = np5
+        assign(nam, col)
+        annot.col = append(annot.col, mget(nam))
+      }
     }
   }
   

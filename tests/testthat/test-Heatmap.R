@@ -89,6 +89,19 @@ test_that("Heatmap uses all samples when sample selection is blank", {
   expect_setequal(colnames(output$data)[-1], rownames(cr.object$object@meta.data))
 })
 
+test_that("Heatmap supports no metadata annotation tracks", {
+  cr.object <- getParamHM("Chariou")
+  cr.object$metadata <- NULL
+  cr.object$add.gene.or.protein <- FALSE
+  cr.object$rna.annotations <- NULL
+  cr.object$protein.annotations <- NULL
+
+  output <- do.call(heatmapSC, cr.object)
+
+  expect_setequal(names(output), c("plots", "data"))
+  expect_setequal(colnames(output$data)[-1], rownames(cr.object$object@meta.data))
+})
+
 test_that("Heatmap preserves punctuation in sample names", {
   cr.object <- getParamHM("Chariou")
   sample.column <- "sample.name_1.2"
