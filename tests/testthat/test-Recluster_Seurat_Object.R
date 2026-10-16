@@ -60,15 +60,12 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
 
   ## Get inputs and default parameters.
   input <- getParamsReclusterSeuratObject("Chariou")
-  input$object@meta.data[["batch.name_1.2"]] <-
-    seq_len(nrow(input$object@meta.data))
-  input$object@meta.data[["SCT_snn_res_2_4"]] <-
+  input$object@meta.data[["SCT_snn_res.3.0"]] <-
     seq_len(nrow(input$object@meta.data))
   input$old.columns.to.save <-
     c(
       input$old.columns.to.save,
-      "batch.name_1.2",
-      "SCT_snn_res_2_4"
+      "SCT_snn_res.3.0"
     )
   preserved.metadata <- input$object@meta.data[, input$old.columns.to.save, drop = FALSE]
   preserved.names <- paste0("old_", input$old.columns.to.save)
@@ -95,14 +92,9 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
   expect_true(all(preserved.names %in% colnames(output$object@meta.data)))
   expect_equal(output$object@meta.data[, preserved.names, drop = FALSE], preserved.metadata)
   expect_equal(
-    output$object@meta.data[["old_batch.name_1.2"]],
-    preserved.metadata[["old_batch.name_1.2"]]
+    output$object@meta.data[["old_SCT_snn_res.3.0"]],
+    preserved.metadata[["old_SCT_snn_res.3.0"]]
   )
-  expect_equal(
-    output$object@meta.data[["old_SCT_snn_res_2_4"]],
-    preserved.metadata[["old_SCT_snn_res_2_4"]]
-  )
-  expect_true("batch.name_1.2" %in% colnames(output$object@meta.data))
   }
 )
 
@@ -110,12 +102,18 @@ test_that("Test Recluster with Chariou (Mouse) dataset.", {
 test_that("Recluster requires exact metadata column names.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
-  metadata.names <- colnames(input$object@meta.data)
+  possible.metadata.columns <- unique(c(
+    intersect(
+      c("seurat_clusters", "seurat.clusters"),
+      colnames(input$object@meta.data)
+    ),
+    grep("^SCT_snn_res", colnames(input$object@meta.data), value = TRUE)
+  ))
   input$old.columns.to.save <- "SCT_snn_res_2_4"
   expected.message <- paste0(
-    "Could not find requested metadata columns: 'SCT_snn_res_2_4'.\n",
-    "Available metadata columns: ",
-    paste(shQuote(metadata.names), collapse = ", ")
+    "Old column(s) to save not found in metadata: 'SCT_snn_res_2_4'.\n",
+    "Possible clustering columns to save before replacement:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
   )
 
   expect_error(
@@ -125,27 +123,57 @@ test_that("Recluster requires exact metadata column names.", {
   )
 })
 
-test_that("Recluster reports all missing metadata columns without mutation.", {
+test_that("Recluster reports rejected columns without repeating candidates.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
   metadata.names <- colnames(input$object@meta.data)
   input$old.columns.to.save <- c(
     "SCT_snn_res.2.4",
     "missing.column_1",
-    "missing.column.2"
+    "missing.column.2",
+    "orig.ident"
   )
 
-  expect_error(
-    do.call(reclusterSeuratObject, input),
+  expect_message(
+    output <- do.call(reclusterSeuratObject, input),
     paste0(
-      "Could not find requested metadata columns: ",
+      "Old column(s) to save not found in metadata: ",
       "'missing.column_1', 'missing.column.2'.\n",
-      "Available metadata columns: ",
-      paste(shQuote(metadata.names), collapse = ", ")
+      "Old column(s) to save are not clustering columns replaced during ",
+      "reclustering: 'orig.ident'.\n",
+      "     These metadata columns are retained automatically."
     ),
     fixed = TRUE
   )
   expect_identical(colnames(input$object@meta.data), metadata.names)
+  expect_true("old_SCT_snn_res.2.4" %in% colnames(output$object@meta.data))
+})
+
+test_that("Recluster distinguishes invalid old-column selections.", {
+
+  input <- getParamsReclusterSeuratObject("Chariou")
+  metadata.names <- colnames(input$object@meta.data)
+  possible.metadata.columns <- unique(c(
+    intersect(
+      c("seurat_clusters", "seurat.clusters"),
+      metadata.names
+    ),
+    grep("^SCT_snn_res", metadata.names, value = TRUE)
+  ))
+  input$old.columns.to.save <- c("orig.ident", "missing.column")
+
+  expect_error(
+    do.call(reclusterSeuratObject, input),
+    paste0(
+      "Old column(s) to save not found in metadata: 'missing.column'.\n",
+      "Old column(s) to save are not clustering columns replaced during ",
+      "reclustering: 'orig.ident'.\n",
+      "     These metadata columns are retained automatically.\n",
+      "Possible clustering columns to save before replacement:\n",
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
+    ),
+    fixed = TRUE
+  )
 })
 
 
@@ -153,18 +181,44 @@ test_that("Recluster supports empty metadata preservation selections.", {
 
   for (old.columns.to.save in list(NULL, character(0))) {
     input <- getParamsReclusterSeuratObject("Chariou")
+    input$object@meta.data[["seurat.clusters"]] <- "legacy"
+    input$object@meta.data[["seurat_clusters"]] <- "canonical"
+    possible.metadata.columns <- unique(c(
+      intersect(
+        c("seurat_clusters", "seurat.clusters"),
+        colnames(input$object@meta.data)
+      ),
+      grep("^SCT_snn_res", colnames(input$object@meta.data), value = TRUE)
+    ))
     input$number.of.pcs <- if (is.null(old.columns.to.save)) 0 else 10
     input$cluster.resolution.low.range <- 0.4
     input$cluster.resolution.high.range <- 0.4
     input$cluster.resolution.range.bins <- 0.1
 
     input$old.columns.to.save <- NULL
-    output <- do.call(
-      reclusterSeuratObject,
-      c(input, list(old.columns.to.save = old.columns.to.save))
+    output <- NULL
+    messages <- character()
+    withCallingHandlers(
+      output <- do.call(
+        reclusterSeuratObject,
+        c(input, list(old.columns.to.save = old.columns.to.save))
+      ),
+      message = function(condition) {
+        messages <<- c(messages, conditionMessage(condition))
+        invokeRestart("muffleMessage")
+      }
     )
+    expect_true("No old columns were saved.\n" %in% messages)
+    expect_false(any(grepl("Possible clustering columns", messages)))
 
+    expect_false("seurat.clusters" %in% colnames(output$object@meta.data))
+    expect_false(any(
+      setdiff(possible.metadata.columns, "seurat_clusters") %in%
+        colnames(output$object@meta.data)
+    ))
     expect_true("SCT_snn_res.0.4" %in% colnames(output$object@meta.data))
+    expect_true("seurat_clusters" %in% colnames(output$object@meta.data))
+    expect_true("sample_name" %in% colnames(output$object@meta.data))
     expect_false(any(grepl("^old_SCT_snn_res", colnames(output$object@meta.data))))
   }
 })
@@ -173,21 +227,65 @@ test_that("Recluster supports empty metadata preservation selections.", {
 test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
-  input$old.columns.to.save <- "SCT_snn_res.2.4"
+  input$object <- FindNeighbors(
+    input$object,
+    reduction = "pca",
+    dims = 1:10,
+    graph.name = c("harmony_nn", "harmony_snn"),
+    verbose = FALSE
+  )
+  input$object@meta.data[["harmony_snn_res.2.4"]] <-
+    input$object@meta.data[["SCT_snn_res.2.4"]]
+  input$old.columns.to.save <- c(
+    "SCT_snn_res.2.4",
+    "harmony_snn_res.2.4"
+  )
   input$prepend.txt <- "prior.batch-1.2"
   input$number.of.pcs <- 10
   input$reduction.type <- "pca"
   input$cluster.resolution.low.range <- 0.4
   input$cluster.resolution.high.range <- 0.4
   input$cluster.resolution.range.bins <- 0.1
-  expected.values <- input$object@meta.data[[input$old.columns.to.save]]
+  expected.sct.values <- input$object@meta.data[["SCT_snn_res.2.4"]]
+  expected.harmony.values <- input$object@meta.data[["harmony_snn_res.2.4"]]
 
-  output <- do.call(reclusterSeuratObject, input)
+  messages <- character()
+  output <- withCallingHandlers(
+    do.call(reclusterSeuratObject, input),
+    message = function(condition) {
+      messages <<- c(messages, conditionMessage(condition))
+      invokeRestart("muffleMessage")
+    }
+  )
   cluster.columns <- grep("^SCT_snn_res\\.", colnames(output$object@meta.data), value = TRUE)
 
+  expect_true(any(grepl(
+    "SCT_snn_res.2.4 -> prior.batch-1.2_SCT_snn_res.2.4",
+    messages,
+    fixed = TRUE
+  )))
+  expect_true(any(grepl(
+    "harmony_snn_res.2.4 -> prior.batch-1.2_harmony_snn_res.2.4",
+    messages,
+    fixed = TRUE
+  )))
+  removal.messages <- messages[grepl(
+    "Removing original clustering columns",
+    messages,
+    fixed = TRUE
+  )]
+  expect_false(any(grepl(
+    "  - SCT_snn_res.2.4",
+    removal.messages,
+    fixed = TRUE
+  )))
   expect_equal(
     output$object@meta.data[["prior.batch-1.2_SCT_snn_res.2.4"]],
-    expected.values
+    expected.sct.values
+  )
+  expect_equal(
+    output$object@meta.data[["prior.batch-1.2_harmony_snn_res.2.4"]],
+    expected.harmony.values
   )
   expect_setequal(cluster.columns, "SCT_snn_res.0.4")
 })

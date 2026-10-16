@@ -22,7 +22,8 @@ reclusterSeuratObject(
 new. Default is "old".}
 
 \item{old.columns.to.save}{Old seurat clustering columns (e.g.
-SCT_snn_res.0.4) to save.}
+SCT_snn_res.0.4) to save. Select only columns that will be replaced during
+reclustering.}
 
 \item{number.of.pcs}{Select the number of principal components for your
 analysis. Set to 0 to automatically decide. Default is 50.}

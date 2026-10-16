@@ -10,7 +10,8 @@
 #' @param prepend.txt Text to prepend to old columns to make them unique from
 #' new. Default is "old".
 #' @param old.columns.to.save Old seurat clustering columns (e.g.
-#' SCT_snn_res.0.4) to save.
+#' SCT_snn_res.0.4) to save. Select only columns that will be replaced during
+#' reclustering.
 #' @param number.of.pcs Select the number of principal components for your
 #' analysis. Set to 0 to automatically decide. Default is 50.
 #' @param cluster.resolution.low.range Select minimum resolution for clustering
@@ -84,30 +85,101 @@ reclusterSeuratObject <- function(object,
     stop("cluster.resolution.range.bins must be greater than zero.")
   }
 
-  ## Check columns without altering the object's metadata names.
-  missing.columns <- setdiff(old.columns.to.save, colnames(object[[]]))
-  if (length(missing.columns) > 0) {
-    stop(
-      "Could not find requested metadata columns: ",
-      paste(shQuote(missing.columns), collapse = ", "),
-      ".\nAvailable metadata columns: ",
-      paste(shQuote(colnames(object[[]])), collapse = ", ")
+  metadata.column.names <- colnames(object[[]])
+  clustering.graph.name <- paste0(DefaultAssay(object), "_snn")
+  assay.graph.names <- as.vector(outer(
+    names(object@assays),
+    c("_nn", "_snn"),
+    paste0
+  ))
+  clustering.graph.names <- unique(c(
+    names(object@graphs),
+    assay.graph.names
+  ))
+  clustering.column.prefix <- paste0(clustering.graph.name, "_res.")
+  clustering.columns.to.replace <- unique(c(
+    intersect(
+      c("seurat_clusters", "seurat.clusters"),
+      metadata.column.names
+    ),
+    unlist(lapply(
+      paste0(clustering.graph.names, "_res."),
+      function(prefix) metadata.column.names[startsWith(metadata.column.names, prefix)]
+    ))
+  ))
+  possible.metadata.columns <- clustering.columns.to.replace
+  possible.metadata.message <- paste0(
+    "Possible clustering columns to save before replacement:\n",
+    paste0("  - ", possible.metadata.columns, collapse = "\n")
+  )
+  if (length(old.columns.to.save) == 0) {
+    message("No old columns were saved.")
+  } else {
+    missing.metadata.columns <- setdiff(
+      old.columns.to.save,
+      metadata.column.names
     )
+    non.clustering.columns <- setdiff(
+      intersect(old.columns.to.save, metadata.column.names),
+      possible.metadata.columns
+    )
+    rejected.columns <- c(missing.metadata.columns, non.clustering.columns)
+    if (length(rejected.columns) > 0) {
+      rejected.messages <- c()
+      if (length(missing.metadata.columns) > 0) {
+        rejected.messages <- c(
+          rejected.messages,
+          paste0(
+            "Old column(s) to save not found in metadata: ",
+            paste(shQuote(missing.metadata.columns), collapse = ", "),
+            "."
+          )
+        )
+      }
+      if (length(non.clustering.columns) > 0) {
+        rejected.messages <- c(
+          rejected.messages,
+          paste0(
+            "Old column(s) to save are not clustering columns replaced during ",
+            "reclustering: ",
+            paste(shQuote(non.clustering.columns), collapse = ", "),
+            ".\n     These metadata columns are retained automatically."
+          )
+        )
+      }
+      rejected.columns.message <- paste(rejected.messages, collapse = "\n")
+      old.columns.to.save <- setdiff(old.columns.to.save, rejected.columns)
+      if (length(old.columns.to.save) == 0) {
+        stop(rejected.columns.message, "\n", possible.metadata.message)
+      }
+      message(rejected.columns.message)
+    }
   }
   
-  ## Get old columns and modify the names to prepend "old_" to the column names.
-  for (i in seq_along(old.columns.to.save)) {
-    old.column.name <- old.columns.to.save[i]
-    new.column.name <- paste(prepend.txt, old.column.name, sep = "_")
-    object@meta.data[[new.column.name]] <-
-      object@meta.data[[old.column.name]]
+  ## Rename selected clustering columns before creating replacements.
+  if (length(old.columns.to.save) > 0) {
+    new.column.names <- paste(prepend.txt, old.columns.to.save, sep = "_")
+    message(
+      "Renaming selected clustering columns before reclustering:\n",
+      paste0("  - ", old.columns.to.save, " -> ", new.column.names,
+             collapse = "\n")
+    )
+    column.indices <- match(old.columns.to.save, colnames(object@meta.data))
+    colnames(object@meta.data)[column.indices] <- new.column.names
   }
   
   ## Remove original cluster columns because they are about to be replaced.
-  columns_to_remove <-
-    c("seurat_clusters",
-      grep("^SCT_snn_res", colnames(object[[]]), value = TRUE))
-  object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
+  columns_to_remove <- setdiff(
+    clustering.columns.to.replace,
+    old.columns.to.save
+  )
+  if (length(columns_to_remove) > 0) {
+    message(
+      "Removing original clustering columns before reclustering:\n",
+      paste0("  - ", columns_to_remove, collapse = "\n")
+    )
+    object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
+  }
   
   ## Find the new reclustered clusters.
   object <-
@@ -151,20 +223,23 @@ reclusterSeuratObject <- function(object,
   object <-
     RunUMAP(
       object = object,
-      reduction.type = "pca",
+      reduction = "pca",
       dims = 1:number.of.pcs,
       seed.use = 42
     )
   object <-
     RunTSNE(
       object = object,
-      reduction.type = "pca",
+      reduction = "pca",
       dim.embed = 2,
       dims = 1:number.of.pcs,
       ## TJM: Why is this seed different from the one for PCA or UMAP? ====
       seed.use = 1
     )
-  object <- FindNeighbors(object, dims = 1:number.of.pcs)
+  object <- FindNeighbors(
+    object,
+    dims = 1:number.of.pcs
+  )
   
   ## Find Clusters.
   resolutions <-
@@ -175,7 +250,11 @@ reclusterSeuratObject <- function(object,
     )
   
   for (r in resolutions) {
-    object <- FindClusters(object, resolution = r, algorithm = 1)
+    object <- FindClusters(
+      object,
+      resolution = r,
+      algorithm = 1
+    )
   }
   print("Clustering successful!")
   
@@ -184,7 +263,7 @@ reclusterSeuratObject <- function(object,
     "orig.ident"
   
   plot.list <-
-    lapply(paste0("SCT_snn_res.", resolutions), function(z)
+    lapply(paste0(clustering.column.prefix, resolutions), function(z)
       DimPlot(object, reduction = reduction.type, group.by = z) +
         labs(title = z) +
         theme(plot.title = element_text(hjust = 0.5)))
