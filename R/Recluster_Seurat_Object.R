@@ -83,14 +83,15 @@ reclusterSeuratObject <- function(object,
   if (cluster.resolution.range.bins <= 0) {
     stop("cluster.resolution.range.bins must be greater than zero.")
   }
-  
+
   ## Check columns without altering the object's metadata names.
   missing.columns <- setdiff(old.columns.to.save, colnames(object[[]]))
   if (length(missing.columns) > 0) {
     stop(
       "Could not find requested metadata columns: ",
-      paste(missing.columns, collapse = ", "),
-      "."
+      paste(shQuote(missing.columns), collapse = ", "),
+      ".\nAvailable metadata columns: ",
+      paste(shQuote(colnames(object[[]])), collapse = ", ")
     )
   }
   
