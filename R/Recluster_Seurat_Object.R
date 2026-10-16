@@ -99,7 +99,7 @@ reclusterSeuratObject <- function(object,
     paste0("  - ", possible.metadata.columns, collapse = "\n")
   )
   if (length(old.columns.to.save) == 0) {
-    message("No old columns were saved.\n", possible.metadata.message)
+    message("No old columns were saved.")
   } else {
     missing.columns <- setdiff(old.columns.to.save, possible.metadata.columns)
     if (length(missing.columns) > 0) {
@@ -116,21 +116,30 @@ reclusterSeuratObject <- function(object,
     }
   }
   
-  ## Get old columns and modify the names to prepend "old_" to the column names.
-  for (i in seq_along(old.columns.to.save)) {
-    old.column.name <- old.columns.to.save[i]
-    new.column.name <- paste(prepend.txt, old.column.name, sep = "_")
-    object@meta.data[[new.column.name]] <-
-      object@meta.data[[old.column.name]]
+  ## Rename selected clustering columns before creating replacements.
+  if (length(old.columns.to.save) > 0) {
+    new.column.names <- paste(prepend.txt, old.columns.to.save, sep = "_")
+    message(
+      "Renaming selected clustering columns before reclustering:\n",
+      paste0("  - ", old.columns.to.save, " -> ", new.column.names,
+             collapse = "\n")
+    )
+    column.indices <- match(old.columns.to.save, colnames(object@meta.data))
+    colnames(object@meta.data)[column.indices] <- new.column.names
   }
   
   ## Remove original cluster columns because they are about to be replaced.
-  columns_to_remove <- clustering.columns.to.replace
-  message(
-    "Removing original clustering columns before reclustering:\n",
-    paste0("  - ", columns_to_remove, collapse = "\n")
+  columns_to_remove <- setdiff(
+    clustering.columns.to.replace,
+    old.columns.to.save
   )
-  object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
+  if (length(columns_to_remove) > 0) {
+    message(
+      "Removing original clustering columns before reclustering:\n",
+      paste0("  - ", columns_to_remove, collapse = "\n")
+    )
+    object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
+  }
   
   ## Find the new reclustered clusters.
   object <-

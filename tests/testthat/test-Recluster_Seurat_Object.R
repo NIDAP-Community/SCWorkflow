@@ -174,20 +174,20 @@ test_that("Recluster supports empty metadata preservation selections.", {
     input$cluster.resolution.range.bins <- 0.1
 
     input$old.columns.to.save <- NULL
-    expected.message <- paste0(
-      "No old columns were saved.\n",
-      "Possible clustering columns to save before replacement:\n",
-      paste0("  - ", possible.metadata.columns, collapse = "\n")
-    )
     output <- NULL
-    expect_message(
+    messages <- character()
+    withCallingHandlers(
       output <- do.call(
         reclusterSeuratObject,
         c(input, list(old.columns.to.save = old.columns.to.save))
       ),
-      expected.message,
-      fixed = TRUE
+      message = function(condition) {
+        messages <<- c(messages, conditionMessage(condition))
+        invokeRestart("muffleMessage")
+      }
     )
+    expect_true("No old columns were saved.\n" %in% messages)
+    expect_false(any(grepl("Possible clustering columns", messages)))
 
     expect_false("seurat.clusters" %in% colnames(output$object@meta.data))
     expect_false(any(
@@ -214,9 +214,31 @@ test_that("Recluster supports custom prefixes, PCA plots, and resolutions.", {
   input$cluster.resolution.range.bins <- 0.1
   expected.values <- input$object@meta.data[[input$old.columns.to.save]]
 
-  output <- do.call(reclusterSeuratObject, input)
+  messages <- character()
+  output <- withCallingHandlers(
+    do.call(reclusterSeuratObject, input),
+    message = function(condition) {
+      messages <<- c(messages, conditionMessage(condition))
+      invokeRestart("muffleMessage")
+    }
+  )
   cluster.columns <- grep("^SCT_snn_res\\.", colnames(output$object@meta.data), value = TRUE)
 
+  expect_true(any(grepl(
+    "SCT_snn_res.2.4 -> prior.batch-1.2_SCT_snn_res.2.4",
+    messages,
+    fixed = TRUE
+  )))
+  removal.messages <- messages[grepl(
+    "Removing original clustering columns",
+    messages,
+    fixed = TRUE
+  )]
+  expect_false(any(grepl(
+    "  - SCT_snn_res.2.4",
+    removal.messages,
+    fixed = TRUE
+  )))
   expect_equal(
     output$object@meta.data[["prior.batch-1.2_SCT_snn_res.2.4"]],
     expected.values
