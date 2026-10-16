@@ -123,7 +123,33 @@ test_that("Recluster requires exact metadata column names.", {
   )
 })
 
-test_that("Recluster reports all missing metadata columns without mutation.", {
+test_that("Recluster reports rejected columns without repeating candidates.", {
+
+  input <- getParamsReclusterSeuratObject("Chariou")
+  metadata.names <- colnames(input$object@meta.data)
+  input$old.columns.to.save <- c(
+    "SCT_snn_res.2.4",
+    "missing.column_1",
+    "missing.column.2",
+    "orig.ident"
+  )
+
+  expect_message(
+    output <- do.call(reclusterSeuratObject, input),
+    paste0(
+      "Old column(s) to save not found in metadata: ",
+      "'missing.column_1', 'missing.column.2'.\n",
+      "Old column(s) to save are not clustering columns replaced during ",
+      "reclustering: 'orig.ident'.\n",
+      "     These metadata columns are retained automatically."
+    ),
+    fixed = TRUE
+  )
+  expect_identical(colnames(input$object@meta.data), metadata.names)
+  expect_true("old_SCT_snn_res.2.4" %in% colnames(output$object@meta.data))
+})
+
+test_that("Recluster distinguishes invalid old-column selections.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
   metadata.names <- colnames(input$object@meta.data)
@@ -134,24 +160,20 @@ test_that("Recluster reports all missing metadata columns without mutation.", {
     ),
     grep("^SCT_snn_res", metadata.names, value = TRUE)
   ))
-  input$old.columns.to.save <- c(
-    "SCT_snn_res.2.4",
-    "missing.column_1",
-    "missing.column.2"
-  )
+  input$old.columns.to.save <- c("orig.ident", "missing.column")
 
-  expect_message(
-    output <- do.call(reclusterSeuratObject, input),
+  expect_error(
+    do.call(reclusterSeuratObject, input),
     paste0(
-      "Old column(s) to save not found in metadata: ",
-      "'missing.column_1', 'missing.column.2'.\n",
+      "Old column(s) to save not found in metadata: 'missing.column'.\n",
+      "Old column(s) to save are not clustering columns replaced during ",
+      "reclustering: 'orig.ident'.\n",
+      "     These metadata columns are retained automatically.\n",
       "Possible clustering columns to save before replacement:\n",
       paste0("  - ", possible.metadata.columns, collapse = "\n")
     ),
     fixed = TRUE
   )
-  expect_identical(colnames(input$object@meta.data), metadata.names)
-  expect_true("old_SCT_snn_res.2.4" %in% colnames(output$object@meta.data))
 })
 
 

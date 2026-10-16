@@ -115,18 +115,44 @@ reclusterSeuratObject <- function(object,
   if (length(old.columns.to.save) == 0) {
     message("No old columns were saved.")
   } else {
-    missing.columns <- setdiff(old.columns.to.save, possible.metadata.columns)
-    if (length(missing.columns) > 0) {
-      missing.columns.message <- paste0(
-        "Old column(s) to save not found in metadata: ",
-        paste(shQuote(missing.columns), collapse = ", "),
-        ".\n", possible.metadata.message
-      )
-      old.columns.to.save <- setdiff(old.columns.to.save, missing.columns)
-      if (length(old.columns.to.save) == 0) {
-        stop(missing.columns.message)
+    missing.metadata.columns <- setdiff(
+      old.columns.to.save,
+      metadata.column.names
+    )
+    non.clustering.columns <- setdiff(
+      intersect(old.columns.to.save, metadata.column.names),
+      possible.metadata.columns
+    )
+    rejected.columns <- c(missing.metadata.columns, non.clustering.columns)
+    if (length(rejected.columns) > 0) {
+      rejected.messages <- c()
+      if (length(missing.metadata.columns) > 0) {
+        rejected.messages <- c(
+          rejected.messages,
+          paste0(
+            "Old column(s) to save not found in metadata: ",
+            paste(shQuote(missing.metadata.columns), collapse = ", "),
+            "."
+          )
+        )
       }
-      message(missing.columns.message)
+      if (length(non.clustering.columns) > 0) {
+        rejected.messages <- c(
+          rejected.messages,
+          paste0(
+            "Old column(s) to save are not clustering columns replaced during ",
+            "reclustering: ",
+            paste(shQuote(non.clustering.columns), collapse = ", "),
+            ".\n     These metadata columns are retained automatically."
+          )
+        )
+      }
+      rejected.columns.message <- paste(rejected.messages, collapse = "\n")
+      old.columns.to.save <- setdiff(old.columns.to.save, rejected.columns)
+      if (length(old.columns.to.save) == 0) {
+        stop(rejected.columns.message, "\n", possible.metadata.message)
+      }
+      message(rejected.columns.message)
     }
   }
   
