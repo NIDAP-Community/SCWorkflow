@@ -428,7 +428,7 @@ heatmapSC <- function(object,
     "<none>"
   }
   message(
-    "Filtering samples using metadata column '", sample.name.column, "': ",
+    "Selected samples using metadata column '", sample.name.column, "': ",
     requested.samples
   )
   

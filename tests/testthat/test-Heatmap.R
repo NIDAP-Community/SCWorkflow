@@ -57,7 +57,7 @@ test_that("Heatmap supports a custom sample name column", {
   expect_message(
     output <- do.call(heatmapSC, cr.object),
     paste0(
-      "Filtering samples using metadata column 'sample.name_1.2': '",
+      "Selected samples using metadata column 'sample.name_1.2': '",
       selected.sample, "'"
     ),
     fixed = TRUE
