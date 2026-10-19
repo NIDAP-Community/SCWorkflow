@@ -97,6 +97,9 @@ reclusterSeuratObject <- function(object,
     assay.graph.names
   ))
   clustering.column.prefix <- paste0(clustering.graph.name, "_res.")
+  # Older NIDAP results can use `SCT_snn_res_0_2`, while Seurat uses
+  # `SCT_snn_res.0.2`. Ignore punctuation only when identifying these columns;
+  # their original metadata names are not changed.
   normalized.clustering.prefixes <- paste0(
     gsub("[^[:alnum:]]", "", clustering.graph.names),
     "res"
