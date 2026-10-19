@@ -217,6 +217,8 @@ reclusterSeuratObject <- function(object,
     object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
   }
   
+    cat("\n")
+    
   ## Find the new reclustered clusters.
   object <-
     FindVariableFeatures(
