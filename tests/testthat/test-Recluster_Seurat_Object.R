@@ -219,6 +219,16 @@ test_that("Recluster supports empty metadata preservation selections.", {
     )
     expect_true("No old columns were saved.\n" %in% messages)
     expect_false(any(grepl("Possible clustering columns", messages)))
+    removal.messages <- messages[grepl(
+      "Removing original clustering columns",
+      messages,
+      fixed = TRUE
+    )]
+    expect_true(any(grepl(
+      "If you want to retain old cluster columns, select their exact names ",
+      removal.messages,
+      fixed = TRUE
+    )))
 
     expect_false("seurat.clusters" %in% colnames(output$object@meta.data))
     expect_false(any(

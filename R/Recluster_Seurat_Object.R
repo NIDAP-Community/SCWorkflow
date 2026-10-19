@@ -210,7 +210,9 @@ reclusterSeuratObject <- function(object,
   if (length(columns_to_remove) > 0) {
     message(
       "Removing original clustering columns before reclustering:\n",
-      paste0("  - ", columns_to_remove, collapse = "\n")
+      paste0("  - ", columns_to_remove, collapse = "\n"),
+      "\nIf you want to retain old cluster columns, select their exact names ",
+      "with old.columns.to.save and use prepend.txt to give them a unique prefix."
     )
     object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
   }
