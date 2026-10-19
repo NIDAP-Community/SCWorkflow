@@ -113,7 +113,9 @@ test_that("Recluster requires exact metadata column names.", {
   expected.message <- paste0(
     "Old column(s) to save not found in metadata: 'SCT_snn_res_2_4'.\n",
     "Possible clustering columns to save before replacement:\n",
-    paste0("  - ", possible.metadata.columns, collapse = "\n")
+    paste0("  - ", possible.metadata.columns, collapse = "\n"),
+    "\nIf you want to retain old cluster columns, select their exact names ",
+    "with old.columns.to.save and use prepend.txt to give them a unique prefix."
   )
 
   expect_error(
@@ -135,10 +137,12 @@ test_that("Recluster reports rejected columns without repeating candidates.", {
   )
 
   expect_message(
-    output <- do.call(reclusterSeuratObject, input),
+    expect_warning(
+      output <- do.call(reclusterSeuratObject, input),
+      "Old column(s) to save not found in metadata: 'missing.column_1', 'missing.column.2'.",
+      fixed = TRUE
+    ),
     paste0(
-      "Old column(s) to save not found in metadata: ",
-      "'missing.column_1', 'missing.column.2'.\n",
       "Old column(s) to save are not clustering columns replaced during ",
       "reclustering: 'orig.ident'.\n",
       "     These metadata columns are retained automatically."
@@ -170,7 +174,9 @@ test_that("Recluster distinguishes invalid old-column selections.", {
       "reclustering: 'orig.ident'.\n",
       "     These metadata columns are retained automatically.\n",
       "Possible clustering columns to save before replacement:\n",
-      paste0("  - ", possible.metadata.columns, collapse = "\n")
+      paste0("  - ", possible.metadata.columns, collapse = "\n"),
+      "\nIf you want to retain old cluster columns, select their exact names ",
+      "with old.columns.to.save and use prepend.txt to give them a unique prefix."
     ),
     fixed = TRUE
   )
@@ -277,7 +283,12 @@ test_that("Recluster rejects existing renamed clustering column names.", {
 
   expect_error(
     do.call(reclusterSeuratObject, input),
-    "metadata column names already exist: 'existing_SCT_snn_res.0.2'"
+    paste0(
+      "metadata column names already exist: 'existing_SCT_snn_res.0.2'. ",
+      "Set prepend.txt to an unused prefix so the renamed ",
+      "column name is unique."
+    ),
+    fixed = TRUE
   )
 })
 
