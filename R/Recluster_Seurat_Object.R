@@ -169,7 +169,7 @@ reclusterSeuratObject <- function(object,
         stop(rejected.columns.message, "\n", possible.metadata.message)
       }
       if (!is.null(missing.metadata.message)) {
-        warning(missing.metadata.message, call. = FALSE)
+        message("Warning: ", missing.metadata.message)
       }
       if (!is.null(non.clustering.columns.message)) {
         message(non.clustering.columns.message)

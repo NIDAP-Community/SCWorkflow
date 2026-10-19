@@ -136,18 +136,34 @@ test_that("Recluster reports rejected columns without repeating candidates.", {
     "orig.ident"
   )
 
-  expect_message(
-    expect_warning(
-      output <- do.call(reclusterSeuratObject, input),
-      "Old column(s) to save not found in metadata: 'missing.column_1', 'missing.column.2'.",
-      fixed = TRUE
+  messages <- character()
+  output <- withCallingHandlers(
+    do.call(reclusterSeuratObject, input),
+    message = function(condition) {
+      messages <<- c(messages, conditionMessage(condition))
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_true(any(grepl(
+    paste0(
+      "Warning: Old column(s) to save not found in metadata: ",
+      "'missing.column_1', 'missing.column.2'."
     ),
+    messages,
+    fixed = TRUE
+  )))
+  expect_true(any(grepl(
     paste0(
       "Old column(s) to save are not clustering columns replaced during ",
       "reclustering: 'orig.ident'.\n",
       "     These metadata columns are retained automatically."
     ),
+    messages,
     fixed = TRUE
+  )))
+  expect_lt(
+    which(grepl("Warning: Old column(s) to save not found", messages, fixed = TRUE))[1],
+    which(grepl("Renaming selected clustering columns", messages, fixed = TRUE))[1]
   )
   expect_identical(colnames(input$object@meta.data), metadata.names)
   expect_true("old_SCT_snn_res.2.4" %in% colnames(output$object@meta.data))
