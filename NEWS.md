@@ -8,6 +8,7 @@
 
 * Preserve requested metadata columns by their exact names during reclustering (#96).
 * Clarify validation and preservation of prior clustering columns during reclustering (#104).
+* Improve detection, preservation, and guidance for prior clustering columns during reclustering (#105).
 
 ## heatmapSC
 
