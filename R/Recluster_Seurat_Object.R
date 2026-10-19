@@ -109,13 +109,6 @@ reclusterSeuratObject <- function(object,
     "",
     metadata.column.names
   )
-  # Older NIDAP objects can retain NN/SNN resolution metadata after the
-  # corresponding assay or neighbor graph has been removed. Recognize these
-  # fields by their normalized `*_nn_res_<number>` or `*_snn_res_<number>` form.
-  legacy.clustering.column.indices <- grepl(
-    "(snn|nn)res[0-9]",
-    tolower(normalized.metadata.column.names)
-  )
   clustering.columns.to.replace <- unique(c(
     intersect(
       c("seurat_clusters", "seurat.clusters"),
@@ -125,8 +118,7 @@ reclusterSeuratObject <- function(object,
       normalized.metadata.column.names,
       function(name) any(startsWith(name, normalized.clustering.prefixes)),
       logical(1)
-    )],
-    metadata.column.names[legacy.clustering.column.indices]
+    )]
   ))
   possible.metadata.columns <- clustering.columns.to.replace
   possible.metadata.message <- paste0(
@@ -180,6 +172,18 @@ reclusterSeuratObject <- function(object,
   ## Rename selected clustering columns before creating replacements.
   if (length(old.columns.to.save) > 0) {
     new.column.names <- paste(prepend.txt, old.columns.to.save, sep = "_")
+    existing.new.column.names <- intersect(
+      new.column.names,
+      metadata.column.names
+    )
+    if (length(existing.new.column.names) > 0) {
+      stop(
+        "Cannot rename selected clustering columns because these metadata ",
+        "column names already exist: ",
+        paste(shQuote(existing.new.column.names), collapse = ", "),
+        ". Choose a different prepend.txt value."
+      )
+    }
     message(
       "Renaming selected clustering columns before reclustering:\n",
       paste0("  - ", old.columns.to.save, " -> ", new.column.names,

@@ -183,7 +183,9 @@ test_that("Recluster supports empty metadata preservation selections.", {
     input <- getParamsReclusterSeuratObject("Chariou")
     input$object@meta.data[["seurat.clusters"]] <- "legacy"
     input$object@meta.data[["seurat_clusters"]] <- "canonical"
-    input$object@meta.data[["legacy_snn_res_0_4"]] <- "legacy"
+    old1.cluster.values <- rep(c("0", "1"), length.out = nrow(input$object@meta.data))
+    input$object@meta.data[["SCT_snn_res.0.2"]] <- old1.cluster.values
+    input$object@meta.data[["old1_SCT_snn_res.0.2"]] <- old1.cluster.values
     possible.metadata.columns <- unique(c(
       intersect(
         c("seurat_clusters", "seurat.clusters"),
@@ -217,12 +219,66 @@ test_that("Recluster supports empty metadata preservation selections.", {
       setdiff(possible.metadata.columns, "seurat_clusters") %in%
         colnames(output$object@meta.data)
     ))
+    expect_false("SCT_snn_res.0.2" %in% colnames(output$object@meta.data))
+    expect_true("old1_SCT_snn_res.0.2" %in% colnames(output$object@meta.data))
+    expect_equal(
+      output$object@meta.data[["old1_SCT_snn_res.0.2"]],
+      old1.cluster.values
+    )
     expect_true("SCT_snn_res.0.4" %in% colnames(output$object@meta.data))
     expect_true("seurat_clusters" %in% colnames(output$object@meta.data))
     expect_true("sample_name" %in% colnames(output$object@meta.data))
-    expect_false("legacy_snn_res_0_4" %in% colnames(output$object@meta.data))
     expect_false(any(grepl("^old_SCT_snn_res", colnames(output$object@meta.data))))
   }
+})
+
+
+test_that("Recluster preserves prior reclustering columns when saving current columns.", {
+
+  input <- getParamsReclusterSeuratObject("Chariou")
+  current.cluster.values <- rep(
+    c("0", "1"),
+    length.out = nrow(input$object@meta.data)
+  )
+  old1.cluster.values <- rep(
+    c("2", "3"),
+    length.out = nrow(input$object@meta.data)
+  )
+  input$object@meta.data[["SCT_snn_res.0.2"]] <- current.cluster.values
+  input$object@meta.data[["old1_SCT_snn_res.0.2"]] <- old1.cluster.values
+  input$old.columns.to.save <- "SCT_snn_res.0.2"
+  input$prepend.txt <- "old"
+  input$number.of.pcs <- 10
+  input$cluster.resolution.low.range <- 0.4
+  input$cluster.resolution.high.range <- 0.4
+  input$cluster.resolution.range.bins <- 0.1
+
+  output <- do.call(reclusterSeuratObject, input)
+
+  expect_false("SCT_snn_res.0.2" %in% colnames(output$object@meta.data))
+  expect_equal(
+    output$object@meta.data[["old_SCT_snn_res.0.2"]],
+    current.cluster.values
+  )
+  expect_equal(
+    output$object@meta.data[["old1_SCT_snn_res.0.2"]],
+    old1.cluster.values
+  )
+})
+
+
+test_that("Recluster rejects existing renamed clustering column names.", {
+
+  input <- getParamsReclusterSeuratObject("Chariou")
+  input$object@meta.data[["SCT_snn_res.0.2"]] <- "current"
+  input$object@meta.data[["existing_SCT_snn_res.0.2"]] <- "prior"
+  input$old.columns.to.save <- "SCT_snn_res.0.2"
+  input$prepend.txt <- "existing"
+
+  expect_error(
+    do.call(reclusterSeuratObject, input),
+    "metadata column names already exist: 'existing_SCT_snn_res.0.2'"
+  )
 })
 
 
