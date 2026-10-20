@@ -97,20 +97,35 @@ reclusterSeuratObject <- function(object,
     assay.graph.names
   ))
   clustering.column.prefix <- paste0(clustering.graph.name, "_res.")
+  # Older NIDAP results can use `SCT_snn_res_0_2`, while Seurat uses
+  # `SCT_snn_res.0.2`. Ignore punctuation only when identifying these columns;
+  # their original metadata names are not changed.
+  normalized.clustering.prefixes <- paste0(
+    gsub("[^[:alnum:]]", "", clustering.graph.names),
+    "res"
+  )
+  normalized.metadata.column.names <- gsub(
+    "[^[:alnum:]]",
+    "",
+    metadata.column.names
+  )
   clustering.columns.to.replace <- unique(c(
     intersect(
       c("seurat_clusters", "seurat.clusters"),
       metadata.column.names
     ),
-    unlist(lapply(
-      paste0(clustering.graph.names, "_res."),
-      function(prefix) metadata.column.names[startsWith(metadata.column.names, prefix)]
-    ))
+    metadata.column.names[vapply(
+      normalized.metadata.column.names,
+      function(name) any(startsWith(name, normalized.clustering.prefixes)),
+      logical(1)
+    )]
   ))
   possible.metadata.columns <- clustering.columns.to.replace
   possible.metadata.message <- paste0(
     "Possible clustering columns to save before replacement:\n",
-    paste0("  - ", possible.metadata.columns, collapse = "\n")
+    paste0("  - ", possible.metadata.columns, collapse = "\n"),
+    "\nIf you want to retain old cluster columns, select their exact names ",
+    "with old.columns.to.save and use prepend.txt to give them a unique prefix."
   )
   if (length(old.columns.to.save) == 0) {
     message("No old columns were saved.")
@@ -126,25 +141,26 @@ reclusterSeuratObject <- function(object,
     rejected.columns <- c(missing.metadata.columns, non.clustering.columns)
     if (length(rejected.columns) > 0) {
       rejected.messages <- c()
+      missing.metadata.message <- NULL
+      non.clustering.columns.message <- NULL
       if (length(missing.metadata.columns) > 0) {
-        rejected.messages <- c(
-          rejected.messages,
-          paste0(
-            "Old column(s) to save not found in metadata: ",
-            paste(shQuote(missing.metadata.columns), collapse = ", "),
-            "."
-          )
+        missing.metadata.message <- paste0(
+          "Old column(s) to save not found in metadata: ",
+          paste(shQuote(missing.metadata.columns), collapse = ", "),
+          "."
         )
+        rejected.messages <- c(rejected.messages, missing.metadata.message)
       }
       if (length(non.clustering.columns) > 0) {
+        non.clustering.columns.message <- paste0(
+          "Old column(s) to save are not clustering columns replaced during ",
+          "reclustering: ",
+          paste(shQuote(non.clustering.columns), collapse = ", "),
+          ".\n     These metadata columns are retained automatically."
+        )
         rejected.messages <- c(
           rejected.messages,
-          paste0(
-            "Old column(s) to save are not clustering columns replaced during ",
-            "reclustering: ",
-            paste(shQuote(non.clustering.columns), collapse = ", "),
-            ".\n     These metadata columns are retained automatically."
-          )
+          non.clustering.columns.message
         )
       }
       rejected.columns.message <- paste(rejected.messages, collapse = "\n")
@@ -152,13 +168,31 @@ reclusterSeuratObject <- function(object,
       if (length(old.columns.to.save) == 0) {
         stop(rejected.columns.message, "\n", possible.metadata.message)
       }
-      message(rejected.columns.message)
+      if (!is.null(missing.metadata.message)) {
+        message("Warning: ", missing.metadata.message)
+      }
+      if (!is.null(non.clustering.columns.message)) {
+        message(non.clustering.columns.message)
+      }
     }
   }
   
   ## Rename selected clustering columns before creating replacements.
   if (length(old.columns.to.save) > 0) {
     new.column.names <- paste(prepend.txt, old.columns.to.save, sep = "_")
+    existing.new.column.names <- intersect(
+      new.column.names,
+      metadata.column.names
+    )
+    if (length(existing.new.column.names) > 0) {
+      stop(
+        "Cannot rename selected clustering columns because these metadata ",
+        "column names already exist: ",
+        paste(shQuote(existing.new.column.names), collapse = ", "),
+        ". Set prepend.txt to an unused prefix so the ",
+        "renamed column name is unique."
+      )
+    }
     message(
       "Renaming selected clustering columns before reclustering:\n",
       paste0("  - ", old.columns.to.save, " -> ", new.column.names,
@@ -176,11 +210,15 @@ reclusterSeuratObject <- function(object,
   if (length(columns_to_remove) > 0) {
     message(
       "Removing original clustering columns before reclustering:\n",
-      paste0("  - ", columns_to_remove, collapse = "\n")
+      paste0("  - ", columns_to_remove, collapse = "\n"),
+      "\nIf you want to retain old cluster columns, select their exact names ",
+      "with old.columns.to.save and use prepend.txt to give them a unique prefix."
     )
     object@meta.data %>% select(-one_of(columns_to_remove)) -> object@meta.data
   }
-  
+
+  cat("\n")
+
   ## Find the new reclustered clusters.
   object <-
     FindVariableFeatures(
