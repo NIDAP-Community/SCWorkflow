@@ -125,6 +125,32 @@ test_that("Recluster requires exact metadata column names.", {
   )
 })
 
+test_that("Recluster recognizes clustering columns from assays without graphs.", {
+
+  input <- getParamsReclusterSeuratObject("Chariou")
+  expect_true("RNA" %in% names(input$object@assays))
+  expect_false("RNA_snn" %in% names(input$object@graphs))
+  rna.cluster.values <- rep(
+    c("0", "1"),
+    length.out = nrow(input$object@meta.data)
+  )
+  input$object@meta.data[["RNA_snn_res.0.2"]] <- rna.cluster.values
+  input$old.columns.to.save <- "RNA_snn_res.0.2"
+  input$prepend.txt <- "prior"
+  input$number.of.pcs <- 10
+  input$cluster.resolution.low.range <- 0.4
+  input$cluster.resolution.high.range <- 0.4
+  input$cluster.resolution.range.bins <- 0.1
+
+  output <- do.call(reclusterSeuratObject, input)
+
+  expect_false("RNA_snn_res.0.2" %in% colnames(output$object@meta.data))
+  expect_equal(
+    output$object@meta.data[["prior_RNA_snn_res.0.2"]],
+    rna.cluster.values
+  )
+})
+
 test_that("Recluster reports rejected columns without repeating candidates.", {
 
   input <- getParamsReclusterSeuratObject("Chariou")
@@ -208,6 +234,14 @@ test_that("Recluster supports empty metadata preservation selections.", {
     old1.cluster.values <- rep(c("0", "1"), length.out = nrow(input$object@meta.data))
     input$object@meta.data[["SCT_snn_res.0.2"]] <- old1.cluster.values
     input$object@meta.data[["old1_SCT_snn_res.0.2"]] <- old1.cluster.values
+    unrelated.cluster.values <- rep(
+      c("4", "5"),
+      length.out = nrow(input$object@meta.data)
+    )
+    input$object@meta.data[["unrelated_snn_res.0.2"]] <-
+      unrelated.cluster.values
+    expect_false("unrelated" %in% names(input$object@assays))
+    expect_false("unrelated_snn" %in% names(input$object@graphs))
     possible.metadata.columns <- unique(c(
       intersect(
         c("seurat_clusters", "seurat.clusters"),
@@ -256,6 +290,11 @@ test_that("Recluster supports empty metadata preservation selections.", {
     expect_equal(
       output$object@meta.data[["old1_SCT_snn_res.0.2"]],
       old1.cluster.values
+    )
+    expect_true("unrelated_snn_res.0.2" %in% colnames(output$object@meta.data))
+    expect_equal(
+      output$object@meta.data[["unrelated_snn_res.0.2"]],
+      unrelated.cluster.values
     )
     expect_true("SCT_snn_res.0.4" %in% colnames(output$object@meta.data))
     expect_true("seurat_clusters" %in% colnames(output$object@meta.data))
