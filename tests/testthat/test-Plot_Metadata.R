@@ -132,13 +132,6 @@ test_that("plotMetadata logs selected samples and preserves the full returned da
       captured.messages[[2]],
       sprintf("Plotting %s of %s cells.\n", length(selected.cells), ncol(input$object))
     )
-    expect_identical(
-      tail(captured.messages, 1),
-      paste0(
-        "Returned object retains all ", ncol(input$object),
-        " input cells and original metadata; sample filtering and summarization affect plots only.\n"
-      )
-    )
   }
 })
 
@@ -242,6 +235,107 @@ test_that("plotMetadata errors on unsupported reduction types", {
   )
 })
 
+test_that("plotMetadata reports absent RNA and protein reductions", {
+  for (use.cite.seq in c(FALSE, TRUE)) {
+    for (reduction.type in c("umap", "tsne", "pca")) {
+      input <- getParamPM("Chariou")
+      input$reduction.type <- reduction.type
+      input$use.cite.seq <- use.cite.seq
+      reduction.name <- if (use.cite.seq) paste0("protein_", reduction.type) else reduction.type
+      input$object@reductions[[reduction.name]] <- NULL
+      available.reductions <- names(input$object@reductions)
+
+      error <- expect_error(
+        do.call(plotMetadata, input),
+        paste0("Requested reduction '", reduction.name, "' was not found in the Seurat object."),
+        fixed = TRUE
+      )
+      expect_identical(
+        conditionMessage(error),
+        paste0(
+          "Requested reduction '", reduction.name, "' was not found in the Seurat object.\n",
+          "Available reductions:\n", paste0("  - ", available.reductions, collapse = "\n")
+        )
+      )
+    }
+  }
+
+  input <- getParamPM("Chariou")
+  input$object@reductions <- list()
+  input$reduction.type <- "umap"
+  expect_error(
+    do.call(plotMetadata, input),
+    "Requested reduction 'umap' was not found in the Seurat object.\nAvailable reductions:\n  - <none>",
+    fixed = TRUE
+  )
+})
+
+test_that("plotMetadata logs resolved reductions after sample counts", {
+  for (use.cite.seq in c(FALSE, TRUE)) {
+    for (reduction.type in c("umap", "tsne", "pca")) {
+      input <- getParamPM("Chariou")
+      input$reduction.type <- reduction.type
+      input$use.cite.seq <- use.cite.seq
+      input$samples.to.include <- "CD8dep"
+      input$metadata.to.plot <- "orig.ident"
+      reduction.name <- if (use.cite.seq) paste0("protein_", reduction.type) else reduction.type
+      if (use.cite.seq) {
+        embeddings <- Seurat::Embeddings(input$object, reduction.type)[, 1:2, drop = FALSE]
+        colnames(embeddings) <- c("protein_1", "protein_2")
+        input$object[[reduction.name]] <- SeuratObject::CreateDimReducObject(
+          embeddings = embeddings, key = "protein_",
+          assay = SeuratObject::DefaultAssay(input$object)
+        )
+      }
+      selected.cells <- rownames(input$object@meta.data)[input$object@meta.data$orig.ident == "CD8dep"]
+
+      captured.messages <- character()
+      invisible(capture.output(
+        output <- withCallingHandlers(
+          do.call(plotMetadata, input),
+          message = function(condition) {
+            captured.messages <<- c(captured.messages, conditionMessage(condition))
+            invokeRestart("muffleMessage")
+          }
+        )
+      ))
+      sample.position <- which(startsWith(captured.messages, "Selected samples (orig.ident):"))
+      count.position <- which(startsWith(captured.messages, "Plotting "))
+      reduction.position <- which(startsWith(captured.messages, "Running plotMetadata with reduction:"))
+
+      expect_length(reduction.position, 1)
+      expect_lt(sample.position, count.position)
+      expect_lt(count.position, reduction.position)
+      expect_identical(captured.messages[reduction.position], paste0("Running plotMetadata with reduction: ", reduction.name, "\n"))
+      expect_equal(nrow(output$plots[[1]]$data), length(selected.cells))
+      expect_equal(output$plots[[1]]$data$umap1, unname(Seurat::Embeddings(input$object, reduction.name)[selected.cells, 1]))
+      expect_equal(output$plots[[1]]$data$umap2, unname(Seurat::Embeddings(input$object, reduction.name)[selected.cells, 2]))
+    }
+  }
+})
+
+test_that("plotMetadata logs the reduction before attempting to draw plots", {
+  input <- getParamPM("Chariou")
+  input$reduction.type <- "umap"
+  input$metadata.to.plot <- "orig.ident"
+  input$object[["umap"]] <- SeuratObject::CreateDimReducObject(
+    embeddings = Seurat::Embeddings(input$object, "umap")[, 1, drop = FALSE],
+    key = "UMAP_", assay = SeuratObject::DefaultAssay(input$object)
+  )
+  captured.messages <- character()
+  invisible(capture.output(
+    expect_error(withCallingHandlers(
+      do.call(plotMetadata, input),
+      message = function(condition) {
+        captured.messages <<- c(captured.messages, conditionMessage(condition))
+        invokeRestart("muffleMessage")
+      }
+    ))
+  ))
+  expect_true(any(startsWith(captured.messages, "Plotting ")))
+  expect_identical(tail(captured.messages, 1), "Running plotMetadata with reduction: umap\n")
+})
+
 test_that("plotMetadata defaults an empty reduction type to umap", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$reduction.type <- character()
@@ -332,7 +426,7 @@ test_that("plotMetadata logs applied metadata summarization", {
   )))
 })
 
-test_that("plotMetadata labels missing summarized values as NA", {
+test_that("plotMetadata retains missing summarized values as grey NA cells", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$object@meta.data$summary_with_missing <- rep(
     c("group_a", "group_b", "group_c", NA_character_),
@@ -344,26 +438,90 @@ test_that("plotMetadata labels missing summarized values as NA", {
 
   output <- do.call(plotMetadata, chariou.data)
 
-  expect_true("NA" %in% output$plots[[2]]$data$clusid)
+  plot <- output$plots[[2]]
+  built.plot <- ggplot2::ggplot_build(plot)
+  missing.cells <- is.na(plot$data$clusid)
+  expect_true(any(missing.cells))
+  expect_equal(nrow(plot$data), ncol(chariou.data$object))
+  expect_true(all(built.plot$data[[1]]$colour[missing.cells] == "grey50"))
+  expect_true(anyNA(built.plot$plot$scales$get_scales("colour")$get_breaks()))
+  expect_identical(output$object@meta.data, chariou.data$object@meta.data)
 })
 
-test_that("plotMetadata errors when selected metadata column contains NA values", {
-  chariou.data <- getParamPM("Chariou")
-  chariou.data$object@meta.data$metadata_with_na <- "present"
-  chariou.data$object@meta.data$metadata_with_na[1] <- NA
-  chariou.data$metadata.to.plot <- 'c("metadata_with_na")'
-
-  captured.output <- capture.output(
-    error <- expect_error(
-      do.call(plotMetadata, chariou.data),
-      "End of error message."
-    )
+test_that("plotMetadata retains categorical NA cells in grey with an NA legend entry", {
+  input <- getParamPM("Chariou")
+  input$metadata.to.plot <- "metadata_with_na"
+  categorical.values <- rep(
+    c("present", "other", "NA", NA_character_), length.out = ncol(input$object)
   )
 
-  expect_equal(conditionMessage(error), "End of error message.")
-  expect_true(any(grepl("ERROR: Metadata column appears to contain NA values", captured.output)))
-  expect_true(any(grepl("Please review your selected metadata column", captured.output, fixed = TRUE)))
-  expect_true(any(grepl("Below are valid metadata to select for this plot:", captured.output, fixed = TRUE)))
+  for (metadata.values in list(
+    categorical.values, factor(categorical.values), rep(NA_character_, ncol(input$object))
+  )) {
+    input$object@meta.data$metadata_with_na <- metadata.values
+    for (show.labels in c(FALSE, TRUE)) {
+      input$show.labels <- show.labels
+      output <- do.call(plotMetadata, input)
+      plot <- output$plots[[1]]
+      built.plot <- ggplot2::ggplot_build(plot)
+      missing.cells <- is.na(plot$data$clusid)
+      colour.scale <- built.plot$plot$scales$get_scales("colour")
+
+      expect_equal(nrow(built.plot$data[[1]]), ncol(input$object))
+      expect_identical(plot$data$clusid, as.character(metadata.values))
+      expect_true(all(built.plot$data[[1]]$colour[missing.cells] == "grey50"))
+      expect_true(anyNA(colour.scale$get_breaks()))
+      if (any(!missing.cells)) {
+        expect_false(any(built.plot$data[[1]]$colour[!missing.cells] == "grey50"))
+      }
+      expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
+      expect_identical(output$object@meta.data, input$object@meta.data)
+    }
+  }
+})
+
+test_that("plotMetadata retains numeric NA cells in grey without losing the continuous scale", {
+  input <- getParamPM("Chariou")
+  input$metadata.to.plot <- "metadata_with_na"
+  numeric.values <- as.numeric(seq_len(ncol(input$object)))
+  numeric.values[seq.int(1L, length(numeric.values), by = 4L)] <- NA_real_
+
+  for (metadata.values in list(numeric.values, rep(NA_real_, ncol(input$object)))) {
+    input$object@meta.data$metadata_with_na <- metadata.values
+    output <- do.call(plotMetadata, input)
+    plot <- output$plots[[1]]
+    built.plot <- ggplot2::ggplot_build(plot)
+    missing.cells <- is.na(plot$data$clusid)
+    colour.scale <- built.plot$plot$scales$get_scales("colour")
+    missing.legend <- built.plot$plot$scales$get_scales("shape")
+
+    expect_equal(nrow(built.plot$data[[1]]), ncol(input$object))
+    expect_equal(sum(missing.cells), sum(is.na(metadata.values)))
+    expect_true(all(built.plot$data[[1]]$colour[missing.cells] == "grey50"))
+    expect_false(colour.scale$is_discrete())
+    expect_equal(as.character(missing.legend$get_breaks()), "NA")
+    expect_s3_class(ggplot2::ggplotGrob(plot), "gtable")
+    expect_identical(output$object@meta.data, input$object@meta.data)
+  }
+})
+
+test_that("plotMetadata applies dot.size to categorical and numeric metadata including NA cells", {
+  input <- getParamPM("Chariou")
+  input$object@meta.data$numeric_for_size <- as.numeric(seq_len(ncol(input$object)))
+  input$object@meta.data$numeric_for_size[1] <- NA_real_
+  input$metadata.to.plot <- c("orig.ident", "numeric_for_size")
+
+  for (dot.size in c(0.2, 2.5)) {
+    input$dot.size <- dot.size
+    output <- do.call(plotMetadata, input)
+
+    expect_length(output$plots, 2)
+    for (plot in output$plots) {
+      point.data <- ggplot2::ggplot_build(plot)$data[[1]]
+      expect_equal(nrow(point.data), ncol(input$object))
+      expect_true(all(point.data$size == dot.size))
+    }
+  }
 })
 
 test_that("plotMetadata preserves exact metadata column names", {

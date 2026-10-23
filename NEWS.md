@@ -3,6 +3,9 @@
 ## plotMetadata
 
 * Improved metadata selection, validation, and run logging for `plotMetadata()` (#95).
+* Keep cells with missing metadata in `plotMetadata()` plots, colored grey with an `NA` legend entry, including summarized metadata.
+* Validate requested RNA and CITE-seq reductions and log the resolved reduction after sample selection and cell counts.
+* Respect `dot.size` for numeric metadata plots as well as categorical plots.
 
 ## reclusterSeuratObject
 
