@@ -6,6 +6,7 @@
 #'
 #' @param object A combined Seurat Object with metadata to plot
 #' @param samples.to.include Which samples you would like to include
+#' in the plots. An empty vector uses all samples.
 #' @param metadata.to.plot The metadata columns from your Metadata table
 #' you would like to plot
 #' @param columns.to.summarize The columns you would like to summarize
@@ -413,15 +414,18 @@ plotMetadata <- function(
       )
     }
     
+    available.samples <- unique(object@meta.data[[sample.metadata.column]])
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
-      samples = unique(object@meta.data[[sample.metadata.column]])
+      samples = available.samples
     }
-    missing.samples <- setdiff(samples, unique(object@meta.data[[sample.metadata.column]]))
+    missing.samples <- setdiff(samples, available.samples)
     if (length(missing.samples) > 0) {
       stop(sprintf(
-        "samples.to.include contains sample names not found in the object: %s.",
-        paste(missing.samples, collapse = ", ")
+        "samples.to.include contains sample names not found in the object: %s.\nAvailable samples (%s):\n%s",
+        paste(missing.samples, collapse = ", "),
+        sample.metadata.column,
+        paste0("  - ", available.samples, collapse = "\n")
       ))
     }
 
@@ -439,8 +443,11 @@ plotMetadata <- function(
       object.sub = subset(object, ident = samples)
     }
     
-    print("selected object:")
-    print(object)
+    message(
+      "Selected samples (", sample.metadata.column, "): ",
+      paste(unique(samples), collapse = ", ")
+    )
+    message("Plotting ", ncol(object.sub), " of ", ncol(object), " cells.")
 
     meta.df <- object.sub@meta.data
 

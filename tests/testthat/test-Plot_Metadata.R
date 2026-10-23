@@ -20,8 +20,11 @@ test_that("plotMetadata prints metadata options and errors when metadata.to.plot
 
   expect_true(any(grepl("Found orig.ident in object metadata.", captured.output, fixed = TRUE)))
   expect_true(any(grepl("No samples specified. Using all samples...", captured.output, fixed = TRUE)))
-  expect_equal(length(captured.messages), 1)
-  expect_match(captured.messages, "Possible metadata columns to select:", fixed = TRUE)
+  metadata.options.messages <- captured.messages[
+    startsWith(captured.messages, "Possible metadata columns to select:")
+  ]
+  expect_length(metadata.options.messages, 1)
+  expect_match(metadata.options.messages, "Possible metadata columns to select:", fixed = TRUE)
   expect_true(any(grepl("  - SCT_snn_res.2.4", captured.messages, fixed = TRUE)))
   expect_false(any(grepl("  - SCT_snn_res_2_4", captured.messages, fixed = TRUE)))
   expect_equal(
@@ -54,6 +57,134 @@ test_that("plotMetadata errors when requested samples are not in the object", {
   )
 })
 
+test_that("plotMetadata lists rejected and available samples for invalid selections", {
+  for (sample.metadata.column in c("orig.ident", "orig_ident")) {
+    input <- getParamPM("Chariou")
+    colnames(input$object@meta.data)[colnames(input$object@meta.data) == "orig.ident"] <-
+      sample.metadata.column
+    available.samples <- unique(input$object@meta.data[[sample.metadata.column]])
+    invalid.samples <- c("unknown_sample", "another_missing_sample", "unknown_sample")
+
+    for (selected.samples in list(
+      invalid.samples,
+      c(as.character(available.samples[[1]]), invalid.samples)
+    )) {
+      input$samples.to.include <- selected.samples
+
+      error <- expect_error(
+        do.call(plotMetadata, input),
+        "samples.to.include contains sample names not found in the object: unknown_sample, another_missing_sample.",
+        fixed = TRUE
+      )
+      expect_identical(
+        conditionMessage(error),
+        paste0(
+          "samples.to.include contains sample names not found in the object: unknown_sample, another_missing_sample.\n",
+          "Available samples (", sample.metadata.column, "):\n",
+          paste0("  - ", available.samples, collapse = "\n")
+        )
+      )
+    }
+  }
+})
+
+test_that("plotMetadata logs selected samples and preserves the full returned dataset", {
+  for (sample.metadata.column in c("orig.ident", "orig_ident")) {
+    input <- getParamPM("Chariou")
+    colnames(input$object@meta.data)[colnames(input$object@meta.data) == "orig.ident"] <-
+      sample.metadata.column
+    original.metadata <- input$object@meta.data
+    selected.samples <- "CD8dep"
+    selected.cells <- rownames(original.metadata)[
+      original.metadata[[sample.metadata.column]] %in% selected.samples
+    ]
+    input$samples.to.include <- selected.samples
+    input$metadata.to.plot <- sample.metadata.column
+
+    expect_gt(length(selected.cells), 0)
+    expect_lt(length(selected.cells), ncol(input$object))
+
+    captured.messages <- character()
+    invisible(capture.output(
+      output <- withCallingHandlers(
+        do.call(plotMetadata, input),
+        message = function(condition) {
+          captured.messages <<- c(captured.messages, conditionMessage(condition))
+          invokeRestart("muffleMessage")
+        }
+      )
+    ))
+
+    expect_length(output$plots, 1)
+    expect_equal(nrow(output$plots[[1]]$data), length(selected.cells))
+    expect_setequal(output$plots[[1]]$data$clusid, selected.samples)
+    expect_equal(
+      output$plots[[1]]$data$umap1,
+      unname(Seurat::Embeddings(input$object, "umap")[selected.cells, 1])
+    )
+    expect_identical(colnames(output$object), colnames(input$object))
+    expect_identical(output$object@meta.data, original.metadata)
+    expect_identical(
+      captured.messages[[1]],
+      paste0("Selected samples (", sample.metadata.column, "): CD8dep\n")
+    )
+    expect_identical(
+      captured.messages[[2]],
+      sprintf("Plotting %s of %s cells.\n", length(selected.cells), ncol(input$object))
+    )
+    expect_identical(
+      tail(captured.messages, 1),
+      paste0(
+        "Returned object retains all ", ncol(input$object),
+        " input cells and original metadata; sample filtering and summarization affect plots only.\n"
+      )
+    )
+  }
+})
+
+test_that("plotMetadata logs all cells when no samples are selected", {
+  for (sample.metadata.column in c("orig.ident", "orig_ident")) {
+    input <- getParamPM("Chariou")
+    colnames(input$object@meta.data)[colnames(input$object@meta.data) == "orig.ident"] <-
+      sample.metadata.column
+    input$metadata.to.plot <- sample.metadata.column
+    total.cells <- ncol(input$object)
+    available.samples <- unique(input$object@meta.data[[sample.metadata.column]])
+
+    for (empty.selection in list(NULL, character(), "c()")) {
+      input["samples.to.include"] <- list(empty.selection)
+      captured.messages <- character()
+      captured.output <- capture.output(
+        output <- withCallingHandlers(
+          do.call(plotMetadata, input),
+          message = function(condition) {
+            captured.messages <<- c(captured.messages, conditionMessage(condition))
+            invokeRestart("muffleMessage")
+          }
+        )
+      )
+
+      expect_true(any(grepl(
+        "No samples specified. Using all samples...", captured.output, fixed = TRUE
+      )))
+      expect_equal(nrow(output$plots[[1]]$data), total.cells)
+      expect_setequal(output$plots[[1]]$data$clusid, as.character(available.samples))
+      expect_identical(output$object@meta.data, input$object@meta.data)
+      expect_identical(
+        captured.messages[[1]],
+        paste0(
+          "Selected samples (", sample.metadata.column, "): ",
+          paste(available.samples, collapse = ", "), "\n"
+        )
+      )
+      expect_identical(
+        captured.messages[[2]],
+        sprintf("Plotting %s of %s cells.\n", total.cells, total.cells)
+      )
+    }
+  }
+})
+
 test_that("plotMetadata errors on metadata columns not found without renaming", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$metadata.to.plot <- 'c("SCT_snn_res_2_4")'
@@ -73,7 +204,7 @@ test_that("plotMetadata errors on metadata columns not found without renaming", 
   )
   log.lines <- c(captured.output, captured.messages, conditionMessage(error))
 
-  expect_equal(length(captured.messages), 1)
+  expect_equal(sum(startsWith(captured.messages, "Possible metadata columns to select:")), 1)
   expect_true(any(grepl("  - SCT_snn_res.2.4", captured.messages, fixed = TRUE)))
   expect_false(any(grepl("  - SCT_snn_res_2_4", captured.messages, fixed = TRUE)))
   expect_equal(
