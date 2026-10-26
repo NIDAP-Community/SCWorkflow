@@ -3,6 +3,9 @@
 #' (UMAP/TSNE/PCA; your choice) using the data in that column to color the cells
 #' @details This is a downstream template for the Single-cell RNA-seq workflow
 #' (requires dataset where Filter/QC/SingleR annotations have been run first)
+#' Sample selection and metadata summarization apply only to plots. The returned
+#' \code{object} retains all input cells and original metadata, so exporting it
+#' does not produce a filtered dataset.
 #'
 #' Cells with missing metadata values remain in the plots and are colored
 #' \code{grey50}, with an \code{NA} legend entry. Numeric metadata retains its
@@ -47,7 +50,8 @@
 #'
 #' @export
 #'
-#' @return a data.frame extracted from the Seurat object and plot
+#' @return A list containing \code{object}, the Seurat object with all input
+#' cells and original metadata, and \code{plots}, the selected metadata plots.
 #'
 #' @examples
 #' \dontrun{

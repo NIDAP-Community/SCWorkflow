@@ -17,6 +17,10 @@
 * fix: Validate requested RNA and CITE-seq plotMetadata() reductions and log the resolved reduction after sample selection and cell counts.
 * fix: Apply dot.size to numeric metadata plots instead of using a fixed point size.
 
+### Documentation
+
+* docs: Align plotMetadata() source documentation with its list return value and clarify that sample selection and metadata summarization affect plots only.
+
 ## v1.0.2 (2024-02-01)
 
 ### Fix
