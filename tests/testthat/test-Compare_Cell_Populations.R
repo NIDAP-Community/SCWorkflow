@@ -11,6 +11,23 @@
 # options(testthat_stop_on_failure = TRUE)
 # devtools::test_active_file()
 
+test_that("compareCellPopulations reports its missing optional dependency", {
+  optional_function <- compareCellPopulations
+  dependency_environment <- new.env(parent = environment(optional_function))
+  dependency_environment$requireNamespace <- function(package, quietly = TRUE) FALSE
+  environment(optional_function) <- dependency_environment
+
+  expect_error(
+    optional_function(
+      object = structure(list(), class = "Seurat"),
+      annotation.column = "cell_type",
+      group.column = "condition"
+    ),
+    "compareCellPopulations() requires the optional package 'ggalluvial'.",
+    fixed = TRUE
+  )
+})
+
 # Test 1: Standard parameters - TEC dataset
 test_that("compareCellPopulations returns correct structure with TEC data", {
   params <- getParamCCP("TEC")

@@ -2,6 +2,10 @@
 
 ## v1.0.3 (in development)
 
+### CI
+
+* ci: Run package checks, lint, and coverage in a digest-pinned prebuilt R container without reinstalling legacy dependencies; record environment inventories and diagnose namespace dependency gaps before validation.
+
 ### Feature
 
 * feat: Add compareCellPopulations() function for comparing cell population distributions across experimental groups
@@ -13,6 +17,7 @@
 
 ### Fix
 
+* fix: Keep ggalluvial optional when loading SCWorkflow; require it only when compareCellPopulations() is called.
 * fix: Retain cells with missing metadata in plotMetadata(), displaying them in grey with an NA legend entry while preserving numeric color gradients.
 * fix: Validate requested RNA and CITE-seq plotMetadata() reductions and log the resolved reduction after sample selection and cell counts.
 * fix: Apply dot.size to numeric metadata plots instead of using a fixed point size.

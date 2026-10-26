@@ -39,7 +39,6 @@
 #' @import grid
 #' @import scales
 #'
-#' @importFrom ggalluvial geom_flow
 #' @importFrom stats setNames
 #' @importFrom grDevices colorRampPalette
 #'
@@ -96,6 +95,10 @@ compareCellPopulations <- function(
   # Validate counts.type
   if (!counts.type %in% c("Frequency", "Counts")) {
     stop("Error: 'counts.type' must be either 'Frequency' or 'Counts'")
+  }
+
+  if (!requireNamespace("ggalluvial", quietly = TRUE)) {
+    stop("compareCellPopulations() requires the optional package 'ggalluvial'.", call. = FALSE)
   }
   
   ## --------- ##
@@ -221,7 +224,7 @@ compareCellPopulations <- function(
   # Create bar plot with alluvial flows
   p2 <- ptbl %>%
     ggplot(aes_string(y = 'value', x = 'Var2', fill = 'Var1', label = labelCol)) +
-    geom_flow(aes(alluvium = Var1), alpha = .2,
+    ggalluvial::geom_flow(aes(alluvium = Var1), alpha = .2,
               lty = 2, color = "black",
               curve_type = "linear",
               width = .5) +

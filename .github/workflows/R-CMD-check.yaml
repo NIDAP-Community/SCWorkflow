@@ -15,43 +15,39 @@ permissions:
 
 jobs:
   R-CMD-check:
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - { os: ubuntu-latest, r: "4.1.3" }
-          #- { os: ubuntu-latest, r: 'oldrel-1' }
-          #- { os: macos-latest, r: 'release' }
-    runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (${{ matrix.config.r }})
+    runs-on: ubuntu-latest
+    name: Frozen container check
+    container:
+      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CCBR/actions/install-r-pak@main
-        with:
-          versions-file: .github/package-versions.txt
-          extra-packages: local::.
-          needs: dev
-          r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
+      - name: Verify frozen check environment
+        run: Rscript .github/scripts/ci-preflight.R check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
 
+      - name: Upload frozen check environment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-check-environment
+          path: ci-artifacts/
+
   lint:
     runs-on: ubuntu-latest
+    container:
+      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CCBR/actions/install-r-pak@main
-        with:
-          r-version: 4.1.3
-          versions-file: .github/package-versions.txt
-          needs: dev
+      - name: Verify frozen lint environment
+        run: Rscript .github/scripts/ci-preflight.R lint
 
       - name: Good Practice checks
         shell: Rscript {0}
@@ -68,17 +64,23 @@ jobs:
         env:
           LINTR_ERROR_ON_LINT: false
 
+      - name: Upload frozen lint environment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-lint-environment
+          path: ci-artifacts/
+
   test-coverage:
     runs-on: ubuntu-latest
     container:
-      image: nciccbr/scworkflow:v1.0.2_79e5d37
+      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          needs: dev
+      - name: Verify frozen coverage environment
+        run: Rscript .github/scripts/ci-preflight.R coverage
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(
@@ -108,17 +110,21 @@ jobs:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
 
+      - name: Upload frozen coverage environment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-coverage-environment
+          path: ci-artifacts/
+
   check:
     # make sure all check jobs pass. https://github.com/orgs/community/discussions/4324#discussioncomment-3477871
     runs-on: ubuntu-latest
-    container:
-      image: nciccbr/scworkflow:v1.0.2_79e5d37
     needs: [ R-CMD-check, lint, test-coverage ]
     if: always()
     steps:
-      - name: Successful build
-        if: ${{ !(contains(needs.*.result, 'failure')) }}
-        run: exit 0
-      - name: Failing build
-        if: ${{ contains(needs.*.result, 'failure') }}
-        run: exit 1
+      - name: Require all validation jobs to succeed
+        run: |
+          [[ "${{ needs['R-CMD-check'].result }}" == "success" ]]
+          [[ "${{ needs.lint.result }}" == "success" ]]
+          [[ "${{ needs.test-coverage.result }}" == "success" ]]

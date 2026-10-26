@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^\.github$
 ^docs$
+^ci-artifacts$
 ^Dockerfile$
 ^Dockerfiles/.*$
 ^Conda_Recipe/.*$
