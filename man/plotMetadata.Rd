@@ -21,10 +21,13 @@ plotMetadata(
 \arguments{
 \item{object}{A combined Seurat Object with metadata to plot}
 
-\item{samples.to.include}{Which samples you would like to include}
+\item{samples.to.include}{Which samples you would like to include
+in the plots. An empty vector uses all samples.}
 
 \item{metadata.to.plot}{The metadata columns from your Metadata table
-you would like to plot}
+you would like to plot. Missing names are warned about before the available
+column list and skipped when valid columns remain. Empty selections or
+selections with no valid columns cause an error.}
 
 \item{columns.to.summarize}{The columns you would like to summarize}
 
@@ -50,7 +53,9 @@ Default is "right"}
 \item{dot.size}{The size of the dots displayed on the plot. Default os 0.01}
 }
 \value{
-a data.frame extracted from the Seurat object and plot
+A list containing \code{object}, the Seurat object with all input
+cells and original metadata, and \code{plots}, the selected metadata plots
+named by their metadata columns.
 }
 \description{
 For each column selected, this template will produce a plot
@@ -59,6 +64,14 @@ For each column selected, this template will produce a plot
 \details{
 This is a downstream template for the Single-cell RNA-seq workflow
 (requires dataset where Filter/QC/SingleR annotations have been run first)
+Sample selection and metadata summarization apply only to plots. The returned
+\code{object} retains all input cells and original metadata, so exporting it
+does not produce a filtered dataset.
+
+Cells with missing metadata values remain in the plots and are colored
+\code{grey50}, with an \code{NA} legend entry. Numeric metadata retains its
+continuous color scale and uses a separate \code{NA} legend key for missing
+values. Metadata summarization preserves missing values as \code{NA}.
 }
 \examples{
 \dontrun{

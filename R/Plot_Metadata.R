@@ -3,9 +3,18 @@
 #' (UMAP/TSNE/PCA; your choice) using the data in that column to color the cells
 #' @details This is a downstream template for the Single-cell RNA-seq workflow
 #' (requires dataset where Filter/QC/SingleR annotations have been run first)
+#' Sample selection and metadata summarization apply only to plots. The returned
+#' \code{object} retains all input cells and original metadata, so exporting it
+#' does not produce a filtered dataset.
+#'
+#' Cells with missing metadata values remain in the plots and are colored
+#' \code{grey50}, with an \code{NA} legend entry. Numeric metadata retains its
+#' continuous color scale and uses a separate \code{NA} legend key for missing
+#' values. Metadata summarization preserves missing values as \code{NA}.
 #'
 #' @param object A combined Seurat Object with metadata to plot
 #' @param samples.to.include Which samples you would like to include
+#' in the plots. An empty vector uses all samples.
 #' @param metadata.to.plot The metadata columns from your Metadata table
 #' you would like to plot
 #' @param columns.to.summarize The columns you would like to summarize
@@ -41,7 +50,8 @@
 #'
 #' @export
 #'
-#' @return a data.frame extracted from the Seurat object and plot
+#' @return A list containing \code{object}, the Seurat object with all input
+#' cells and original metadata, and \code{plots}, the selected metadata plots.
 #'
 #' @examples
 #' \dontrun{
@@ -74,100 +84,17 @@ plotMetadata <- function(
   ###################
   
   .drawMetadata <- function(m) {
-    #check if there are NaNs in metadata, if there are, catch
-    if (any(is.na(meta.df[[m]]))) {
-      print(
-        "ERROR: Metadata column appears to contain NA values.
-         This is not recommended for clustering plots."
-      )
-      print("Please review your selected metadata column")
-      print(head(meta.df[[m]]))
-      print("Below are valid metadata to select for this plot:")
-      print(valid.columns)
-      stop("End of error message.")
-    }
     #Making a plot based on tsne/umap/pca and CiteSeq settings:
     reduction = reduction.type
-    
-    if (!(use.cite.seq)) {
-      if (reduction == "tsne") {
-        p1 <- DimPlot(object.sub,
-                      reduction = "tsne",
-                      group.by = "ident")
-      } else if (reduction == "umap") {
-        p1 <- DimPlot(object.sub,
-                      reduction = "umap",
-                      group.by = "ident")
-      } else {
-        p1 <- DimPlot(object.sub,
-                      reduction = "pca",
-                      group.by = "ident")
-      }
-    } else {
-      if (reduction == "tsne") {
-        p1 <-
-          DimPlot(object.sub,
-                  reduction = "protein_tsne",
-                  group.by = "ident")
-      } else if (reduction == "umap") {
-        p1 <-
-          DimPlot(object.sub,
-                  reduction = "protein_umap",
-                  group.by = "ident")
-      } else {
-        p1 <-
-          DimPlot(object.sub,
-                  reduction = "protein_pca",
-                  group.by = "ident")
-      }
-    }
+    p1 <- DimPlot(object.sub, reduction = reduction.name, group.by = "ident")
     
     #Categorical/Qualitative Variables
     if (!is.element(class(meta.df[[m]][1]), c("numeric", "integer"))) {
-      if (!(use.cite.seq)) {
-        #plot RNA clusters
-        if (reduction == "tsne") {
-          clusmat = data.frame(
-            umap1 = p1$data$tSNE_1,
-            umap2 = p1$data$tSNE_2,
-            clusid = as.character(object.sub@meta.data[[m]])
-          )
-        } else if (reduction == "umap") {
-          clusmat = data.frame(
-            umap1 = p1$data$UMAP_1,
-            umap2 = p1$data$UMAP_2,
-            clusid = as.character(object.sub@meta.data[[m]])
-          )
-        } else {
-          clusmat = data.frame(
-            umap1 = p1$data$PC_1,
-            umap2 = p1$data$PC_2,
-            clusid = as.character(object.sub@meta.data[[m]])
-          )
-        }
-        
-      } else {
-        #else plot Antibody clusters
-        if (reduction == "tsne") {
-          clusmat = data.frame(
-            umap1 = p1$data$protein_tsne_1,
-            umap2 = p1$data$protein_tsne_2,
-            clusid = as.character(object.sub@meta.data[[m]])
-          )
-        } else if (reduction == "umap") {
-          clusmat = data.frame(
-            umap1 = p1$data$protein_umap_1,
-            umap2 = p1$data$protein_umap_2,
-            clusid = as.character(object.sub@meta.data[[m]])
-          )
-        } else {
-          clusmat = data.frame(
-            umap1 = p1$data$protein_pca_1,
-            umap2 = p1$data$protein_pca_2,
-            clusid = as.character(object.sub@meta.data[[m]])
-          )
-        }
-      }
+      clusmat = data.frame(
+        umap1 = p1$data[[1]],
+        umap2 = p1$data[[2]],
+        clusid = as.character(object.sub@meta.data[[m]])
+      )
       
       clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1),
                                                  umap2.mean = mean(umap2)) -> umap.pos
@@ -232,7 +159,7 @@ plotMetadata <- function(
             y = umap2,
             colour = clusid
           ), size = dot.size) +
-          scale_color_manual(values = col) +
+          scale_color_manual(values = col, na.value = "grey50") +
           xlab(paste(reduction, "-1")) + ylab(paste(reduction, "-2")) +
           theme(
             panel.grid.major = element_blank(),
@@ -246,11 +173,11 @@ plotMetadata <- function(
           ))) +
           ggtitle(title) +
           geom_label_repel(
-            data = umap.pos,
+            data = umap.pos[!is.na(umap.pos$clusid), , drop = FALSE],
             aes(
               x = umap1.mean,
               y = umap2.mean,
-              label = umap.pos$clusid
+              label = clusid
             ),
             size = 4
           )
@@ -260,7 +187,7 @@ plotMetadata <- function(
           theme_bw() +
           theme(legend.title = element_blank()) +
           geom_point(aes(colour = clusid), size = dot.size) +
-          scale_color_manual(values = col) +
+          scale_color_manual(values = col, na.value = "grey50") +
           xlab(paste(reduction, "-1")) + ylab(paste(reduction, "-2")) +
           theme(
             panel.grid.major = element_blank(),
@@ -280,58 +207,21 @@ plotMetadata <- function(
       ##THIS IS THE PART WE PLOT QUANTITATIVE DATA
       m = as.character(m)
       clusid = object.sub@meta.data[[m]]
-      clusid = scales::rescale(object.sub@meta.data[[m]], to = c(0, 1))
-      clus.quant = quantile(clusid[clusid > 0], probs = c(.1, .5, .9))
+      if (any(!is.na(clusid))) {
+        clusid = scales::rescale(clusid, to = c(0, 1))
+      }
+      clus.quant = quantile(clusid[clusid > 0], probs = c(.1, .5, .9), na.rm = TRUE)
       midpt.1 = clus.quant[2]
       midpt.2 = clus.quant[1]
       midpt.3 = clus.quant[3]
       #hist(clusid[!is.na(clusid)], breaks=100, main=m)
       #abline(v=midpt,col="red",lwd=2)
       
-      if (!(use.cite.seq)) {
-        #plot RNA clusters
-        if (reduction == "tsne") {
-          clusmat = data.frame(
-            umap1 = p1$data$tSNE_1,
-            umap2 = p1$data$tSNE_2,
-            clusid = as.numeric(object.sub@meta.data[[m]])
-          )
-        } else if (reduction == "umap") {
-          clusmat = data.frame(
-            umap1 = p1$data$UMAP_1,
-            umap2 = p1$data$UMAP_2,
-            clusid = as.numeric(object.sub@meta.data[[m]])
-          )
-        } else {
-          clusmat = data.frame(
-            umap1 = p1$data$PC_1,
-            umap2 = p1$data$PC_2,
-            clusid = as.numeric(object.sub@meta.data[[m]])
-          )
-        }
-        
-      } else {
-        #else plot Antibody clusters
-        if (reduction == "tsne") {
-          clusmat = data.frame(
-            umap1 = p1$data$protein_tsne_1,
-            umap2 = p1$data$protein_tsne_2,
-            clusid = as.numeric(object.sub@meta.data[[m]])
-          )
-        } else if (reduction == "umap") {
-          clusmat = data.frame(
-            umap1 = p1$data$protein_umap_1,
-            umap2 = p1$data$protein_umap_2,
-            clusid = as.numeric(object.sub@meta.data[[m]])
-          )
-        } else {
-          clusmat = data.frame(
-            umap1 = p1$data$protein_pca_1,
-            umap2 = p1$data$protein_pca_2,
-            clusid = as.numeric(object.sub@meta.data[[m]])
-          )
-        }
-      }
+      clusmat = data.frame(
+        umap1 = p1$data[[1]],
+        umap2 = p1$data[[2]],
+        clusid = as.numeric(object.sub@meta.data[[m]])
+      )
       
       clusmat %>% group_by(clusid) %>% dplyr::summarise(umap1.mean = mean(umap1),
                                                  umap2.mean = mean(umap2)) -> umap.pos
@@ -342,13 +232,14 @@ plotMetadata <- function(
       g <- ggplot(clusmat, aes(x = umap1, y = umap2)) +
         theme_bw() +
         theme(legend.title = element_blank()) +
-        geom_point(aes(colour = clusid), size = 1) +
+        geom_point(aes(colour = clusid), size = dot.size) +
         #scale_color_gradient2(low = "blue4", mid = "white", high = "red",
         #          midpoint = midpt[[p]], na.value="grey",limits = c(0, 1)) +
         scale_color_gradientn(
           colours = c("blue4", "lightgrey", "red"),
           values = scales::rescale(c(0, midpt.2, midpt.1, midpt.3, 1),
-                                   limits = c(0, 1))
+                                   limits = c(0, 1)),
+          na.value = "grey50"
         ) +
         theme(
           panel.grid.major = element_blank(),
@@ -357,6 +248,17 @@ plotMetadata <- function(
         ) +
         ggtitle(title) +
         xlab(paste0(reduction.type, "-1")) + ylab(paste0(reduction.type, "-2"))
+
+      if (any(is.na(clusmat$clusid))) {
+        g <- g +
+          ggplot2::aes(shape = ifelse(is.na(clusid), "NA", "present")) +
+          ggplot2::scale_shape_manual(
+            name = NULL, values = c("NA" = 19, "present" = 19), breaks = "NA"
+          ) +
+          ggplot2::guides(shape = ggplot2::guide_legend(
+            override.aes = list(colour = "grey50")
+          ))
+      }
     }
     
     return(g)
@@ -388,6 +290,21 @@ plotMetadata <- function(
       ))
     }
 
+    reduction.name <- if (use.cite.seq) paste0("protein_", reduction.type) else reduction.type
+    available.reductions <- names(object@reductions)
+    if (!reduction.name %in% available.reductions) {
+      stop(
+        "Requested reduction '", reduction.name, "' was not found in the Seurat object.\n",
+        "Available reductions:\n",
+        if (length(available.reductions) > 0) {
+          paste0("  - ", available.reductions, collapse = "\n")
+        } else {
+          "  - <none>"
+        },
+        call. = FALSE
+      )
+    }
+
     if (length(summarization.cut.off) != 1 ||
         !is.numeric(summarization.cut.off) ||
         !is.finite(summarization.cut.off) ||
@@ -413,15 +330,18 @@ plotMetadata <- function(
       )
     }
     
+    available.samples <- unique(object@meta.data[[sample.metadata.column]])
     if (length(samples) == 0) {
       print("No samples specified. Using all samples...")
-      samples = unique(object@meta.data[[sample.metadata.column]])
+      samples = available.samples
     }
-    missing.samples <- setdiff(samples, unique(object@meta.data[[sample.metadata.column]]))
+    missing.samples <- setdiff(samples, available.samples)
     if (length(missing.samples) > 0) {
       stop(sprintf(
-        "samples.to.include contains sample names not found in the object: %s.",
-        paste(missing.samples, collapse = ", ")
+        "samples.to.include contains sample names not found in the object: %s.\nAvailable samples (%s):\n%s",
+        paste(missing.samples, collapse = ", "),
+        sample.metadata.column,
+        paste0("  - ", available.samples, collapse = "\n")
       ))
     }
 
@@ -439,18 +359,14 @@ plotMetadata <- function(
       object.sub = subset(object, ident = samples)
     }
     
-    print("selected object:")
-    print(object)
+    message(
+      "Selected samples (", sample.metadata.column, "): ",
+      paste(unique(samples), collapse = ", ")
+    )
+    message("Plotting ", ncol(object.sub), " of ", ncol(object), " cells.")
 
     meta.df <- object.sub@meta.data
 
-    possible.metadata.columns <- colnames(object.sub@meta.data)
-    possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
-    message(
-      "Possible metadata columns to select:\n",
-      paste0("  - ", possible.metadata.columns, collapse = "\n")
-    )
-    
     # checking metadata for sanity
     if (is.character(metadata.to.plot) && any(grepl('c\\(|\\[\\]', metadata.to.plot))) {
       m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
@@ -461,25 +377,35 @@ plotMetadata <- function(
     m <- m[!is.na(m) & nzchar(m)]
     
     m = m[!grepl("Barcode", m)]
+    missing.metadata.columns <- setdiff(m, colnames(meta.df))
+    valid.metadata.columns <- m[m %in% colnames(meta.df)]
+    if (length(missing.metadata.columns) > 0 && length(valid.metadata.columns) > 0) {
+      warning(
+        "metadata.to.plot contains metadata columns not found in the object: ",
+        paste(missing.metadata.columns, collapse = ", "),
+        ". Skipping these columns.",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+
+    possible.metadata.columns <- colnames(meta.df)
+    possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
+    message(
+      "Possible metadata columns to select:\n",
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
+    )
+
     if (length(m) == 0) {
       stop("metadata.to.plot must include at least one metadata column. See Possible metadata columns to select above.")
     }
-    missing.metadata.columns <- setdiff(m, colnames(object.sub@meta.data))
-    if (length(missing.metadata.columns) > 0) {
+    if (length(valid.metadata.columns) == 0) {
       stop(sprintf(
         "metadata.to.plot contains metadata columns not found in the object: %s. See Possible metadata columns to select above.",
         paste(missing.metadata.columns, collapse = ", ")
       ))
     }
-    
-    #ERROR CATCHING
-    #collect valid names of valid columns
-    valid.columns <- character()
-    for (i in colnames(meta.df)) {
-      if (!any(is.na(meta.df[[i]]))) {
-        valid.columns <- c(valid.columns, i)
-      }
-    }
+    m <- valid.metadata.columns
     
     # Checking for content of "Columns to Summarize"
     cols.to.summarize <- columns.to.summarize
@@ -526,7 +452,7 @@ plotMetadata <- function(
           for (j in col) {
             if (is.na(j) || is.null(j) || (j == "None")) {
               count <- count + 1
-              summarized.col[count] <- "NA"
+              summarized.col[count] <- NA_character_
             } else if (j %in% freq.vals) {
               count <- count + 1
               summarized.col[count] <- j
@@ -544,7 +470,9 @@ plotMetadata <- function(
     
     
   
+  message("Running plotMetadata with reduction: ", reduction.name)
   grobs <- lapply(m, function(x) .drawMetadata(x))
+  names(grobs) <- m
   
 
   result.list <- list(

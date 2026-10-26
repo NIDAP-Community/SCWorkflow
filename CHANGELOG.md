@@ -11,6 +11,17 @@
   - Added ggalluvial dependency for flow visualizations
   - Generated from JSON template using json2r.prompt.md instructions
 
+### Fix
+
+* fix: Retain cells with missing metadata in plotMetadata(), displaying them in grey with an NA legend entry while preserving numeric color gradients.
+* fix: Validate requested RNA and CITE-seq plotMetadata() reductions and log the resolved reduction after sample selection and cell counts.
+* fix: Apply dot.size to numeric metadata plots instead of using a fixed point size.
+* fix: Warn and skip missing plotMetadata() columns when valid selections remain, before listing available columns, and retain the actual column names on returned plots.
+
+### Documentation
+
+* docs: Align plotMetadata() source documentation with its list return value and clarify that sample selection and metadata summarization affect plots only.
+
 ## v1.0.2 (2024-02-01)
 
 ### Fix
