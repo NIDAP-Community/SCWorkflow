@@ -7,6 +7,8 @@
 * Keep cells with missing metadata in `plotMetadata()` plots, colored grey with an `NA` legend entry, including summarized metadata (#106).
 * Validate requested RNA and CITE-seq reductions and log the resolved reduction after sample selection and cell counts (#106).
 * Respect `dot.size` for numeric metadata plots as well as categorical plots (#106).
+* Warn about missing requested metadata columns before listing available columns and continue plotting valid selections; empty or wholly invalid selections still error (#106).
+* Name returned metadata plots by their retained columns to prevent mislabeling when missing selections are skipped (#106).
 
 ## reclusterSeuratObject
 

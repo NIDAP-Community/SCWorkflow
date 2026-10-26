@@ -25,7 +25,9 @@ plotMetadata(
 in the plots. An empty vector uses all samples.}
 
 \item{metadata.to.plot}{The metadata columns from your Metadata table
-you would like to plot}
+you would like to plot. Missing names are warned about before the available
+column list and skipped when valid columns remain. Empty selections or
+selections with no valid columns cause an error.}
 
 \item{columns.to.summarize}{The columns you would like to summarize}
 
@@ -52,7 +54,8 @@ Default is "right"}
 }
 \value{
 A list containing \code{object}, the Seurat object with all input
-cells and original metadata, and \code{plots}, the selected metadata plots.
+cells and original metadata, and \code{plots}, the selected metadata plots
+named by their metadata columns.
 }
 \description{
 For each column selected, this template will produce a plot

@@ -367,13 +367,6 @@ plotMetadata <- function(
 
     meta.df <- object.sub@meta.data
 
-    possible.metadata.columns <- colnames(object.sub@meta.data)
-    possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
-    message(
-      "Possible metadata columns to select:\n",
-      paste0("  - ", possible.metadata.columns, collapse = "\n")
-    )
-    
     # checking metadata for sanity
     if (is.character(metadata.to.plot) && any(grepl('c\\(|\\[\\]', metadata.to.plot))) {
       m = eval(parse(text = gsub('\\[\\]', 'c()', metadata.to.plot)))
@@ -384,16 +377,35 @@ plotMetadata <- function(
     m <- m[!is.na(m) & nzchar(m)]
     
     m = m[!grepl("Barcode", m)]
+    missing.metadata.columns <- setdiff(m, colnames(meta.df))
+    valid.metadata.columns <- m[m %in% colnames(meta.df)]
+    if (length(missing.metadata.columns) > 0 && length(valid.metadata.columns) > 0) {
+      warning(
+        "metadata.to.plot contains metadata columns not found in the object: ",
+        paste(missing.metadata.columns, collapse = ", "),
+        ". Skipping these columns.",
+        call. = FALSE,
+        immediate. = TRUE
+      )
+    }
+
+    possible.metadata.columns <- colnames(meta.df)
+    possible.metadata.columns <- possible.metadata.columns[!grepl("Barcode", possible.metadata.columns)]
+    message(
+      "Possible metadata columns to select:\n",
+      paste0("  - ", possible.metadata.columns, collapse = "\n")
+    )
+
     if (length(m) == 0) {
       stop("metadata.to.plot must include at least one metadata column. See Possible metadata columns to select above.")
     }
-    missing.metadata.columns <- setdiff(m, colnames(object.sub@meta.data))
-    if (length(missing.metadata.columns) > 0) {
+    if (length(valid.metadata.columns) == 0) {
       stop(sprintf(
         "metadata.to.plot contains metadata columns not found in the object: %s. See Possible metadata columns to select above.",
         paste(missing.metadata.columns, collapse = ", ")
       ))
     }
+    m <- valid.metadata.columns
     
     # Checking for content of "Columns to Summarize"
     cols.to.summarize <- columns.to.summarize
@@ -460,6 +472,7 @@ plotMetadata <- function(
   
   message("Running plotMetadata with reduction: ", reduction.name)
   grobs <- lapply(m, function(x) .drawMetadata(x))
+  names(grobs) <- m
   
 
   result.list <- list(

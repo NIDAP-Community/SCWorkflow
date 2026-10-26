@@ -206,6 +206,55 @@ test_that("plotMetadata errors on metadata columns not found without renaming", 
   )
 })
 
+test_that("plotMetadata warns before listing options and plots existing metadata columns", {
+  input <- getParamPM("Chariou")
+  input$samples.to.include <- "c()"
+  valid.columns <- c("SCT_snn_res.2.6", "SCT_snn_res.2.4")
+  original.metadata <- input$object@meta.data
+  expected.warning <- paste0(
+    "metadata.to.plot contains metadata columns not found in the object: Phil.",
+    " Skipping these columns."
+  )
+
+  for (metadata.selection in list(
+    c(" SCT_snn_res.2.6 ", "Phil", "", NA_character_, " SCT_snn_res.2.4 ", "Phil"),
+    'c(" SCT_snn_res.2.6 ", "Phil", "", NA_character_, " SCT_snn_res.2.4 ", "Phil")'
+  )) {
+    input$metadata.to.plot <- metadata.selection
+    captured.events <- character()
+    invisible(capture.output(
+      output <- withCallingHandlers(
+        do.call(plotMetadata, input),
+        warning = function(condition) {
+          if (startsWith(conditionMessage(condition), "metadata.to.plot contains")) {
+            captured.events <<- c(captured.events, conditionMessage(condition))
+            invokeRestart("muffleWarning")
+          }
+        },
+        message = function(condition) {
+          captured.events <<- c(captured.events, conditionMessage(condition))
+          invokeRestart("muffleMessage")
+        }
+      )
+    ))
+
+    warning.positions <- which(captured.events == expected.warning)
+    options.positions <- which(startsWith(captured.events, "Possible metadata columns to select:"))
+    expect_length(warning.positions, 1)
+    expect_length(options.positions, 1)
+    expect_lt(warning.positions, options.positions)
+    expect_length(output$plots, length(valid.columns))
+    expect_identical(names(output$plots), valid.columns)
+    for (column.index in seq_along(valid.columns)) {
+      expect_equal(
+        sort(as.character(output$plots[[column.index]]$data$clusid)),
+        sort(as.character(original.metadata[[valid.columns[[column.index]]]]))
+      )
+    }
+    expect_identical(output$object@meta.data, original.metadata)
+  }
+})
+
 test_that("plotMetadata errors when summary columns are not in the object", {
   chariou.data <- getParamPM("Chariou")
   chariou.data$columns.to.summarize <- 'c("missing_summary_column")'
