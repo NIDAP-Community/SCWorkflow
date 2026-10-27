@@ -1,5 +1,10 @@
 # SCWorkflow (development version)
 
+## Dependencies
+
+* Keep `ggalluvial` optional so SCWorkflow can load without it, and require it only when comparing cell populations (#107).
+* Validate package changes with the preserved R 4.1.3 environment and a separate checksum-pinned CI-tool library, without updating existing dependencies (#107).
+
 ## plotMetadata
 
 * Improved metadata selection, validation, and run logging for `plotMetadata()` (#95).

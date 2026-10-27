@@ -11,15 +11,29 @@ name: test-coverage
 permissions: read-all
 
 jobs:
+  prepare-environment:
+    uses: ./.github/workflows/frozen-environment.yaml
+
   test-coverage:
+    needs: prepare-environment
     runs-on: ubuntu-latest
     container:
-      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
+      image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-ci-tools
+          path: ${{ runner.temp }}/frozen-ci-tools
+
+      - name: Restore isolated CI tools
+        run: |
+          tar -xzf "${{ runner.temp }}/frozen-ci-tools/library.tar.gz" -C "${{ runner.temp }}/frozen-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "${{ runner.temp }}/frozen-ci-tools" >> "$GITHUB_ENV"
 
       - name: Verify frozen coverage environment
         run: Rscript .github/scripts/ci-preflight.R coverage

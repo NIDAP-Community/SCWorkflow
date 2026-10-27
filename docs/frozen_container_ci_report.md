@@ -4,7 +4,9 @@ Date: 2026-10-26
 Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
-Status: implementation prepared for PR review; container execution and GitHub results pending.
+PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
+Published revision: `a6370507ef928aaf6c9d470ed16a097fbdd5bcd6`; the environment changes below are tested in the local working tree and are not yet committed or pushed.
+Status: All three environment preflight modes pass locally with the verified preserved Docker image and a separate pinned tool library. The current SCWorkflow source installs and loads, with 21 namespace-import replacement warnings. GitHub verification of this configuration is pending; the earlier published revision failed against a different, incomplete image.
 
 ## Purpose
 
@@ -16,16 +18,44 @@ This work changes SCWorkflow package validation workflows and makes `ggalluvial`
 
 1. Check out the source revision selected by the GitHub event.
 2. Run package validation inside a prebuilt container pinned to an immutable Linux image digest.
-3. Use the R runtime and dependency packages already present in that image. Do not run dependency installation, dependency resolution, or package-update actions in these validation jobs.
+3. Reuse the R runtime and dependency packages already present in that image. A separate preparation job builds only missing, checksum-pinned tools into an isolated library; no base package is replaced. Validation jobs restore that artifact without dependency installation, dependency resolution, or package updates.
 4. Build and install the checked-out SCWorkflow package as required by package checking and coverage. Do not validate only the older SCWorkflow installation that may already be in the image.
 5. Fail clearly if required validation tools or namespace-import dependencies are unavailable. Do not automatically download replacements or silently skip validation.
 6. Preserve environment evidence and genuine check failures for review.
 
 This freezes the R environment, not the entire GitHub runner. GitHub Actions, image pulling, artifact uploads, Codecov, and tests that access external data can still require network access. No claim of completely offline execution is made.
 
-## Selected Image
+## Current Verified Environment
 
-The candidate was taken from the image already configured in the package's coverage job; a new image was not invented or built.
+All four R validation jobs now select `rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf`, the public Docker source named in the supplied SIF. Direct Docker execution confirms R 4.1.3, Seurat/SeuratObject 4.1.1, Matrix 1.5-1, and ggplot2 3.3.6, matching the SIF's inspected versions. All 43 namespace imports load. This verifies the relevant runtime, not byte-for-byte equivalence of the Docker and SIF filesystems. The original SIF is neither used nor modified by the workflows.
+
+The shared [environment-preparation workflow](../.github/workflows/frozen-environment.yaml) downloads only the exact tool archives in [the source lock](../.github/scripts/ci-tool-sources.json). Host HTTPS verification stays enabled, and every source is checked by SHA-256 both on the host and before installation. This avoids the legacy container's observed certificate-trust failure without disabling TLS validation or changing its installed packages.
+
+The [preparation script](../.github/scripts/ci-prepare-tools.R) runs with the base filesystem read-only and networking disabled. It installs the following additions into `/ci-tools/library`, with dependency resolution disabled:
+
+| Addition | Version |
+| --- | --- |
+| covr | 3.6.1 |
+| lintr | 3.0.2 |
+| goodpractice | 1.0.4 |
+| ggalluvial | 0.12.3 |
+| rex | 1.2.1 |
+| cyclocomp | 1.1.0 |
+| xmlparsedata | 1.0.5 |
+| clisymbols | 1.2.0 |
+| whoami | 1.3.0 |
+
+The script refuses to shadow any base package and verifies the complete base package/version/library-path inventory is unchanged. Existing rcmdcheck 1.4.0, testthat 3.1.6, and all other installed prerequisites are reused. No dependency already installed in the preserved image is rebuilt or upgraded.
+
+Preparation verifies all three preflight modes, then uploads `frozen-ci-tools` containing `library.tar.gz`, `base-packages.csv`, and `tools-manifest.csv`. Both caller workflows wait for preparation; each validation job restores the library and sets `R_LIBS_USER` through `GITHUB_ENV`. The aggregate requires preparation and all validation jobs to succeed. Failed setup is not skipped or treated as a passing code check.
+
+Local verification restored the archive into a fresh executable temporary filesystem in a separate offline container. `check`, `lint`, and `coverage` each exited 0, and the base inventory still matched exactly. A deliberately corrupted source was rejected before installation. The current source also completed `R CMD INSTALL` and loaded from its new temporary installation, not a preinstalled SCWorkflow copy. Its 21 import-replacement warnings are recorded separately; no warning was suppressed to obtain a pass. Actionlint 1.7.7 passes all three workflows.
+
+These are environment and installation checks, not full package tests, coverage, lint results, or a successful GitHub run. Source downloads and image pulls still require network access. The tool library must be on an executable filesystem: an initial local `noexec` tmpfs prevented covr's shared library from loading, and the verification harness was corrected to match an executable library mount.
+
+## Original CI Image (Rejected)
+
+The original candidate was taken from the image already configured in the package's coverage job. The evidence below explains why it was replaced; no new Docker image was built.
 
 | Item | Value |
 | --- | --- |
@@ -36,19 +66,19 @@ The candidate was taken from the image already configured in the package's cover
 | Runtime metadata | `R_VERSION=4.1.3`, `R_HOME=/usr/local/lib/R` |
 | Declared image base | `docker.io/rocker/r-ver:4.1.3` |
 
-The remote manifest and image configuration were readable on 2026-10-26 without pulling the image layers. Runtime metadata is not a substitute for executing R in the image. Installed Seurat, Matrix, and CI-tool versions have not yet been verified inside this image.
+The tag was rechecked on 2026-10-26 and still resolves to the recorded index and Linux image digests. The first GitHub runs execute R 4.1.3 on Ubuntu 20.04.6 LTS. Their inventories record Matrix 1.5-1 in the site library and Matrix 1.4-0 in the base library, but do not list Seurat or the required CI tools. Subsequent local execution reproduces that inventory under both default and GitHub-style `HOME`; a full filesystem scan finds no installed directories for the blocking packages. See the execution evidence below.
 
 Collaborator confirmation is required that this is the intended archived dependency image. The digest identifies the exact artifact inspected; it does not by itself establish that its contents are complete, correct, secure, or the intended release environment.
 
 ### Ggalluvial Optional Dependency
 
-The user reports that the existing container does not include `ggalluvial`. This has not yet been independently verified by executing the pinned image.
+The GitHub inventory and both local R environments do not list `ggalluvial` in their active libraries. The full filesystem investigation finds no alternate complete dependency library that could resolve the blocking imports and tools.
 
 The original `DEV` namespace imported `geom_flow` unconditionally despite `ggalluvial` being listed in `Suggests`. This branch removes the corresponding roxygen import and regenerates [NAMESPACE](../NAMESPACE). [compareCellPopulations()](../R/Compare_Cell_Populations.R) now checks the optional dependency when called and uses `ggalluvial::geom_flow()` explicitly. Missing `ggalluvial` therefore no longer creates that unconditional package-load dependency; calling the function without it gives a clear error.
 
 The preflight checks the checked-out namespace rather than hard-coding `ggalluvial` as required. Other unavailable namespace imports or tools still fail clearly. No dependency is installed automatically and no comparison tests are skipped by this change. Existing comparison tests that call the function can still fail when the optional package is absent, and package checks can separately report unavailable suggested packages. Passing full CI is not guaranteed by removing the namespace import.
 
-Confirm the actual image inventory and GitHub results before deciding on any compatible image extension. No `ggalluvial` version has been selected and no image extension has been made. `ggalluvial` remains in `Suggests`; moving it to `Imports` is not part of this optional-dependency approach.
+The current isolated library supplies checksum-pinned `ggalluvial` 0.12.3 for comparison tests. It is not installed into the original image or SIF. `ggalluvial` remains in `Suggests`; moving it to `Imports` is not part of this optional-dependency approach.
 
 ## Changes Made
 
@@ -56,16 +86,18 @@ Confirm the actual image inventory and GitHub results before deciding on any com
 | --- | --- |
 | [R-CMD-check workflow](../.github/workflows/R-CMD-check.yaml) | Run package checking, lint, and coverage in the same pinned image. Remove `install-r-pak` and `setup-r-dependencies`. Retain existing package-check, goodpractice, lint, coverage, and upload actions. |
 | [Separate coverage workflow](../.github/workflows/test-coverage.yaml) | Use the same image and preflight instead of constructing dependencies with pak. Preserve its existing triggers and coverage upload behavior. |
+| [Shared environment preparation](../.github/workflows/frozen-environment.yaml) | Download locked sources on the host, prepare only missing tools offline in a read-only base, verify all modes, and upload the isolated library. |
+| [Tool preparation script](../.github/scripts/ci-prepare-tools.R) and [source lock](../.github/scripts/ci-tool-sources.json) | Pin versions and source checksums, disable dependency resolution, and reject changes to existing base packages. |
 | [Shared preflight](../.github/scripts/ci-preflight.R) | Verify the package root, record the source SHA and installed environment, and check mode-specific tools and namespace-import loadability without installing anything. |
 | [Build exclusions](../.Rbuildignore) and [Git exclusions](../.gitignore) | Exclude generated `ci-artifacts/` from the package build and version control. |
 
-The package-check job is now named `Frozen container check` rather than a matrix label that assumes a separately provisioned R installation. The aggregate job ID `check` is retained. Its success condition now requires all three validation jobs to succeed, including rejecting skipped or cancelled jobs. The aggregate job itself runs on the host because it executes no R code.
+The package-check job is now named `Frozen container check` rather than a matrix label that assumes a separately provisioned R installation. The aggregate job ID `check` is retained. Its success condition requires preparation and all three validation jobs to succeed, including rejecting skipped or cancelled jobs. The aggregate job itself runs on the host because it executes no R code.
 
 The two existing coverage runs have not been consolidated as part of this change. Deployment, documentation-site, and image-building workflows are outside scope. Existing warning-only lint behavior is unchanged; the setup does not introduce a stricter lint policy or suppress package-check failures.
 
 ## Preflight And Evidence
 
-| Mode | Required preinstalled tools |
+| Mode | Required tools from the base or prepared library |
 | --- | --- |
 | `check` | `rcmdcheck`, `testthat` |
 | `lint` | `goodpractice`, `lintr` |
@@ -94,18 +126,92 @@ The preflight checks validation tooling and namespace imports, not every package
 | Isolated preflight behavior | Eleven scenarios cover three success modes, three missing-tool failures, optional `ggalluvial` absent in all three modes, invalid-mode rejection, and wrong-package rejection. Namespace and tool availability are simulated, not container results. |
 | Optional-dependency regression | The new missing-optional-package test and existing non-Seurat input test passed. Namespace regeneration removed only the `ggalluvial` import, and `Suggests` was retained. |
 | Inventory files in isolated scenarios | All three inventories are checked on successful, missing-tool, and optional-`ggalluvial`-absent paths. |
-| Container execution | Not performed: the local Docker daemon was not running. |
-| Actions-specific lint | Not performed: `actionlint` was not installed; no installation was attempted. |
-| Full package check, tests, lint, or coverage inside the frozen image | Not performed. |
-| GitHub workflow execution for this branch | Not performed; no successful remote result is claimed. |
+| Container execution | GitHub and local Docker both execute the pinned image's R 4.1.3. Local read-only filesystem scans and default/GitHub-style `HOME` comparisons are complete. |
+| Actions-specific lint | Actionlint 1.7.7 passes all three updated workflows using a tooling container; no host installation. |
+| Current environment preflights | Check, lint, and coverage all exit 0 after archive restoration in an offline read-only container. Full base inventory is unchanged. |
+| Current source installation/load | Passed in the new environment; 21 namespace-import replacement warnings remain. |
+| Full package check, tests, lint, or coverage inside the frozen image | Not run for the updated environment; earlier published workflows stopped before these commands. |
+| GitHub workflow execution for this branch | Both validation workflows ran against `a637050` and failed in preflight; no successful package-validation result is claimed. |
 
-The isolated harness tests validate preflight control flow, not the contents of the frozen image. Local R results must not be presented as R 4.1.3 container results. No installed R packages or package-version constraints were changed during setup.
+The early isolated harness tests validate preflight control flow, not image contents. The current environment checks above execute the real R 4.1.3 Docker runtime. Existing base packages and package-version constraints were not changed; only the nine explicitly pinned missing additions were installed into a separate temporary library.
+
+### First GitHub Execution
+
+- [R-CMD-check run 40390514732](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40390514732): package-check, lint, and coverage jobs all fail during preflight. The aggregate job correctly reports failure.
+- [Separate coverage run 40390514752](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40390514752): the same runtime namespace failures and unavailable `covr` stop preflight.
+- Both runs test commit `a6370507ef928aaf6c9d470ed16a097fbdd5bcd6`. Image pulling, container startup, checkout, R execution, and environment artifact upload work. No package tests or coverage calculations start.
+
+The `frozen-check-environment` artifact records these gaps in the active R libraries:
+
+| Category | Packages not listed as installed |
+| --- | --- |
+| Failed namespace imports | `Seurat`, `celldex`, `quantmod`, `EnhancedVolcano`, `scDblFinder` |
+| Validation tools | `rcmdcheck`, `covr`, `goodpractice`, `lintr` |
+| Other inspected packages | `SeuratObject`, `ggalluvial` |
+
+The inventory also records `ggplot2` 4.0.2 and `testthat` 3.3.2. The image tag is not evidence of an entirely historical dependency stack. `ggalluvial` is no longer a namespace-preflight blocker after the optional-dependency change.
+
+The initial GitHub inventory alone did not distinguish an incomplete image from libraries outside `.libPaths()`. The local checks below now rule out the proposed `HOME` explanation and find no hidden installation of the blocking packages. Confirm the intended complete archived image before considering any separately approved additions; do not rebuild dependencies merely to diagnose them.
+
+The Dockerfile at tag-source commit `79e5d37` uses `rocker/rstudio:4.1.3` and attempts versioned installs with CRAN/Bioconductor fallbacks. Its package lists describe intended installs, not proof that those packages were successfully installed in the published artifact.
+
+### Local Filesystem And Library Verification
+
+The exact pinned image was pulled and inspected on macOS using `linux/amd64`. Diagnostic containers used `--read-only --network none`; R's temporary directories were RAM-backed. No host source was mounted and no dependency installation or image rebuild was performed.
+
+| Setting | Default environment | GitHub-style environment |
+| --- | --- | --- |
+| `HOME` | `/root` | `/github/home` |
+| R executable | `/usr/local/bin/Rscript` | `/usr/local/bin/Rscript` |
+| R home | `/usr/local/lib/R` | `/usr/local/lib/R` |
+| `.libPaths()` | `/usr/local/lib/R/site-library`, `/usr/local/lib/R/library` | Same two paths |
+| `R_LIBS` | `/usr/local/lib/R/site-library:/usr/local/lib/R/library` | Same value |
+| Packages absent from the active libraries | All eleven packages listed above | Same eleven packages |
+
+A full `/` scan for R libraries and the five failing namespace imports, `SeuratObject`, and four CI-tool package directories found only the standard R libraries, plus unrelated directory-name matches in Boost headers and lifecycle configuration. None of the blocking package installations was found elsewhere. A separate scan for `.tar.gz`, `.tar.xz`, `.tgz`, and `.zip` files found only installed packages' test/example data, not a preserved dependency source or library bundle.
+
+Conclusion: changing `HOME` or adding a library path cannot expose packages that are not installed in this image. Leave the workflow's library settings unchanged. The next decision requires the image name/tag/digest for the intended complete archived environment, not a fresh dependency build. The separate `Dockerfiles/Plain_R_container/Dockerfile` recipe uses `/renv_cache`, but does not identify a published image to select; the inspected pinned image has no corresponding complete library. No replacement image has been selected or built.
+
+### User-Supplied Preserved SIF
+
+The user supplied `/Volumes/CCBR/NIDAP/SIFS/rs413s_latest.sif` for read-only inspection. Original SIF files are immutable: never modify, overwrite, rebuild in place, delete, move, or change their permissions or ownership. If writable image access is required, first create a distinct scratch copy and verify its SHA-256 against the original; operate only on that copy. All extraction, conversion, build, and overlay outputs must remain separate from the original.
+
+| Identity | Observed value |
+| --- | --- |
+| Original SHA-256 before and after inspection | `37c4797e39de97680ae46cf9282d654322088ba3a97657a3e76ac010648b3899` (unchanged) |
+| SIF identifier | `8d04c93e-624e-46c1-ba8f-52f39e90d073` |
+| SIF creation/modification timestamp | `2025-12-19 13:41:07 UTC` |
+| Filesystem | SquashFS, amd64, partition 4 at byte offset 40960 |
+| Embedded Docker source | `rfinney/rs413s` |
+| Current public source-image digest | `rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf` |
+
+The Docker source reference was subsequently executed directly. Its key runtime versions match the SIF and all 43 namespace imports load. Full filesystem equivalence to the SIF is not asserted; the selected immutable Docker digest is recorded separately.
+
+Inspection used Apptainer 1.5.5 tooling pinned to `ghcr.io/apptainer/apptainer@sha256:a2016f1606a4f79d24a0578424cd63d490141f86bbec384dfdcdc19c33dd0d14`. Docker mounted the original SIF read-only and disabled container networking. The filesystem was extracted to a separate Docker volume, omitting SELinux extended attributes after Docker rejected their preservation. Runtime inspection then used that copy mounted read-only, RAM-backed temporary/device paths, and a read-only source checkout. The runtime inspection did not mount the original SIF at all. No R dependency was compiled, installed, or updated.
+
+| Package/runtime | Version in the SIF copy |
+| --- | --- |
+| R | 4.1.3 |
+| Seurat / SeuratObject | 4.1.1 / 4.1.1 |
+| Matrix | 1.5-1 in the site library; 1.4-0 in the base library |
+| ggplot2 | 3.3.6 |
+| celldex | 1.4.0 |
+| quantmod | 0.4.20 |
+| EnhancedVolcano | 1.12.0 |
+| scDblFinder | 1.8.0 |
+| rcmdcheck / testthat | 1.4.0 / 3.1.6 |
+
+R used `/usr/local/lib/R/site-library` and `/usr/local/lib/R/library`. All 43 packages imported by the current checked-out `NAMESPACE` loaded successfully through `loadNamespace()`, as did `rcmdcheck` and `testthat`. The active libraries do not contain `covr`, `goodpractice`, `lintr`, or `ggalluvial`. Coverage and lint therefore still lack their required tools; comparison-function tests can still require optional `ggalluvial`.
+
+This is a copied-filesystem R runtime check, not a full Apptainer launch or package-validation run. The local chroot diagnostic emitted `/dev/null` permission messages and a missing `/proc/stat` warning; the import and tool checks nevertheless completed. No full package check, tests, lint, coverage, or GitHub run against this SIF is claimed.
+
+The subsequent Docker verification and isolated-tool preparation are described above. CI now selects that public Docker digest, not the local SIF; no SIF upload or Apptainer runner access is required. The original SIF remains immutable and unchanged.
 
 ## Collaborator Verification Procedure
 
 ### Review The Revision
 
-After the branch is committed and pushed, fetch `DEV-frozen-container-ci` and record the exact revision under review:
+The branch is published as draft PR #107. Fetch `DEV-frozen-container-ci` and record the exact revision under review:
 
 ```bash
 git fetch origin DEV-frozen-container-ci
@@ -118,22 +224,31 @@ Confirm that function changes are limited to the optional dependency guard, qual
 
 ### Inspect And Run The Image
 
-From the package root, with Docker running:
+From the package root, with Docker running, first obtain the `frozen-ci-tools` artifact from a successful preparation job, or run the source-download and preparation steps in the shared workflow. Set `tools_directory` to the absolute directory containing its `library.tar.gz`. On Apple Silicon, use `--platform linux/amd64` for preparation as well as verification.
 
 ```bash
-image='nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a'
+image='rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf'
+tools_directory='/absolute/path/to/frozen-ci-tools'
 docker buildx imagetools inspect "$image"
 docker pull --platform linux/amd64 "$image"
-docker run --rm --platform linux/amd64 \
-  -e CI=true -e NOT_CRAN=true \
-  -e GITHUB_SHA="$(git rev-parse HEAD)" \
-  -v "$PWD:/workspace" -w /workspace "$image" \
-  Rscript .github/scripts/ci-preflight.R check
+docker run --rm --platform linux/amd64 --read-only --network none \
+  --tmpfs /tmp:rw,exec,size=1g \
+  --mount "type=bind,source=$PWD,target=/source,readonly" \
+  --mount "type=bind,source=$tools_directory,target=/ci-tools,readonly" \
+  --env R_LIBS_USER=/tmp/restored/library --entrypoint /bin/sh "$image" -ec '
+    mkdir /tmp/restored /tmp/preflight
+    tar -xzf /ci-tools/library.tar.gz -C /tmp/restored
+    cp /source/DESCRIPTION /source/NAMESPACE /tmp/preflight/
+    cd /tmp/preflight
+    for mode in check lint coverage; do
+      Rscript /source/.github/scripts/ci-preflight.R "$mode"
+    done
+  '
 ```
 
-Repeat the final command with mode `lint` and then `coverage`. Review all three inventories, especially `ggalluvial`, Seurat, Matrix, testthat, rcmdcheck, covr, lintr, and goodpractice. With the optional dependency change, `ggalluvial` is no longer a namespace requirement, but other missing imports or tools can still block the preflight. Apple Silicon hosts may require amd64 emulation; GitHub's selected Ubuntu runners are amd64.
+The final command checks all three modes. Review the base inventory and source manifest, especially Seurat, Matrix, testthat, rcmdcheck, covr, lintr, goodpractice, and optional ggalluvial. The original SIF is not accessed by these commands. Apple Silicon hosts require amd64 emulation; GitHub's selected Ubuntu runners are amd64.
 
-These preflight commands do not run the package test suite. They can create root-owned local artifacts because the container writes to a mounted directory; use a disposable checkout for verification if needed.
+These preflight commands do not run the package test suite. Source and prepared-library mounts are read-only; verification artifacts are temporary and removed with the container.
 
 ### Execute GitHub Validation
 
@@ -152,10 +267,10 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 ## Acceptance Checklist
 
 - [ ] Collaborator confirms the selected image is the intended archived environment.
-- [ ] Runtime inventory confirms the intended R, Seurat, Matrix, and validation-tool versions.
+- [x] Local runtime inventory confirms the recorded R, Seurat, Matrix, and validation-tool versions.
 - [ ] The reported `ggalluvial` gap is confirmed in the image; package loading and the optional-function error are reviewed separately from full test-suite results.
-- [ ] All preflight modes succeed in the pinned image without dependency installation.
-- [ ] GitHub runs against the reviewed revision and produces environment artifacts.
+- [x] All preflight modes succeed locally after prepared-library restoration, without installation during validation.
+- [x] GitHub runs against the recorded revision and produces environment artifacts; preflight fails as documented above.
 - [ ] Package checks and coverage execute against the checked-out source, with failures investigated rather than bypassed.
 - [ ] Aggregate status and any required-status configuration are verified.
 - [ ] Any remaining runtime, metadata, data-access, or Codecov failures are recorded separately.
@@ -164,4 +279,4 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 
 Passing in a frozen container demonstrates compatibility with that environment. It does not prove a fresh installation from `DESCRIPTION`, correctness of all dependency declarations, support for newer R/Seurat, or ongoing security support for the legacy stack. Dependency-metadata gaps identified in the release audit remain open and must not be hidden by the preinstalled libraries.
 
-Confirm the image contents and execute the branch on GitHub before merging this setup. Then return to the small dependency-metadata patch. If the image is incomplete, agree on a replacement built from preserved package sources and pin its digest in a separate, reviewable change; do not silently fetch current replacements during CI.
+The incomplete original CI image is replaced in the local working tree with the verified public Docker source and isolated pinned tool preparation. Local environment checks pass and the current source installs/loads; full GitHub execution, package tests, coverage, and lint remain to be verified after publishing. Existing import-replacement warnings, dependency-metadata gaps, and external data access can still cause genuine package-check failures. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization, and dependency-metadata cleanup remains separate.

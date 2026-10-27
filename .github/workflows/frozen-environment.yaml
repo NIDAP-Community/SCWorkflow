@@ -1,0 +1,64 @@
+name: Prepare frozen CI environment
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    env:
+      CI_IMAGE: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download checksum-pinned tool sources
+        shell: bash
+        run: |
+          directory="${{ runner.temp }}/frozen-ci-tools"
+          mkdir -p "$directory/sources"
+          jq -r '.[] | [.Package, .Version, .SHA256, .URL] | @tsv' \
+            .github/scripts/ci-tool-sources.json |
+          while IFS=$'\t' read -r package version checksum url; do
+            archive="$directory/sources/${package}_${version}.tar.gz"
+            curl --fail --location --retry 3 --proto '=https' --proto-redir '=https' \
+              "$url" --output "$archive"
+            printf '%s  %s\n' "$checksum" "$archive" | sha256sum --check --strict
+          done
+
+      - name: Prepare isolated tools offline
+        shell: bash
+        run: |
+          docker run --rm --read-only --network none --tmpfs /tmp:rw,size=1g \
+            --mount "type=bind,source=$GITHUB_WORKSPACE,target=/workspace,readonly" \
+            --mount "type=bind,source=${{ runner.temp }}/frozen-ci-tools,target=/ci-tools" \
+            --env R_LIBS_USER=/ci-tools/library --entrypoint Rscript "$CI_IMAGE" \
+            /workspace/.github/scripts/ci-prepare-tools.R /ci-tools
+
+      - name: Verify all environment modes offline
+        shell: bash
+        run: |
+          docker run --rm --read-only --network none --tmpfs /tmp:rw,size=1g \
+            --mount "type=bind,source=$GITHUB_WORKSPACE,target=/workspace,readonly" \
+            --mount "type=bind,source=${{ runner.temp }}/frozen-ci-tools,target=/ci-tools,readonly" \
+            --env R_LIBS_USER=/ci-tools/library --workdir /tmp \
+            --entrypoint /bin/sh "$CI_IMAGE" -ec '
+              mkdir /tmp/preflight
+              cp /workspace/DESCRIPTION /workspace/NAMESPACE /tmp/preflight/
+              cd /tmp/preflight
+              for mode in check lint coverage; do
+                Rscript /workspace/.github/scripts/ci-preflight.R "$mode"
+              done
+            '
+
+      - name: Upload isolated tools and version evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-ci-tools
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/frozen-ci-tools/library.tar.gz
+            ${{ runner.temp }}/frozen-ci-tools/base-packages.csv
+            ${{ runner.temp }}/frozen-ci-tools/tools-manifest.csv

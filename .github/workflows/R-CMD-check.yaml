@@ -14,16 +14,30 @@ permissions:
   pull-requests: read
 
 jobs:
+  prepare-environment:
+    uses: ./.github/workflows/frozen-environment.yaml
+
   R-CMD-check:
+    needs: prepare-environment
     runs-on: ubuntu-latest
     name: Frozen container check
     container:
-      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
+      image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-ci-tools
+          path: ${{ runner.temp }}/frozen-ci-tools
+
+      - name: Restore isolated CI tools
+        run: |
+          tar -xzf "${{ runner.temp }}/frozen-ci-tools/library.tar.gz" -C "${{ runner.temp }}/frozen-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "${{ runner.temp }}/frozen-ci-tools" >> "$GITHUB_ENV"
 
       - name: Verify frozen check environment
         run: Rscript .github/scripts/ci-preflight.R check
@@ -40,11 +54,22 @@ jobs:
           path: ci-artifacts/
 
   lint:
+    needs: prepare-environment
     runs-on: ubuntu-latest
     container:
-      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
+      image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-ci-tools
+          path: ${{ runner.temp }}/frozen-ci-tools
+
+      - name: Restore isolated CI tools
+        run: |
+          tar -xzf "${{ runner.temp }}/frozen-ci-tools/library.tar.gz" -C "${{ runner.temp }}/frozen-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "${{ runner.temp }}/frozen-ci-tools" >> "$GITHUB_ENV"
 
       - name: Verify frozen lint environment
         run: Rscript .github/scripts/ci-preflight.R lint
@@ -72,13 +97,22 @@ jobs:
           path: ci-artifacts/
 
   test-coverage:
+    needs: prepare-environment
     runs-on: ubuntu-latest
     container:
-      image: nciccbr/scworkflow@sha256:1bf587adfb1f4703e1e653ee1628dfeb93937fc16a2cc706aa47064a6a710b6a
+      image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-ci-tools
+          path: ${{ runner.temp }}/frozen-ci-tools
+      - name: Restore isolated CI tools
+        run: |
+          tar -xzf "${{ runner.temp }}/frozen-ci-tools/library.tar.gz" -C "${{ runner.temp }}/frozen-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "${{ runner.temp }}/frozen-ci-tools" >> "$GITHUB_ENV"
       - name: Verify frozen coverage environment
         run: Rscript .github/scripts/ci-preflight.R coverage
       - name: Test coverage
@@ -120,11 +154,12 @@ jobs:
   check:
     # make sure all check jobs pass. https://github.com/orgs/community/discussions/4324#discussioncomment-3477871
     runs-on: ubuntu-latest
-    needs: [ R-CMD-check, lint, test-coverage ]
+    needs: [ prepare-environment, R-CMD-check, lint, test-coverage ]
     if: always()
     steps:
       - name: Require all validation jobs to succeed
         run: |
-          [[ "${{ needs['R-CMD-check'].result }}" == "success" ]]
+          [[ "${{ needs['prepare-environment'].result }}" == "success" ]]
+          [[ "${{ needs['r-cmd-check'].result }}" == "success" ]]
           [[ "${{ needs.lint.result }}" == "success" ]]
           [[ "${{ needs.test-coverage.result }}" == "success" ]]

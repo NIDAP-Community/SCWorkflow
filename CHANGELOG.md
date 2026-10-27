@@ -4,6 +4,7 @@
 
 ### CI
 
+* ci: Reuse the verified rs413s legacy runtime and a separately prepared checksum-pinned CI-tool library; verify unchanged base packages and all environment modes before package validation.
 * ci: Run package checks, lint, and coverage in a digest-pinned prebuilt R container without reinstalling legacy dependencies; record environment inventories and diagnose namespace dependency gaps before validation.
 
 ### Feature
@@ -25,6 +26,8 @@
 
 ### Documentation
 
+* docs: Record immutable SIF inspection, unchanged source checksum, preserved legacy package versions, successful namespace loading from a read-only copy, and remaining CI-tool gaps.
+* docs: Record draft PR #107's frozen-container preflight failures, rule out a HOME/library-path cause through local read-only inspection, and distinguish reuse of installed dependencies from building the checked-out SCWorkflow source.
 * docs: Align plotMetadata() source documentation with its list return value and clarify that sample selection and metadata summarization affect plots only.
 
 ## v1.0.2 (2024-02-01)
