@@ -67,7 +67,8 @@ Functions follow a numbered workflow sequence:
 - Tests follow naming convention: `test-Function_Name.R`
 
 ### Deliverables
-- Update CHANGELOG.md, decision_log.md, docs/session_notes.md.
+- Update NEWS.md only for user-facing changes; keep CI details and internal investigations out of release notes.
+- Keep agent decisions and session notes local and untracked in decision_log.md and .agents/session_notes.md.
 - Add testthat tests for each generated function.
 
 ### Docker Development
