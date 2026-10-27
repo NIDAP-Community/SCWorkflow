@@ -24,7 +24,7 @@
 
 * fix: Declare existing mclust, TrajectoryUtils, and TSCAN optional dependencies without reinstalling or updating them (#107).
 * fix: Declare the existing patchwork namespace dependency in DESCRIPTION Imports (#107).
-* fix: Keep ggalluvial optional when loading SCWorkflow; require it only when compareCellPopulations() is called.
+* fix: Require ggalluvial for population-comparison plots, using the pinned 0.12.3 NIDAP environment library instead of an optional-package runtime guard (#107).
 * fix: Retain cells with missing metadata in plotMetadata(), displaying them in grey with an NA legend entry while preserving numeric color gradients.
 * fix: Validate requested RNA and CITE-seq plotMetadata() reductions and log the resolved reduction after sample selection and cell counts.
 * fix: Apply dot.size to numeric metadata plots instead of using a fixed point size.
@@ -32,6 +32,7 @@
 
 ### Documentation
 
+* docs: Verify the published NIDAP environment and Gitflow ownership correction; identify six package warnings as the remaining CI blocker (#107).
 * docs: Verify the published trajectory example fix and distinguish remaining package-warning failures from the separate legacy Gitflow environment failure (#107).
 * docs: Mark the trajectory example as dontrun, matching the other 21 examples without changing runtime code or unit tests (#107).
 * docs: Record immutable SIF inspection, unchanged source checksum, preserved legacy package versions, successful namespace loading from a read-only copy, and remaining CI-tool gaps.

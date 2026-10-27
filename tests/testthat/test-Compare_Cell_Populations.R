@@ -11,21 +11,29 @@
 # options(testthat_stop_on_failure = TRUE)
 # devtools::test_active_file()
 
-test_that("compareCellPopulations reports its missing optional dependency", {
-  optional_function <- compareCellPopulations
-  dependency_environment <- new.env(parent = environment(optional_function))
-  dependency_environment$requireNamespace <- function(package, quietly = TRUE) FALSE
-  environment(optional_function) <- dependency_environment
-
-  expect_error(
-    optional_function(
-      object = structure(list(), class = "Seurat"),
-      annotation.column = "cell_type",
-      group.column = "condition"
-    ),
-    "compareCellPopulations() requires the optional package 'ggalluvial'.",
-    fixed = TRUE
+test_that("compareCellPopulations builds alluvial plots in the required environment", {
+  counts <- matrix(
+    rep(seq_len(6), 12), nrow = 6,
+    dimnames = list(paste0("gene", seq_len(6)), paste0("cell", seq_len(12)))
   )
+  object <- Seurat::CreateSeuratObject(counts)
+  object$cell_type <- rep(c("T", "B"), 6)
+  object$condition <- rep(c("control", "treated"), each = 6)
+  object$orig.ident <- rep(c("control_1", "control_2", "treated_1", "treated_2"), each = 3)
+
+  for (counts_type in c("Frequency", "Counts")) {
+    result <- compareCellPopulations(
+      object = object,
+      annotation.column = "cell_type",
+      group.column = "condition",
+      counts.type = counts_type
+    )
+    expect_named(result, c("plots", "data"))
+    expect_s3_class(result$plots$Barplot$layers[[1]]$geom, "GeomFlow")
+    expect_s3_class(ggplot2::ggplot_build(result$plots$Barplot), "ggplot_built")
+    expect_s3_class(ggplot2::ggplot_build(result$plots$Boxplot), "ggplot_built")
+    expect_equal(nrow(result$data), 2L)
+  }
 })
 
 # Test 1: Standard parameters - TEC dataset

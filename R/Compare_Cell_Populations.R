@@ -96,10 +96,6 @@ compareCellPopulations <- function(
   if (!counts.type %in% c("Frequency", "Counts")) {
     stop("Error: 'counts.type' must be either 'Frequency' or 'Counts'")
   }
-
-  if (!requireNamespace("ggalluvial", quietly = TRUE)) {
-    stop("compareCellPopulations() requires the optional package 'ggalluvial'.", call. = FALSE)
-  }
   
   ## --------- ##
   ## Functions ##

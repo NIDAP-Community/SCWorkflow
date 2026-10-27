@@ -1,12 +1,49 @@
 # SCWorkflow NIDAP Environment CI Strategy And Setup
 
-Date: 2026-10-26
+Date: 2026-10-27
 Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
-Verified published environment revision: `b22f7b3a4d6b3cd52d295c9616321271a56a135b`; environment preparation and preflight succeed, but Gitflow validation reaches the checkout ownership failure described below.
-Status: At published revision `b22f7b3`, preparation, lint, and both coverage jobs pass. The package check reports examples OK and 0 errors, 6 warnings, 6 notes; the action fails on warnings. Gitflow fails before test selection on Git's dubious-ownership guard. The ownership correction and NIDAP naming changes are locally verified, with publication authorized by the user and fresh GitHub verification pending. All-green CI is not claimed.
+Verified published environment revision: `643751af813eb818ee263a3784d1e7ffde715c04`; environment preparation and preflight succeed, and Gitflow's checkout ownership failure is resolved.
+Status: Preparation, lint, both coverage jobs, and Gitflow pass. The package check reports examples OK and 0 errors, 6 warnings, 6 notes; its existing warning threshold still fails the check and aggregate. The subsequent ggalluvial dependency change remains local and uncommitted. All-green CI is not claimed.
+
+## Latest Published Results: Package Warnings Remain
+
+Verified the following completed runs at `643751a` on 2026-10-27:
+
+| Check | Result |
+| --- | --- |
+| [R-CMD-check run 40445596384](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40445596384) | Preparation 121996003865, lint 121996739359, and coverage 121996739283 pass. Package check 121996739268 and aggregate 122000021905 fail. |
+| [Gitflow run 40445596325, validation job 121996749190](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40445596325/job/121996749190) | Preparation, preflight, and push validation pass without the ownership error. This commit selects no changed R sources or unit tests, so this is not evidence that the full unit suite passed. Merged-PR deployment is skipped as expected. |
+| [Separate coverage run 40445596489](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40445596489) | Succeeds. |
+
+The failed package-check step explicitly uses `error-on: "warning"` and reports:
+
+```text
+* checking examples ... OK
+Status: 6 WARNINGs, 6 NOTEs
+Error: R CMD check found WARNINGs
+```
+
+These are package findings, not another environment-preparation or ggalluvial installation failure:
+
+- Nonportable file names and paths.
+- Installation warnings from namespace-import replacements.
+- Undeclared R-code dependencies and package-code library/require calls.
+- Undocumented exported build_modscore_plots.
+- Documentation/usage mismatches in compareCellPopulations and filterQC.
+- Vignette layout and missing VignetteBuilder configuration.
+
+The local ggalluvial required-dependency change has not reached GitHub and does not resolve these six categories. This verification changes documentation only; package sources/tests, dependency versions, the warning gate, capsule workflows, and the original SIF are unchanged. Fixing the remaining package findings is separate from verifying the preserved environment.
+
+## Required ggalluvial Dependency
+
+In a subsequent local follow-up, the user requested environment provisioning instead of an optional-package runtime guard. SCWorkflow now declares ggalluvial in DESCRIPTION Imports rather than Suggests, removes the guard from compareCellPopulations(), and retains the explicit ggalluvial::geom_flow call. This supersedes the earlier optional-dependency policy recorded below.
+
+The existing NIDAP preparation workflow already supplies checksum-pinned ggalluvial 0.12.3 through the isolated library. Its source-lock entry, installation logic, image digest, and package versions need no changes. The preserved base image and original SIF are not modified or rebuilt.
+
+A focused offline/read-only test in R 4.1.3 with Seurat 4.1.1 verifies ggalluvial 0.12.3 and builds both Frequency and Counts alluvial/box plots from a generated 12-cell object. All 10 assertions pass; two legacy deprecation warnings (tidyr spread_ and dplyr .dots) and the existing 21 package-load import warnings remain visible. The obsolete missing-optional-package test is replaced by this smoke test. The required parameter inventory and Graphify refresh succeed. These changes remain uncommitted; full fixture tests, package check, and new GitHub execution were not run for this follow-up, and the known package-check warnings are not resolved or suppressed.
 
 ## Gitflow Checkout Ownership Follow-Up
 
@@ -23,7 +60,7 @@ A command-scoped safe.directory attempt was rejected: the legacy Git in this ima
 
 [R-CMD-check run 40444042337, job 121991631335](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40444042337/job/121991631335) independently confirms examples OK and 0 errors, 6 warnings, 6 notes; its warning-level failure gate remains intact. Preparation, lint, and main coverage pass, and [separate coverage run 40444042306](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40444042306) succeeds. These package warnings are not fixed or suppressed by the ownership correction.
 
-Current user edits to the workflows and the NIDAP naming change are preserved. Actionlint passes all four current workflows. At local verification, the ownership fix and rename were uncommitted; the user subsequently authorized commit and push. Fresh GitHub verification remains pending. No package source/test, dependency-version, Seurat, capsule, deployment, original image, or SIF changes were made.
+Current user edits to the workflows and the NIDAP naming change were preserved. Actionlint passed all four current workflows. At local verification, the ownership fix and rename were uncommitted; the user subsequently authorized commit and push as 643751a. The successful published Gitflow verification is recorded above. No package source/test, dependency-version, Seurat, capsule, deployment, original image, or SIF changes were made by the ownership correction.
 
 ## Environment Naming
 
@@ -110,13 +147,13 @@ Local evidence is stored under `/tmp/scworkflow-trajectory-check.8qW76S`. The fo
 
 Test the current SCWorkflow source against an existing, preserved dependency environment instead of reconstructing legacy R dependencies from today's CRAN or Bioconductor repositories. Older dependency versions may no longer resolve through the current repository endpoints even when they remain usable in the archived container.
 
-This work changes SCWorkflow package validation workflows, makes `ggalluvial` optional at package load, corrects existing patchwork and optional trajectory dependency declarations, and aligns the trajectory documentation example's execution policy with the other examples. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
+This work changes SCWorkflow package validation workflows, declares ggalluvial and patchwork as required dependencies, corrects optional trajectory dependency declarations, and aligns the trajectory documentation example's execution policy with the other examples. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
 
 ## Strategy
 
 1. Check out the source revision selected by the GitHub event.
 2. Run package validation inside a prebuilt container pinned to an immutable Linux image digest.
-3. Reuse the R runtime and dependency packages already present in that image. A separate preparation job builds only missing, checksum-pinned tools into an isolated library; no base package is replaced. Validation jobs restore that artifact without dependency installation, dependency resolution, or package updates.
+3. Reuse the R runtime and dependency packages already present in that image. A separate preparation job builds only missing, checksum-pinned additions (including ggalluvial and CI tools) into an isolated library; no base package is replaced. Validation jobs restore that artifact without dependency installation, dependency resolution, or package updates.
 4. Build and install the checked-out SCWorkflow package as required by package checking and coverage. Do not validate only the older SCWorkflow installation that may already be in the image.
 5. Fail clearly if required validation tools or namespace-import dependencies are unavailable. Do not automatically download replacements or silently skip validation.
 6. Preserve environment evidence and genuine check failures for review.
@@ -127,7 +164,7 @@ This freezes the R environment, not the entire GitHub runner. GitHub Actions, im
 
 All four R validation jobs now select `rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf`, the public Docker source named in the supplied SIF. Direct Docker execution confirms R 4.1.3, Seurat/SeuratObject 4.1.1, Matrix 1.5-1, and ggplot2 3.3.6, matching the SIF's inspected versions. All 43 namespace imports load. This verifies the relevant runtime, not byte-for-byte equivalence of the Docker and SIF filesystems. The original SIF is neither used nor modified by the workflows.
 
-The shared [environment-preparation workflow](../.github/workflows/NIDAP-environment.yaml) downloads only the exact tool archives in [the source lock](../.github/scripts/ci-tool-sources.json). Host HTTPS verification stays enabled, and every source is checked by SHA-256 both on the host and before installation. This avoids the legacy container's observed certificate-trust failure without disabling TLS validation or changing its installed packages.
+The shared [environment-preparation workflow](../.github/workflows/NIDAP-environment.yaml) downloads only the exact dependency and CI-tool archives in [the source lock](../.github/scripts/ci-tool-sources.json). Host HTTPS verification stays enabled, and every source is checked by SHA-256 both on the host and before installation. This avoids the legacy container's observed certificate-trust failure without disabling TLS validation or changing its installed packages.
 
 The [preparation script](../.github/scripts/ci-prepare-tools.R) runs with the base filesystem read-only and networking disabled. It installs the following additions into `/ci-tools/library`, with dependency resolution disabled:
 

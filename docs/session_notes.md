@@ -1,5 +1,19 @@
 # Session Notes
 
+## 2026-10-27: Published Ownership Fix Passes; Package Warnings Still Fail CI
+
+- Checked latest published 643751af813eb818ee263a3784d1e7ffde715c04 against the user's continuing error. Gitflow run 40445596325 passes preparation and validation job 121996749190 without dubious ownership. Its push diff selects no changed R sources/tests, so this does not establish full unit-test success; deployment is skipped as expected.
+- R-CMD-check run 40445596384 passes preparation 121996003865, lint 121996739359, and coverage 121996739283. Package-check job 121996739268 reports examples OK, 0 errors, 6 warnings, 6 notes; the explicit error-on warning gate fails that step and aggregate 122000021905. Separate coverage run 40445596489 succeeds.
+- Remaining package-warning categories are portability, namespace-import replacements during installation, code dependency declarations/usage, undocumented build_modscore_plots, compareCellPopulations/filterQC documentation mismatches, and vignette layout. These are separate from the resolved environment/ownership setup. The ggalluvial follow-up remains local and uncommitted, so it is absent from this published run.
+- Updated the collaborator report with exact evidence. No new package source/test, workflow, warning-policy, dependency-version, Seurat, capsule, or original SIF changes; no commit, push, or merge. Existing local changes are preserved.
+
+## 2026-10-26: Require ggalluvial In The NIDAP Environment
+
+- The user rejected the optional-package guard and requested environment provisioning instead. Moved ggalluvial from Suggests to Imports and removed the requireNamespace/stop block from compareCellPopulations(); retained the explicit ggalluvial::geom_flow call.
+- Environment preparation already supplies checksum-pinned ggalluvial 0.12.3 in the isolated library. Verified that exact version loads in the preserved R 4.1.3 / Seurat 4.1.1 runtime; no source-lock, workflow, installer, image, installed-package, or Seurat version changes were needed.
+- Replaced the obsolete missing-optional-package test with a 12-cell Seurat smoke test. Both Frequency and Counts paths construct alluvial and box plots successfully, with 10 passing assertions. Two legacy deprecation warnings (tidyr spread_ and dplyr .dots) and the existing 21 package-load import warnings remain visible.
+- Required parameter inventory and Graphify refresh succeeded. Full fixture tests, package check, and fresh GitHub CI were not run for this local follow-up. The six known package-check warnings remain separate work. Changes are uncommitted; no capsule, original SIF, dependency upgrade, push, or merge.
+
 ## 2026-10-26: Resolve Gitflow Checkout Ownership Failure
 
 - Latest published b22f7b3 Gitflow run 40444038115 passes preparation and environment preflight, then job 121991624095 stops before selecting tests: Git reports dubious ownership of /__w/SCWorkflow/SCWorkflow and rev-parse exits 128. This is a Git setup defect in the new checker, not a package-test assertion or missing dependency.
