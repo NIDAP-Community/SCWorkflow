@@ -4,9 +4,10 @@ tool_sets <- list(
   lint = c("goodpractice", "lintr"),
   coverage = c("covr", "testthat")
 )
+tool_sets$all <- unique(unlist(tool_sets, use.names = FALSE))
 
 if (length(arguments) != 1L || !arguments[[1]] %in% names(tool_sets)) {
-  stop("Usage: Rscript .github/scripts/ci-preflight.R check|lint|coverage", call. = FALSE)
+  stop("Usage: Rscript .github/scripts/ci-preflight.R check|lint|coverage|all", call. = FALSE)
 }
 mode <- arguments[[1]]
 metadata <- read.dcf("DESCRIPTION")

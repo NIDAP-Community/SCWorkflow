@@ -29,18 +29,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: Set up NIDAP check environment
+        uses: ./.github/actions/NIDAP-setup
         with:
-          name: NIDAP-ci-tools
-          path: ${{ runner.temp }}/NIDAP-ci-tools
-
-      - name: Restore isolated CI tools
-        run: |
-          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
-
-      - name: Verify NIDAP check environment
-        run: Rscript .github/scripts/ci-preflight.R check
+          mode: check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
@@ -61,18 +53,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/download-artifact@v4
+      - name: Set up NIDAP lint environment
+        uses: ./.github/actions/NIDAP-setup
         with:
-          name: NIDAP-ci-tools
-          path: ${{ runner.temp }}/NIDAP-ci-tools
-
-      - name: Restore isolated CI tools
-        run: |
-          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
-
-      - name: Verify NIDAP lint environment
-        run: Rscript .github/scripts/ci-preflight.R lint
+          mode: lint
 
       - name: Good Practice checks
         shell: Rscript {0}
@@ -105,16 +89,10 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Set up NIDAP coverage environment
+        uses: ./.github/actions/NIDAP-setup
         with:
-          name: NIDAP-ci-tools
-          path: ${{ runner.temp }}/NIDAP-ci-tools
-      - name: Restore isolated CI tools
-        run: |
-          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
-      - name: Verify NIDAP coverage environment
-        run: Rscript .github/scripts/ci-preflight.R coverage
+          mode: coverage
       - name: Test coverage
         run: |
           cov <- covr::package_coverage(

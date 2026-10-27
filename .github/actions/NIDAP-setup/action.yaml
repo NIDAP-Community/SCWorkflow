@@ -1,0 +1,25 @@
+name: Set up NIDAP environment
+description: Restore the isolated CI tools and verify the requested environment.
+inputs:
+  mode:
+    description: Preflight mode for the consuming job.
+    required: true
+runs:
+  using: composite
+  steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: NIDAP-ci-tools
+        path: ${{ runner.temp }}/NIDAP-ci-tools
+
+    - name: Restore isolated CI tools
+      shell: bash
+      run: |
+        tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
+        printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
+
+    - name: Verify NIDAP environment
+      shell: bash
+      env:
+        NIDAP_PREFLIGHT_MODE: ${{ inputs.mode }}
+      run: Rscript .github/scripts/ci-preflight.R "$NIDAP_PREFLIGHT_MODE"

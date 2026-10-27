@@ -48,9 +48,7 @@ jobs:
               mkdir /tmp/preflight
               cp /workspace/DESCRIPTION /workspace/NAMESPACE /tmp/preflight/
               cd /tmp/preflight
-              for mode in check lint coverage; do
-                Rscript /workspace/.github/scripts/ci-preflight.R "$mode"
-              done
+              Rscript /workspace/.github/scripts/ci-preflight.R all
             '
 
       - name: Upload isolated tools and version evidence

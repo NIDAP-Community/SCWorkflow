@@ -31,18 +31,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - name: Set up NIDAP Gitflow environment
+        uses: ./.github/actions/NIDAP-setup
         with:
-          name: NIDAP-ci-tools
-          path: ${{ runner.temp }}/NIDAP-ci-tools
-
-      - name: Restore isolated CI tools
-        run: |
-          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
-
-      - name: Verify NIDAP Gitflow environment
-        run: Rscript .github/scripts/ci-preflight.R check
+          mode: check
 
       - name: Run Gitflow validation
         run: Rscript .github/scripts/ci-gitflow-check.R
