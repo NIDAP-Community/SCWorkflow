@@ -6,7 +6,7 @@ Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
 Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; subsequent report-only commits do not change this environment configuration.
-Status: Environment readiness is verified on GitHub. Both preparation jobs pass, and all four downstream validation jobs restore the tool artifact and pass their environment preflight. The real package-check, lint, and coverage steps are now running; full code-validation success is not claimed. The current SCWorkflow source also installs and loads locally with 21 namespace-import replacement warnings.
+Status: Environment readiness is verified on GitHub. Both preparation jobs pass, and all four downstream validation jobs restore the tool artifact and pass their environment preflight. Both coverage jobs complete successfully. R CMD check reports one package dependency-declaration error for `patchwork`; lint remains in progress at evidence capture. Full CI success is not claimed. The current SCWorkflow source also installs and loads locally with 21 namespace-import replacement warnings.
 
 ## Purpose
 
@@ -66,7 +66,19 @@ At revision `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`, [R-CMD-check run 4043002
 | Separate coverage preparation (`121945154888`) | Preparation and all-mode verification pass. |
 | Separate coverage (`121945986184`) | Artifact restoration and coverage-mode preflight pass. |
 
-This establishes that the real runner can prepare and restore the preserved environment before testing checked-out package code. At evidence capture, the package-check, goodpractice/lint, and coverage steps were in progress. Their outcomes remain separate from the successful environment gates; no tests, package warnings, or aggregate failure conditions were bypassed.
+This establishes that the real runner can prepare and restore the preserved environment before testing checked-out package code. Their package-validation outcomes remain separate from the successful environment gates; no tests, package warnings, or aggregate failure conditions were bypassed.
+
+## Package Validation Findings
+
+Both coverage jobs complete successfully at the verified revision, including the complete separate coverage workflow. The package-check job reaches R CMD check and stops at dependency validation with **1 error, 0 warnings, 0 notes**:
+
+```text
+Namespace dependency missing from DESCRIPTION Imports/Depends entries: patchwork
+```
+
+This is a package metadata error, not a missing installation: `patchwork` loads in the preserved environment, but its namespace import is not declared in DESCRIPTION. The check stops before its later checks/tests, so the zero warning/note counts are not an exhaustive clean result. No package metadata, code, or tests were altered to bypass it. Reviewing and correcting that declaration is the next separate package-side task.
+
+At this evidence capture, the goodpractice step has completed and the lint step is still running. No lint-success claim is made. The aggregate must remain non-successful when package check fails, even though environment preparation and coverage pass. The original SIF and all existing dependency versions remain unchanged.
 
 ## First GitHub Preparation Results And Path Correction
 
@@ -154,7 +166,8 @@ The preflight checks validation tooling and namespace imports, not every package
 | Current environment preflights | Check, lint, and coverage all exit 0 after archive restoration in an offline read-only container. Full base inventory is unchanged. |
 | Current source installation/load | Passed in the new environment; 21 namespace-import replacement warnings remain. |
 | GitHub environment restoration/preflights | Pass in all four validation jobs at `fd4dd6f`, after both preparation jobs succeed. |
-| Full package check, tests, lint, or coverage inside the frozen image | Actual package validation is now in progress on GitHub; full results are not yet claimed. |
+| Actual coverage | Both GitHub coverage jobs pass; the separate coverage workflow succeeds. |
+| Full package check and lint | R CMD check stops with one `patchwork` dependency-declaration error; lint is still in progress at evidence capture. |
 | GitHub workflow execution for this branch | Both validation workflows ran against `a637050` and failed in preflight; no successful package-validation result is claimed. |
 
 The early isolated harness tests validate preflight control flow, not image contents. The current environment checks above execute the real R 4.1.3 Docker runtime. Existing base packages and package-version constraints were not changed; only the nine explicitly pinned missing additions were installed into a separate temporary library.
@@ -295,7 +308,7 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 - [ ] The reported `ggalluvial` gap is confirmed in the image; package loading and the optional-function error are reviewed separately from full test-suite results.
 - [x] All preflight modes succeed locally after prepared-library restoration, without installation during validation.
 - [x] GitHub runs against the recorded revision and produces the prepared artifact; restoration and preflight pass in all four validation jobs.
-- [ ] Package checks and coverage execute against the checked-out source, with failures investigated rather than bypassed.
+- [x] Package checks and coverage execute against the checked-out source; the package metadata failure is investigated and reported rather than bypassed.
 - [ ] Aggregate status and any required-status configuration are verified.
 - [ ] Any remaining runtime, metadata, data-access, or Codecov failures are recorded separately.
 
@@ -303,4 +316,4 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 
 Passing in a frozen container demonstrates compatibility with that environment. It does not prove a fresh installation from `DESCRIPTION`, correctness of all dependency declarations, support for newer R/Seurat, or ongoing security support for the legacy stack. Dependency-metadata gaps identified in the release audit remain open and must not be hidden by the preinstalled libraries.
 
-The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks now pass both locally and in every GitHub validation job, and the current source installs/loads locally. The actual package checks, coverage, and lint are running and their results remain to be reviewed. Existing import-replacement warnings, dependency-metadata gaps, and external data access can still cause genuine package-check failures. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization, and dependency-metadata cleanup remains separate.
+The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks now pass locally and in every GitHub validation job; both coverage jobs pass. The next known package-side blocker is the undeclared `patchwork` namespace dependency; lint is still running at evidence capture. Existing import-replacement warnings, other metadata gaps, or external data access can produce additional findings after that declaration is reviewed. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization, and dependency-metadata cleanup remains separate.
