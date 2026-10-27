@@ -1,12 +1,35 @@
-# SCWorkflow Frozen-Container CI Strategy And Setup
+# SCWorkflow NIDAP Environment CI Strategy And Setup
 
 Date: 2026-10-26
 Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
-Verified published frozen-runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; the later Gitflow alignment below has local validation, with GitHub verification pending.
-Status: At published revision `93903bc`, frozen preparation, lint, and both coverage jobs pass. The package check reports examples OK and 0 errors, 6 warnings, 6 notes; the action fails because its existing threshold is warnings. The legacy Gitflow failure is addressed by the validation alignment below, verified locally in frozen R 4.1.3; its GitHub result remains pending. All-green CI is not claimed.
+Verified published environment revision: `b22f7b3a4d6b3cd52d295c9616321271a56a135b`; environment preparation and preflight succeed, but Gitflow validation reaches the checkout ownership failure described below.
+Status: At published revision `b22f7b3`, preparation, lint, and both coverage jobs pass. The package check reports examples OK and 0 errors, 6 warnings, 6 notes; the action fails on warnings. Gitflow fails before test selection on Git's dubious-ownership guard. The ownership correction and NIDAP naming changes are locally verified, with publication authorized by the user and fresh GitHub verification pending. All-green CI is not claimed.
+
+## Gitflow Checkout Ownership Follow-Up
+
+[Gitflow run 40444038115, job 121991624095](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40444038115/job/121991624095) uses the intended preserved runtime and restored tool library. Preparation and environment preflight succeed, but the R checker stops before selecting tests:
+
+```text
+fatal: detected dubious ownership in repository at '/__w/SCWorkflow/SCWorkflow'
+Error: Gitflow could not determine the changed files.
+```
+
+The failing command is git rev-parse with status 128. The earlier root-owned scratch copy did not exercise this ownership boundary. The checker now calls gitflow_trust_checkout() before validation, registering only the normalized checkout directory using git config --global --add safe.directory from R's own environment. The job-local configuration accepts that directory without wildcard trust, changing ownership/permissions, or editing host configuration. Configuring it from R avoids depending on a different shell or checkout-action configuration context.
+
+A command-scoped safe.directory attempt was rejected: the legacy Git in this image ignores that setting at command scope. A focused offline/read-only container probe creates a root-owned repository on Linux tmpfs, then runs as UID 65534. Plain Git reproduces status 128 and the same dubious-ownership message; after the corrected setup, HEAD, base resolution, and diff succeed, and the trusted-directory list contains only /tmp/probe. Linux-local storage is important because Docker Desktop maps host-bind ownership to the container user, preventing that initial probe from reproducing the guard.
+
+[R-CMD-check run 40444042337, job 121991631335](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40444042337/job/121991631335) independently confirms examples OK and 0 errors, 6 warnings, 6 notes; its warning-level failure gate remains intact. Preparation, lint, and main coverage pass, and [separate coverage run 40444042306](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40444042306) succeeds. These package warnings are not fixed or suppressed by the ownership correction.
+
+Current user edits to the workflows and the NIDAP naming change are preserved. Actionlint passes all four current workflows. At local verification, the ownership fix and rename were uncommitted; the user subsequently authorized commit and push. Fresh GitHub verification remains pending. No package source/test, dependency-version, Seurat, capsule, deployment, original image, or SIF changes were made.
+
+## Environment Naming
+
+At the user's request, the preserved runtime is named **NIDAP-environment** to reflect its NIDAP container origin. The reusable workflow is now [NIDAP-environment.yaml](../.github/workflows/NIDAP-environment.yaml). Live CI labels, preflight messages, artifact names, and matching temporary directories use the NIDAP name; the pinned image and package versions are unchanged.
+
+Historical runs, job names, artifact names, log paths, the existing task branch, and this report's filename are retained for traceability. Earlier references to a frozen environment describe the same preserved runtime, not a separate image. The SIF/Docker provenance and filesystem-equivalence limitations below remain unchanged.
 
 ## Local Gitflow Validation Alignment
 
@@ -26,7 +49,7 @@ Actionlint passes, and executable checks cover event routing, changed-test/sourc
 
 Evidence is under `/tmp/scworkflow-gitflow-check.JS3luM`: `check.log`, `check-isolated.log`, and `check-final.log`. Original package sources, tests, base image, and tool library were read-only inputs; execution used a separate scratch package copy with networking disabled. No SIF was accessed or modified, and no dependency or Seurat version changed. At local verification, full main/release validation and GitHub execution of this follow-up had not been run. The user subsequently authorized commit and push; the six package-check warnings are not resolved or suppressed.
 
-## Latest Published Results: Two Separate Blockers
+## Earlier Published Results: Two Separate Blockers
 
 The user's continuing error was checked against published commit `93903bc195b01ef7b4bd6f36224cea776ef3771f`, not an older run. [R-CMD-check run 40439487233, package-check job 121976870667](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40439487233/job/121976870667) confirms:
 
@@ -104,7 +127,7 @@ This freezes the R environment, not the entire GitHub runner. GitHub Actions, im
 
 All four R validation jobs now select `rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf`, the public Docker source named in the supplied SIF. Direct Docker execution confirms R 4.1.3, Seurat/SeuratObject 4.1.1, Matrix 1.5-1, and ggplot2 3.3.6, matching the SIF's inspected versions. All 43 namespace imports load. This verifies the relevant runtime, not byte-for-byte equivalence of the Docker and SIF filesystems. The original SIF is neither used nor modified by the workflows.
 
-The shared [environment-preparation workflow](../.github/workflows/frozen-environment.yaml) downloads only the exact tool archives in [the source lock](../.github/scripts/ci-tool-sources.json). Host HTTPS verification stays enabled, and every source is checked by SHA-256 both on the host and before installation. This avoids the legacy container's observed certificate-trust failure without disabling TLS validation or changing its installed packages.
+The shared [environment-preparation workflow](../.github/workflows/NIDAP-environment.yaml) downloads only the exact tool archives in [the source lock](../.github/scripts/ci-tool-sources.json). Host HTTPS verification stays enabled, and every source is checked by SHA-256 both on the host and before installation. This avoids the legacy container's observed certificate-trust failure without disabling TLS validation or changing its installed packages.
 
 The [preparation script](../.github/scripts/ci-prepare-tools.R) runs with the base filesystem read-only and networking disabled. It installs the following additions into `/ci-tools/library`, with dependency resolution disabled:
 
@@ -122,7 +145,7 @@ The [preparation script](../.github/scripts/ci-prepare-tools.R) runs with the ba
 
 The script refuses to shadow any base package and verifies the complete base package/version/library-path inventory is unchanged. Existing rcmdcheck 1.4.0, testthat 3.1.6, and all other installed prerequisites are reused. No dependency already installed in the preserved image is rebuilt or upgraded.
 
-Preparation verifies all three preflight modes, then uploads `frozen-ci-tools` containing `library.tar.gz`, `base-packages.csv`, and `tools-manifest.csv`. Both caller workflows wait for preparation; each validation job restores the library and sets `R_LIBS_USER` through `GITHUB_ENV`. The aggregate requires preparation and all validation jobs to succeed. Failed setup is not skipped or treated as a passing code check.
+Preparation verifies all three preflight modes, then uploads `NIDAP-ci-tools` containing `library.tar.gz`, `base-packages.csv`, and `tools-manifest.csv`. All three caller workflows wait for preparation; each validation job restores the library and sets `R_LIBS_USER` through `GITHUB_ENV`. The aggregate requires preparation and all validation jobs to succeed. Failed setup is not skipped or treated as a passing code check.
 
 Local verification restored the archive into a fresh executable temporary filesystem in a separate offline container. `check`, `lint`, and `coverage` each exited 0, and the base inventory still matched exactly. A deliberately corrupted source was rejected before installation. The current source also completed `R CMD INSTALL` and loaded from its new temporary installation, not a preinstalled SCWorkflow copy. Its 21 import-replacement warnings are recorded separately; no warning was suppressed to obtain a pass. Actionlint 1.7.7 passes all three workflows.
 
@@ -196,7 +219,7 @@ The current isolated library supplies checksum-pinned `ggalluvial` 0.12.3 for co
 | --- | --- |
 | [R-CMD-check workflow](../.github/workflows/R-CMD-check.yaml) | Run package checking, lint, and coverage in the same pinned image. Remove `install-r-pak` and `setup-r-dependencies`. Retain existing package-check, goodpractice, lint, coverage, and upload actions. |
 | [Separate coverage workflow](../.github/workflows/test-coverage.yaml) | Use the same image and preflight instead of constructing dependencies with pak. Preserve its existing triggers and coverage upload behavior. |
-| [Shared environment preparation](../.github/workflows/frozen-environment.yaml) | Download locked sources on the host, prepare only missing tools offline in a read-only base, verify all modes, and upload the isolated library. |
+| [Shared environment preparation](../.github/workflows/NIDAP-environment.yaml) | Download locked sources on the host, prepare only missing tools offline in a read-only base, verify all modes, and upload the isolated library. |
 | [Tool preparation script](../.github/scripts/ci-prepare-tools.R) and [source lock](../.github/scripts/ci-tool-sources.json) | Pin versions and source checksums, disable dependency resolution, and reject changes to existing base packages. |
 | [Shared preflight](../.github/scripts/ci-preflight.R) | Verify the package root, record the source SHA and installed environment, and check mode-specific tools and namespace-import loadability without installing anything. |
 | [Build exclusions](../.Rbuildignore) and [Git exclusions](../.gitignore) | Exclude generated `ci-artifacts/` from the package build and version control. |
@@ -219,7 +242,7 @@ Each job records these files before raising a missing-tool or missing-import err
 - `ci-artifacts/installed-packages.csv`: package names, versions, library paths, and build versions.
 - `ci-artifacts/namespace-dependencies.csv`: packages imported by the checked-out `NAMESPACE` and whether each namespace is loadable in the environment.
 
-The workflows attempt to upload these files even if validation fails, as `frozen-check-environment`, `frozen-lint-environment`, or `frozen-coverage-environment`. Existing package-check and failed-test artifacts remain available through their original steps. If checkout or container startup fails, the preflight cannot produce an inventory.
+The workflows attempt to upload these files even if validation fails, as `NIDAP-check-environment`, `NIDAP-lint-environment`, `NIDAP-coverage-environment`, or `NIDAP-gitflow-environment`. Existing package-check and failed-test artifacts remain available through their original steps. If checkout or container startup fails, the preflight cannot produce an inventory.
 
 The preflight checks validation tooling and namespace imports, not every package-qualified or conditional runtime dependency of every SCWorkflow feature. Actual package checks and tests must still expose other missing feature dependencies or compatibility failures. Unavailable namespaces can also reflect incompatible installed dependencies, not only completely absent packages. Image gaps require a separately reviewed image decision, not a package-install fallback in CI.
 
@@ -336,11 +359,11 @@ Confirm that function changes are limited to the optional dependency guard, qual
 
 ### Inspect And Run The Image
 
-From the package root, with Docker running, first obtain the `frozen-ci-tools` artifact from a successful preparation job, or run the source-download and preparation steps in the shared workflow. Set `tools_directory` to the absolute directory containing its `library.tar.gz`. On Apple Silicon, use `--platform linux/amd64` for preparation as well as verification.
+From the package root, with Docker running, first obtain the `NIDAP-ci-tools` artifact from a successful preparation job, or run the source-download and preparation steps in the shared workflow. Set `tools_directory` to the absolute directory containing its `library.tar.gz`. On Apple Silicon, use `--platform linux/amd64` for preparation as well as verification.
 
 ```bash
 image='rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf'
-tools_directory='/absolute/path/to/frozen-ci-tools'
+tools_directory='/absolute/path/to/NIDAP-ci-tools'
 docker buildx imagetools inspect "$image"
 docker pull --platform linux/amd64 "$image"
 docker run --rm --platform linux/amd64 --read-only --network none \

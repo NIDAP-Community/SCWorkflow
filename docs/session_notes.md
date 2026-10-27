@@ -1,5 +1,19 @@
 # Session Notes
 
+## 2026-10-26: Resolve Gitflow Checkout Ownership Failure
+
+- Latest published b22f7b3 Gitflow run 40444038115 passes preparation and environment preflight, then job 121991624095 stops before selecting tests: Git reports dubious ownership of /__w/SCWorkflow/SCWorkflow and rev-parse exits 128. This is a Git setup defect in the new checker, not a package-test assertion or missing dependency.
+- Added gitflow_trust_checkout() before validation to register only normalizePath(".") with git config --global --add safe.directory from R's own configuration context. No wildcard trust, changed ownership, permission changes, or host Git configuration edits. The legacy Git ignores command-scoped safe.directory, so that attempted approach was rejected by the focused probe.
+- In the pinned offline/read-only R 4.1.3 container, a root-owned repository created on Linux tmpfs fails for UID 65534 before setup, then HEAD/base/diff succeed after setup; the safe-directory list contains only /tmp/probe. Docker Desktop maps bind-mounted ownership to the container user, so a host-bind-only probe does not reproduce this guard.
+- R-CMD-check run 40444042337 still reports examples OK, 0 errors, 6 warnings, 6 notes and fails on warnings. Preparation, lint, and main coverage pass; separate coverage 40444042306 succeeds. Existing workflow edits were read and preserved; actionlint passes all four current NIDAP-named workflows.
+- Ownership fix and NIDAP naming changes were uncommitted at local verification; the user subsequently authorized commit and push. No package R/test, dependency-version, Seurat, capsule, deployment, or SIF changes; no merge is authorized. GitHub verification of the fix remains pending.
+
+## 2026-10-26: Name The Preserved Runtime NIDAP-environment
+
+- At the user's request, renamed the reusable workflow to NIDAP-environment.yaml and updated all three callers, live job/step labels, preflight messages, artifact names, and matching temporary directories. The current tool artifact is NIDAP-ci-tools; diagnostic artifacts use the NIDAP prefix.
+- Updated current documentation and the checker's rationale comment. Retained the existing branch/report filename and historical log paths, job labels, and artifact names for traceability. The supplied SIF and verified public image provenance are unchanged.
+- Actionlint and normalized YAML comparisons confirm naming-only changes: pinned image, triggers, checks, preparation/restoration logic, and deployment settings remain unchanged. No package R/test, dependency-version, Seurat, capsule, or original SIF changes. At local verification, changes were uncommitted; the user subsequently authorized publication. GitHub verification is pending.
+
 ## 2026-10-26: Align Gitflow Validation With The Frozen Runtime
 
 - The user authorized Gitflow alignment. The shared implementation assumes Conda, hard-codes an old renv path, calls invalid libPaths(), and parses test logs. Replaced its validation path with a local frozen job using the existing preparation workflow, pinned rs413s digest, restored library, and namespace preflight. No package installation or base-package upgrade occurs in validation.

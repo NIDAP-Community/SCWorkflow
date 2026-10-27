@@ -55,11 +55,11 @@ issues <- c(
 )
 if (length(issues)) {
   stop(
-    "Frozen CI image cannot validate the checked-out SCWorkflow package; unavailable ",
+    "NIDAP CI image cannot validate the checked-out SCWorkflow package; unavailable ",
     paste(issues, collapse = "; "),
     ". Missing namespace imports can prevent package loading before tests run",
     ". No dependency installation was attempted; review the image separately.",
     call. = FALSE
   )
 }
-cat("Frozen-image preflight passed for", mode, "\n")
+cat("NIDAP-image preflight passed for", mode, "\n")

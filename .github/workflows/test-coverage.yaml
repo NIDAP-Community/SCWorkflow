@@ -12,7 +12,7 @@ permissions: read-all
 
 jobs:
   prepare-environment:
-    uses: ./.github/workflows/frozen-environment.yaml
+    uses: ./.github/workflows/NIDAP-environment.yaml
 
   test-coverage:
     needs: prepare-environment
@@ -27,15 +27,15 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: frozen-ci-tools
-          path: ${{ runner.temp }}/frozen-ci-tools
+          name: NIDAP-ci-tools
+          path: ${{ runner.temp }}/NIDAP-ci-tools
 
       - name: Restore isolated CI tools
         run: |
-          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
+          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
 
-      - name: Verify frozen coverage environment
+      - name: Verify NIDAP coverage environment
         run: Rscript .github/scripts/ci-preflight.R coverage
 
       - name: Test coverage
@@ -70,9 +70,9 @@ jobs:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
 
-      - name: Upload frozen coverage environment
+      - name: Upload NIDAP coverage environment
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frozen-coverage-environment
+          name: NIDAP-coverage-environment
           path: ci-artifacts/

@@ -4,6 +4,8 @@
 
 ### CI
 
+* ci: Register only the current checkout as a safe Git directory from the R process before Gitflow validation, resolving container ownership checks without wildcard trust (#107).
+* ci: Rename the preserved environment to NIDAP-environment, including its workflow, live labels, and artifact paths; retain the same pinned runtime and checks (#107).
 * ci: Run Gitflow validation in the frozen runtime with restored isolated tools, native test-failure handling, and preserved push/main/release check scopes; retain existing merged-PR deployment configuration (#107).
 * ci: Restore isolated tool artifacts and read coverage diagnostics using job-container paths rather than host-only runner paths.
 * ci: Reuse the verified rs413s legacy runtime and a separately prepared checksum-pinned CI-tool library; verify unchanged base packages and all environment modes before package validation.

@@ -15,12 +15,12 @@ permissions:
 
 jobs:
   prepare-environment:
-    uses: ./.github/workflows/frozen-environment.yaml
+    uses: ./.github/workflows/NIDAP-environment.yaml
 
   R-CMD-check:
     needs: prepare-environment
     runs-on: ubuntu-latest
-    name: Frozen container check
+    name: NIDAP container check
     container:
       image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
     env:
@@ -31,26 +31,26 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: frozen-ci-tools
-          path: ${{ runner.temp }}/frozen-ci-tools
+          name: NIDAP-ci-tools
+          path: ${{ runner.temp }}/NIDAP-ci-tools
 
       - name: Restore isolated CI tools
         run: |
-          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
+          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
 
-      - name: Verify frozen check environment
+      - name: Verify NIDAP check environment
         run: Rscript .github/scripts/ci-preflight.R check
 
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
 
-      - name: Upload frozen check environment
+      - name: Upload NIDAP check environment
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frozen-check-environment
+          name: NIDAP-check-environment
           path: ci-artifacts/
 
   lint:
@@ -63,15 +63,15 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: frozen-ci-tools
-          path: ${{ runner.temp }}/frozen-ci-tools
+          name: NIDAP-ci-tools
+          path: ${{ runner.temp }}/NIDAP-ci-tools
 
       - name: Restore isolated CI tools
         run: |
-          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
+          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
 
-      - name: Verify frozen lint environment
+      - name: Verify NIDAP lint environment
         run: Rscript .github/scripts/ci-preflight.R lint
 
       - name: Good Practice checks
@@ -89,11 +89,11 @@ jobs:
         env:
           LINTR_ERROR_ON_LINT: false
 
-      - name: Upload frozen lint environment
+      - name: Upload NIDAP lint environment
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frozen-lint-environment
+          name: NIDAP-lint-environment
           path: ci-artifacts/
 
   test-coverage:
@@ -107,13 +107,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: frozen-ci-tools
-          path: ${{ runner.temp }}/frozen-ci-tools
+          name: NIDAP-ci-tools
+          path: ${{ runner.temp }}/NIDAP-ci-tools
       - name: Restore isolated CI tools
         run: |
-          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
-      - name: Verify frozen coverage environment
+          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
+      - name: Verify NIDAP coverage environment
         run: Rscript .github/scripts/ci-preflight.R coverage
       - name: Test coverage
         run: |
@@ -144,11 +144,11 @@ jobs:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
 
-      - name: Upload frozen coverage environment
+      - name: Upload NIDAP coverage environment
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frozen-coverage-environment
+          name: NIDAP-coverage-environment
           path: ci-artifacts/
 
   check:

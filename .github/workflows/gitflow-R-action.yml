@@ -12,10 +12,10 @@ on:
 jobs:
   prepare-environment:
     if: github.event_name == 'push' || github.event.pull_request.merged != true
-    uses: ./.github/workflows/frozen-environment.yaml
+    uses: ./.github/workflows/NIDAP-environment.yaml
 
-  frozen-validation:
-    name: Frozen Gitflow checks
+  NIDAP-validation:
+    name: NIDAP Gitflow checks
     needs: prepare-environment
     runs-on: ubuntu-latest
     permissions:
@@ -33,25 +33,25 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: frozen-ci-tools
-          path: ${{ runner.temp }}/frozen-ci-tools
+          name: NIDAP-ci-tools
+          path: ${{ runner.temp }}/NIDAP-ci-tools
 
       - name: Restore isolated CI tools
         run: |
-          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
+          tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
 
-      - name: Verify frozen Gitflow environment
+      - name: Verify NIDAP Gitflow environment
         run: Rscript .github/scripts/ci-preflight.R check
 
       - name: Run Gitflow validation
         run: Rscript .github/scripts/ci-gitflow-check.R
 
-      - name: Upload frozen Gitflow environment
+      - name: Upload NIDAP Gitflow environment
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frozen-gitflow-environment
+          name: NIDAP-gitflow-environment
           path: ci-artifacts/
 
   Activating_Parser:

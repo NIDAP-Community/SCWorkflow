@@ -2,6 +2,7 @@
 
 ## Dependencies
 
+* Name the preserved runtime NIDAP-environment, reflecting its NIDAP container origin without changing the image or installed package versions (#107).
 * Align Gitflow validation with the frozen R 4.1.3 runtime and isolated CI-tool library while preserving existing deployment configuration (#107).
 * Declare optional trajectory dependencies already used by the package (#107).
 * Declare `patchwork` in `Imports` to match its existing namespace import (#107).

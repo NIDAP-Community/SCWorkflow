@@ -1,10 +1,17 @@
-# CI-only adapter for the frozen R runtime and restored CI-tool library.
+# CI-only adapter for the NIDAP R environment and restored CI-tool library.
 # Shared Gitflow checks assume Conda and an old renv path, with no setup hook
 # for restoring this library, so changing their image alone is insufficient.
 # This runner retains push, main, and release validation; deployment stays on
 # the existing shared workflow. It does not change SCWorkflow functions.
-# This adapter is an integration choice, not a frozen-container requirement;
+# This adapter is an integration choice, not a container requirement;
 # upstream Gitflow support for the same setup could replace it.
+
+gitflow_trust_checkout <- function() {
+  arguments <- c("config", "--global", "--add", "safe.directory", normalizePath("."))
+  if (system2("git", shQuote(arguments)) != 0L) {
+    stop("Gitflow could not trust the checked-out repository.", call. = FALSE)
+  }
+}
 
 gitflow_git <- function(arguments) {
   output <- system2("git", shQuote(arguments), stdout = TRUE)
@@ -68,6 +75,7 @@ run_gitflow_checks <- function() {
   if (as.character(getRversion()) != "4.1.3") {
     stop("Run Gitflow checks only in the pinned R 4.1.3 environment.", call. = FALSE)
   }
+  gitflow_trust_checkout()
   scope <- gitflow_scope(Sys.getenv("GITFLOW_EVENT", unset = "push"),
                          Sys.getenv("GITFLOW_BASE_REF"))
   required <- if (scope == "main") {
