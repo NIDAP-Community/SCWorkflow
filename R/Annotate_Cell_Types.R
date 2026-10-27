@@ -24,8 +24,7 @@
 #'
 #'
 #' @import Seurat
-#' @rawNamespace import(cowplot, except = c("get_legend"))
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 ggtitle guide_legend guides scale_color_manual theme
 #' @import RColorBrewer
 #' @importFrom SingleR SingleR
 #' @import celldex

@@ -24,12 +24,11 @@
 #'
 #'
 #' @import Seurat
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom dplyr everything
 #' @import RColorBrewer
 #' @import scales
 #' @import tidyverse
 #' @import ggrepel
-#' @rawNamespace import(gdata, except = c("combine", "env", "ll", "object.size"))
 #' @import reshape2
 #' @import tools
 #' @import grid

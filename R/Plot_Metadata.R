@@ -35,18 +35,19 @@
 #'
 #'
 #' @import Seurat
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 aes element_blank element_text geom_point ggplot ggtitle
+#' @importFrom ggplot2 guide_legend guides rel scale_color_gradientn
+#' @importFrom ggplot2 scale_color_manual theme theme_bw xlab ylab
 #' @import RColorBrewer
 #' @import scales
 #' @import tidyverse
 #' @import ggrepel
-#' @rawNamespace import(gdata, except = c("combine", "env", "ll", "object.size"))
 #' @import reshape2
 #' @import tools
 #' @import grid
 #' @import gridBase
 #' @import gridExtra
-#' @rawNamespace import(dplyr, except = c("combine", "first", "last"))
+#' @importFrom dplyr arrange group_by setdiff
 #'
 #' @export
 #'

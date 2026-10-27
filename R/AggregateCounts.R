@@ -16,9 +16,9 @@
 #'
 #' @import Seurat
 #' @import tidyverse
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 aes element_text geom_bar ggplot labs theme
 #' @import plotly
-#' @importFrom dplyr select
+#' @importFrom dplyr everything filter select
 #'
 #' @export
 #'

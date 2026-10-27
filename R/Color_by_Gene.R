@@ -28,7 +28,8 @@
 #'
 #' @import Seurat
 #' @import gridExtra
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 aes element_blank element_text geom_point ggplot ggtitle
+#' @importFrom ggplot2 rel scale_color_gradient theme theme_bw xlab ylab
 #' @import tidyverse
 #'
 #'

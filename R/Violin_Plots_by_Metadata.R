@@ -20,9 +20,11 @@
 #' @import reshape2
 #' @import tidyverse
 #' @importFrom tidyr pivot_longer
-#' @rawNamespace import(cowplot, except = c("get_legend"))
+#' @importFrom dplyr across all_of group_by mutate ungroup
 #' @import rlang
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 aes element_blank element_text facet_wrap geom_boxplot
+#' @importFrom ggplot2 geom_jitter geom_violin ggplot position_dodge
+#' @importFrom ggplot2 scale_fill_brewer scale_fill_manual theme theme_classic
 #'   
 #' @export
 #' @examples

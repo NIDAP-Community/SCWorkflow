@@ -1,5 +1,12 @@
 # Session Notes
 
+## 2026-10-27: Replace Namespace Exclusions With Named Imports
+
+- At the user's request, replaced every rawNamespace import directive in the top-level package with importFrom declarations for actual dependencies, or removed the import when unused. Added supporting declarations for functions that previously inherited broad imports from other source files.
+- Regenerated only NAMESPACE with roxygen2. The same 28 public exports and the existing ggpubr get_legend, reshape2 melt, dendextend rotate, and magrittr pipe providers are preserved. All parsed R function code is identical to the preceding commit.
+- Checked imported symbols against source namespace declarations for the exact legacy package versions recorded in GitHub run 40548054384. Roxygen parsing, dependency-call coverage, patch checks, and the required parameter inventory/Graphify refresh pass.
+- No dependency or package version, test, fixture, template, workflow, runtime function, or original SIF changes. Runtime verification uses GitHub Actions, not local Docker; publication and remote results are pending.
+
 ## 2026-10-27: Review Package Follow-Up For Authorized Publication
 
 - The user approved reviewing and publishing all 25 remaining package/documentation files on DEV-frozen-container-ci. They cover dependency declarations, namespace conflicts, explicit Seurat cell-cycle data references, source-build exclusions, and existing function help; package and dependency versions remain unchanged.

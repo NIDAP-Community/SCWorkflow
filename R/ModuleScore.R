@@ -68,7 +68,6 @@
 #' @import gridExtra
 #' @import quantmod
 #' @import grid
-#' @rawNamespace import(data.table, except = c(":=", "between", "dcast", "first", "last", "melt"))
 #' @import utils
 #' @import stringr
 #' @importFrom stringr str_split

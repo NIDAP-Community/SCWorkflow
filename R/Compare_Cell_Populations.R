@@ -24,15 +24,15 @@
 #' in box plots. Default is 5
 #'
 #' @import Seurat
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
-#' @rawNamespace import(ggpubr, except = c("rotate"))
+#' @importFrom ggplot2 aes aes_string element_blank facet_wrap geom_col geom_text
+#' @importFrom ggplot2 ggplot guide_axis position_stack scale_fill_manual
+#' @importFrom ggplot2 scale_x_discrete theme theme_classic xlab
+#' @importFrom ggpubr ggboxplot
 #' @import RColorBrewer
 #' @import tibble
 #' @import reshape2
-#' @rawNamespace import(data.table, except = c(":=", "between", "dcast", "first", "last", "melt"))
-#' @rawNamespace import(dplyr, except = c("combine", "first", "last"))
-#' @rawNamespace import(magrittr, except = c("extract", "set_names"))
-#' @rawNamespace import(cowplot, except = c("get_legend"))
+#' @importFrom dplyr setdiff
+#' @importFrom magrittr %>%
 #' @import gridExtra
 #' @import grid
 #' @import scales

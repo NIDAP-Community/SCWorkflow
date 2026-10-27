@@ -37,11 +37,13 @@
 #'
 #'
 #' @import Seurat
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 aes element_blank geom_point ggplot ggtitle guide_legend
+#' @importFrom ggplot2 guides scale_color_gradientn scale_color_manual theme
+#' @importFrom ggplot2 theme_bw theme_classic xlab ylab
 #' @import gridExtra
 #' @import grid
 #' @import gridBase
-#' @rawNamespace import(cowplot, except = c("get_legend"))
+#' @importFrom dplyr group_by intersect setdiff summarise
 #' @import RColorBrewer
 #' @import colorspace
 #' @import tidyverse

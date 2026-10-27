@@ -28,8 +28,9 @@
 #' @import Seurat
 #' @import tidyverse
 #' @import gridExtra
-#' @rawNamespace import(ggpubr, except = c("rotate"))
-#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @importFrom ggplot2 aes element_blank element_rect element_text geom_point
+#' @importFrom ggplot2 ggplot ggtitle rel scale_color_gradient theme theme_bw
+#' @importFrom ggplot2 theme_void xlab ylab
 #'
 #' @export
 #' @examples

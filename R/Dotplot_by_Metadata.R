@@ -22,6 +22,9 @@
 #'
 #' @importFrom tidyr pivot_wider
 #' @importFrom Seurat Idents DotPlot
+#' @importFrom cowplot theme_cowplot
+#' @importFrom ggplot2 aes_string coord_flip element_blank element_text geom_point
+#' @importFrom ggplot2 ggplot labs scale_color_gradient scale_y_discrete theme
 #'
 #' @export 
 #' 

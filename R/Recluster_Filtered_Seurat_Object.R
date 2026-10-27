@@ -29,7 +29,8 @@
 #' Default is "tsne".
 #'
 #' @import Seurat
-#' @rawNamespace import(cowplot, except = c("get_legend"))
+#' @importFrom cowplot plot_grid
+#' @importFrom dplyr one_of select
 #' @import tidyverse
 #'
 #' @export
