@@ -34,6 +34,19 @@ jobs:
         with:
           mode: check
 
+      - name: Install qpdf for PDF checks
+        shell: bash
+        run: |
+          apt-get update
+          plan="$(apt-get --simulate install --no-install-recommends --no-upgrade --no-remove qpdf)"
+          printf '%s\n' "$plan"
+          if grep -Eq '^Inst [^ ]+ \[' <<< "$plan"; then
+            printf '%s\n' 'Installing qpdf would upgrade an existing system package.' >&2
+            exit 1
+          fi
+          apt-get install --yes --no-install-recommends --no-upgrade --no-remove qpdf
+          qpdf --version
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
