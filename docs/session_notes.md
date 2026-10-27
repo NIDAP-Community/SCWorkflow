@@ -1,5 +1,12 @@
 # Session Notes
 
+## 2026-10-26: Trajectory Declarations And Example Finding
+
+- Published patchwork correction `2a8f64c` resolves the original error. GitHub runs 40432161914 and 40432162075 complete: preparation, lint, and both coverage jobs pass. R CMD check advances and reports 1 error, 6 warnings, 6 notes; the error is the trajectory example's namespace-load failure.
+- The user approved compatible missing additions in the isolated library, but direct inspection proves TrajectoryUtils 1.2.0, TSCAN 1.32.0, and mclust 6.0.0 are already installed/loadable. Added only their missing DESCRIPTION Suggests declarations; no additions to the source lock, installer, image, or isolated library are needed.
+- The unchanged example now advances past dependency loading in a focused offline R 4.1.3 check, then fails because its Seurat object has no PCA reduction. This is a package example/input issue, not missing installation. Do not change function/example/test code merely to green CI; report the remaining issue separately.
+- Focused evidence: `/tmp/scworkflow-trajectory-check.8qW76S/check.log` and `check/`; args include `--no-tests --no-vignettes --no-codoc` to focus on unchanged examples, not full CI. The first 1 GiB tmpfs build ran out of fixture-copy space; rerun used disk-backed TMPDIR, changing only the harness. Fresh GitHub results after the Suggests correction remain pending. No runtime versions, Seurat, SIF, code/tests, or validation gates were changed.
+
 ## 2026-10-26: Patchwork Dependency Declaration Follow-Up
 
 - The user still sees a failing check. Confirmed the latest published revision `41b3897` reproduces the same undeclared `patchwork` namespace dependency in run 40430987972, job 121949158014; preparation and both coverage jobs pass.

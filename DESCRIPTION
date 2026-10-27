@@ -95,9 +95,12 @@ Imports:
 Suggests:
        ggalluvial,
        knitr,
+       mclust,
        rmarkdown,
        roxygen2,
        testthat (>= 3.0.0),
+       TrajectoryUtils,
+       TSCAN,
        usethis
 Config/Needs/dev: cffr, covr, goodpractice, here, lintr, pkgdown,
     rcmdcheck

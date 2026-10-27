@@ -6,7 +6,7 @@ Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
 Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; the package-metadata follow-up below does not change the workflow, image, or installed dependencies.
-Status: Environment readiness is verified on GitHub, and both coverage jobs pass. The latest published revision `41b3897` still fails R CMD check on the undeclared `patchwork` namespace dependency. Its declaration is now corrected locally and verified against the frozen runtime; a fresh GitHub run is pending. Full CI success is not claimed. The current SCWorkflow source also installs and loads locally with 21 namespace-import replacement warnings.
+Status: The published patchwork correction `2a8f64c` resolves the original declaration error. Preparation, lint, and both coverage jobs pass on GitHub. R CMD check now reaches the trajectory example and reports 1 error, 6 warnings, and 6 notes. Additional trajectory dependency declarations are locally verified; the unchanged example then reveals a missing PCA reduction in its input. Fresh GitHub verification of those declarations is pending. Full CI success is not claimed.
 
 ## Patchwork Declaration Follow-Up
 
@@ -14,13 +14,29 @@ The user's report of a continuing error was confirmed in [run 40430987972](https
 
 The follow-up adds `patchwork` to DESCRIPTION Imports, matching its existing unconditional NAMESPACE import. It does not install or upgrade patchwork, change version constraints, modify function code/tests, or touch the original SIF. The unchanged R 4.1.3 image already provides patchwork 1.2.0.
 
-A focused offline/read-only container check parses NAMESPACE as R expressions and DESCRIPTION as DCF, verifies that every non-base imported package is declared, and confirms patchwork loads. That check passes. Standard R base packages are exempted using installed-package Priority metadata. Fresh package-check/CI results after publishing the correction remain pending; earlier findings below describe the recorded revisions, not a successful rerun of this fix.
+A focused offline/read-only container check parses NAMESPACE as R expressions and DESCRIPTION as DCF, verifies that every non-base imported package is declared, and confirms patchwork loads. That check passes. Standard R base packages are exempted using installed-package Priority metadata. At that local verification point, GitHub results were pending; the subsequent published result is recorded next, and earlier findings below retain their original revision context.
+
+The correction was published as `2a8f64c85b8a4b20ef0cc64061482f4a1ae2714b`. [R-CMD-check run 40432161914](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40432161914) confirms the patchwork error is gone and the check advances beyond dependency validation. Preparation, lint, and both coverage jobs pass; [separate coverage run 40432162075](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40432162075) succeeds. The package check remains failed with 1 error, 6 warnings, and 6 notes.
+
+## Trajectory Declarations And Remaining Example Failure
+
+The next error in that GitHub run is `Missing required packages: TrajectoryUtils, TSCAN, mclust` while executing the unchanged trajectory example. Direct read-only inspection shows that all three already load in the frozen image: TrajectoryUtils 1.2.0, TSCAN 1.32.0, and mclust 6.0.0. Although the user authorized compatible missing additions to the isolated library, no package additions, rebuilds, or upgrades are needed for these three.
+
+The follow-up declares these existing optional dependencies in DESCRIPTION Suggests. A focused offline R 4.1.3 check then advances the unchanged example past namespace loading. It stops later with:
+
+```text
+'PCA' not in 'reducedDimNames(<SingleCellExperiment>)'
+```
+
+The example constructs a small Seurat object without a PCA reduction, while the function expects that reduction. This remaining example/input issue must be handled separately from environment preparation; no function/example/test code or validation gates were changed to bypass it. Package warnings also remain, including namespace-import replacement, other undeclared code dependencies, documentation mismatches, vignette layout, and file portability. The warning-level CI gate is retained, so fixing the example alone would not prove all-green CI.
+
+Local evidence is stored under `/tmp/scworkflow-trajectory-check.8qW76S`. The focused check uses `--no-tests --no-vignettes --no-codoc` but still runs the original examples; it is not presented as full CI. An initial build exhausted a 1 GiB temporary filesystem while copying fixtures; a disk-backed TMPDIR fixed only the validation harness. The image and prepared tool library remained read-only with networking disabled. Fresh GitHub verification of the optional-dependency declarations remains pending.
 
 ## Purpose
 
 Test the current SCWorkflow source against an existing, preserved dependency environment instead of reconstructing legacy R dependencies from today's CRAN or Bioconductor repositories. Older dependency versions may no longer resolve through the current repository endpoints even when they remain usable in the archived container.
 
-This work changes SCWorkflow package validation workflows, makes `ggalluvial` optional at package load, and corrects the existing patchwork dependency declaration. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
+This work changes SCWorkflow package validation workflows, makes `ggalluvial` optional at package load, and corrects existing patchwork and optional trajectory dependency declarations. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
 
 ## Strategy
 
@@ -324,4 +340,4 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 
 Passing in a frozen container demonstrates compatibility with that environment. It does not prove a fresh installation from `DESCRIPTION`, correctness of all dependency declarations, support for newer R/Seurat, or ongoing security support for the legacy stack. Dependency-metadata gaps identified in the release audit remain open and must not be hidden by the preinstalled libraries.
 
-The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks pass locally and in every GitHub validation job; both coverage jobs pass. The patchwork declaration is corrected locally and awaits fresh GitHub validation. Existing import-replacement warnings, other metadata gaps, or external data access can produce additional findings after the check advances beyond this declaration. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization; broader dependency-metadata cleanup remains separate.
+The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks, lint, and both coverage jobs pass on GitHub, and the published patchwork correction resolves the original error. Optional trajectory dependency declarations pass a focused local loading check; the unchanged example then fails on missing PCA input. Fresh GitHub verification of those declarations, the example/input issue, and remaining package warnings must be reviewed separately. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization; broader package cleanup remains separate.
