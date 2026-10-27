@@ -16,4 +16,6 @@ inst/doc
 .github.zip
 decision_log.md
 /ci-artifacts/
+/.agents/plans/
+/.agents/session_notes.md
 

@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.github$
+^\.agents$
 ^docs$
 ^ci-artifacts$
 ^vignettes/Getting Started and Quality Control\.html$
