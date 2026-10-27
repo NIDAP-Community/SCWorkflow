@@ -5,14 +5,22 @@ Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
-Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; subsequent report-only commits do not change this environment configuration.
-Status: Environment readiness is verified on GitHub. Both preparation jobs pass, and all four downstream validation jobs restore the tool artifact and pass their environment preflight. Both coverage jobs complete successfully. R CMD check reports one package dependency-declaration error for `patchwork`; lint remains in progress at evidence capture. Full CI success is not claimed. The current SCWorkflow source also installs and loads locally with 21 namespace-import replacement warnings.
+Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; the package-metadata follow-up below does not change the workflow, image, or installed dependencies.
+Status: Environment readiness is verified on GitHub, and both coverage jobs pass. The latest published revision `41b3897` still fails R CMD check on the undeclared `patchwork` namespace dependency. Its declaration is now corrected locally and verified against the frozen runtime; a fresh GitHub run is pending. Full CI success is not claimed. The current SCWorkflow source also installs and loads locally with 21 namespace-import replacement warnings.
+
+## Patchwork Declaration Follow-Up
+
+The user's report of a continuing error was confirmed in [run 40430987972](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40430987972), job `121949158014`, at published revision `41b3897`. R CMD check still stops at the missing DESCRIPTION declaration; passing environment and coverage checks do not remove that package error.
+
+The follow-up adds `patchwork` to DESCRIPTION Imports, matching its existing unconditional NAMESPACE import. It does not install or upgrade patchwork, change version constraints, modify function code/tests, or touch the original SIF. The unchanged R 4.1.3 image already provides patchwork 1.2.0.
+
+A focused offline/read-only container check parses NAMESPACE as R expressions and DESCRIPTION as DCF, verifies that every non-base imported package is declared, and confirms patchwork loads. That check passes. Standard R base packages are exempted using installed-package Priority metadata. Fresh package-check/CI results after publishing the correction remain pending; earlier findings below describe the recorded revisions, not a successful rerun of this fix.
 
 ## Purpose
 
 Test the current SCWorkflow source against an existing, preserved dependency environment instead of reconstructing legacy R dependencies from today's CRAN or Bioconductor repositories. Older dependency versions may no longer resolve through the current repository endpoints even when they remain usable in the archived container.
 
-This work changes SCWorkflow package validation workflows and makes `ggalluvial` optional at package load. It does not change capsule workflows, dependency declarations, Seurat, package versions, or the container build. Capsule CI troubleshooting remains deferred.
+This work changes SCWorkflow package validation workflows, makes `ggalluvial` optional at package load, and corrects the existing patchwork dependency declaration. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
 
 ## Strategy
 
@@ -316,4 +324,4 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 
 Passing in a frozen container demonstrates compatibility with that environment. It does not prove a fresh installation from `DESCRIPTION`, correctness of all dependency declarations, support for newer R/Seurat, or ongoing security support for the legacy stack. Dependency-metadata gaps identified in the release audit remain open and must not be hidden by the preinstalled libraries.
 
-The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks now pass locally and in every GitHub validation job; both coverage jobs pass. The next known package-side blocker is the undeclared `patchwork` namespace dependency; lint is still running at evidence capture. Existing import-replacement warnings, other metadata gaps, or external data access can produce additional findings after that declaration is reviewed. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization, and dependency-metadata cleanup remains separate.
+The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks pass locally and in every GitHub validation job; both coverage jobs pass. The patchwork declaration is corrected locally and awaits fresh GitHub validation. Existing import-replacement warnings, other metadata gaps, or external data access can produce additional findings after the check advances beyond this declaration. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization; broader dependency-metadata cleanup remains separate.

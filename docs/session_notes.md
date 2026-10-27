@@ -1,5 +1,11 @@
 # Session Notes
 
+## 2026-10-26: Patchwork Dependency Declaration Follow-Up
+
+- The user still sees a failing check. Confirmed the latest published revision `41b3897` reproduces the same undeclared `patchwork` namespace dependency in run 40430987972, job 121949158014; preparation and both coverage jobs pass.
+- Added only `patchwork` to DESCRIPTION Imports on `DEV-frozen-container-ci`, matching the existing NAMESPACE import. No dependency installation/update, runtime function/test changes, capsule changes, or SIF access/modification.
+- In the unchanged offline/read-only R 4.1.3 image, every non-base namespace dependency is now declared and existing patchwork 1.2.0 loads. The initial ad hoc check incorrectly included standard R base packages; corrected its exemption using installed-package Priority metadata. Fresh GitHub verification remains pending; full CI success is not claimed.
+
 ## 2026-10-26: Verified CI Environment And Isolated Tools
 
 - Verified the public `rfinney/rs413s` source at digest `7cb32eaa...b3c83cf`: R 4.1.3, Seurat/SeuratObject 4.1.1, Matrix 1.5-1, ggplot2 3.3.6, and all 43 namespace imports match the inspected SIF's relevant runtime. No SIF was used or modified during this phase.

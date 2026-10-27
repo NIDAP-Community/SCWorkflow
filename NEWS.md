@@ -2,6 +2,7 @@
 
 ## Dependencies
 
+* Declare `patchwork` in `Imports` to match its existing namespace import (#107).
 * Keep `ggalluvial` optional so SCWorkflow can load without it, and require it only when comparing cell populations (#107).
 * Validate package changes with the preserved R 4.1.3 environment and a separate checksum-pinned CI-tool library, without updating existing dependencies (#107).
 

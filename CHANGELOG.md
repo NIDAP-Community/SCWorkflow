@@ -19,6 +19,7 @@
 
 ### Fix
 
+* fix: Declare the existing patchwork namespace dependency in DESCRIPTION Imports (#107).
 * fix: Keep ggalluvial optional when loading SCWorkflow; require it only when compareCellPopulations() is called.
 * fix: Retain cells with missing metadata in plotMetadata(), displaying them in grey with an NA legend entry while preserving numeric color gradients.
 * fix: Validate requested RNA and CITE-seq plotMetadata() reductions and log the resolved reduction after sample selection and cell counts.
