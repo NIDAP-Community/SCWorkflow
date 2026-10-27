@@ -31,11 +31,6 @@
 ### Documentation
 
 * docs: Complete filterQC and module-score plotting help, remove an obsolete comparison argument, declare the vignette builder, and exclude generated vignette HTML from source builds (#107).
-* docs: Verify the published NIDAP environment and Gitflow ownership correction; identify six package warnings as the remaining CI blocker (#107).
-* docs: Verify the published trajectory example fix and distinguish remaining package-warning failures from the separate legacy Gitflow environment failure (#107).
-* docs: Mark the trajectory example as dontrun, matching the other 21 examples without changing runtime code or unit tests (#107).
-* docs: Record immutable SIF inspection, unchanged source checksum, preserved legacy package versions, successful namespace loading from a read-only copy, and remaining CI-tool gaps.
-* docs: Record draft PR #107's frozen-container preflight failures, rule out a HOME/library-path cause through local read-only inspection, and distinguish reuse of installed dependencies from building the checked-out SCWorkflow source.
 * docs: Align plotMetadata() source documentation with its list return value and clarify that sample selection and metadata summarization affect plots only.
 
 ## v1.0.2 (2024-02-01)
