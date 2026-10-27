@@ -3,6 +3,8 @@
 ^\.github$
 ^docs$
 ^ci-artifacts$
+^vignettes/Getting Started and Quality Control\.html$
+^vignettes/Getting Started and Quality Control_files$
 ^Dockerfile$
 ^Dockerfiles/.*$
 ^Conda_Recipe/.*$

@@ -4,6 +4,7 @@
 
 ### CI
 
+* ci: Share isolated-tool restoration across five validation jobs and check combined preparation requirements once (#107).
 * ci: Register only the current checkout as a safe Git directory from the R process before Gitflow validation, resolving container ownership checks without wildcard trust (#107).
 * ci: Rename the preserved environment to NIDAP-environment, including its workflow, live labels, and artifact paths; retain the same pinned runtime and checks (#107).
 * ci: Run Gitflow validation in the frozen runtime with restored isolated tools, native test-failure handling, and preserved push/main/release check scopes; retain existing merged-PR deployment configuration (#107).
@@ -22,6 +23,8 @@
 
 ### Fix
 
+* fix: Declare existing Matrix, shiny, and optional analysis dependencies without changing package versions (#107).
+* fix: Exclude conflicting namespace imports and reference Seurat cell-cycle datasets explicitly without attaching Seurat to the search path (#107).
 * fix: Declare existing mclust, TrajectoryUtils, and TSCAN optional dependencies without reinstalling or updating them (#107).
 * fix: Declare the existing patchwork namespace dependency in DESCRIPTION Imports (#107).
 * fix: Require ggalluvial for population-comparison plots, using the pinned 0.12.3 NIDAP environment library instead of an optional-package runtime guard (#107).
@@ -32,6 +35,7 @@
 
 ### Documentation
 
+* docs: Complete filterQC and module-score plotting help, remove an obsolete comparison argument, declare the vignette builder, and exclude generated vignette HTML from source builds (#107).
 * docs: Verify the published NIDAP environment and Gitflow ownership correction; identify six package warnings as the remaining CI blocker (#107).
 * docs: Verify the published trajectory example fix and distinguish remaining package-warning failures from the separate legacy Gitflow environment failure (#107).
 * docs: Mark the trajectory example as dontrun, matching the other 21 examples without changing runtime code or unit tests (#107).

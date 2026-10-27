@@ -20,21 +20,19 @@
 #' "Frequency" (percentages) or "Counts" (absolute numbers). Default is "Frequency"
 #' @param group.order Character vector specifying the order of groups in plots.
 #' If NULL, uses natural order from data. Default is NULL
-#' @param seurat.object.filename Character string for the Seurat object 
-#' filename. Default is "seurat_object.rds"
 #' @param wrap.ncols Integer specifying number of columns for facet wrapping 
 #' in box plots. Default is 5
 #'
 #' @import Seurat
-#' @import ggplot2
-#' @import ggpubr
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @rawNamespace import(ggpubr, except = c("rotate"))
 #' @import RColorBrewer
 #' @import tibble
 #' @import reshape2
-#' @import data.table
-#' @import dplyr
-#' @import magrittr
-#' @import cowplot
+#' @rawNamespace import(data.table, except = c(":=", "between", "dcast", "first", "last", "melt"))
+#' @rawNamespace import(dplyr, except = c("combine", "first", "last"))
+#' @rawNamespace import(magrittr, except = c("extract", "set_names"))
+#' @rawNamespace import(cowplot, except = c("get_legend"))
 #' @import gridExtra
 #' @import grid
 #' @import scales

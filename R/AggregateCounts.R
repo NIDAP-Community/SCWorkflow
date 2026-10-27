@@ -16,7 +16,7 @@
 #'
 #' @import Seurat
 #' @import tidyverse
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #' @import plotly
 #' @importFrom dplyr select
 #'

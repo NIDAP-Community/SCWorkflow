@@ -71,8 +71,8 @@
 #' print(results$`WT-KO_interactive`)
 #' }
 #'
-#' @import ggplot2
-#' @import dplyr
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
+#' @rawNamespace import(dplyr, except = c("combine", "first", "last"))
 #' @import tidyr
 #' @importFrom stringr str_split
 #' @importFrom ggrepel geom_text_repel

@@ -37,11 +37,11 @@
 #'
 #'
 #' @import Seurat
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #' @import gridExtra
 #' @import grid
 #' @import gridBase
-#' @import cowplot
+#' @rawNamespace import(cowplot, except = c("get_legend"))
 #' @import RColorBrewer
 #' @import colorspace
 #' @import tidyverse

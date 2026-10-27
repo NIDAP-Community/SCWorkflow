@@ -24,8 +24,8 @@
 #'
 #'
 #' @import Seurat
-#' @import cowplot
-#' @import ggplot2
+#' @rawNamespace import(cowplot, except = c("get_legend"))
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #' @import RColorBrewer
 #' @importFrom SingleR SingleR
 #' @import celldex

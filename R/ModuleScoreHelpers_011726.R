@@ -76,6 +76,7 @@ compute_modscore_data <- function(object, marker.list, use.columns,
   res
 }
 
+#' @rdname build_modscore_plots
 #' @export
 build_modscore_plots <- function(object, m, coords, clusid.df, d, threshold,
                                  gradient.ft.size = 6, violin.ft.size = 6, step.size = 0.1,

@@ -35,18 +35,18 @@
 #'
 #'
 #' @import Seurat
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #' @import RColorBrewer
 #' @import scales
 #' @import tidyverse
 #' @import ggrepel
-#' @import gdata
+#' @rawNamespace import(gdata, except = c("combine", "env", "ll", "object.size"))
 #' @import reshape2
 #' @import tools
 #' @import grid
 #' @import gridBase
 #' @import gridExtra
-#' @import dplyr
+#' @rawNamespace import(dplyr, except = c("combine", "first", "last"))
 #'
 #' @export
 #'

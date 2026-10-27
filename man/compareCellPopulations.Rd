@@ -34,19 +34,16 @@ If NULL, uses natural order from data. Default is NULL}
 
 \item{wrap.ncols}{Integer specifying number of columns for facet wrapping
 in box plots. Default is 5}
-
-\item{seurat.object.filename}{Character string for the Seurat object
-filename. Default is "seurat_object.rds"}
 }
 \value{
 A list containing:
 \itemize{
-\item \code{Plots} - A list with two ggplot objects:
-\itemize{
-\item \code{Barplot} - Stacked bar plot with alluvial flows
-\item \code{Boxplot} - Faceted box plots by cell type (only if counts.type="Frequency")
-}
-\item \code{Table} - A data.frame with cell counts and percentages
+  \item \code{Plots} - A list with two ggplot objects:
+    \itemize{
+      \item \code{Barplot} - Stacked bar plot with alluvial flows
+      \item \code{Boxplot} - Faceted box plots by cell type (only if counts.type="Frequency")
+    }
+  \item \code{Table} - A data.frame with cell counts and percentages
 }
 }
 \description{

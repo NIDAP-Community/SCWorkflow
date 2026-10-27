@@ -20,9 +20,9 @@
 #' @import reshape2
 #' @import tidyverse
 #' @importFrom tidyr pivot_longer
-#' @import cowplot
+#' @rawNamespace import(cowplot, except = c("get_legend"))
 #' @import rlang
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #'   
 #' @export
 #' @examples

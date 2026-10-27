@@ -22,7 +22,7 @@
 #' @import harmony
 #' @import gridExtra
 #' @import RColorBrewer
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #' @importFrom patchwork plot_layout
 #'   
 #' @export
@@ -143,7 +143,6 @@ harmonyBatchCorrect <- function(object,
 
    # Store original log-normalized data and scaling parameters for back-calculation
     if (return.lognorm) {
-      library(Matrix)
       # Get log-normalized data for the variable features
       lognorm_data <- object@assays$SCT@data[mvf, , drop = FALSE]
       

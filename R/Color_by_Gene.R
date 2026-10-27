@@ -28,7 +28,7 @@
 #'
 #' @import Seurat
 #' @import gridExtra
-#' @import ggplot2
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #' @import tidyverse
 #'
 #'

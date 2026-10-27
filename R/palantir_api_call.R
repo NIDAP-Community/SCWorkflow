@@ -7,8 +7,8 @@
 #' @param data Data to be uploaded with NIDAP API calls.
 #' @param method Method to be used, including POST, GET, and DELETE 
 #' 
-#' @import httr
-#' @import jsonlite 
+#' @rawNamespace import(httr, except = c("config"))
+#' @rawNamespace import(jsonlite, except = c("flatten", "unbox"))
 #' 
 #' @export
 #' 

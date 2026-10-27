@@ -28,8 +28,8 @@
 #' @import Seurat
 #' @import tidyverse
 #' @import gridExtra
-#' @import ggpubr
-#' @import ggplot2
+#' @rawNamespace import(ggpubr, except = c("rotate"))
+#' @rawNamespace import(ggplot2, except = c("last_plot"))
 #'
 #' @export
 #' @examples

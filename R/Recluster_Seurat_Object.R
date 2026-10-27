@@ -29,7 +29,7 @@
 #' Default is "tsne".
 #'
 #' @import Seurat
-#' @import cowplot
+#' @rawNamespace import(cowplot, except = c("get_legend"))
 #' @import tidyverse
 #'
 #' @export

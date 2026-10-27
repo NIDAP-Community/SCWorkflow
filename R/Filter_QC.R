@@ -87,6 +87,27 @@
 #' cells. Doublets are defined as two cells that are sequenced under the same 
 #' cellular barcode, for example, if they were captured in the same droplet.
 #' (Default: TRUE)
+#' @param plot.outliers Reduction for visualizing outlier cells: "None",
+#' "UMAP", or "tSNE". Default is "None".
+#' @param group.column Metadata column used to group outlier visualizations.
+#' Default is NA.
+#' @param nfeatures Number of variable features to select for dimensionality
+#' reduction. Default is 2000.
+#' @param low.cut Lower mean-expression cutoff for variable-feature selection.
+#' Default is 0.1.
+#' @param high.cut Upper mean-expression cutoff for variable-feature selection.
+#' Default is 8.
+#' @param low.cut.disp Lower dispersion cutoff for variable-feature selection.
+#' Default is 1.
+#' @param high.cut.disp Upper dispersion cutoff for variable-feature selection.
+#' Default is 100000.
+#' @param selection.method Variable-feature selection method. Default is "vst".
+#' @param npcs Number of principal components to compute. Default is 30.
+#' @param vars.to.regress Optional metadata variables to regress out during
+#' normalization. Default is NULL.
+#' @param seed.for.PCA Random seed for PCA. Default is 42.
+#' @param seed.for.TSNE Random seed for t-SNE. Default is 1.
+#' @param seed.for.UMAP Random seed for UMAP. Default is 42.
 #' 
 #' 
 #' @importFrom Seurat CreateAssayObject Idents as.SingleCellExperiment 
