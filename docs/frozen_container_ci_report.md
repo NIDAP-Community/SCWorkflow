@@ -5,8 +5,51 @@ Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
-Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; the package-metadata follow-up below does not change the workflow, image, or installed dependencies.
-Status: Preparation, lint, and both coverage jobs pass at published revision `2a8f64c`; later focused package checking exposes a trajectory example without PCA. At the user's request, the follow-up marks that example `\dontrun{}`, matching the other 21 examples. Focused extraction passes in frozen R 4.1.3. Full package check and GitHub CI had not been rerun for this change at local verification, and existing package warnings remain. Full CI success is not claimed.
+Verified published frozen-runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; the later Gitflow alignment below has local validation, with GitHub verification pending.
+Status: At published revision `93903bc`, frozen preparation, lint, and both coverage jobs pass. The package check reports examples OK and 0 errors, 6 warnings, 6 notes; the action fails because its existing threshold is warnings. The legacy Gitflow failure is addressed by the validation alignment below, verified locally in frozen R 4.1.3; its GitHub result remains pending. All-green CI is not claimed.
+
+## Local Gitflow Validation Alignment
+
+The user authorized aligning Gitflow with the preserved environment. A direct image substitution in the shared workflow is insufficient: its push check calls `conda env list`, and its scripts assume an old renv library, call invalid `libPaths()`, and parse log text to detect failures. The shared parser has no setup hook for restoring the isolated library.
+
+The [Gitflow caller](../.github/workflows/gitflow-R-action.yml) now runs validation locally using the same preparation workflow, rs413s digest, artifact restoration, and namespace preflight as the other frozen validation jobs. The [local checker](../.github/scripts/ci-gitflow-check.R) retains the existing event-specific intent:
+
+- Pushes lint changed R files and run changed unit tests plus tests matching changed R sources, retaining fixture/snapshot/helper and legacy integration-test exclusions for unit-test selection.
+- Release PRs run all tests matching package function filenames, including suffixed test variants rather than only changed files.
+- Main PRs regenerate documentation and run a package check, with an explicit warning failure threshold consistent with the separate package-check workflow.
+
+Each selected unit-test file runs in a fresh R process. Testthat failures and process errors fail the job directly; no test-log parsing, hard-coded library path, Conda command, or package installation is needed. `.libPaths()` reports the actual restored library. Changed-file lint and unit-test warnings remain visible, matching the existing advisory lint and test-warning behavior. New-branch pushes use the merge base with the default branch when the prior SHA is all zeroes; unresolvable comparison commits fail instead of silently selecting nothing.
+
+The original event/branch filters are unchanged. The shared parser runs only for closed, merged PRs, retaining its original deployment image, artifact RIDs, package/R settings, and production/development secret mappings. Deployment runtime migration is not part of this validation change. DEV and main report no required status-check contexts, so the new validation-job name has no observed conflict; repository protection settings were not changed.
+
+Actionlint passes, and executable checks cover event routing, changed-test/source matching, case-insensitive names, exclusions, deduplication, documentation-only changes, release variants, push comparison commits, and new-branch fallback. An offline/read-only frozen R 4.1.3 run loads the package and passes all three existing trajectory test cases using the restored library. Its six test warnings and 21 namespace-import warnings remain visible. A deliberately failing scratch test is correctly rejected, proving child-process failure propagation. The main-PR tools devtools, roxygen2, and rcmdcheck already load without installation.
+
+Evidence is under `/tmp/scworkflow-gitflow-check.JS3luM`: `check.log`, `check-isolated.log`, and `check-final.log`. Original package sources, tests, base image, and tool library were read-only inputs; execution used a separate scratch package copy with networking disabled. No SIF was accessed or modified, and no dependency or Seurat version changed. At local verification, full main/release validation and GitHub execution of this follow-up had not been run. The user subsequently authorized commit and push; the six package-check warnings are not resolved or suppressed.
+
+## Latest Published Results: Two Separate Blockers
+
+The user's continuing error was checked against published commit `93903bc195b01ef7b4bd6f36224cea776ef3771f`, not an older run. [R-CMD-check run 40439487233, package-check job 121976870667](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40439487233/job/121976870667) confirms:
+
+```text
+* checking examples ... OK
+Status: 6 WARNINGs, 6 NOTEs
+Error: R CMD check found WARNINGs
+```
+
+There are no R CMD check errors in this result. The action logs show `error-on: "warning"`, so the six warnings still fail the job. They are:
+
+- Nonportable file names and paths in vignettes, templates, and fixtures.
+- Installation warnings from 21 namespace-import replacements.
+- Undeclared code dependencies (Matrix, SingleCellExperiment, SummarizedExperiment, nidapFunctions, scater, scuttle, shiny) and package-code library/require usage.
+- Missing documentation for exported `build_modscore_plots`.
+- Documentation/usage mismatches in compareCellPopulations and filterQC.
+- Vignette files without the expected inst/doc output or VignetteBuilder configuration.
+
+Preparation, lint, and main coverage have completed successfully; [separate coverage run 40439487286](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40439487286) also succeeds. The aggregate job was still finishing at evidence capture. These results resolve the trajectory example failure but do not validate its raw input or establish that every unit test ran.
+
+[Gitflow run 40439484735](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40439484735) fails separately. The [Gitflow caller](../.github/workflows/gitflow-R-action.yml) delegates to `fnlcr-bids-sdsi/gitflow-R/.github/workflows/parser.yml@master` with `ghcr.io/nidap-community/single-cell-rna-r4:latest`, not the pinned rs413s image and isolated tool library. Its test output includes `The package "EnhancedVolcano" is required` while loading imports, and its diagnostic command calls nonexistent `libPaths()` instead of `.libPaths()`. These are environment/workflow problems, not evidence that a trajectory unit-test assertion failed.
+
+The earlier four frozen R jobs refer only to R-CMD-check and test-coverage, not this additional legacy Gitflow path. Gitflow needed a separate alignment of its runtime and required tools; merely fixing package documentation warnings would not repair that environment. At that diagnostic stage, no warning gate, workflow, runtime function, unit test, dependency version, deployment setting, or original SIF was changed. That result update was then local pending publication authorization; the subsequent alignment is described above.
 
 ## Trajectory Example Policy Follow-Up
 

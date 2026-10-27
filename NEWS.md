@@ -2,6 +2,7 @@
 
 ## Dependencies
 
+* Align Gitflow validation with the frozen R 4.1.3 runtime and isolated CI-tool library while preserving existing deployment configuration (#107).
 * Declare optional trajectory dependencies already used by the package (#107).
 * Declare `patchwork` in `Imports` to match its existing namespace import (#107).
 * Keep `ggalluvial` optional so SCWorkflow can load without it, and require it only when comparing cell populations (#107).

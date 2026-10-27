@@ -10,7 +10,52 @@ on:
     branches: ['main', 'release*']
 
 jobs:
+  prepare-environment:
+    if: github.event_name == 'push' || github.event.pull_request.merged != true
+    uses: ./.github/workflows/frozen-environment.yaml
+
+  frozen-validation:
+    name: Frozen Gitflow checks
+    needs: prepare-environment
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
+    env:
+      GITFLOW_EVENT: ${{ github.event_name }}
+      GITFLOW_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+      GITFLOW_BASE_REF: ${{ github.base_ref || github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: frozen-ci-tools
+          path: ${{ runner.temp }}/frozen-ci-tools
+
+      - name: Restore isolated CI tools
+        run: |
+          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
+
+      - name: Verify frozen Gitflow environment
+        run: Rscript .github/scripts/ci-preflight.R check
+
+      - name: Run Gitflow validation
+        run: Rscript .github/scripts/ci-gitflow-check.R
+
+      - name: Upload frozen Gitflow environment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frozen-gitflow-environment
+          path: ci-artifacts/
+
   Activating_Parser:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
     uses: fnlcr-bids-sdsi/gitflow-R/.github/workflows/parser.yml@master
     with:
       image_to_use: ghcr.io/nidap-community/single-cell-rna-r4:latest

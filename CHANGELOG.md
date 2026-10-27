@@ -4,6 +4,7 @@
 
 ### CI
 
+* ci: Run Gitflow validation in the frozen runtime with restored isolated tools, native test-failure handling, and preserved push/main/release check scopes; retain existing merged-PR deployment configuration (#107).
 * ci: Restore isolated tool artifacts and read coverage diagnostics using job-container paths rather than host-only runner paths.
 * ci: Reuse the verified rs413s legacy runtime and a separately prepared checksum-pinned CI-tool library; verify unchanged base packages and all environment modes before package validation.
 * ci: Run package checks, lint, and coverage in a digest-pinned prebuilt R container without reinstalling legacy dependencies; record environment inventories and diagnose namespace dependency gaps before validation.
@@ -29,6 +30,7 @@
 
 ### Documentation
 
+* docs: Verify the published trajectory example fix and distinguish remaining package-warning failures from the separate legacy Gitflow environment failure (#107).
 * docs: Mark the trajectory example as dontrun, matching the other 21 examples without changing runtime code or unit tests (#107).
 * docs: Record immutable SIF inspection, unchanged source checksum, preserved legacy package versions, successful namespace loading from a read-only copy, and remaining CI-tool gaps.
 * docs: Record draft PR #107's frozen-container preflight failures, rule out a HOME/library-path cause through local read-only inspection, and distinguish reuse of installed dependencies from building the checked-out SCWorkflow source.

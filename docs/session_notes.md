@@ -1,5 +1,20 @@
 # Session Notes
 
+## 2026-10-26: Align Gitflow Validation With The Frozen Runtime
+
+- The user authorized Gitflow alignment. The shared implementation assumes Conda, hard-codes an old renv path, calls invalid libPaths(), and parses test logs. Replaced its validation path with a local frozen job using the existing preparation workflow, pinned rs413s digest, restored library, and namespace preflight. No package installation or base-package upgrade occurs in validation.
+- Original triggers remain unchanged. Pushes retain changed-file lint and matched unit tests; release PRs retain all function-matched tests; main PRs retain documentation regeneration and package checking, now with an explicit warning failure threshold. Test files run in fresh R processes and propagate native failure status. Lint and test warnings remain visible, not promoted to assertion failures.
+- The original shared parser is now reserved for closed, merged PRs. Its deployment image, package/R settings, artifact RIDs, and secret mappings are unchanged. DEV/main report no required status-check contexts; no repository protection settings were changed.
+- Actionlint and executable event/base/selection checks pass, including new-branch fallback and release test variants. Offline/read-only R 4.1.3 execution selects and passes all three existing trajectory cases, with six test warnings and the known namespace-import warnings. An intentional scratch-only failing test is rejected. Required main-PR tools load without installation.
+- Evidence: `/tmp/scworkflow-gitflow-check.JS3luM/check.log`, `check-isolated.log`, and `check-final.log`. Full main/release checks and GitHub execution of this change remain unverified. The six package-check warnings remain separate work. Package R/tests, Seurat, dependency versions, capsules, deployment configuration, and original SIF are unchanged. The user subsequently authorized commit and push; no merge is authorized.
+
+## 2026-10-26: Published Example Fix Verified; Warning And Gitflow Blockers Remain
+
+- Published `93903bc` reaches `checking examples ... OK` in run 40439487233, package-check job 121976870667. R CMD check finishes with 0 errors, 6 warnings, 6 notes; the action's existing warning threshold causes failure. Preparation, lint, and main coverage pass; separate coverage run 40439487286 succeeds. The aggregate job was still finishing at capture.
+- The six warning categories are file portability, namespace-import replacement during installation, code dependency declarations/usage, undocumented build_modscore_plots, compareCellPopulations/filterQC documentation mismatches, and vignette layout. These are separate from the now-resolved example failure; do not lower the threshold or alter runtime/tests merely to make CI green.
+- Gitflow run 40439484735 fails independently: its caller still selects ghcr.io/nidap-community/single-cell-rna-r4:latest rather than the frozen image/library. Logs report missing EnhancedVolcano during import loading and an invalid libPaths() diagnostic call. Earlier frozen-environment success applies only to the two frozen validation workflows, not Gitflow.
+- Updated the collaborator report with exact evidence and boundaries. At that diagnostic stage, no runtime, test, workflow, dependency-version, deployment, Seurat, capsule, or SIF changes were made, and the documentation was local and uncommitted. The subsequent Gitflow alignment is recorded above.
+
 ## 2026-10-26: Match Trajectory Example Execution Policy
 
 - At the user's explicit request, changed the trajectory roxygen example from `\donttest{}` to `\dontrun{}`, matching all 21 other source example blocks. Regenerated only its help page; both source and Rd differ only in that wrapper.
