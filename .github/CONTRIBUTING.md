@@ -120,6 +120,48 @@ If the function is used in a vignette, you may also need to update the vignette.
 After making your changes, run `devtools::check()` from an R console to make
 sure the package still passes R CMD check.
 
+### Maintaining pinned NIDAP CI packages
+
+GitHub Actions uses a digest-pinned NIDAP image with R 4.1.3. The
+[source manifest](scripts/ci-tool-sources.json) pins additional packages
+installed into an isolated CI library, including required runtime packages
+missing from the image. It is not a lockfile for the entire base environment.
+Existing base packages, including Seurat, must not be upgraded or shadowed.
+
+Pins are maintainer-reviewed, not automatically refreshed to the latest
+versions. Change them only for a documented need, such as a new required tool,
+a compatibility fix, or a security fix. Use this process:
+
+1. Explain the reason and proposed versions in a pull request. Check each
+  package's R and dependency requirements against R 4.1.3 and the packages
+  already in the pinned image. If an update requires changing a base package
+  or the image, stop and discuss that as a separate environment change.
+2. Obtain the exact source archive from a trusted HTTPS source, such as the
+  CRAN archive. Compute its SHA-256 with `shasum -a 256 package_version.tar.gz`.
+  Update `Version`, `URL`, and `SHA256` together in the same manifest change;
+  the URL and checksum must identify that exact package version. Verify these
+  values from the actual archive rather than trusting generated metadata.
+3. Add any missing dependencies explicitly, before the packages that need
+  them, with compatible versions and checksums. The
+  [preparer](scripts/ci-prepare-tools.R) installs with `dependencies = FALSE`;
+  it does not resolve dependencies or replace packages already in the base
+  image. Do not use a manifest entry to override a base-package version.
+4. Push the change for validation on GitHub Actions. Require the
+  [NIDAP preparation workflow](workflows/NIDAP-environment.yaml) to pass source
+  checksum verification, offline installation, and all preflight modes. Review
+  the downstream package-check, lint, coverage, and Gitflow results under their
+  existing failure policies. Successful preparation alone is not a successful
+  package check; do not bypass checksum checks or relax validation gates.
+5. Inspect the `NIDAP-ci-tools` artifact. Confirm that `tools-manifest.csv`
+  contains only the intended pin changes and that `base-packages.csv` matches
+  the last known-good run using the same image digest. The preparer also
+  compares the full base inventory before and after installation and rejects
+  additions that shadow base packages. Record the comparison and GitHub run
+  links in the pull request before merging.
+
+Keep the maintenance rationale and validation evidence in the pull request,
+not in user-facing release notes. Do not add a NEWS entry for CI-only changes.
+
 ### Commit and push your changes
 
 If you're not sure how often you should commit or what your commits should
