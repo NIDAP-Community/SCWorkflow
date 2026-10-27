@@ -7,7 +7,8 @@
 - Added covr 3.6.1, lintr 3.0.2, goodpractice 1.0.4, ggalluvial 0.12.3, and five missing helpers. Source resolution is disabled; a deliberately corrupted archive is rejected before installation. Direct legacy-container HTTPS had a certificate-trust failure, so TLS was not disabled; downloads moved to the host.
 - Restored `library.tar.gz` in a fresh offline container: check/lint/coverage preflights all exit 0, and the complete base inventory is identical. Native libraries require an executable filesystem; corrected a local noexec-tmpfs validation setup, not the package environment.
 - Current SCWorkflow source installs and loads from its new temporary library, with 21 import-replacement warnings. Actionlint 1.7.7 passes all three workflows. Full code tests/checks/coverage/lint and updated GitHub execution remain pending.
-- Changes remain local on `DEV-frozen-container-ci`; no commit, push, merge, Docker image build/publication, package-code/test edits, or SIF modification in this phase. Tool artifacts for local reproduction are under `/tmp/scworkflow-ci-tools.0IgyPR`.
+- With explicit user approval, committed and pushed the setup as `7ab36a1` on `DEV-frozen-container-ci`; PR #107 remains draft/unmerged with auto-merge disabled. Added the required NEWS reference and aligned the PR body with the repository template. Tool artifacts for local reproduction are under `/tmp/scworkflow-ci-tools.0IgyPR`.
+- GitHub runs 40429160106 and 40429159946 both passed preparation and all-mode verification. Their downstream restores failed because shell commands used the host temp path instead of `/__w/_temp`. Corrected all four restore blocks and coverage diagnostic paths to `$RUNNER_TEMP`; the actual YAML commands pass all three preflights in a matching local container layout. A new GitHub run is required. No package-code/test edits, Docker image build/publication, dependency upgrades, SIF modification, or merge.
 
 ## 2026-10-26: Immutable SIF Inspection
 

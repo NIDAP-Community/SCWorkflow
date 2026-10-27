@@ -4,6 +4,7 @@
 
 ### CI
 
+* ci: Restore isolated tool artifacts and read coverage diagnostics using job-container paths rather than host-only runner paths.
 * ci: Reuse the verified rs413s legacy runtime and a separately prepared checksum-pinned CI-tool library; verify unchanged base packages and all environment modes before package validation.
 * ci: Run package checks, lint, and coverage in a digest-pinned prebuilt R container without reinstalling legacy dependencies; record environment inventories and diagnose namespace dependency gaps before validation.
 

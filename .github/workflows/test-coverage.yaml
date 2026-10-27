@@ -32,8 +32,8 @@ jobs:
 
       - name: Restore isolated CI tools
         run: |
-          tar -xzf "${{ runner.temp }}/frozen-ci-tools/library.tar.gz" -C "${{ runner.temp }}/frozen-ci-tools"
-          printf 'R_LIBS_USER=%s/library\n' "${{ runner.temp }}/frozen-ci-tools" >> "$GITHUB_ENV"
+          tar -xzf "$RUNNER_TEMP/frozen-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/frozen-ci-tools"
+          printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/frozen-ci-tools" >> "$GITHUB_ENV"
 
       - name: Verify frozen coverage environment
         run: Rscript .github/scripts/ci-preflight.R coverage
@@ -60,7 +60,7 @@ jobs:
         if: always()
         run: |
           ## --------------------------------------------------------------------
-          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+          find "$RUNNER_TEMP/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
       - name: Upload test results

@@ -5,8 +5,8 @@ Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
-Published revision: `a6370507ef928aaf6c9d470ed16a097fbdd5bcd6`; the environment changes below are tested in the local working tree and are not yet committed or pushed.
-Status: All three environment preflight modes pass locally with the verified preserved Docker image and a separate pinned tool library. The current SCWorkflow source installs and loads, with 21 namespace-import replacement warnings. GitHub verification of this configuration is pending; the earlier published revision failed against a different, incomplete image.
+Published environment revision: `7ab36a1a2e8bbce654d9375157b641db7b688fb9`; the subsequent job-container path correction is verified locally and awaits a new GitHub run.
+Status: Both GitHub preparation jobs pass, including all three environment preflight modes and artifact upload. The initial downstream jobs failed to restore that artifact because their shell commands used host-only paths. The correction passes locally under GitHub's container path layout. The current SCWorkflow source installs and loads locally with 21 namespace-import replacement warnings; full GitHub package validation remains pending.
 
 ## Purpose
 
@@ -52,6 +52,14 @@ Preparation verifies all three preflight modes, then uploads `frozen-ci-tools` c
 Local verification restored the archive into a fresh executable temporary filesystem in a separate offline container. `check`, `lint`, and `coverage` each exited 0, and the base inventory still matched exactly. A deliberately corrupted source was rejected before installation. The current source also completed `R CMD INSTALL` and loaded from its new temporary installation, not a preinstalled SCWorkflow copy. Its 21 import-replacement warnings are recorded separately; no warning was suppressed to obtain a pass. Actionlint 1.7.7 passes all three workflows.
 
 These are environment and installation checks, not full package tests, coverage, lint results, or a successful GitHub run. Source downloads and image pulls still require network access. The tool library must be on an executable filesystem: an initial local `noexec` tmpfs prevented covr's shared library from loading, and the verification harness was corrected to match an executable library mount.
+
+## First GitHub Preparation Results And Path Correction
+
+At revision `7ab36a1a2e8bbce654d9375157b641db7b688fb9`, the preparation jobs in [R-CMD-check run 40429160106](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40429160106) and [coverage run 40429159946](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40429159946) both passed. The real GitHub runners downloaded and verified the sources, prepared the isolated library, passed all three preflight modes, and uploaded the artifact. The downstream package jobs did not reach code validation.
+
+Their download action correctly mapped the host temp directory to `/__w/_temp/frozen-ci-tools` inside the job container, but the shell restore commands still referenced `/home/runner/work/_temp/frozen-ci-tools`. Shell paths now use `$RUNNER_TEMP`; action inputs retain the runner context because the actions translate it. The same correction applies to coverage diagnostic output paths. No package or dependency change is involved.
+
+A focused local check extracted the actual four restore blocks from the workflow YAML, required them to be identical, executed them under `RUNNER_TEMP=/__w/_temp`, restored the artifact on an executable temporary filesystem, and passed check/lint/coverage preflight again with networking disabled. GitHub verification of this correction remains pending.
 
 ## Original CI Image (Rejected)
 
