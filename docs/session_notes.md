@@ -1,5 +1,11 @@
 # Session Notes
 
+## 2026-10-27: Remove The Separate Comparison Environment Test
+
+- At the user's request, removed the synthetic compareCellPopulations environment smoke test. Existing comparison cases already invoke the function and check plot objects; their assertions and snapshot skip policy remain unchanged.
+- Parsed-expression comparison confirms that only the named test block was removed and all 12 remaining cases are identical to HEAD. The test file parses and has no editor diagnostics; runtime tests and GitHub CI were not rerun for this uncommitted change.
+- No function, namespace, dependency, workflow, template, or fixture changes. Keep the decision log local; no commit, push, or merge was performed.
+
 ## 2026-10-27: Replace Namespace Exclusions With Named Imports
 
 - At the user's request, replaced every rawNamespace import directive in the top-level package with importFrom declarations for actual dependencies, or removed the import when unused. Added supporting declarations for functions that previously inherited broad imports from other source files.

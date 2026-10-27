@@ -33,6 +33,10 @@
 * fix: Apply dot.size to numeric metadata plots instead of using a fixed point size.
 * fix: Warn and skip missing plotMetadata() columns when valid selections remain, before listing available columns, and retain the actual column names on returned plots.
 
+### Tests
+
+* test: Remove the separate environment-specific compareCellPopulations smoke test; retain the 12 existing comparison cases and their snapshot policy (#107).
+
 ### Documentation
 
 * docs: Complete filterQC and module-score plotting help, remove an obsolete comparison argument, declare the vignette builder, and exclude generated vignette HTML from source builds (#107).
