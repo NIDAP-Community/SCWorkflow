@@ -5,8 +5,8 @@ Repository: NIDAP-Community/SCWorkflow
 Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
-Published environment revision: `7ab36a1a2e8bbce654d9375157b641db7b688fb9`; the subsequent job-container path correction is verified locally and awaits a new GitHub run.
-Status: Both GitHub preparation jobs pass, including all three environment preflight modes and artifact upload. The initial downstream jobs failed to restore that artifact because their shell commands used host-only paths. The correction passes locally under GitHub's container path layout. The current SCWorkflow source installs and loads locally with 21 namespace-import replacement warnings; full GitHub package validation remains pending.
+Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; subsequent report-only commits do not change this environment configuration.
+Status: Environment readiness is verified on GitHub. Both preparation jobs pass, and all four downstream validation jobs restore the tool artifact and pass their environment preflight. The real package-check, lint, and coverage steps are now running; full code-validation success is not claimed. The current SCWorkflow source also installs and loads locally with 21 namespace-import replacement warnings.
 
 ## Purpose
 
@@ -53,13 +53,28 @@ Local verification restored the archive into a fresh executable temporary filesy
 
 These are environment and installation checks, not full package tests, coverage, lint results, or a successful GitHub run. Source downloads and image pulls still require network access. The tool library must be on an executable filesystem: an initial local `noexec` tmpfs prevented covr's shared library from loading, and the verification harness was corrected to match an executable library mount.
 
+## GitHub Environment Readiness Verified
+
+At revision `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`, [R-CMD-check run 40430026101](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40430026101) and [coverage run 40430026047](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40430026047) confirm the following environment gates:
+
+| Job | Verified environment result |
+| --- | --- |
+| Main preparation (`121945155067`) | Source preparation, all three offline preflight modes, and artifact upload pass. |
+| Frozen container check (`121945906519`) | Artifact restoration and check-mode preflight pass. |
+| Lint (`121945907007`) | Artifact restoration and lint-mode preflight pass. |
+| Main coverage (`121945906572`) | Artifact restoration and coverage-mode preflight pass. |
+| Separate coverage preparation (`121945154888`) | Preparation and all-mode verification pass. |
+| Separate coverage (`121945986184`) | Artifact restoration and coverage-mode preflight pass. |
+
+This establishes that the real runner can prepare and restore the preserved environment before testing checked-out package code. At evidence capture, the package-check, goodpractice/lint, and coverage steps were in progress. Their outcomes remain separate from the successful environment gates; no tests, package warnings, or aggregate failure conditions were bypassed.
+
 ## First GitHub Preparation Results And Path Correction
 
 At revision `7ab36a1a2e8bbce654d9375157b641db7b688fb9`, the preparation jobs in [R-CMD-check run 40429160106](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40429160106) and [coverage run 40429159946](https://github.com/NIDAP-Community/SCWorkflow/actions/runs/40429159946) both passed. The real GitHub runners downloaded and verified the sources, prepared the isolated library, passed all three preflight modes, and uploaded the artifact. The downstream package jobs did not reach code validation.
 
 Their download action correctly mapped the host temp directory to `/__w/_temp/frozen-ci-tools` inside the job container, but the shell restore commands still referenced `/home/runner/work/_temp/frozen-ci-tools`. Shell paths now use `$RUNNER_TEMP`; action inputs retain the runner context because the actions translate it. The same correction applies to coverage diagnostic output paths. No package or dependency change is involved.
 
-A focused local check extracted the actual four restore blocks from the workflow YAML, required them to be identical, executed them under `RUNNER_TEMP=/__w/_temp`, restored the artifact on an executable temporary filesystem, and passed check/lint/coverage preflight again with networking disabled. GitHub verification of this correction remains pending.
+A focused local check extracted the actual four restore blocks from the workflow YAML, required them to be identical, executed them under `RUNNER_TEMP=/__w/_temp`, restored the artifact on an executable temporary filesystem, and passed check/lint/coverage preflight again with networking disabled. The subsequent GitHub results above confirm restoration and preflight pass in every downstream validation job.
 
 ## Original CI Image (Rejected)
 
@@ -138,7 +153,8 @@ The preflight checks validation tooling and namespace imports, not every package
 | Actions-specific lint | Actionlint 1.7.7 passes all three updated workflows using a tooling container; no host installation. |
 | Current environment preflights | Check, lint, and coverage all exit 0 after archive restoration in an offline read-only container. Full base inventory is unchanged. |
 | Current source installation/load | Passed in the new environment; 21 namespace-import replacement warnings remain. |
-| Full package check, tests, lint, or coverage inside the frozen image | Not run for the updated environment; earlier published workflows stopped before these commands. |
+| GitHub environment restoration/preflights | Pass in all four validation jobs at `fd4dd6f`, after both preparation jobs succeed. |
+| Full package check, tests, lint, or coverage inside the frozen image | Actual package validation is now in progress on GitHub; full results are not yet claimed. |
 | GitHub workflow execution for this branch | Both validation workflows ran against `a637050` and failed in preflight; no successful package-validation result is claimed. |
 
 The early isolated harness tests validate preflight control flow, not image contents. The current environment checks above execute the real R 4.1.3 Docker runtime. Existing base packages and package-version constraints were not changed; only the nine explicitly pinned missing additions were installed into a separate temporary library.
@@ -278,7 +294,7 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 - [x] Local runtime inventory confirms the recorded R, Seurat, Matrix, and validation-tool versions.
 - [ ] The reported `ggalluvial` gap is confirmed in the image; package loading and the optional-function error are reviewed separately from full test-suite results.
 - [x] All preflight modes succeed locally after prepared-library restoration, without installation during validation.
-- [x] GitHub runs against the recorded revision and produces environment artifacts; preflight fails as documented above.
+- [x] GitHub runs against the recorded revision and produces the prepared artifact; restoration and preflight pass in all four validation jobs.
 - [ ] Package checks and coverage execute against the checked-out source, with failures investigated rather than bypassed.
 - [ ] Aggregate status and any required-status configuration are verified.
 - [ ] Any remaining runtime, metadata, data-access, or Codecov failures are recorded separately.
@@ -287,4 +303,4 @@ Review the run's source SHA, selected digest, preflight inventories, actual chec
 
 Passing in a frozen container demonstrates compatibility with that environment. It does not prove a fresh installation from `DESCRIPTION`, correctness of all dependency declarations, support for newer R/Seurat, or ongoing security support for the legacy stack. Dependency-metadata gaps identified in the release audit remain open and must not be hidden by the preinstalled libraries.
 
-The incomplete original CI image is replaced in the local working tree with the verified public Docker source and isolated pinned tool preparation. Local environment checks pass and the current source installs/loads; full GitHub execution, package tests, coverage, and lint remain to be verified after publishing. Existing import-replacement warnings, dependency-metadata gaps, and external data access can still cause genuine package-check failures. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization, and dependency-metadata cleanup remains separate.
+The incomplete original CI image is replaced in the published task branch with the verified public Docker source and isolated pinned tool preparation. Environment checks now pass both locally and in every GitHub validation job, and the current source installs/loads locally. The actual package checks, coverage, and lint are running and their results remain to be reviewed. Existing import-replacement warnings, dependency-metadata gaps, and external data access can still cause genuine package-check failures. No tests were changed or skipped to force success. The SIF and every pre-existing base package remain untouched. No image was rebuilt or published. The draft PR must not be merged without authorization, and dependency-metadata cleanup remains separate.
