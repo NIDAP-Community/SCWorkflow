@@ -24,7 +24,7 @@
 #'
 #'
 #' @import Seurat
-#' @importFrom ggplot2 ggtitle guide_legend guides scale_color_manual theme
+#' @import ggplot2
 #' @import RColorBrewer
 #' @importFrom SingleR SingleR
 #' @import celldex

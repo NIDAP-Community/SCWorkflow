@@ -118,14 +118,9 @@
 #' @importFrom reshape2 melt
 #' @importFrom magrittr %>%
 #' @importFrom dplyr arrange rename
-#' @importFrom ggplot2 aes aes_string element_blank element_text facet_wrap
-#' @importFrom ggplot2 geom_boxplot geom_density geom_hline geom_point geom_violin
-#' @importFrom ggplot2 geom_vline ggplot ggtitle guide_legend guides labs rel
-#' @importFrom ggplot2 scale_color_manual scale_fill_manual scale_linetype_manual
-#' @importFrom ggplot2 scale_x_continuous scale_x_discrete theme theme_bw
-#' @importFrom ggplot2 theme_classic
+#' @importFrom ggplot2 ggplot
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom ggpubr annotate_figure get_legend ggarrange text_grob
+#' @importFrom ggpubr annotate_figure get_legend ggarrange
 #' @importFrom gridExtra arrangeGrob tableGrob
 #' @importFrom scDblFinder scDblFinder
 #' @importFrom stringr str_split_fixed

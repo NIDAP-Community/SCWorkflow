@@ -43,11 +43,10 @@
 #' @importFrom stringr str_to_title
 #' @importFrom dplyr summarise filter arrange select mutate desc
 #' @importFrom dplyr if_else row_number relocate rename
-#' @importFrom dplyr distinct everything n_distinct setdiff setequal
 #' @importFrom tidyr fill 
 #' @importFrom ggplot2 ggplot
 #' @importFrom RColorBrewer brewer.pal
-#' @importFrom ggpubr annotate_figure get_legend ggarrange text_grob
+#' @importFrom ggpubr annotate_figure get_legend ggarrange
 #' 
 #' 
 #' @export

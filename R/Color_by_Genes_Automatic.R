@@ -27,10 +27,8 @@
 #'
 #' @import Seurat
 #' @import tidyverse
-#' @import gridExtra
-#' @importFrom ggplot2 aes element_blank element_rect element_text geom_point
-#' @importFrom ggplot2 ggplot ggtitle rel scale_color_gradient theme theme_bw
-#' @importFrom ggplot2 theme_void xlab ylab
+#' @importFrom gridExtra grid.arrange
+#' @import ggplot2
 #'
 #' @export
 #' @examples

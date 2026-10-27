@@ -35,9 +35,7 @@
 #'
 #'
 #' @import Seurat
-#' @importFrom ggplot2 aes element_blank element_text geom_point ggplot ggtitle
-#' @importFrom ggplot2 guide_legend guides rel scale_color_gradientn
-#' @importFrom ggplot2 scale_color_manual theme theme_bw xlab ylab
+#' @import ggplot2
 #' @import RColorBrewer
 #' @import scales
 #' @import tidyverse
@@ -46,8 +44,7 @@
 #' @import tools
 #' @import grid
 #' @import gridBase
-#' @import gridExtra
-#' @importFrom dplyr arrange group_by setdiff
+#' @import dplyr
 #'
 #' @export
 #'

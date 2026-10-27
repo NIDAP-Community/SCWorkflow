@@ -24,7 +24,7 @@
 ### Fix
 
 * fix: Declare existing Matrix, shiny, and optional analysis dependencies without changing package versions (#107).
-* fix: Declare explicit function imports to avoid namespace conflicts, and reference Seurat cell-cycle datasets without attaching Seurat to the search path (#107).
+* fix: Resolve namespace conflicts while preserving pre-existing importFrom declarations and broad imports where safe; reference Seurat cell-cycle datasets without attaching Seurat to the search path (#107).
 * fix: Declare existing mclust, TrajectoryUtils, and TSCAN optional dependencies without reinstalling or updating them (#107).
 * fix: Declare the existing patchwork namespace dependency in DESCRIPTION Imports (#107).
 * fix: Require ggalluvial for population-comparison plots, using the pinned 0.12.3 NIDAP environment library instead of an optional-package runtime guard (#107).

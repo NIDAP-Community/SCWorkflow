@@ -17,6 +17,7 @@
 #' @param save.plot Save plot as widget in html file (default is FALSE)
 #'
 #' @importFrom plotly as_widget plot_ly
+#' @importFrom plotly hide_legend
 #' @importFrom Seurat RunTSNE RunUMAP
 #' @importFrom htmlwidgets saveWidget
 #'

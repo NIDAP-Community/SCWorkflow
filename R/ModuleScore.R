@@ -65,7 +65,7 @@
 #' 
 #' @import Seurat
 #' @import tidyverse
-#' @import gridExtra
+#' @importFrom gridExtra arrangeGrob
 #' @import quantmod
 #' @import grid
 #' @import utils

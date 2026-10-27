@@ -1,5 +1,11 @@
 # Session Notes
 
+## 2026-10-27: Minimize Import Changes Against The Branch Base
+
+- The user's latest instruction supersedes the blanket importFrom refactor: preserve all pre-branch importFrom lines verbatim and use new selective imports only for demonstrated namespace conflicts. Restored broad ggplot2, dplyr, and httr imports; retained narrow exceptions for conflicting providers.
+- All 92 original importFrom lines remain in their original files, every original generated importFrom entry is retained, and all 28 public exports are unchanged. Parsed runtime code matches HEAD. Namespace checks and the required parameter inventory/Graphify refresh pass.
+- No changes to tests, fixtures, templates, dependency versions, workflows, capsule copies, or original SIFs. The user authorized commit and push on DEV-frozen-container-ci after pulling the remote changes. GitHub runtime validation remains pending; no local Docker or Podman validation or merge.
+
 ## 2026-10-27: Remove The Separate Comparison Environment Test
 
 - At the user's request, removed the synthetic compareCellPopulations environment smoke test. Existing comparison cases already invoke the function and check plot objects; their assertions and snapshot skip policy remain unchanged.

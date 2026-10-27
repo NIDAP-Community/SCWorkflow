@@ -84,12 +84,10 @@
 #' @importFrom Seurat CreateAssayObject Idents as.SingleCellExperiment AddMetaData
 #' @importFrom reshape2 melt
 #' @importFrom magrittr %>%
-#' @importFrom ggplot2 aes annotate element_blank element_text geom_point
-#' @importFrom ggplot2 geom_vline ggplot ggtitle guide_legend guides rel
-#' @importFrom ggplot2 scale_color_manual scale_colour_gradient2 theme theme_bw
-#' @importFrom ggplot2 theme_classic xlab ylab
+#' @importFrom ggplot2 ggplot
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
-#' @importFrom ggpubr annotate_figure get_legend ggarrange text_grob
+#' @importFrom ggpubr annotate_figure get_legend ggarrange
+#' @importFrom ggpubr text_grob
 #' 
 #' @export
 #' 

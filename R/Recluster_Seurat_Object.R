@@ -30,7 +30,6 @@
 #'
 #' @import Seurat
 #' @importFrom cowplot plot_grid
-#' @importFrom dplyr intersect one_of select setdiff
 #' @importFrom gdata startsWith
 #' @import tidyverse
 #'

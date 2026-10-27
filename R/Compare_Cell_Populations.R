@@ -24,19 +24,17 @@
 #' in box plots. Default is 5
 #'
 #' @import Seurat
-#' @importFrom ggplot2 aes aes_string element_blank facet_wrap geom_col geom_text
-#' @importFrom ggplot2 ggplot guide_axis position_stack scale_fill_manual
-#' @importFrom ggplot2 scale_x_discrete theme theme_classic xlab
+#' @import ggplot2
 #' @importFrom ggpubr ggboxplot
 #' @import RColorBrewer
 #' @import tibble
 #' @import reshape2
-#' @importFrom dplyr setdiff
+#' @import dplyr
 #' @importFrom magrittr %>%
-#' @import gridExtra
 #' @import grid
 #' @import scales
 #'
+#' @importFrom ggalluvial geom_flow
 #' @importFrom stats setNames
 #' @importFrom grDevices colorRampPalette
 #'

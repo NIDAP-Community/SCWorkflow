@@ -71,8 +71,8 @@
 #' print(results$`WT-KO_interactive`)
 #' }
 #'
-#' @importFrom ggplot2 aes geom_point ggplot_build scale_fill_identity theme_minimal
-#' @importFrom dplyr desc mutate one_of
+#' @import ggplot2
+#' @import dplyr
 #' @import tidyr
 #' @importFrom stringr str_split
 #' @importFrom ggrepel geom_text_repel

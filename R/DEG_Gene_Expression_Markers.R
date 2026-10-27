@@ -24,7 +24,7 @@
 #'
 #'
 #' @import Seurat
-#' @importFrom dplyr everything
+#' @import ggplot2
 #' @import RColorBrewer
 #' @import scales
 #' @import tidyverse
@@ -33,7 +33,6 @@
 #' @import tools
 #' @import grid
 #' @import gridBase
-#' @import gridExtra
 #' @import parallel
 #' @import MAST
 #'

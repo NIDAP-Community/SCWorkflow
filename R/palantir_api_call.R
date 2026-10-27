@@ -7,7 +7,7 @@
 #' @param data Data to be uploaded with NIDAP API calls.
 #' @param method Method to be used, including POST, GET, and DELETE 
 #' 
-#' @importFrom httr add_headers content DELETE GET POST
+#' @import httr
 #' 
 #' @export
 #' 

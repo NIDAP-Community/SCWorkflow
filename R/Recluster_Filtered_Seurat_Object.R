@@ -30,7 +30,6 @@
 #'
 #' @import Seurat
 #' @importFrom cowplot plot_grid
-#' @importFrom dplyr one_of select
 #' @import tidyverse
 #'
 #' @export

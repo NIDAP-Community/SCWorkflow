@@ -20,10 +20,8 @@
 
 #' @import Seurat 
 #' @import harmony
-#' @import gridExtra
 #' @import RColorBrewer
-#' @importFrom ggplot2 aes annotate element_blank element_text geom_point ggplot
-#' @importFrom ggplot2 guide_legend guides rel scale_color_manual theme theme_bw
+#' @import ggplot2
 #' @importFrom patchwork plot_layout
 #'   
 #' @export

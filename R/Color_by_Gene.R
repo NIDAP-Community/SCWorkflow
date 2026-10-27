@@ -27,9 +27,7 @@
 #' @param assay Select Assay to Plot (default is SCT)
 #'
 #' @import Seurat
-#' @import gridExtra
-#' @importFrom ggplot2 aes element_blank element_text geom_point ggplot ggtitle
-#' @importFrom ggplot2 rel scale_color_gradient theme theme_bw xlab ylab
+#' @import ggplot2
 #' @import tidyverse
 #'
 #'
