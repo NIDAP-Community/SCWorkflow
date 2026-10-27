@@ -17,6 +17,7 @@ runs:
       run: |
         tar -xzf "$RUNNER_TEMP/NIDAP-ci-tools/library.tar.gz" -C "$RUNNER_TEMP/NIDAP-ci-tools"
         printf 'R_LIBS_USER=%s/library\n' "$RUNNER_TEMP/NIDAP-ci-tools" >> "$GITHUB_ENV"
+        printf 'R_LIBS=%s/library%s\n' "$RUNNER_TEMP/NIDAP-ci-tools" "${R_LIBS:+:$R_LIBS}" >> "$GITHUB_ENV"
 
     - name: Verify NIDAP environment
       shell: bash
