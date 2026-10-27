@@ -29,6 +29,7 @@
 
 ### Documentation
 
+* docs: Mark the trajectory example as dontrun, matching the other 21 examples without changing runtime code or unit tests (#107).
 * docs: Record immutable SIF inspection, unchanged source checksum, preserved legacy package versions, successful namespace loading from a read-only copy, and remaining CI-tool gaps.
 * docs: Record draft PR #107's frozen-container preflight failures, rule out a HOME/library-path cause through local read-only inspection, and distinguish reuse of installed dependencies from building the checked-out SCWorkflow source.
 * docs: Align plotMetadata() source documentation with its list return value and clarify that sample selection and metadata summarization affect plots only.

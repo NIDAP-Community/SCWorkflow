@@ -1,5 +1,11 @@
 # Session Notes
 
+## 2026-10-26: Match Trajectory Example Execution Policy
+
+- At the user's explicit request, changed the trajectory roxygen example from `\donttest{}` to `\dontrun{}`, matching all 21 other source example blocks. Regenerated only its help page; both source and Rd differ only in that wrapper.
+- Parsed runtime expressions are identical to HEAD. Local and offline/read-only frozen R 4.1.3 `tools::Rd2ex()` checks confirm normal extraction skips the example while explicit extraction retains it. This does not fix or validate the example's missing reductions or the trajectory runtime.
+- Refreshed the required parameter inventory and Graphify outputs successfully. Existing editor diagnostics for ggplot variable bindings remain outside scope. No unit-test, workflow, dependency-version, Seurat, capsule, or original SIF changes; full package check and fresh GitHub CI were not rerun during local verification. Publication was subsequently authorized by the user; GitHub verification of this follow-up is pending.
+
 ## 2026-10-26: Trajectory Declarations And Example Finding
 
 - Published patchwork correction `2a8f64c` resolves the original error. GitHub runs 40432161914 and 40432162075 complete: preparation, lint, and both coverage jobs pass. R CMD check advances and reports 1 error, 6 warnings, 6 notes; the error is the trajectory example's namespace-load failure.

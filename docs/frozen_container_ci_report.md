@@ -6,7 +6,15 @@ Task branch: `DEV-frozen-container-ci`
 Branch base: `DEV` commit `87634480f6194e70ec38d254ce16c4a158aee694`
 PR: [#107](https://github.com/NIDAP-Community/SCWorkflow/pull/107), draft, targeting `DEV`; no merge authorized.
 Verified runtime/workflow revision: `fd4dd6f58b0caa295cc70a23bfd7b729ef79ec14`; the package-metadata follow-up below does not change the workflow, image, or installed dependencies.
-Status: The published patchwork correction `2a8f64c` resolves the original declaration error. Preparation, lint, and both coverage jobs pass on GitHub. R CMD check now reaches the trajectory example and reports 1 error, 6 warnings, and 6 notes. Additional trajectory dependency declarations are locally verified; the unchanged example then reveals a missing PCA reduction in its input. Fresh GitHub verification of those declarations is pending. Full CI success is not claimed.
+Status: Preparation, lint, and both coverage jobs pass at published revision `2a8f64c`; later focused package checking exposes a trajectory example without PCA. At the user's request, the follow-up marks that example `\dontrun{}`, matching the other 21 examples. Focused extraction passes in frozen R 4.1.3. Full package check and GitHub CI had not been rerun for this change at local verification, and existing package warnings remain. Full CI success is not claimed.
+
+## Trajectory Example Policy Follow-Up
+
+The user explicitly requested that trajectory follow the same example strategy as the other 21 functions. Those source examples use `\dontrun{}` with illustrative inputs; trajectory alone used `\donttest{}`, which runs under the existing `--as-cran` check. Changed only that wrapper in the trajectory roxygen source and regenerated its help page. The example body and all parsed runtime expressions are unchanged.
+
+Local and offline/read-only frozen R 4.1.3 `tools::Rd2ex()` checks confirm that normal extraction skips the example even when `donttest` examples are enabled, while explicit `dontrun` extraction retains it. This is a user-approved example execution policy change, not a repair of missing reductions or evidence that the full trajectory workflow succeeds. Unit tests, global check flags, warning-level gates, and dependency versions are unchanged. The required parameter inventory and Graphify refresh succeeded.
+
+At local verification, this follow-up was uncommitted; full package check and fresh GitHub CI had not been run. Existing package warnings and the example's unsuitable raw input remain separate findings. The earlier sections below preserve their original revision and verification context. The original SIF was neither accessed nor modified.
 
 ## Patchwork Declaration Follow-Up
 
@@ -36,7 +44,7 @@ Local evidence is stored under `/tmp/scworkflow-trajectory-check.8qW76S`. The fo
 
 Test the current SCWorkflow source against an existing, preserved dependency environment instead of reconstructing legacy R dependencies from today's CRAN or Bioconductor repositories. Older dependency versions may no longer resolve through the current repository endpoints even when they remain usable in the archived container.
 
-This work changes SCWorkflow package validation workflows, makes `ggalluvial` optional at package load, and corrects existing patchwork and optional trajectory dependency declarations. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
+This work changes SCWorkflow package validation workflows, makes `ggalluvial` optional at package load, corrects existing patchwork and optional trajectory dependency declarations, and aligns the trajectory documentation example's execution policy with the other examples. It does not change capsule workflows, Seurat, installed dependency versions, or the container build. Capsule CI troubleshooting remains deferred.
 
 ## Strategy
 
