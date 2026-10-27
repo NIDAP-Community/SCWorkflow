@@ -27,7 +27,7 @@ Invisibly returns \code{NULL}. Generates trajectory and pseudotime plots as side
 Perform the CCBR single-cell RNA-seq trajectory workflow using TSCAN.
 }
 \examples{
-\donttest{
+\dontrun{
 if (requireNamespace("Seurat", quietly = TRUE)) {
   seurat_example <- Seurat::CreateSeuratObject(
     counts = matrix(rpois(200, lambda = 5), nrow = 20,

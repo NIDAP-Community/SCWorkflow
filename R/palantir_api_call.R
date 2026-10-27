@@ -8,7 +8,6 @@
 #' @param method Method to be used, including POST, GET, and DELETE 
 #' 
 #' @import httr
-#' @import jsonlite 
 #' 
 #' @export
 #' 

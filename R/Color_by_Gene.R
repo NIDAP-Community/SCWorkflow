@@ -27,7 +27,6 @@
 #' @param assay Select Assay to Plot (default is SCT)
 #'
 #' @import Seurat
-#' @import gridExtra
 #' @import ggplot2
 #' @import tidyverse
 #'

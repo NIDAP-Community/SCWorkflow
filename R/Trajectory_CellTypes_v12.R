@@ -9,7 +9,7 @@
 #'
 #' @return Invisibly returns `NULL`. Generates trajectory and pseudotime plots as side effects.
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' if (requireNamespace("Seurat", quietly = TRUE)) {
 #'   seurat_example <- Seurat::CreateSeuratObject(
 #'     counts = matrix(rpois(200, lambda = 5), nrow = 20,

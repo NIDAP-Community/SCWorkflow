@@ -87,6 +87,7 @@
 #' @importFrom ggplot2 ggplot
 #' @importFrom RColorBrewer brewer.pal brewer.pal.info
 #' @importFrom ggpubr annotate_figure get_legend ggarrange
+#' @importFrom ggpubr text_grob
 #' 
 #' @export
 #' 

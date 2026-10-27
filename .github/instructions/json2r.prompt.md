@@ -16,7 +16,9 @@ Rules:
 - Remove all mustache placeholders.
 - Add roxygen2 docs and utils::globalVariables().
 - Validate inputs and column existence.
-- Update README.md, CHANGELOG.md, decision_log.md, docs/session_notes.md.
+- Update README.md and add NEWS.md entries only for user-facing changes.
+- Keep CI details, internal investigations, and agent notes out of release notes.
+- Keep decision_log.md and .agents/session_notes.md local and untracked.
 - Add testthat tests for the function.
 
 Output:

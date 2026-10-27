@@ -22,6 +22,7 @@
 #'
 #' @importFrom tidyr pivot_wider
 #' @importFrom Seurat Idents DotPlot
+#' @importFrom cowplot theme_cowplot
 #'
 #' @export 
 #' 

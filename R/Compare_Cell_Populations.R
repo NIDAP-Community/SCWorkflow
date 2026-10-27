@@ -20,22 +20,17 @@
 #' "Frequency" (percentages) or "Counts" (absolute numbers). Default is "Frequency"
 #' @param group.order Character vector specifying the order of groups in plots.
 #' If NULL, uses natural order from data. Default is NULL
-#' @param seurat.object.filename Character string for the Seurat object 
-#' filename. Default is "seurat_object.rds"
 #' @param wrap.ncols Integer specifying number of columns for facet wrapping 
 #' in box plots. Default is 5
 #'
 #' @import Seurat
 #' @import ggplot2
-#' @import ggpubr
+#' @importFrom ggpubr ggboxplot
 #' @import RColorBrewer
 #' @import tibble
 #' @import reshape2
-#' @import data.table
 #' @import dplyr
-#' @import magrittr
-#' @import cowplot
-#' @import gridExtra
+#' @importFrom magrittr %>%
 #' @import grid
 #' @import scales
 #'
@@ -221,7 +216,7 @@ compareCellPopulations <- function(
   # Create bar plot with alluvial flows
   p2 <- ptbl %>%
     ggplot(aes_string(y = 'value', x = 'Var2', fill = 'Var1', label = labelCol)) +
-    geom_flow(aes(alluvium = Var1), alpha = .2,
+    ggalluvial::geom_flow(aes(alluvium = Var1), alpha = .2,
               lty = 2, color = "black",
               curve_type = "linear",
               width = .5) +

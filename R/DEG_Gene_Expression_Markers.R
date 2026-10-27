@@ -29,12 +29,10 @@
 #' @import scales
 #' @import tidyverse
 #' @import ggrepel
-#' @import gdata
 #' @import reshape2
 #' @import tools
 #' @import grid
 #' @import gridBase
-#' @import gridExtra
 #' @import parallel
 #' @import MAST
 #'
