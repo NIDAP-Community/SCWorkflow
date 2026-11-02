@@ -4,8 +4,6 @@ skip_if_packages_missing <- function(pkgs) {
   }
 }
 
-source(testthat::test_path("..", "..", "R", "Trajectory_CellTypes_v12.R"))
-
 build_test_seurat <- function() {
   set.seed(42)
   counts <- matrix(

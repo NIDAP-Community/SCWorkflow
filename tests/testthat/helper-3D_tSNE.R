@@ -35,8 +35,12 @@ getParam3D <- function(data) {
   )
 }
 
-.drawplot <- function(x) {
-  path <- tempfile(fileext = ".png")
-  plotly::save_image(x, path)
-  path
+expect3DHtmlOutput <- function(plot) {
+  testthat::expect_s3_class(plot, "plotly")
+  testthat::expect_s3_class(plot, "htmlwidget")
+  path <- tempfile(fileext = ".html")
+  htmlwidgets::saveWidget(plotly::as_widget(plot), path, selfcontained = TRUE)
+  testthat::expect_true(file.exists(path))
+  testthat::expect_gt(file.info(path)$size, 0)
+  invisible(path)
 }

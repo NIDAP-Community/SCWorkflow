@@ -1,10 +1,3 @@
-#These lines are necessary to launch Kaleido properly (temporary patch):
-skip_on_ci()
-reticulate::py_require(c("plotly", "kaleido==0.2.1"))
-reticulate::py_run_string(
-  "import sys;print(sys.version); sys.path.append('/rstudio-files/R_environments/single-cell-rna-seq-r4'); print(sys.path)"
-)
-
 test_that("Produce 3D tsne plot and return tsne coordinates - TEC Data", {
   cr.object <- getParam3D("TEC")
   cr.object$plot.type <- "tSNE"
@@ -13,11 +6,7 @@ test_that("Produce 3D tsne plot and return tsne coordinates - TEC Data", {
   expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
  
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawplot(output$plots),
-    "TEC_plotly.png"
-    )
+  expect3DHtmlOutput(output$plots)
   }
 )
 
@@ -48,11 +37,7 @@ test_that("Produce 3D tsne plot and return tsne coordinates - Chariou Data", {
   expect_setequal(names(output), expected.elements)
   expect_true(all(c("tSNE_1", "tSNE_2", "tSNE_3") %in% colnames(output$data)))
 
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawplot(output$plots),
-    "Chariou_plotly.png"
-  )
+  expect3DHtmlOutput(output$plots)
 }
 )
 
@@ -64,6 +49,7 @@ test_that("Produce 3D UMAP plot and return UMAP coordinates - Chariou Data", {
   expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
   expect_true(all(c("UMAP_1", "UMAP_2", "UMAP_3") %in% colnames(output$data)))
+  expect3DHtmlOutput(output$plots)
 })
 
 test_that("Run 3D plot with error for invalid plot type", {
@@ -79,11 +65,7 @@ test_that("Produce 3D tsne plot and return tsne - PBMC-single Data", {
   expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawplot(output$plots),
-    "PBMC_single_plotly.png"
-  )
+  expect3DHtmlOutput(output$plots)
 })
 
 test_that("Produce 3D tsne plot and return tsne - NSCLC-multi Data", {
@@ -94,11 +76,7 @@ test_that("Produce 3D tsne plot and return tsne - NSCLC-multi Data", {
   expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawplot(output$plots),
-    "NSCLC_multi_plotly.png"
-  )
+  expect3DHtmlOutput(output$plots)
 })
 
 test_that("Produce 3D tsne plot and return tsne - BRCA Data", {
@@ -109,9 +87,5 @@ test_that("Produce 3D tsne plot and return tsne - BRCA Data", {
   expected.elements = c("plots", "data")
   expect_setequal(names(output), expected.elements)
 
-  skip_on_ci()
-  expect_snapshot_file(
-    .drawplot(output$plots),
-    "BRCA_plotly.png"
-  )
+  expect3DHtmlOutput(output$plots)
 })
