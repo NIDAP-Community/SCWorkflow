@@ -1,26 +1,26 @@
 getParam3D <- function(data) {
   if (data == "TEC") {
-    object <- selectSRObject("TEC")
+    object <- selectCRObject("TEC")
     color.variable = "orig.ident"
-    label.variable = "immgen_main"
+    label.variable = "SCT_snn_res.0.2"
     
   } else if (data == "Chariou") {
-    object <- selectSRObject("Chariou")
-    color.variable = "mouseRNAseq"
-    label.variable = "Barcode"
+    object <- selectCRObject("Chariou")
+    color.variable = "orig.ident"
+    label.variable = "SCT_snn_res.2.4"
     
   } else if (data == "pbmc-single") {
-    object <- selectSRObject("pbmc-single")
+    object <- selectCRObject("pbmc-single")
     color.variable = "SCT_snn_res.0.2"
-    label.variable = "BP_encode_main"
+    label.variable = "orig.ident"
     
   } else if (data == "nsclc-multi") {
-    object <- selectSRObject("nsclc-multi")
+    object <- selectCRObject("nsclc-multi")
     color.variable = "orig.ident"
-    label.variable = "BP_encode_main"
+    label.variable = "SCT_snn_res.0.2"
     
   } else if (data == "BRCA") {
-    object <- selectSRObject("BRCA")
+    object <- selectCRObject("BRCA")
     color.variable = "orig.ident"
     label.variable = "SCT_snn_res.0.4"
     
