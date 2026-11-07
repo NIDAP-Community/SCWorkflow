@@ -24,3 +24,18 @@ runs:
       env:
         NIDAP_PREFLIGHT_MODE: ${{ inputs.mode }}
       run: Rscript .github/scripts/ci-preflight.R "$NIDAP_PREFLIGHT_MODE"
+
+    - name: Restore pinned fixture archive cache
+      if: inputs.mode != 'lint'
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/SCWorkflow-fixtures
+        key: ${{ runner.os }}-SCWorkflow-fixtures-${{ hashFiles('tests/fixture-bundle.json') }}
+
+    - name: Download and verify pinned test fixtures
+      if: inputs.mode != 'lint'
+      shell: bash
+      run: |
+        printf 'SCWORKFLOW_FIXTURE_CACHE=%s/SCWorkflow-fixtures\n' "$RUNNER_TEMP" >> "$GITHUB_ENV"
+        SCWORKFLOW_FIXTURE_CACHE="$RUNNER_TEMP/SCWorkflow-fixtures" \
+          Rscript tests/setup-fixtures.R --download-only

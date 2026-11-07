@@ -9,8 +9,8 @@ getParam3D <- function(data) {
     color.variable = "orig.ident"
     label.variable = "SCT_snn_res.2.4"
     
-  } else if (data == "pbmc-single") {
-    object <- selectCRObject("pbmc-single")
+  } else if (data == "NSCLC_Single") {
+    object <- selectCRObject("NSCLC_Single")
     color.variable = "SCT_snn_res.0.2"
     label.variable = "orig.ident"
     

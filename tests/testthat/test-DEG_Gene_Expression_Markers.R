@@ -98,10 +98,10 @@ test_that("Test DEG Gene Expression Markers using NSCLCmulti (Human) dataset",
 
 
 
-test_that("Test DEG Gene Expression Markers using PBMCsingle (Human) dataset",
+test_that("Test DEG Gene Expression Markers using NSCLC_Single (Human) dataset",
           {
-            pbmc.single.data <- getParamDGEM("pbmc-single")
-            output <- do.call(degGeneExpressionMarkers, pbmc.single.data)
+            NSCLC_Single.data <- getParamDGEM("NSCLC_Single")
+            output <- do.call(degGeneExpressionMarkers, NSCLC_Single.data)
             
             expect_type(output, "list")
             expected.elements = c("data")

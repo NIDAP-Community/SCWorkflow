@@ -16,7 +16,8 @@ rejecting upgrades or removals of existing system packages.
 R CMD check discovers the testthat suite through tests/testthat.R; existing
 test assertions and skip policies are unchanged.
 The final check uses disk-backed temporary storage for the full source tree,
-including fixtures; preparation and preflight retain their 1 GiB tmpfs limits.
+restoring checksum-pinned release fixtures from its cache before tests run;
+preparation and preflight retain their 1 GiB tmpfs limits.
 
 Requirements: Podman with a running machine and sufficient VM disk space on
 macOS, jq, curl, and shasum.
@@ -26,6 +27,15 @@ logs are retained under a unique ci-artifacts/podman-r-cmd-check.* directory.
 Set SCWORKFLOW_PODMAN_CHECK_DIR to choose a new output directory explicitly.
 Set SCWORKFLOW_CRAN_MIRROR=https://cloud.r-project.org to use the official CRAN
 CDN for downloads without changing package versions or SHA-256 checks.
+
+Optional resource controls apply to the final check container only:
+  SCWORKFLOW_PODMAN_CPUS         CPU quota; unset uses all VM CPUs.
+  SCWORKFLOW_PODMAN_MEMORY       RAM limit, for example 9g; unset uses the VM limit.
+  SCWORKFLOW_PODMAN_MEMORY_SWAP  Total RAM plus swap limit, for example 15g.
+                                Requires SCWORKFLOW_PODMAN_MEMORY.
+  SCWORKFLOW_PODMAN_THREADS      BLAS/OpenMP threads; unset preserves image defaults.
+These do not allocate VM resources or parallelize the test suite. On macOS,
+increase VM resources only after its active containers have finished.
 USAGE
 }
 
@@ -55,6 +65,33 @@ podman_platform="${PODMAN_PLATFORM:-linux/amd64}"
 cran_mirror="${SCWORKFLOW_CRAN_MIRROR:-https://cran.r-project.org}"
 [[ "$cran_mirror" == https://* ]] || fail "SCWORKFLOW_CRAN_MIRROR must use HTTPS."
 cran_mirror="${cran_mirror%/}"
+
+check_resources=()
+if [[ -n "${SCWORKFLOW_PODMAN_CPUS:-}" ]]; then
+  [[ "$SCWORKFLOW_PODMAN_CPUS" =~ ^[1-9][0-9]*$ ]] ||
+    fail "SCWORKFLOW_PODMAN_CPUS must be a positive integer."
+  check_resources+=(--cpus "$SCWORKFLOW_PODMAN_CPUS")
+fi
+if [[ -n "${SCWORKFLOW_PODMAN_MEMORY:-}" ]]; then
+  [[ "$SCWORKFLOW_PODMAN_MEMORY" =~ ^[1-9][0-9]*[bBkKmMgG]?$ ]] ||
+    fail "SCWORKFLOW_PODMAN_MEMORY must be a positive size, such as 9g."
+  check_resources+=(--memory "$SCWORKFLOW_PODMAN_MEMORY")
+fi
+if [[ -n "${SCWORKFLOW_PODMAN_MEMORY_SWAP:-}" ]]; then
+  [[ -n "${SCWORKFLOW_PODMAN_MEMORY:-}" ]] ||
+    fail "SCWORKFLOW_PODMAN_MEMORY_SWAP requires SCWORKFLOW_PODMAN_MEMORY."
+  [[ "$SCWORKFLOW_PODMAN_MEMORY_SWAP" =~ ^[1-9][0-9]*[bBkKmMgG]?$ ]] ||
+    fail "SCWORKFLOW_PODMAN_MEMORY_SWAP must be a positive size, such as 15g."
+  check_resources+=(--memory-swap "$SCWORKFLOW_PODMAN_MEMORY_SWAP")
+fi
+if [[ -n "${SCWORKFLOW_PODMAN_THREADS:-}" ]]; then
+  [[ "$SCWORKFLOW_PODMAN_THREADS" =~ ^[1-9][0-9]*$ ]] ||
+    fail "SCWORKFLOW_PODMAN_THREADS must be a positive integer."
+  check_resources+=(--env "OPENBLAS_NUM_THREADS=$SCWORKFLOW_PODMAN_THREADS"
+                    --env "OMP_NUM_THREADS=$SCWORKFLOW_PODMAN_THREADS"
+                    --env "MKL_NUM_THREADS=$SCWORKFLOW_PODMAN_THREADS"
+                    --env "RCPP_PARALLEL_NUM_THREADS=$SCWORKFLOW_PODMAN_THREADS")
+fi
 
 [[ -f "$source_manifest" ]] || fail "Missing CI tool manifest: $source_manifest"
 podman info >/dev/null 2>&1 || fail "Podman is unavailable. Start Podman Desktop or run 'podman machine start', then retry."
@@ -118,13 +155,14 @@ podman run --rm --platform "$podman_platform" \
   '
 
 printf 'Running R CMD check in the CI image...\n'
-podman run --rm --platform "$podman_platform" \
+podman run --rm --platform "$podman_platform" ${check_resources[@]+"${check_resources[@]}"} \
   --volume "$repo_root:/workspace:ro" \
   --volume "$work_dir:/ci-tools:ro" \
   --volume "$output_dir:/ci-output:rw" \
   --env R_LIBS_USER=/ci-tools/library \
   --env R_LIBS=/ci-tools/library \
   --env R_KEEP_PKG_SOURCE=yes \
+  --env SCWORKFLOW_FIXTURE_CACHE=/ci-output/fixture-cache \
   --workdir /workspace --entrypoint /bin/sh "$ci_image" -ec '
     test "$(Rscript -e '\''cat(as.character(getRversion()))'\'')" = "4.1.3"
     apt-get update
@@ -136,6 +174,7 @@ podman run --rm --platform "$podman_platform" \
     fi
     apt-get install --yes --no-install-recommends --no-upgrade --no-remove qpdf
     qpdf --version
+    Rscript tests/setup-fixtures.R --download-only
     Rscript -e '\''rcmdcheck::rcmdcheck(
       path = "/workspace",
       args = c("--no-manual", "--as-cran"),

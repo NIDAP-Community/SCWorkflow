@@ -78,28 +78,28 @@ test_that("modScore returns metadata with scores and cell calls for chariou", {
 })
 
 test_that("modScore returns metadata with scores and cell calls for
-          pbmc.single", {
+          NSCLC_Single", {
 
-  pbmc.single <- getModuleScoreParam("pbmc.single")
+  NSCLC_Single <- getModuleScoreParam("NSCLC_Single")
 
-  suppressWarnings(modscore.demo <- do.call(modScore, pbmc.single))
+  suppressWarnings(modscore.demo <- do.call(modScore, NSCLC_Single))
 
   # skip_on_ci()
   # expect_snapshot_file(
   #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[1]]),
-  #   "pbmc_single_MS_1.png"
+  #   "NSCLC_Single_MS_1.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
   #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[2]]),
-  #   "pbmc_single_MS_2.png"
+  #   "NSCLC_Single_MS_2.png"
   # )
   # 
   # skip_on_ci()
   # expect_snapshot_file(
   #   .drawMSfig(modscore.demo[["object"]]$ms.plots[[3]]),
-  #   "pbmc_single_MS_3.png"
+  #   "NSCLC_Single_MS_3.png"
   # )
 
   expect_equal(mean(modscore.demo[["object"]]$rand_type1),
@@ -111,7 +111,7 @@ test_that("modScore returns metadata with scores and cell calls for
   expect_equal(mean(modscore.demo[["object"]]$rand_type3),
                0.1798533, tolerance = 1e-1)
 
-  expected_elements <- c("MS_Celltype",pbmc.single$general.class)
+  expected_elements <- c("MS_Celltype",NSCLC_Single$general.class)
   expect(all(expected_elements %in% colnames(modscore.demo[["object"]]@meta.data)),
          failure_message = "modscore results not found")
 

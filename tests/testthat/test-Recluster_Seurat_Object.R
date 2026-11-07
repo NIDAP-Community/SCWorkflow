@@ -483,23 +483,23 @@ test_that("Recluster validates PCA and resolution parameters.", {
 })
 
 
-test_that("Test Recluster with PBMCSingle (Human) dataset.", {
+test_that("Test Recluster with NSCLC_Single (Human) dataset.", {
   
   ## Get inputs and default parameters.
-  input <- getParamsReclusterSeuratObject("pbmc-single")
+  input <- getParamsReclusterSeuratObject("NSCLC_Single")
   
   ## Do function call.
   output <- do.call(reclusterSeuratObject, input)
   
   ## Compare new plot to old plot.
   ggsave(
-    "output/PBMCsingle_reclusterSO.png",
+    "output/NSCLC_Single_reclusterSO.png",
     output$plots,
     width = 10,
     height = 10
   )
   if (!nzchar(Sys.getenv("CI"))) {
-    expect_snapshot_file("output/PBMCsingle_reclusterSO.png")
+    expect_snapshot_file("output/NSCLC_Single_reclusterSO.png")
   }
   
   ## Compare results.

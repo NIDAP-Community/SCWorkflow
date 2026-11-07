@@ -58,8 +58,8 @@ test_that("Run 3D plot with error for invalid plot type", {
   expect_error(do.call(tSNE3D, cr.object), "plot.type must be one of")
 })
 
-test_that("Produce 3D tsne plot and return tsne - PBMC-single Data", {
-  cr.object <- getParam3D("pbmc-single")
+test_that("Produce 3D tsne plot and return tsne - NSCLC_Single Data", {
+  cr.object <- getParam3D("NSCLC_Single")
   cr.object$plot.type <- "tSNE"
   output <- do.call(tSNE3D, cr.object)
   expected.elements = c("plots", "data")

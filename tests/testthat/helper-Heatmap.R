@@ -48,9 +48,9 @@ getParamHM <- function(data) {
     protein.annotations <- NULL
     plot.title <- "Heatmap_Chariou_test"
     
-  } else if (data == "pbmc-single") {
-    object <- selectSRObject("pbmc-single")
-    sample.names <- c("PBMC_Single")
+  } else if (data == "NSCLC_Single") {
+    object <- selectSRObject("NSCLC_Single")
+    sample.names <- unique(as.character(object$orig.ident))
     metadata <- c("HPCA_main", "BP_encode_main")
     set.seed(15)
     transcripts <- sample(rownames(object), 10, replace = FALSE)

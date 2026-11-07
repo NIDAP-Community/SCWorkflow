@@ -4,6 +4,8 @@
 ^\.agents$
 ^docs$
 ^ci-artifacts$
+^tests/testthat/fixtures$
+^tests/testthat/fixtures_raw_small$
 ^vignettes/Getting Started and Quality Control\.html$
 ^vignettes/Getting Started and Quality Control_files$
 ^Dockerfile$

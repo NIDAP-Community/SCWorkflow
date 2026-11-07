@@ -1,5 +1,5 @@
 
-for (data in c('TEC','Chariou','NSCLC_Multi','PBMC_Single')) {
+for (data in c('TEC','Chariou','NSCLC_Multi','NSCLC_Single')) {
   
   
   
