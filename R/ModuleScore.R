@@ -65,10 +65,9 @@
 #' 
 #' @import Seurat
 #' @import tidyverse
-#' @import gridExtra
+#' @importFrom gridExtra arrangeGrob
 #' @import quantmod
 #' @import grid
-#' @import data.table
 #' @import utils
 #' @import stringr
 #' @importFrom stringr str_split

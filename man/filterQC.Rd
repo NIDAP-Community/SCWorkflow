@@ -56,9 +56,9 @@ for each sample. (Default: c(NA, NA))}
 \item{mad.nfeature.limits}{Set filter limits based on how many Median
 Absolute Deviations an outlier cell will have. Calculated from the median
 gene number for all cells in your sample. Usage c(lower limit, Upper Limit)
-E.g. setting to c(3,5) will remove all cells with more than 3 absolute
-deviations less than the median or 5 absolute deviations greater than the
-median. (Default: c(5,5))}
+ E.g. setting to c(3,5) will remove all cells with more than 3 absolute
+ deviations less than the median or 5 absolute deviations greater than the
+ median. (Default: c(5,5))}
 
 \item{ncounts.limits}{Filter out cells where the total number of molecules
 (umi) detected within a cell exceed the selected limits.
@@ -130,6 +130,40 @@ most highly expressed Genes.
 cells. Doublets are defined as two cells that are sequenced under the same
 cellular barcode, for example, if they were captured in the same droplet.
 (Default: TRUE)}
+
+\item{plot.outliers}{Reduction for visualizing outlier cells: "None",
+"UMAP", or "tSNE". Default is "None".}
+
+\item{group.column}{Metadata column used to group outlier visualizations.
+Default is NA.}
+
+\item{nfeatures}{Number of variable features to select for dimensionality
+reduction. Default is 2000.}
+
+\item{low.cut}{Lower mean-expression cutoff for variable-feature selection.
+Default is 0.1.}
+
+\item{high.cut}{Upper mean-expression cutoff for variable-feature selection.
+Default is 8.}
+
+\item{low.cut.disp}{Lower dispersion cutoff for variable-feature selection.
+Default is 1.}
+
+\item{high.cut.disp}{Upper dispersion cutoff for variable-feature selection.
+Default is 100000.}
+
+\item{selection.method}{Variable-feature selection method. Default is "vst".}
+
+\item{npcs}{Number of principal components to compute. Default is 30.}
+
+\item{vars.to.regress}{Optional metadata variables to regress out during
+normalization. Default is NULL.}
+
+\item{seed.for.PCA}{Random seed for PCA. Default is 42.}
+
+\item{seed.for.TSNE}{Random seed for t-SNE. Default is 1.}
+
+\item{seed.for.UMAP}{Random seed for UMAP. Default is 42.}
 }
 \value{
 Seurat Object and QC plots

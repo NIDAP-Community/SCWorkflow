@@ -27,9 +27,9 @@ getParamPM <- function(data) {
                 "SCT_snn_res.2.6",
                 "SCT_snn_res.2.8")'
     columns.to.summarize = "c()"
-  } else if (data == "pbmc-single") {
-    invisible(capture.output(object <- selectCRObject("pbmc-single")))
-    samples.to.include = 'c("PBMC_Single")'
+  } else if (data == "NSCLC_Single") {
+    invisible(capture.output(object <- selectCRObject("NSCLC_Single")))
+    samples.to.include = paste0('c("', unique(as.character(object$orig.ident)), '")')
     metadata.to.plot = 'c("SCT_snn_res.0.2",
                 "SCT_snn_res.0.4",
                 "SCT_snn_res.0.6",

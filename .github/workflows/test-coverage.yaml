@@ -11,19 +11,24 @@ name: test-coverage
 permissions: read-all
 
 jobs:
+  prepare-environment:
+    uses: ./.github/workflows/NIDAP-environment.yaml
+
   test-coverage:
+    needs: prepare-environment
     runs-on: ubuntu-latest
+    container:
+      image: rfinney/rs413s@sha256:7cb32eaac452ad32abb34e9a9e3edb42590e4dfcf696caeb72bb375a5b3c83cf
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: CCBR/actions/install-r-pak@main
+      - name: Set up NIDAP coverage environment
+        uses: ./.github/actions/NIDAP-setup
         with:
-          r-version: 4.1.3
-          versions-file: .github/package-versions.txt
-          needs: dev
+          mode: coverage
 
       - name: Test coverage
         run: |
@@ -47,7 +52,7 @@ jobs:
         if: always()
         run: |
           ## --------------------------------------------------------------------
-          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+          find "$RUNNER_TEMP/package" -name 'testthat.Rout*' -exec cat '{}' \; || true
         shell: bash
 
       - name: Upload test results
@@ -56,3 +61,10 @@ jobs:
         with:
           name: coverage-test-failures
           path: ${{ runner.temp }}/package
+
+      - name: Upload NIDAP coverage environment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NIDAP-coverage-environment
+          path: ci-artifacts/

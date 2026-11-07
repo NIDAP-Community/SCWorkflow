@@ -13,9 +13,9 @@ getParamFSOBM <- function(data) {
     sample.name = "orig.ident"
     category.to.filter = "seurat_clusters"
     values.to.filter = "2"
-  } else if (data == "pbmc-single") {
-    object <- selectCRObject("pbmc-single")
-    samples.to.include = 'c("PBMC_Single")'
+  } else if (data == "NSCLC_Single") {
+    object <- selectCRObject("NSCLC_Single")
+    samples.to.include = paste0('c("', unique(as.character(object$orig.ident)), '")')
     sample.name = "orig.ident"
     category.to.filter = "SCT_snn_res_0_4"
     values.to.filter = "5"

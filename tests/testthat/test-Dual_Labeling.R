@@ -68,8 +68,8 @@ test_that("Test Dual labeling Chariou Data", {
   )
 })
 
-test_that("Test Dual labeling PBMC-single Data", {
-  CRObject <- getParamDL("pbmc-single")
+test_that("Test Dual labeling NSCLC_Single Data", {
+  CRObject <- getParamDL("NSCLC_Single")
   output <- do.call(dualLabeling, CRObject)
 
   expected.elements = c("object","data" ,"plots")
@@ -79,15 +79,15 @@ test_that("Test Dual labeling PBMC-single Data", {
   skip_on_ci()
   expect_snapshot_file(
     .drawdualplot(output$plots$tsne),
-             "pbmc-single_duallabel.png"
+             "NSCLC_Single_duallabel.png"
     )
   expect_snapshot_file(
     .drawdualplot(output$plots$densityHM),
-    "pbmc-single_duallabelDensity.png"
+    "NSCLC_Single_duallabelDensity.png"
   )
   expect_snapshot_file(
     .drawdualtable(output$data$plot_table),
-    "pbmc_dualtable.png"
+    "NSCLC_Single_dualtable.png"
   )
 })
 

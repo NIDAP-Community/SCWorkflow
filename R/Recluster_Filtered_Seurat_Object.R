@@ -29,7 +29,7 @@
 #' Default is "tsne".
 #'
 #' @import Seurat
-#' @import cowplot
+#' @importFrom cowplot plot_grid
 #' @import tidyverse
 #'
 #' @export

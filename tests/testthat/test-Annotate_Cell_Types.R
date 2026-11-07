@@ -101,25 +101,25 @@ test_that("Annotate_Cell_Types run with normal parameters - Chariou Data", {
   
 })
 
-test_that("Annotate_Cell_Types run with normal parameters - PBMC-single Data",
+test_that("Annotate_Cell_Types run with normal parameters - NSCLC_Single Data",
           {
-            pbmc.single.data <- getParamACT("pbmc-single")
-            output <- suppressWarnings(do.call(annotateCellTypes, pbmc.single.data))
+            NSCLC_Single.data <- getParamACT("NSCLC_Single")
+            output <- suppressWarnings(do.call(annotateCellTypes, NSCLC_Single.data))
             
             ggsave(
-              "output/PBMCsinlge_annotateCellTypes.p1.png",
+              "output/NSCLC_Single_annotateCellTypes.p1.png",
               output$p1,
               width = 10,
               height = 10
             )
-            expect_snapshot_file("output", "PBMCsingle_annotateCellTypes.p1.png")
+            expect_snapshot_file("output", "NSCLC_Single_annotateCellTypes.p1.png")
             ggsave(
-              "output/PBMCsingle_annotateCellTypes.p2.png",
+              "output/NSCLC_Single_annotateCellTypes.p2.png",
               output$p2,
               width = 10,
               height = 10
             )
-            expect_snapshot_file("output", "PBMCsingle_annotateCellTypes.p2.png")
+            expect_snapshot_file("output", "NSCLC_Single_annotateCellTypes.p2.png")
             
             expect_type(output, "list")
             expected.elements = c("object", "plots")

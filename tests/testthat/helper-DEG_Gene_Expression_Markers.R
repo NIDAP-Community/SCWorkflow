@@ -11,9 +11,9 @@ getParamDGEM <- function(data){
       samples = 'c("CD8dep","Combo","ENT","NHSIL12","PBS")'
       parameter.to.test = "SCT_snn_res_2_8"
       contrasts =  c("0-1","0-all")
-  } else if (data == "pbmc-single") {
-      object <- selectCRObject("pbmc-single")
-      samples = 'c("PBMC_Single")'
+  } else if (data == "NSCLC_Single") {
+      object <- selectCRObject("NSCLC_Single")
+      samples = paste0('c("', unique(as.character(object$orig.ident)), '")')
       parameter.to.test = "SCT_snn_res_0_2"
       contrasts =  c("0-1","0-all")
   } else if (data == "nsclc-multi") {

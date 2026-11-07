@@ -19,8 +19,8 @@ getParamsNameClus <- function(data){
                        "L29","L30","L31","L32","L33","L34","L35","L36","L37")
     cluster.column <- "SCT_snn_res.2.4"
     labels.column <- "immgen_main"
-  } else if(data == "pbmc-single"){
-      object <- selectSRObject("pbmc-single")
+  } else if(data == "NSCLC_Single"){
+      object <- selectSRObject("NSCLC_Single")
       cluster.numbers <- c(0,1,2,3,4,5,6,7,8,9,10,
                            11,12,13)
       cluster.names <- c("L1","L2","L3","L4","L5","L6","L7","L8","L9","L10",

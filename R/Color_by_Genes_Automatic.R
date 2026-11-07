@@ -27,8 +27,7 @@
 #'
 #' @import Seurat
 #' @import tidyverse
-#' @import gridExtra
-#' @import ggpubr
+#' @importFrom gridExtra grid.arrange
 #' @import ggplot2
 #'
 #' @export

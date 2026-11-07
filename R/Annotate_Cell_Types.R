@@ -24,7 +24,6 @@
 #'
 #'
 #' @import Seurat
-#' @import cowplot
 #' @import ggplot2
 #' @import RColorBrewer
 #' @importFrom SingleR SingleR

@@ -1,22 +1,75 @@
+testRawDataIsolated <- function(desc, code) {
+  child_case <- Sys.getenv("SCWORKFLOW_RAW_DATA_CASE")
+  if (nzchar(child_case)) {
+    if (!identical(child_case, desc)) return(invisible(NULL))
+    expression <- substitute(testthat::test_that(DESCRIPTION, BODY),
+                             list(DESCRIPTION = desc, BODY = substitute(code)))
+    return(eval(expression, envir = parent.frame()))
+  }
+
+  testthat::test_that(desc, {
+    test_file <- normalizePath(testthat::test_path("test-Process_Raw_Data.R"))
+    helper_file <- normalizePath(testthat::test_path("helper-Process_Raw_Data.R"))
+    package_path <- getNamespaceInfo(asNamespace("SCWorkflow"), "path")
+    source_package <- file.exists(file.path(package_path, "R", "Process_Raw_Data.R"))
+    log_dir <- file.path(tempdir(), "Process_Raw_Data-isolated")
+    dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
+    log_name <- gsub("[^A-Za-z0-9._-]", "_", desc)
+    child_env <- callr::rcmd_safe_env()
+    child_env["SCWORKFLOW_RAW_DATA_CASE"] <- desc
+
+    expectations <- callr::r(
+      function(test_file, helper_file, package_path, source_package, desc) {
+        library(testthat)
+        if (source_package) {
+          pkgload::load_all(package_path, quiet = TRUE)
+        } else {
+          library(SCWorkflow)
+        }
+        test_env <- new.env(parent = asNamespace("SCWorkflow"))
+        sys.source(helper_file, envir = test_env)
+        results <- testthat::test_file(
+          test_file, package = "SCWorkflow", env = test_env,
+          load_helpers = FALSE, load_package = "none", reporter = "silent",
+          stop_on_failure = FALSE
+        )
+        if (length(results) != 1L || !identical(results[[1]]$test, desc)) {
+          stop("The isolated raw-data case did not run exactly once: ", desc)
+        }
+        results[[1]]$results
+      },
+      args = list(test_file, helper_file, package_path, source_package, desc),
+      libpath = .libPaths(), env = child_env,
+      stdout = file.path(log_dir, paste0(log_name, ".out")),
+      stderr = file.path(log_dir, paste0(log_name, ".err"))
+    )
+    for (expectation in expectations) {
+      withRestarts(signalCondition(expectation), continue_test = function() NULL)
+    }
+  })
+}
+
 getParamRaw <- function(data){
+  h5.directory <- test_path("fixtures", data, "h5files")
+  metadata.path <- file.path(tempdir(), paste0(data, "_metadata.txt"))
   
   if(data == "TEC"){
     
-    data.table(Sample_Name=c('5_ABSC_E13_5_TEC','6_ABSC_Newborn_cTEC',
+    data.table::data.table(Sample_Name=c('5_ABSC_E13_5_TEC','6_ABSC_Newborn_cTEC',
                               '7_ABSC_Adult_cTEC','8_ABSC_E15_cTEC'),
                Gender=c('M','F','N','F'),
                Rename=c("S1_Embryo_13_5","S3_Newborn",
                         "S4_Adult","S2_Embryo_15"))%>%
       write.table(
-      test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
+      metadata.path,
       sep = '\t')
     
     
     input=list.files(
-      test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
+      h5.directory,".h5",full.names = T)
     organism = "Mouse"
     sample.metadata.table=
-      test_path(paste0("fixtures/",data,"/",data,"_metadata.txt"))
+      metadata.path
     sample.name.column='Sample_Name'
     rename.col="Rename" 
     split.h5=F
@@ -25,39 +78,41 @@ getParamRaw <- function(data){
   
     } else if (data == "Chariou") {
       
-      data.table(Sample_Name=c('SCAF1713_1_1','SCAF1714_2_1','SCAF1715_3_1',
+      data.table::data.table(Sample_Name=c('SCAF1713_1_1','SCAF1714_2_1','SCAF1715_3_1',
                                 'SCAF1716_4_1','SCAF1717_5_1'),
                  Rename=c("PBS","ENT","NHSIL12","Combo","CD8dep"))%>%
         write.table(
-          test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
+          metadata.path,
           sep = '\t')
       
     input=list.files(
-      test_path(paste0("fixtures/",data,"/h5files")),"",full.names = T)
+      h5.directory,"",full.names = T)
     # input=list.files(
     #   test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
     organism = "Mouse"
     sample.metadata.table=
-      test_path(paste0("fixtures/",data,"/",data,"_metadata.txt"))
+      metadata.path
     sample.name.column='Sample_Name'
     rename.col="Rename" 
     split.h5=F
     
     
     
-  } else if (data == "PBMC_Single") {
+  } else if (data == "NSCLC_Single") {
+    sample.object <- readRDS(test_path(
+      "fixtures", data, paste0(data, "_ProcessRaw_SO_downsample.rds")))[[1]]
     
-    data.table(Sample_Name=c('20k_PBMC_3p_HT_nextgem_Chromium_X'),
-               Rename=c("PBMC_Single"))%>%
+    data.table::data.table(Sample_Name=c('20k_PBMC_3p_HT_nextgem_Chromium_X'),
+               Rename=unique(as.character(sample.object$orig.ident)))%>%
       write.table(
-        test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
+        metadata.path,
         sep = '\t')
     
     input=list.files(
-      test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
+      h5.directory,".h5",full.names = T)
     organism = "Human"
     sample.metadata.table=
-      test_path(paste0("fixtures/",data,"/",data,"_metadata.txt"))
+      metadata.path
     sample.name.column='Sample_Name'
     rename.col="Rename" 
     split.h5=F
@@ -65,7 +120,7 @@ getParamRaw <- function(data){
     
   } else if (data == "NSCLC_Multi") {
   
-      data.table(Sample_Name=
+      data.table::data.table(Sample_Name=
         c('40k_NSCLC_DTC_3p_HT_nextgem_donor_1_count_sample_feature_bc_matrix',
           '40k_NSCLC_DTC_3p_HT_nextgem_donor_2_count_sample_feature_bc_matrix',
           '40k_NSCLC_DTC_3p_HT_nextgem_donor_3_count_sample_feature_bc_matrix',
@@ -77,13 +132,13 @@ getParamRaw <- function(data){
                           "Donor_3","Donor_4",
                           "Donor_5","Donor_6","Donor_7"))%>%
       write.table(
-        test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
+        metadata.path,
         sep = '\t',row.names = F)      
     input=list.files(  
-      test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
+      h5.directory,".h5",full.names = T)
     organism = "Human"
     sample.metadata.table=
-      test_path(paste0("fixtures/",data,"/",data,"_metadata.txt"))
+      metadata.path
     sample.name.column='Sample_Name'
     rename.col="Rename" 
     split.h5=F
@@ -92,13 +147,7 @@ getParamRaw <- function(data){
     
     
   } else if (data == "BRCA") {
-    h5= '/rstudio-files/ccbr-data/data/singlecell/BRCA/NG.h5'
-    fixture=test_path(paste0("fixtures/",data,"/h5files/NG.h5"))
-    if(file.exists(fixture)==F){
-      file.copy(h5,fixture)
-    }
-    
-    data.table(My_Sample_Names=
+    data.table::data.table(My_Sample_Names=
                 c('CID3586','CID3921','CID45171','CID3838','CID4066','CID44041',
                   'CID4465','CID4495','CID44971','CID44991','CID4513','CID4515',
                   'CID4523','CID3946','CID3963','CID4461','CID4463','CID4471',
@@ -117,14 +166,14 @@ getParamRaw <- function(data){
                  c(1,1,0,0,1,0,1,0,0,0,0,1,1,0,1,0,1,1,1,0,0,1,0,1,0,NA)
                )%>%
       write.table(
-        test_path(paste0("fixtures/",data,"/",data,"_metadata.txt")),
+        metadata.path,
         sep = '\t')      
     
     input=list.files(
-      test_path(paste0("fixtures/",data,"/h5files")),".h5",full.names = T)
+      h5.directory,".h5",full.names = T)
     organism = "Human"
     sample.metadata.table=
-      test_path(paste0("fixtures/",data,"/",data,"_metadata.txt"))
+      metadata.path
     sample.name.column='My_Sample_Names'
     rename.col='My_Renamed_Samples'
     split.h5=T

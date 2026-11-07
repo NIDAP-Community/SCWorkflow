@@ -16,9 +16,9 @@ getParamFQ <- function(data){
 
     
     
-  } else if (data == "PBMC_Single") {
+  } else if (data == "NSCLC_Single") {
     filerds=test_path(
-      paste0("fixtures/",data), paste0(data,'_ProcessRaw_SO_downsample.rds'))
+      "fixtures/NSCLC_Single", "NSCLC_Single_ProcessRaw_SO_downsample.rds")
     print(filerds)
     object=readRDS(filerds)
 

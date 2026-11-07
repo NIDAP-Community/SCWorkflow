@@ -15,7 +15,7 @@ expect_objects_have_counts <- function(objects) {
   expect_true(all(count.dims["size", ] > 0))
 }
 
-for (data in c('TEC','Chariou','PBMC_Single','NSCLC_Multi')) {
+for (data in c('TEC','Chariou','NSCLC_Single','NSCLC_Multi')) {
   
   test_that(paste0("Test Filter and QC - Standard (",data," dataset)"), {
     
@@ -50,7 +50,7 @@ for (data in c('TEC','Chariou','PBMC_Single','NSCLC_Multi')) {
 ################################################################
 
 for (data in c('Chariou')) {
-  # data='   } else if (data == "pbmc-single'
+  # data='   } else if (data == "NSCLC_Single'
   
   test_that(paste0("Test Filter and QC - filter.vdj.genes (",data," dataset)"), {
     

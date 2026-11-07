@@ -105,6 +105,21 @@ Test files are organized as described in
 <https://style.tidyverse.org/tests.html>.
 Take a look at the existing code in this package for examples.
 
+The raw-data integration cases in `test-Process_Raw_Data.R` run sequentially,
+each in a fresh R subprocess, through `testRawDataIsolated()` in the matching
+helper. This releases Seurat objects and process allocations between cases.
+The same isolation applies to local tests, R CMD check, GitHub coverage, and
+Gitflow validation; no separate case list or opt-in flag is needed. Original
+assertions and skip rules remain in the test file, and child expectations are
+reported by the parent testthat runner. Subprocess logs are temporary files
+under `file.path(tempdir(), "Process_Raw_Data-isolated")`.
+
+To run only these cases from the package root in a configured R environment:
+
+```r
+devtools::test(filter = "Process_Raw_Data")
+```
+
 #### document
 
 If you have written a new function or changed the API of an existing function,
@@ -119,6 +134,151 @@ If the function is used in a vignette, you may also need to update the vignette.
 
 After making your changes, run `devtools::check()` from an R console to make
 sure the package still passes R CMD check.
+
+### Test fixture releases
+
+All files from `tests/testthat/fixtures/`, including previously untracked RDS
+and metadata files, are hosted in the versioned
+[test-fixtures-v1 release](https://github.com/NIDAP-Community/SCWorkflow/releases/tag/test-fixtures-v1).
+They are not tracked by Git or included in package source archives.
+`tests/fixture-bundle.json` pins the release tag, asset name, archive size and
+SHA-256, and the relative path, size, and SHA-256 of every fixture file.
+
+Normal testthat runs restore missing fixtures automatically through
+`helper-00-fixtures.R`. This applies to `devtools::test()`, individual
+`testthat::test_file()` calls with helpers enabled, R CMD check, and coverage.
+The first restore needs internet access; public downloads need no GitHub token.
+Existing fixtures are verified and reused without downloading. Local files
+that differ from the pin cause an error rather than being overwritten.
+
+To prepare explicitly from the package root:
+
+```sh
+Rscript tests/setup-fixtures.R
+```
+
+To prepare the verified archive before an offline test run:
+
+```sh
+Rscript tests/setup-fixtures.R --download-only
+```
+
+The archive cache defaults to `tools::R_user_dir("SCWorkflow", "cache")`.
+Set `SCWORKFLOW_FIXTURE_CACHE` to choose another cache directory, or
+`SCWORKFLOW_FIXTURE_ARCHIVE` to use an already-downloaded archive. The latter
+must match the pinned size and checksum. Test outputs remain temporary files;
+the ignored fixture directory is only a local input-data copy.
+
+GitHub check, coverage, and Gitflow jobs prefetch the archive through the shared
+NIDAP setup action, with an Actions cache keyed by the manifest. The local
+Podman check runner prefetches into its run-artifact directory. No piggyback
+installation or base-image package update is required for downloading or tests.
+
+Fixture versions are independent of package releases. To change the data:
+
+1. Prepare and validate the intended local fixture files on a task branch.
+2. Run `.github/scripts/bundle-test-fixtures.R` with `Rscript`, an output
+  directory outside the package repository, and a new tag such as
+  `test-fixtures-v2`. It includes every fixture file, including ignored files,
+  and generates an archive, `fixture-bundle.json`, and `SHA256SUMS` externally.
+3. Publish those three assets as a data-only GitHub release at an already
+  published commit, without making it the latest package release. Do not
+  overwrite published assets. GitHub CLI supports this repository's existing
+  draft releases; piggyback 0.1.5 currently fails while listing those drafts.
+4. Verify a fresh public download against the generated checksums, then copy
+  only the generated manifest to `tests/fixture-bundle.json` and test both
+  restoration and offline reuse. Never force-add the fixture directory or
+  release archive to Git. Review the small manifest change with the code.
+
+Moving fixtures out of tracked files does not rewrite existing Git history.
+
+### Local Podman resources
+
+The frozen image fixes R and package versions, not resource allocation. Local
+runner resource settings do not change GitHub CI, test selection, assertions,
+or fixture data. Unset settings preserve the existing runner behavior.
+
+The VM and the check container have separate limits. On the current 12-core,
+18 GiB Mac, a starting VM allocation is 8 CPUs and 12 GiB RAM, leaving host
+headroom. This is not a measured speedup. Change the VM only after every active
+container has finished; restarting it interrupts running validation:
+
+```sh
+podman ps
+podman machine stop scworkflow-ci
+podman machine set --cpus 8 --memory 12288 scworkflow-ci
+podman machine start scworkflow-ci
+podman machine ssh scworkflow-ci free -m
+```
+
+Check available swap after restarting. Existing temporary VM swap may need to
+be re-enabled separately; do not recreate or overwrite an existing swap file.
+`SCWORKFLOW_PODMAN_MEMORY_SWAP` is the total RAM-plus-swap container limit, not
+additional swap, and it does not create swap for the VM.
+
+After the VM allocation and swap are ready, an optional check profile is:
+
+```sh
+SCWORKFLOW_PODMAN_CPUS=8 \
+SCWORKFLOW_PODMAN_MEMORY=10g \
+SCWORKFLOW_PODMAN_MEMORY_SWAP=16g \
+SCWORKFLOW_PODMAN_THREADS=2 \
+bash .github/scripts/check-r-package-podman.sh
+```
+
+The resource controls apply only to the final check container; the small
+preparation/preflight containers retain their existing limits. The thread
+setting controls OpenBLAS, OpenMP, MKL, and RcppParallel for that process. It
+does not register parallel R/Bioconductor workers or parallelize test files.
+In particular, QC doublet detection explicitly uses `SerialParam`, and many
+test cases run sequentially. More RAM alone does not speed up CPU-bound work.
+
+Native Mac R uses Apple Accelerate while this AMD64 image uses OpenBLAS under
+emulation. Resource tuning does not make those implementations identical.
+Benchmark thread counts and any future isolated parallel test runner before
+claiming an improvement; higher counts can be slower under emulation.
+
+### Maintaining pinned NIDAP CI packages
+
+GitHub Actions uses a digest-pinned NIDAP image with R 4.1.3. The
+[source manifest](scripts/ci-tool-sources.json) pins additional packages
+installed into an isolated CI library, including required runtime packages
+missing from the image. It is not a lockfile for the entire base environment.
+Existing base packages, including Seurat, must not be upgraded or shadowed.
+
+Pins are maintainer-reviewed, not automatically refreshed to the latest
+versions. Change them only for a documented need, such as a new required tool,
+a compatibility fix, or a security fix. Use this process:
+
+1. Explain the reason and proposed versions in a pull request. Check each
+  package's R and dependency requirements against R 4.1.3 and the packages
+  already in the pinned image. If an update requires changing a base package
+  or the image, stop and discuss that as a separate environment change.
+2. Obtain the exact source archive from a trusted HTTPS source, such as the
+  CRAN archive. Compute its SHA-256 with `shasum -a 256 package_version.tar.gz`.
+  Update `Version`, `URL`, and `SHA256` together in the same manifest change;
+  the URL and checksum must identify that exact package version. Verify these
+  values from the actual archive rather than trusting generated metadata.
+3. Add any missing dependencies explicitly, before the packages that need
+  them, with compatible versions and checksums. The
+  [preparer](scripts/ci-prepare-tools.R) installs with `dependencies = FALSE`;
+  it does not resolve dependencies or replace packages already in the base
+  image. Do not use a manifest entry to override a base-package version.
+4. Push the change for validation on GitHub Actions. Require the
+  [NIDAP preparation workflow](workflows/NIDAP-environment.yaml) to pass source
+  checksum verification, offline installation, and all preflight modes. Review
+  the downstream package-check, lint, coverage, and Gitflow results under their
+  existing failure policies. Successful preparation alone is not a successful
+  package check; do not bypass checksum checks or relax validation gates.
+5. Inspect the `NIDAP-ci-tools` artifact. Confirm that `tools-manifest.csv`
+  contains only the intended pin changes and that `base-packages.csv` matches
+  the last known-good run using the same image digest. The preparer also
+  compares the full base inventory before and after installation and rejects
+  additions that shadow base packages. Record the comparison and GitHub run
+  links in the pull request before merging.
+
+Keep the maintenance rationale and validation evidence in the pull request,
+not in user-facing release notes. Do not add a NEWS entry for CI-only changes.
 
 ### Commit and push your changes
 

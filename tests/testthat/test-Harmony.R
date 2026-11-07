@@ -39,16 +39,16 @@
 # })
 # 
 # test_that("Harmony returns seurat object with adjusted embeddings for
-#           pbmc_single data", {
+#           NSCLC_Single data", {
 #   skip_on_ci()
-#   pbmc.single = getHarmonyParam("pbmc_single")
+#   NSCLC_Single = getHarmonyParam("NSCLC_Single")
 # 
-#   object.harmonized = do.call(harmonyBatchCorrect, pbmc.single)
+#   object.harmonized = do.call(harmonyBatchCorrect, NSCLC_Single)
 # 
 #   
 #   # expect_snapshot_file(
 #   #   .drawHarmonyFig(object.harmonized$adj.tsne),
-#   #   "pbmc_single_harm.png"
+#   #   "NSCLC_Single_harm.png"
 #   # )
 # 
 #   expect_equal(mean(object.harmonized[["Harmony"]]["CLU",]),

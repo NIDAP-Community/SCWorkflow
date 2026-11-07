@@ -12,8 +12,8 @@ getParamDP <- function(data){
       set.seed(15)
       markers <- sample(rownames(object),10, replace = FALSE)
       cells <- c("PBS","CD8dep","NHSIL12","ENT","Combo")
-  } else if (data == "pbmc-single") {
-      object <- selectSRObject("pbmc-single")
+  } else if (data == "NSCLC_Single") {
+      object <- selectSRObject("NSCLC_Single")
       metadata <- "BP_encode_main"
       set.seed(15)
       markers <- sample(rownames(object),10, replace = FALSE)
