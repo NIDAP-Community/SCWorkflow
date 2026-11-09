@@ -23,6 +23,44 @@ make_fixture_bundle <- function() {
   list(root = root, archive = archive, manifest = manifest, lock = lock)
 }
 
+make_fixture_package <- function() {
+  bundle <- make_fixture_bundle()
+  dir.create(file.path(bundle$root, "R"))
+  dir.create(file.path(bundle$root, "tests", "testthat"))
+  writeLines(c("Package: scworkflowfixtureprobe", "Version: 0.0.0.9000",
+               "Title: Fixture Bootstrap Probe",
+               "Description: Temporary package for fixture bootstrap runner tests.",
+               "Author: Fixture Probe", "Maintainer: Fixture Probe <fixture@example.org>",
+               "License: GPL-3", "Imports: digest, jsonlite", "Suggests: testthat"),
+             file.path(bundle$root, "DESCRIPTION"))
+  writeLines("export(fixture_value)", file.path(bundle$root, "NAMESPACE"))
+  writeLines(c("fixture_value <- function() {", "  'small fixture'", "}"),
+             file.path(bundle$root, "R", "fixture.R"))
+  stopifnot(file.copy(testthat::test_path("..", "setup-fixtures.R"),
+                     file.path(bundle$root, "tests", "setup-fixtures.R")))
+  stopifnot(file.copy(testthat::test_path("helper-00-fixtures.R"),
+                     file.path(bundle$root, "tests", "testthat", "helper-00-fixtures.R")))
+  writeLines(c("library(testthat)", "library(scworkflowfixtureprobe)",
+               "test_check('scworkflowfixtureprobe')"),
+             file.path(bundle$root, "tests", "testthat.R"))
+  writeLines(c("test_that('runner reads restored fixture', {",
+               "  expect_identical(readLines(test_path('fixtures/cohort', 'input.txt')),",
+               "                   fixture_value())", "})"),
+             file.path(bundle$root, "tests", "testthat", "test-active-fixtures.R"))
+  bundle
+}
+
+run_fixture_package <- function(bundle, expression) {
+  log <- file.path(bundle$root, "runner.log")
+  previous <- setwd(bundle$root)
+  on.exit(setwd(previous))
+  status <- system2(file.path(R.home("bin"), "Rscript"),
+                     c("--vanilla", "-e", shQuote(expression)), stdout = log, stderr = log,
+                     env = c(paste0("SCWORKFLOW_FIXTURE_ARCHIVE=", shQuote(bundle$archive)),
+                             "TESTTHAT=false"))
+  list(status = status, output = paste(readLines(log, warn = FALSE), collapse = "\n"))
+}
+
 test_that("fixture bootstrap restores exact files and reuses them offline", {
   bundle <- make_fixture_bundle()
   on.exit(unlink(bundle$root, recursive = TRUE))
@@ -31,6 +69,48 @@ test_that("fixture bootstrap restores exact files and reuses them offline", {
                    "small fixture")
   unlink(bundle$archive)
   expect_identical(scworkflow_setup_fixtures(bundle$root), restored)
+})
+
+test_that("fixture bootstrap restores only the active relocated fixture directory", {
+  bundle <- make_fixture_bundle()
+  on.exit(unlink(bundle$root, recursive = TRUE))
+  fixtures <- file.path(bundle$root, "SCWorkflow-tests", "testthat", "fixtures")
+  expect_identical(scworkflow_setup_fixtures(bundle$root, archive = bundle$archive,
+                                            fixtures = fixtures), fixtures)
+  expect_identical(readLines(file.path(fixtures, "cohort", "input.txt")),
+                   "small fixture")
+  expect_false(dir.exists(file.path(bundle$root, "tests", "testthat", "fixtures")))
+  unlink(bundle$archive)
+  expect_identical(scworkflow_setup_fixtures(bundle$root, fixtures = fixtures), fixtures)
+})
+
+test_that("fixture helpers load before the Gitflow testthat context exists", {
+  bundle <- make_fixture_package()
+  on.exit(unlink(bundle$root, recursive = TRUE))
+  result <- run_fixture_package(bundle, paste(
+    "pkgload::load_all('.', quiet = TRUE);",
+    "testthat::test_file('tests/testthat/test-active-fixtures.R',",
+    "reporter = 'summary', stop_on_failure = TRUE)"
+  ))
+  expect_equal(result$status, 0L, info = result$output)
+  expect_identical(readLines(file.path(bundle$root, "tests", "testthat", "fixtures",
+                                       "cohort", "input.txt")), "small fixture")
+})
+
+test_that("coverage runs copied installed tests with fixtures in the active tree", {
+  bundle <- make_fixture_package()
+  on.exit(unlink(bundle$root, recursive = TRUE))
+  library <- file.path(bundle$root, "library")
+  result <- run_fixture_package(bundle, paste0(
+    "coverage <- covr::package_coverage(quiet = FALSE, clean = FALSE, install_path = ",
+    encodeString(library, quote = '"'), ");",
+    "stopifnot(covr::percent_coverage(coverage) > 0)"
+  ))
+  expect_equal(result$status, 0L, info = result$output)
+  package <- file.path(library, "scworkflowfixtureprobe")
+  active <- file.path(package, "scworkflowfixtureprobe-tests", "testthat", "fixtures")
+  expect_identical(readLines(file.path(active, "cohort", "input.txt")), "small fixture")
+  expect_false(dir.exists(file.path(package, "tests", "testthat", "fixtures")))
 })
 
 test_that("fixture bootstrap resolves R CMD BATCH paths without a file argument", {
@@ -87,9 +167,15 @@ test_that("fixture bootstrap rejects missing manifest fields", {
   expect_error(scworkflow_setup_fixtures(bundle$root), "missing required fields")
 })
 
-test_that("fixture bootstrap validates root argument types", {
+test_that("fixture bootstrap validates directory argument types", {
   expect_error(scworkflow_setup_fixtures(42), "single directory path")
   expect_error(scworkflow_setup_fixtures(c("one", "two")), "single directory path")
+  bundle <- make_fixture_bundle()
+  on.exit(unlink(bundle$root, recursive = TRUE))
+  expect_error(scworkflow_setup_fixtures(bundle$root, fixtures = 42), "single directory path")
+  expect_error(scworkflow_setup_fixtures(bundle$root, fixtures = character()),
+               "single directory path")
+  expect_error(scworkflow_setup_fixtures(bundle$root, fixtures = ""), "single directory path")
 })
 
 test_that("fixture archive can be verified before an offline test run", {

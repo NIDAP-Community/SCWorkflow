@@ -39,10 +39,14 @@ scworkflow_setup_fixtures <- function(
     cache = Sys.getenv("SCWORKFLOW_FIXTURE_CACHE",
                        unset = tools::R_user_dir("SCWorkflow", "cache")),
     archive = Sys.getenv("SCWORKFLOW_FIXTURE_ARCHIVE", unset = ""),
-    download_only = FALSE) {
+    download_only = FALSE,
+    fixtures = file.path(root, "tests", "testthat", "fixtures")) {
   lock <- scworkflow_fixture_manifest(root)
+  if (!is.character(fixtures) || length(fixtures) != 1L || is.na(fixtures) ||
+      !nzchar(fixtures)) {
+    stop("fixtures must be a single directory path.")
+  }
   records <- lock$files
-  fixtures <- file.path(root, "tests", "testthat", "fixtures")
   matches <- function(path, bytes, sha256) {
     file.exists(path) && !dir.exists(path) && file.info(path)$size == bytes &&
       identical(digest::digest(file = path, algo = "sha256"), sha256)
@@ -121,13 +125,14 @@ if (sys.nframe() == 0L) {
     stop("Usage: Rscript tests/setup-fixtures.R [--download-only]")
   }
   script <- sub("^--file=", "", grep("^--file=", commandArgs(), value = TRUE))
-  root <- if (length(script) == 1L) {
-    file.path(dirname(script), "..")
+  tests <- if (length(script) == 1L) {
+    dirname(script)
   } else if (file.exists("fixture-bundle.json")) {
-    ".."
-  } else {
     "."
+  } else {
+    "tests"
   }
-  root <- normalizePath(root, mustWork = TRUE)
-  scworkflow_setup_fixtures(root, download_only = "--download-only" %in% args)
+  root <- normalizePath(file.path(tests, ".."), mustWork = TRUE)
+  scworkflow_setup_fixtures(root, download_only = "--download-only" %in% args,
+                            fixtures = file.path(tests, "testthat", "fixtures"))
 }
