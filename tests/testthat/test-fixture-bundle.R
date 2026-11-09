@@ -97,14 +97,21 @@ test_that("fixture helpers load before the Gitflow testthat context exists", {
                                        "cohort", "input.txt")), "small fixture")
 })
 
-test_that("coverage runs copied installed tests with fixtures in the active tree", {
+test_that("installed tests run with fixtures in the active copied tree", {
   bundle <- make_fixture_package()
   on.exit(unlink(bundle$root, recursive = TRUE))
   library <- file.path(bundle$root, "library")
   result <- run_fixture_package(bundle, paste0(
-    "coverage <- covr::package_coverage(quiet = FALSE, clean = FALSE, install_path = ",
-    encodeString(library, quote = '"'), ");",
-    "stopifnot(covr::percent_coverage(coverage) > 0)"
+    "library <- ", encodeString(library, quote = '"'), ";",
+    "dir.create(library);",
+    "utils::install.packages('.', lib = library, repos = NULL, type = 'source',",
+    "INSTALL_opts = '--install-tests');",
+    ".libPaths(c(library, .libPaths()));",
+    "Sys.setenv(R_LIBS = paste(.libPaths(), collapse = .Platform$path.sep));",
+    "status <- tools::testInstalledPackage('scworkflowfixtureprobe',",
+    "lib.loc = library, outDir = file.path(library, 'scworkflowfixtureprobe'),",
+    "types = 'tests');",
+    "stopifnot(status == 0L)"
   ))
   expect_equal(result$status, 0L, info = result$output)
   package <- file.path(library, "scworkflowfixtureprobe")
