@@ -70,15 +70,12 @@ scworkflow_setup_fixtures <- function(
     dir.create(cache, recursive = TRUE, showWarnings = FALSE)
     archive <- file.path(cache, paste0(lock$sha256, "-", lock$asset))
     if (!file.exists(archive)) {
-      download <- tempfile("fixture-download-", tmpdir = cache)
-      on.exit(unlink(download), add = TRUE)
-      url <- paste0("https://github.com/", lock$repo, "/releases/download/",
-                    utils::URLencode(lock$tag, reserved = TRUE), "/",
-                    utils::URLencode(lock$asset, reserved = TRUE))
-      old_options <- options(timeout = max(900, getOption("timeout")))
-      on.exit(options(old_options), add = TRUE)
-      message("Downloading pinned test fixtures: ", lock$tag)
-      utils::download.file(url, download, mode = "wb", method = "libcurl")
+      download_dir <- tempfile("fixture-download-", tmpdir = cache)
+      dir.create(download_dir)
+      on.exit(unlink(download_dir, recursive = TRUE), add = TRUE)
+      piggyback::pb_download(file = lock$asset, dest = download_dir, repo = lock$repo,
+                            tag = lock$tag, use_timestamps = FALSE, .token = "")
+      download <- file.path(download_dir, lock$asset)
       if (!matches(download, lock$bytes, lock$sha256)) {
         stop("Fixture archive SHA-256 or size mismatch; download rejected.")
       }

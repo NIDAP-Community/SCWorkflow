@@ -1,8 +1,8 @@
 arguments <- commandArgs(trailingOnly = TRUE)
 tool_sets <- list(
-  check = c("rcmdcheck", "testthat"),
+  check = c("rcmdcheck", "testthat", "piggyback"),
   lint = c("goodpractice", "lintr"),
-  coverage = c("covr", "testthat")
+  coverage = c("covr", "testthat", "piggyback")
 )
 tool_sets$all <- unique(unlist(tool_sets, use.names = FALSE))
 

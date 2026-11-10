@@ -52,5 +52,11 @@
     "Version": "0.12.3",
     "SHA256": "032e5959be201df54b19ebe2bc2e3f900a48375cdd0b517594dd8fd75fb26a56",
     "URL": "https://cran.r-project.org/src/contrib/Archive/ggalluvial/ggalluvial_0.12.3.tar.gz"
+  },
+  {
+    "Package": "piggyback",
+    "Version": "0.1.5",
+    "SHA256": "983b5a46792ff5f2895f36ee29afcbd7723d05fe3daefdaefaada12987e36aee",
+    "URL": "https://cran.r-project.org/src/contrib/piggyback_0.1.5.tar.gz"
   }
 ]

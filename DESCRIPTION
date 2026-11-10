@@ -99,6 +99,7 @@ Suggests:
     knitr,
     mclust,
     nidapFunctions,
+    piggyback,
     pkgload,
     rmarkdown,
     roxygen2,

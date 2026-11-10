@@ -71,6 +71,35 @@ test_that("fixture bootstrap restores exact files and reuses them offline", {
   expect_identical(scworkflow_setup_fixtures(bundle$root), restored)
 })
 
+test_that("fixture bootstrap reuses the pinned archive cache without downloading", {
+  bundle <- make_fixture_bundle()
+  on.exit(unlink(bundle$root, recursive = TRUE))
+  cache <- file.path(bundle$root, "cache")
+  dir.create(cache)
+  archive <- file.path(cache, paste0(bundle$lock$sha256, "-", bundle$lock$asset))
+  stopifnot(file.rename(bundle$archive, archive))
+  expect_identical(scworkflow_setup_fixtures(bundle$root, cache = cache,
+                                            download_only = TRUE), archive)
+  expect_false(dir.exists(file.path(bundle$root, "tests", "testthat", "fixtures")))
+  fixtures <- scworkflow_setup_fixtures(bundle$root, cache = cache)
+  expect_identical(readLines(file.path(fixtures, "cohort", "input.txt")),
+                   "small fixture")
+  expect_identical(list.files(cache), basename(archive))
+})
+
+test_that("fixture bootstrap rejects a corrupt cached archive without replacing it", {
+  bundle <- make_fixture_bundle()
+  on.exit(unlink(bundle$root, recursive = TRUE))
+  cache <- file.path(bundle$root, "cache")
+  dir.create(cache)
+  archive <- file.path(cache, paste0(bundle$lock$sha256, "-", bundle$lock$asset))
+  writeLines("incomplete download", archive)
+  expect_error(scworkflow_setup_fixtures(bundle$root, cache = cache),
+               "SHA-256 or size mismatch")
+  expect_identical(readLines(archive), "incomplete download")
+  expect_false(dir.exists(file.path(bundle$root, "tests", "testthat", "fixtures")))
+})
+
 test_that("fixture bootstrap restores only the active relocated fixture directory", {
   bundle <- make_fixture_bundle()
   on.exit(unlink(bundle$root, recursive = TRUE))

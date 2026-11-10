@@ -147,7 +147,9 @@ SHA-256, and the relative path, size, and SHA-256 of every fixture file.
 Normal testthat runs restore missing fixtures automatically through
 `helper-00-fixtures.R`. This applies to `devtools::test()`, individual
 `testthat::test_file()` calls with helpers enabled, R CMD check, and coverage.
-The first restore needs internet access; public downloads need no GitHub token.
+The first restore uses `piggyback::pb_download()` and needs internet access;
+public downloads need no GitHub token. Install the `piggyback` test dependency
+before downloading fixtures locally.
 Existing fixtures are verified and reused without downloading. Local files
 that differ from the pin cause an error rather than being overwritten.
 
@@ -171,8 +173,10 @@ the ignored fixture directory is only a local input-data copy.
 
 GitHub check, coverage, and Gitflow jobs prefetch the archive through the shared
 NIDAP setup action, with an Actions cache keyed by the manifest. The local
-Podman check runner prefetches into its run-artifact directory. No piggyback
-installation or base-image package update is required for downloading or tests.
+Podman check runner prefetches into its run-artifact directory. Both use the
+checksum-pinned piggyback 0.1.5 source in the isolated CI tool library; no
+base-image packages are updated. The fixture wrapper retains checksum and
+archive-path validation, offline reuse, and active test-directory restoration.
 
 Fixture versions are independent of package releases. To change the data:
 
