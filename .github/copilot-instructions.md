@@ -55,11 +55,6 @@ Functions follow a numbered workflow sequence:
 - Prefer explicit namespaces (dplyr::, ggplot2::).
 - Avoid side effects in tests.
 
-### Template conventions
-- JSON templates live under inst/extdata/NIDAPjson/.
-- JSON is the source-of-truth for arguments, defaults, and behavior.
-- orderedMustacheKeys defines argument order.
-
 ### Testing Structure
 - Comprehensive `tests/testthat/` with both unit tests and integration tests
 - `fixtures/` directory contains real Seurat objects for testing
@@ -68,8 +63,17 @@ Functions follow a numbered workflow sequence:
 
 ### Deliverables
 - Update NEWS.md only for user-facing changes; keep CI details and internal investigations out of release notes.
-- Keep agent decisions and session notes local and untracked in decision_log.md and .agents/session_notes.md.
-- Add testthat tests for each generated function.
+- Keep AI scratch artifacts outside the package repository, following the rules below.
+- Add or update testthat tests for changed package behavior.
+
+### AI Scratch Artifacts
+- Store personal plans, scratch prompts, session notes, transcripts, research summaries, completion reports, and decision logs at `.agents/SCWorkflow/` under the multi-repository workspace root, outside the `SCWorkflow/` repository. For a standalone checkout, use an external local scratch directory instead.
+- Create scratch files only when needed; prefer chat for status updates and task summaries. Never force-add scratch artifacts or copy them into tracked README.md, NEWS.md, or docs/ files.
+- Classify files by purpose, not AI authorship or directory name. Code, tests, and requested project documentation are deliverables, not scratch artifacts.
+- Keep intentional shared instructions, skills (including `.agents/skills/`), reusable contributor prompts, and workflows tracked. Do not blanket-ignore `.agents/`; ignore only specific local scratch paths if needed.
+- Add new shared agent configuration or promote scratch material into project documentation only when explicitly requested.
+- Before staging or committing, review changed and untracked files and the staged file list. Stage explicit task files, not `git add .` or `git add -A`, and exclude scratch artifacts.
+- Do not delete or relocate existing user files merely because they appear AI-generated; get approval unless that cleanup was explicitly requested.
 
 ### Docker Development
 - Base image: `nciccbr/ccbr_ubuntu_22.04:v4`
