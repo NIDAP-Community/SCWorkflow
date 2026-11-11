@@ -50,6 +50,52 @@ required_pkgs <- c(
   "SingleCellExperiment", "SummarizedExperiment"
 )
 
+testthat::test_that("load_seurat_object handles objects, files and NIDAP inputs", {
+  seurat_obj <- Seurat::CreateSeuratObject(
+    counts = matrix(
+      1:4,
+      nrow = 2,
+      dimnames = list(c("g1", "g2"), c("c1", "c2"))
+    )
+  )
+  rds_path <- tempfile(fileext = ".rds")
+  saveRDS(seurat_obj, rds_path)
+  requested_file <- NULL
+  input <- list(fileSystem = function() {
+    list(get_path = function(name, type) {
+      requested_file <<- list(name = name, type = type)
+      rds_path
+    })
+  })
+  loader <- load_seurat_object
+  environment(loader) <- list2env(
+    list(requireNamespace = function(...) FALSE),
+    parent = environment(loader)
+  )
+
+  testthat::expect_identical(loader(seurat_obj), seurat_obj)
+  testthat::expect_identical(loader(rds_path), seurat_obj)
+  testthat::expect_identical(loader(input), seurat_obj)
+  testthat::expect_identical(
+    requested_file,
+    list(name = "seurat_object.rds", type = "r")
+  )
+})
+
+testthat::test_that("load_seurat_object preserves errors for invalid inputs", {
+  invalid_filesystem <- list(fileSystem = function() stop("Filesystem unavailable"))
+  missing_file <- list(fileSystem = function() {
+    list(get_path = function(name, type) tempfile(fileext = ".rds"))
+  })
+  expected_error <- "Provide a Seurat object or a path to an RDS file containing one."
+
+  testthat::expect_error(load_seurat_object(NULL), expected_error, fixed = TRUE)
+  testthat::expect_error(
+    load_seurat_object(invalid_filesystem), expected_error, fixed = TRUE
+  )
+  testthat::expect_error(load_seurat_object(missing_file), expected_error, fixed = TRUE)
+})
+
 
  testthat::test_that("Trajectory_CellTypes errors when clustering column missing", {
   skip_if_packages_missing(required_pkgs)

@@ -261,14 +261,12 @@ load_seurat_object <- function(input) {
   if (is.character(input) && length(input) == 1L && file.exists(input)) {
     return(readRDS(input))
   }
-  if (requireNamespace("nidapFunctions", quietly = TRUE)) {
-    path <- tryCatch(
-      nidapFunctions::nidapGetPath(input, "seurat_object.rds"),
-      error = function(e) NULL
-    )
-    if (!is.null(path) && file.exists(path)) {
-      return(readRDS(path))
-    }
+  path <- tryCatch({
+    filesystem <- input$fileSystem()
+    filesystem$get_path("seurat_object.rds", "r")
+  }, error = function(error) NULL)
+  if (!is.null(path) && file.exists(path)) {
+    return(readRDS(path))
   }
   stop(
     "Provide a Seurat object or a path to an RDS file containing one.",
