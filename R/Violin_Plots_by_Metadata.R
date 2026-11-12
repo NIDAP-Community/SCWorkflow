@@ -64,7 +64,7 @@ violinPlot <- function (object,
   }
   
   available_layers <- if(packageVersion("Seurat") >= "5.0.0"){
-    getExportedValue("SeuratObject", "Layers")(object[[assay]])
+    SeuratObject::Layers(object[[assay]])
   } else (
     slotNames(object[[assay]])
   )
