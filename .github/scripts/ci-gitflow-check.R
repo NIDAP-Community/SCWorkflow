@@ -72,9 +72,6 @@ gitflow_run_test <- function(path) {
 }
 
 run_gitflow_checks <- function() {
-  if (as.character(getRversion()) != "4.1.3") {
-    stop("Run Gitflow checks only in the pinned R 4.1.3 environment.", call. = FALSE)
-  }
   gitflow_trust_checkout()
   scope <- gitflow_scope(Sys.getenv("GITFLOW_EVENT", unset = "push"),
                          Sys.getenv("GITFLOW_BASE_REF"))
