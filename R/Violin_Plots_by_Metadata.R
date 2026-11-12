@@ -63,11 +63,8 @@ violinPlot <- function (object,
     group <- colnames(object@meta.data)[grepl("origident",gsub('\\W|_',"",colnames(object@meta.data)))]
   }
   
-  available_layers <- if(packageVersion("Seurat") >= "5.0.0"){
-    SeuratObject::Layers(object[[assay]])
-  } else (
-    slotNames(object[[assay]])
-  )
+  # Use SeuratObject::Layers() when upgrading to Seurat 5.
+  available_layers <- slotNames(object[[assay]])
 
   if (!assay %in% Assays(object)) {
     stop("expression data type was not found in Seurat object")
