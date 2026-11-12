@@ -105,16 +105,8 @@ Test files are organized as described in
 <https://style.tidyverse.org/tests.html>.
 Take a look at the existing code in this package for examples.
 
-The raw-data integration cases in `test-Process_Raw_Data.R` run sequentially,
-each in a fresh R subprocess, through `testRawDataIsolated()` in the matching
-helper. This releases Seurat objects and process allocations between cases.
-The same isolation applies to local tests, R CMD check, GitHub coverage, and
-Gitflow validation; no separate case list or opt-in flag is needed. Original
-assertions and skip rules remain in the test file, and child expectations are
-reported by the parent testthat runner. Subprocess logs are temporary files
-under `file.path(tempdir(), "Process_Raw_Data-isolated")`.
-
-To run only these cases from the package root in a configured R environment:
+To run the raw-data integration tests from the package root in a configured
+R environment:
 
 ```r
 devtools::test(filter = "Process_Raw_Data")
