@@ -1,0 +1,260 @@
+{
+  "schema": 1,
+  "repo": "NIDAP-Community/SCWorkflow",
+  "tag": "test-fixtures-v1",
+  "asset": "SCWorkflow-test-fixtures-v1.tar.gz",
+  "bytes": 502623714,
+  "sha256": "6d3df80ab7349db92c0c20581c1778f23c8389274977fc13cd0da739beb5f846",
+  "files": [
+    {
+      "path": "BRCA/BRCA_Combine_and_Renormalize_SO_downsample.rds",
+      "bytes": 20096537,
+      "sha256": "2f00aaaa79bbd4c5bce0b04cecae06b7549b5b565d925ace0fe6264da70c32f4"
+    },
+    {
+      "path": "BRCA/BRCA_metadata.txt",
+      "bytes": 880,
+      "sha256": "52e72666f0e567e53bfd7fa0b679dc5351408998df419dfe9862067bcf3c1d01"
+    },
+    {
+      "path": "BRCA/h5files/NG.h5",
+      "bytes": 23020869,
+      "sha256": "c5196f5704595895a47600a2883f8054049684c3ff3c2711d6899ffd6981c27e"
+    },
+    {
+      "path": "BRCA/Metadata_BRCA.txt",
+      "bytes": 622,
+      "sha256": "72afe1df9b7fd2c7d18713bd6072ba9c4668cc717a4f94c69968c982723946c5"
+    },
+    {
+      "path": "BRCA/Metadata_BRCA.xlsx",
+      "bytes": 9652,
+      "sha256": "f72fb13053371c1eb717d50093fd8ea84b821c6e8364937e0cba7458149ba4c5"
+    },
+    {
+      "path": "Chariou/Chariou_Cell_Types_SingleR_SO_downsample.rds",
+      "bytes": 50776912,
+      "sha256": "d48a8b6611df96235db662695158b7054461a80cf7ababfd98414854021a9408"
+    },
+    {
+      "path": "Chariou/Chariou_Combine_and_Renormalize_SO_downsample.rds",
+      "bytes": 55515362,
+      "sha256": "daa9a9a6ffe685075cc50abce0e80771ae5c3d0694f770e3f6d7930009fd2ba1"
+    },
+    {
+      "path": "Chariou/Chariou_Filtered_SO_downsample.rds",
+      "bytes": 7051308,
+      "sha256": "2e2ef22ca0a0ee0d9254b18e0db03eb29b92a499aef85324616652ddd06f94c9"
+    },
+    {
+      "path": "Chariou/Chariou_metadata.txt",
+      "bytes": 157,
+      "sha256": "085e3c38b162805657501fbe71a587e204a1cef3fe7b035e6dc7e01092168a94"
+    },
+    {
+      "path": "Chariou/Chariou_ProcessRaw_SO_downsample.rds",
+      "bytes": 7638286,
+      "sha256": "7660f93a2354a8cdf4118c7c8e4786f65a5c971bd4ed5a04340b2413342b1915"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1713_1_1_filtered_contig_annotations.csv",
+      "bytes": 3703,
+      "sha256": "66f8d430853a1e273f77e10413c01366b7bf1ca5e31d17ffb73ba3f6d50fbeb4"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1713_1_1_filtered_feature_bc_matrix.h5",
+      "bytes": 1407670,
+      "sha256": "25f48d4146547a8bd846c9719003fbbc0189e9b316f2b3958c2446a0c3b46d2f"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1714_2_1_filtered_contig_annotations.csv",
+      "bytes": 5899,
+      "sha256": "1b3217c05dd12a62da12604bac49dcc35332a4a3b49f3743bef6513255db7a36"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1714_2_1_filtered_feature_bc_matrix.h5",
+      "bytes": 1131185,
+      "sha256": "9e5e0b571914ac18c8f6a2769f960f0a4c6e8988fde896662b499ef867951fdf"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1715_3_1_filtered_contig_annotations.csv",
+      "bytes": 3514,
+      "sha256": "6a161e5cc97a1adbee917e05083adf4f34efe7d496b389e9143ebea9b6935b65"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1715_3_1_filtered_feature_bc_matrix.h5",
+      "bytes": 1327788,
+      "sha256": "34b037fc2e5ec6277d9e3a26a661891f1e9475f934cb6f7fcb5750c42067c6e5"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1716_4_1_filtered_contig_annotations.csv",
+      "bytes": 4911,
+      "sha256": "59657fbba1adb230ca4f739c6a7b4f2c21e181a18f5c84bb00a1ae838d0a0249"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1716_4_1_filtered_feature_bc_matrix.h5",
+      "bytes": 1154334,
+      "sha256": "6433081c78dae09526331eaec70757389611a9df5baabd4e5463ec1fe268b3ff"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1717_5_1_filtered_contig_annotations.csv",
+      "bytes": 1362,
+      "sha256": "467c35142ad612f07d7061d8a16e717d34d47accf0444ec53335feb39d2a27ab"
+    },
+    {
+      "path": "Chariou/h5files/SCAF1717_5_1_filtered_feature_bc_matrix.h5",
+      "bytes": 1221044,
+      "sha256": "8ce93cbb7fab696baea222cb617c70d3d87ae639d2e48ca30fe613b49fb83bb0"
+    },
+    {
+      "path": "Marker_Table_demo.csv",
+      "bytes": 762,
+      "sha256": "e99ef619e511eab45be615dccd9c72f61f215a3111a1e6ad8d7595cf181d8e39"
+    },
+    {
+      "path": "MS_Levels_demo.csv",
+      "bytes": 63,
+      "sha256": "4598b763706fbbfd1994ee7e3dd99a7a2fe018e4ebc64facf7158fcbf75bd2c3"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_1_count_sample_feature_bc_matrix.h5",
+      "bytes": 1540837,
+      "sha256": "bb9b2f436cc038e96c2037e4ed5ef97f886369ca7dac6012421bceefd0443d7f"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_2_count_sample_feature_bc_matrix.h5",
+      "bytes": 1985147,
+      "sha256": "845cd887d00d941f9f06bff98d8f6797a7a2c0cea1cba60b90ec1cd6bb03d705"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_3_count_sample_feature_bc_matrix.h5",
+      "bytes": 1256138,
+      "sha256": "f6ddd299bb3d1bb4c4f7ba9b7acbb8163cc7e2e36ba14fa029637af94fe8d9f6"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_4_count_sample_feature_bc_matrix.h5",
+      "bytes": 1176710,
+      "sha256": "f28d919016098cd43b376898599eb9dd566a9fdcd8f82b83bda4a6fdbdadd690"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_5_count_sample_feature_bc_matrix.h5",
+      "bytes": 1626136,
+      "sha256": "1dc0e54e2a9e84c25e73698bf03329f2e86e875445a4362458c3b0b85954c194"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_6_count_sample_feature_bc_matrix.h5",
+      "bytes": 1728442,
+      "sha256": "5f9a953b27ba1612156e6981be4726f6506df588cc5d99ac55c6665860f271fa"
+    },
+    {
+      "path": "NSCLC_Multi/h5files/40k_NSCLC_DTC_3p_HT_nextgem_donor_7_count_sample_feature_bc_matrix.h5",
+      "bytes": 1413103,
+      "sha256": "196797874fc6464c0cbe67349ce0ba11028609d4146f8be87464b167d0b6479f"
+    },
+    {
+      "path": "NSCLC_Multi/NSCLC_Multi_Filtered_SO_downsample.rds",
+      "bytes": 11233084,
+      "sha256": "a979c4236f61974dc7d1cb6f02c0ae9dd6624d9441bae5f402db002d76c09dfc"
+    },
+    {
+      "path": "NSCLC_Multi/NSCLC_Multi_Filtered_SO_downsampleOLD.rds",
+      "bytes": 10503703,
+      "sha256": "1d58aeda5d516cb8802e0010f66260f6adf724655342c00510dc85c5544be7e0"
+    },
+    {
+      "path": "NSCLC_Multi/NSCLC_Multi_metadata.txt",
+      "bytes": 576,
+      "sha256": "3b6e5248eae3d960c6b6429c5cbe8ad3f448f762de382a681aef709e9ccfd7f7"
+    },
+    {
+      "path": "NSCLC_Multi/NSCLC_Multi_ProcessRaw_SO_downsample.rds",
+      "bytes": 14021876,
+      "sha256": "79282fa36f91d7007a0999a86c5e256474068fb1b93ea1a0598ad0fbf57d02d8"
+    },
+    {
+      "path": "NSCLC_Multi/NSCLCmulti_Cell_Types_SingleR_SO_downsample.rds",
+      "bytes": 48958868,
+      "sha256": "e9e69b28c2bf0893d8d0aa2d069a0262a30d8a3fcccfdcb61f061c954393553c"
+    },
+    {
+      "path": "NSCLC_Multi/NSCLCmulti_Combine_and_Renormalize_SO_downsample.rds",
+      "bytes": 55461705,
+      "sha256": "7a3f35e01541d762526443d0ec2082c3f0ac77c4b9ebff750f0d08d6b16255fe"
+    },
+    {
+      "path": "NSCLC_Single/h5files/20k_PBMC_3p_HT_nextgem_Chromium_X_filtered_feature_bc_matrix.h5",
+      "bytes": 1363808,
+      "sha256": "ccafb85ea50a1a8dff75b50a0a893023d0f4bd860f411cedc82addad3e3890b4"
+    },
+    {
+      "path": "NSCLC_Single/NSCLC_Single_Filtered_SO_downsample.rds",
+      "bytes": 1518040,
+      "sha256": "5aff0ee9bf7da8a6f50b5c7c67054882f3f647644605065a83a5f71f3813a3d8"
+    },
+    {
+      "path": "NSCLC_Single/NSCLC_Single_metadata.txt",
+      "bytes": 77,
+      "sha256": "d82b6aaa4e92263bafede1b5e527a49d2ffcf67139a2bc546da81465805b479f"
+    },
+    {
+      "path": "NSCLC_Single/NSCLC_Single_ProcessRaw_SO_downsample.rds",
+      "bytes": 1667905,
+      "sha256": "3a23659947fba79362fa19f731f69a56a3f9643ff4c63f17a8e9f66c12434671"
+    },
+    {
+      "path": "NSCLC_Single/NSCLCsingle_Cell_Types_SingleR_SO_downsample.rds",
+      "bytes": 54843380,
+      "sha256": "93dac8ad210338c3011fc7625e231a9ecdfb331ba60853b7dc28105f09d20a6b"
+    },
+    {
+      "path": "PBMC_Single/PBMC_Single_metadata.txt",
+      "bytes": 77,
+      "sha256": "d82b6aaa4e92263bafede1b5e527a49d2ffcf67139a2bc546da81465805b479f"
+    },
+    {
+      "path": "TEC/h5files/5_ABSC_E13_5_TEC_filtered_gene_bc_matrices_h5.h5",
+      "bytes": 1458156,
+      "sha256": "d047da2cdeae4338259a031f704be7882a24fde9a161d1fdd9a5e9ee1589be4a"
+    },
+    {
+      "path": "TEC/h5files/6_ABSC_Newborn_cTEC_filtered_gene_bc_matrices_h5.h5",
+      "bytes": 1375906,
+      "sha256": "4dbaa315f4bdfd9b5b5e2f245cf2dc20ee498a4a3dbbc3aa2062edcd5791e083"
+    },
+    {
+      "path": "TEC/h5files/7_ABSC_Adult_cTEC_filtered_gene_bc_matrices_h5.h5",
+      "bytes": 1032650,
+      "sha256": "63604099786c7d67b70fde353ce6ba93215b24985b285d4c77f25bce11305155"
+    },
+    {
+      "path": "TEC/h5files/8_ABSC_E15_cTEC_filtered_gene_bc_matrices_h5.h5",
+      "bytes": 1428077,
+      "sha256": "9bd510760258d6efd278b2863373106131f502f585d39f60595fbd47b19cbb4b"
+    },
+    {
+      "path": "TEC/TEC_CellTypesSingleR_SO_downsample.rds",
+      "bytes": 48752824,
+      "sha256": "c66d41ecf80b68caaec576a519d4303aa5ee6ba9cae7e6fe6b522db18b392968"
+    },
+    {
+      "path": "TEC/TEC_Combine_and_Renormalize_SO_downsample.rds",
+      "bytes": 55957180,
+      "sha256": "a0c6fb0cb0d4bbc0d1dd2aea27d35ccaab341be9c707c23719ed7a7bb2b600a3"
+    },
+    {
+      "path": "TEC/TEC_Filtered_SO_downsample.rds",
+      "bytes": 7267883,
+      "sha256": "b5762f290950cf9d4f0f8693cffc4fb738e6beab6d72f6be7c63e3a2137b5150"
+    },
+    {
+      "path": "TEC/TEC_metadata.txt",
+      "bytes": 199,
+      "sha256": "aec98dde72c5181e6ac1face719d711e4b4aa485750efcf58b29910b9ece5a3b"
+    },
+    {
+      "path": "TEC/TEC_ProcessRaw_SO_downsample.rds",
+      "bytes": 7961424,
+      "sha256": "7ff5f756c31ecbf35dc3ab0e15ba5f97c46b8f79edea4fb924550070e592ff13"
+    }
+  ]
+}

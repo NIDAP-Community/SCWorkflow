@@ -10,8 +10,8 @@ getParamACT <- function(data){
       object <- selectCRObject("Chariou")
       species <- "Mouse"
       use.clusters = "seurat_clusters"
-  } else if (data == "pbmc-single") {
-      object <- selectCRObject("pbmc-single")
+  } else if (data == "NSCLC_Single") {
+      object <- selectCRObject("NSCLC_Single")
       species <- "Human"
       use.clusters <- NULL
   } else if (data == "nsclc-multi") {

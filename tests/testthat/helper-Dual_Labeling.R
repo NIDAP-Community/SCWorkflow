@@ -1,5 +1,5 @@
 #This helper script will return parameters for each test dependent on the data 
-#input ("TEC","Chariou","pbmc-single","nsclc-multi","BRCA"):
+#input ("TEC","Chariou","NSCLC_Single","nsclc-multi","BRCA"):
 getParamDL <- function(data){
 
   if(data == "TEC"){
@@ -34,9 +34,9 @@ getParamDL <- function(data){
       filter.data = FALSE
       filter.condition = TRUE
       display.unscaled.values = TRUE
-  } else if (data == "pbmc-single") {
-      object <- selectCRObject("pbmc-single")
-      samples <- c("PBMC_Single")
+  } else if (data == "NSCLC_Single") {
+      object <- selectCRObject("NSCLC_Single")
+      samples <- unique(as.character(object$orig.ident))
       var.feat <- VariableFeatures(object@assays$SCT)[1:100]
       set.seed(254)
       marker.1 <- sample(var.feat,1)

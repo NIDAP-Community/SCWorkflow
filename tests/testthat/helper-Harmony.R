@@ -14,9 +14,9 @@ getHarmonyParam <- function(data){
       group.by.var = c("orig.ident")
       nvar = 100
       
-  } else if (data == "pbmc_single") {
+  } else if (data == "NSCLC_Single") {
     
-      object = selectCRObject("pbmc-single")
+      object = selectCRObject("NSCLC_Single")
       genes.to.add = sample(rownames(object), 5, replace = FALSE)
       group.by.var = c("Phase")
       nvar = 100

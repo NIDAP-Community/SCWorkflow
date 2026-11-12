@@ -18,9 +18,9 @@ getModuleScoreParam <- function(data){
       general.class = colnames(marker.table)[1:3]
       # lvl.vec = c('Pan_Tcells-CD4_T-Tregs','Pan_Tcells-CD4_T-New','Pan_Tcells-CD8_T')
       
-  } else if (data == "pbmc.single") {
+  } else if (data == "NSCLC_Single") {
     
-    object = selectCRObject("pbmc-single")
+    object = selectCRObject("NSCLC_Single")
     set.seed(114)
     marker.table = data.frame(rand_type1 = sample(rownames(object), 5, 
                                                   replace = FALSE),

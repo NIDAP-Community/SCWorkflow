@@ -408,8 +408,8 @@ test_that("Produce heatmap - Chariou with no transcripts/proteins", {
                "At least 1 transcript and/or protein is needed for plotting")
 })
 
-test_that("Produce heatmap - PBMC single data", {
-  cr.object <- getParamHM("pbmc-single")
+test_that("Produce heatmap - NSCLC_Single data", {
+  cr.object <- getParamHM("NSCLC_Single")
   output <- do.call(heatmapSC, cr.object)
 
   expect_type(output, "list")
@@ -418,7 +418,7 @@ test_that("Produce heatmap - PBMC single data", {
 
   skip_on_ci()
   expect_snapshot_file(.drawHeatPng(output$plots),
-                       "pbmc-single_heatmap.png")
+                       "NSCLC_Single_heatmap.png")
 })
 
 test_that("Produce heatmap with protein using NSCLC multi data", {

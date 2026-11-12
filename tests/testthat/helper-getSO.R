@@ -12,11 +12,11 @@ selectCRObject <- function(dataset) {
     input.object <- readRDS(test_path("fixtures/Chariou", 
         "Chariou_Combine_and_Renormalize_SO_downsample.rds"))
     
-  } else if (dataset == "pbmc-single"){
+  } else if (dataset == "NSCLC_Single"){
     
-    print("selected PBMC Single dataset")
-    input.object <- readRDS(test_path("fixtures/PBMC_Single",
-    "PBMCsingle_Cell_Types_SingleR_SO_downsample.rds"))
+    print("selected NSCLC_Single dataset")
+    input.object <- readRDS(test_path("fixtures/NSCLC_Single",
+    "NSCLCsingle_Cell_Types_SingleR_SO_downsample.rds"))
     
   } else if (dataset == "nsclc-multi"){
     
@@ -48,11 +48,11 @@ selectSRObject <- function(dataset){
     input.object <- readRDS(test_path("fixtures/Chariou", 
           "Chariou_Cell_Types_SingleR_SO_downsample.rds"))
     
-  } else if (dataset == "pbmc-single"){
+  } else if (dataset == "NSCLC_Single"){
     
-    print("selected PBMCsingle dataset")
-    input.object <- readRDS(test_path("fixtures/PBMC_Single", 
-          "PBMCsingle_Cell_Types_SingleR_SO_downsample.rds"))
+    print("selected NSCLC_Single dataset")
+      input.object <- readRDS(test_path("fixtures/NSCLC_Single",
+        "NSCLCsingle_Cell_Types_SingleR_SO_downsample.rds"))
   
   } else if (dataset == "nsclc-multi"){
     

@@ -86,6 +86,29 @@ compute_modscore_data <- function(object, marker.list, use.columns,
   res
 }
 
+#' Build Module Score Plots
+#'
+#' Create a reduction plot, a grouped ridge plot, and a density plot for a
+#' module score, together with an arranged plotting grob.
+#'
+#' @param object Seurat object containing the module score in its metadata.
+#' @param m Metadata column name containing the module score.
+#' @param coords Data frame with reduction coordinates in columns two and
+#' three and a sample_clusid column containing the plotted module scores.
+#' @param clusid.df Reserved cluster annotation data frame, retained for
+#' compatibility with existing callers.
+#' @param d Density estimate with x and y components.
+#' @param threshold Module-score threshold marked on the plots.
+#' @param gradient.ft.size Ridge-plot horizontal-axis text size. Default is 6.
+#' @param violin.ft.size Reserved violin-plot text size, retained for
+#' compatibility with existing callers. Default is 6.
+#' @param step.size Spacing between module-score axis ticks. Default is 0.1.
+#' @param group.var Metadata column used to group ridge plots. Default is
+#' "orig.ident".
+#' @param reduction Reduction used for coordinate labels: "tsne", "umap",
+#' or "pca".
+#' @return A named list containing the reduction plot g, ridge plot g1,
+#' density plot g3, and arranged grob arranged.
 #' @export
 build_modscore_plots <- function(object, m, coords, clusid.df, d, threshold,
                                  gradient.ft.size = 6, violin.ft.size = 6, step.size = 0.1,

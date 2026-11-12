@@ -13,8 +13,8 @@ getCbgAutoParam <- function(data) {
     marker.table = read.csv(test_path("fixtures", "Marker_Table_demo.csv"))
     cells.of.interest = colnames(marker.table)[4:6]
     
-  } else if (data == "pbmc.single") {
-    object = selectCRObject("pbmc-single")
+  } else if (data == "NSCLC_Single") {
+    object = selectCRObject("NSCLC_Single")
     samples.subset = unique(object$orig.ident)
     samples.to.display = unique(object$orig.ident)
     marker.table = apply(read.csv(test_path("fixtures", 

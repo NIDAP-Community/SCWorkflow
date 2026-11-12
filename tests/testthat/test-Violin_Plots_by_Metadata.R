@@ -61,15 +61,15 @@ test_that("Violin plot works for Chariou data", {
 # 
 # })
 
-test_that("Violin plot works for pbmc.single data", {
-  pbmc.single = selectViolin("pbmc.single")
+test_that("Violin plot works for NSCLC_Single data", {
+  NSCLC_Single = selectViolin("NSCLC_Single")
 
-  violin_test = do.call(violinPlot, pbmc.single)
+  violin_test = do.call(violinPlot, NSCLC_Single)
 
   skip_on_ci()
   expect_snapshot_file(
     .drawViolin(violin_test$plots),
-    "pbmc_single_violin.png"
+    "NSCLC_Single_violin.png"
   )
 
   
@@ -112,13 +112,13 @@ test_that("Violin plot works for brca data", {
 ## Check code detects warnings and errors ##
 
 # test_that("Violin plot stops when no query genes are found in the data", {
-#   pbmc.single <- selectViolin("pbmc.single")
+#   NSCLC_Single <- selectViolin("NSCLC_Single")
 # 
 #   expect_error(
 #     violinPlot(
-#       object = pbmc.single$object,
-#       group.by = pbmc.single$group.by,
-#       group.subset = pbmc.single$group.subset,
+#       object = NSCLC_Single$object,
+#       group.by = NSCLC_Single$group.by,
+#       group.subset = NSCLC_Single$group.subset,
 #       genes.of.interest = paste("jibberish", 1:5, sep =
 #                                   "_")
 #     ),
@@ -128,14 +128,14 @@ test_that("Violin plot works for brca data", {
 # })
 
 # test_that("Violin plot stops when ident of interest is not found in seurat", {
-#   pbmc.single <- selectViolin("pbmc.single")
+#   NSCLC_Single <- selectViolin("NSCLC_Single")
 # 
 #   expect_error(
 #     violinPlot(
-#       object = pbmc.single$object,
+#       object = NSCLC_Single$object,
 #       group.by = "jibberish",
-#       group.subset = pbmc.single$group.subset,
-#       genes.of.interest = pbmc.single$genes.of.interest
+#       group.subset = NSCLC_Single$group.subset,
+#       genes.of.interest = NSCLC_Single$genes.of.interest
 #     ),
 #     "Unable to find ident of interest in metadata."
 #   )
@@ -145,14 +145,14 @@ test_that("Violin plot works for brca data", {
 # test_that("Violin plot stops when user attempts to rename group.by as
 #           Gene, Expression, or Scaled",
 #           {
-#             pbmc.single <- selectViolin("pbmc.single")
+#             NSCLC_Single <- selectViolin("NSCLC_Single")
 # 
 #             expect_error(
 #               violinPlot(
-#                 object = pbmc.single$object,
-#                 group.by = pbmc.single$group.by,
-#                 group.subset = pbmc.single$group.subset,
-#                 genes.of.interest = pbmc.single$genes.of.interest,
+#                 object = NSCLC_Single$object,
+#                 group.by = NSCLC_Single$group.by,
+#                 group.subset = NSCLC_Single$group.subset,
+#                 genes.of.interest = NSCLC_Single$genes.of.interest,
 #                 rename.ident = "Gene"
 #               ),
 #               "New ident name cannot be one of Gene, Expression, or scaled."

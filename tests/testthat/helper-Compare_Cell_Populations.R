@@ -2,7 +2,7 @@
 
 # Load real Seurat objects from fixtures
 getParamCCP <- function(data) {
-  supported.data <- c("TEC", "Chariou", "PBMC", "NSCLC", "BRCA")
+  supported.data <- c("TEC", "Chariou", "NSCLC_Single", "NSCLC", "BRCA")
   
   
   if (data == "TEC") {
@@ -21,8 +21,8 @@ getParamCCP <- function(data) {
     counts.type <- "Frequency"
     group.order <- NULL
     
-  } else if (data == "PBMC") {
-    object <- selectSRObject("pbmc-single")
+  } else if (data == "NSCLC_Single") {
+    object <- selectSRObject("NSCLC_Single")
     annotation.column <- "HPCA_main"
     group.column <- "Phase"
     sample.column <- "orig.ident"

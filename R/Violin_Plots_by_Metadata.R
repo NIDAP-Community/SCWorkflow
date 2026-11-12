@@ -20,7 +20,6 @@
 #' @import reshape2
 #' @import tidyverse
 #' @importFrom tidyr pivot_longer
-#' @import cowplot
 #' @import rlang
 #' @import ggplot2
 #'   
@@ -64,11 +63,8 @@ violinPlot <- function (object,
     group <- colnames(object@meta.data)[grepl("origident",gsub('\\W|_',"",colnames(object@meta.data)))]
   }
   
-  available_layers <- if(packageVersion("Seurat") >= "5.0.0"){
-    Layers(object[[assay]])
-  } else (
-    slotNames(object[[assay]])
-  )
+  # Use SeuratObject::Layers() when upgrading to Seurat 5.
+  available_layers <- slotNames(object[[assay]])
 
   if (!assay %in% Assays(object)) {
     stop("expression data type was not found in Seurat object")
@@ -81,7 +77,7 @@ violinPlot <- function (object,
   }
   
   # Scale to non-negative for visualization
-  gene_mtx <- as.matrix(GetAssayData(object, assay = assay, layer = layer))
+  gene_mtx <- as.matrix(SeuratObject::GetAssayData(object, assay = assay, layer = layer))
   gene_mtx <- scales::rescale(gene_mtx, to = c(0,1))
   
   if(length(genes[!genes %in% rownames(gene_mtx)]) > 0){

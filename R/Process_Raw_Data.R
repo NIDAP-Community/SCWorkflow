@@ -79,13 +79,12 @@ processRawData <- function(input,
   ## --------- ##
   ## Functions ####
   ## --------- ##
-  library(Seurat)
   # library(stringr)
   # Cell Cycle Scoring and Find Variable Features
   CC_FVF_so <- function(so){
     so <- CellCycleScoring(object = so, 
-                           g2m.features = cc.genes$g2m.genes,
-                           s.features = cc.genes$s.genes)
+                           g2m.features = Seurat::cc.genes$g2m.genes,
+                           s.features = Seurat::cc.genes$s.genes)
     so$CC.Difference <- so$S.Score - so$G2M.Score
     return(so)
   }

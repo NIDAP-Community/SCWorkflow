@@ -127,8 +127,8 @@ test_that("Run Name clusters with default parameters - Chariou", {
   )
 })
 
-test_that("Run Name clusters with default parameters - PBMC single", {
-  input <- getParamsNameClus("pbmc-single")
+test_that("Run Name clusters with default parameters - NSCLC_Single", {
+  input <- getParamsNameClus("NSCLC_Single")
   output <- do.call(nameClusters, input)
 
   #Test output values and plot:

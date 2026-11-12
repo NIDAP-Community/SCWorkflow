@@ -22,9 +22,9 @@ getParamsReclusterSeuratObject <- function(data) {
       "SCT_snn_res.2.8"
     )
     
-  ## Else if PBMCSingle dataset selected:
-  } else if (data == "pbmc-single") {
-    object <- selectSRObject("pbmc-single")
+  ## Else if NSCLC_Single dataset selected:
+  } else if (data == "NSCLC_Single") {
+    object <- selectSRObject("NSCLC_Single")
     old.columns.to.save = c(
       "SCT_snn_res.0.2",
       "SCT_snn_res.0.4",

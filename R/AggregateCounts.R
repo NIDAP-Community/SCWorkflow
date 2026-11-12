@@ -17,7 +17,7 @@
 #' @import Seurat
 #' @import tidyverse
 #' @import ggplot2
-#' @import plotly
+#' @importFrom plotly ggplotly
 #' @importFrom dplyr select
 #'
 #' @export

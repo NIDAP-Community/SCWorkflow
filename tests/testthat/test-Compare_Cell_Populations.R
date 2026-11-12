@@ -65,9 +65,9 @@ test_that("compareCellPopulations works with Chariou data", {
   )
 })
 
-# Test 3: Standard parameters - PBMC dataset with annotated cell types
-test_that("compareCellPopulations works with PBMC annotated cell types", {
-  params <- getParamCCP("PBMC")
+# Test 3: Standard parameters - NSCLC_Single dataset with annotated cell types
+test_that("compareCellPopulations works with NSCLC_Single annotated cell types", {
+  params <- getParamCCP("NSCLC_Single")
   result <- do.call(compareCellPopulations, params)
 
   expect_type(result, "list")
@@ -75,11 +75,11 @@ test_that("compareCellPopulations works with PBMC annotated cell types", {
   expect_s3_class(result$plots$Boxplot, "gg")
 
   skip_on_ci()
-  # Note: PBMC has only one sample, which creates issues with alluvial flow visualization
+  # Note: NSCLC_Single has only one sample, which creates issues with alluvial flow visualization
   # Skip barplot snapshot for single-sample dataset
   expect_snapshot_file(
     .drawCCPFig(result$plots$Boxplot),
-    "PBMC_Standard_Boxplot.png"
+    "NSCLC_Single_Standard_Boxplot.png"
   )
 })
 
@@ -159,9 +159,9 @@ test_that("compareCellPopulations handles custom group order on Chariou", {
   )
 })
 
-# Test 8: Custom wrap columns - PBMC dataset
-test_that("compareCellPopulations handles custom wrap.ncols on PBMC", {
-  params <- getParamCCP("PBMC")
+# Test 8: Custom wrap columns - NSCLC_Single dataset
+test_that("compareCellPopulations handles custom wrap.ncols on NSCLC_Single", {
+  params <- getParamCCP("NSCLC_Single")
   params$wrap.ncols <- 3  # Change from default 5 to 3 columns
 
   result <- do.call(compareCellPopulations, params)
@@ -173,7 +173,7 @@ test_that("compareCellPopulations handles custom wrap.ncols on PBMC", {
   skip_on_ci()
   expect_snapshot_file(
     .drawCCPFig(result$plots$Boxplot),
-    "PBMC_CustomWrap_Boxplot.png"
+    "NSCLC_Single_CustomWrap_Boxplot.png"
   )
 })
 

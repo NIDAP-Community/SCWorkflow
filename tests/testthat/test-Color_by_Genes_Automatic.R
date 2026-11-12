@@ -55,20 +55,20 @@ test_that("Color by Genes Automatic works for Chariou data", {
   expect_true(is.null(cbg.demo$plots$manual_entry) || grid::is.grob(cbg.demo$plots$manual_entry))
 })
 
-test_that("Color by Genes Automatic works for pbmc.single data", {
+test_that("Color by Genes Automatic works for NSCLC_Single data", {
 
-  pbmc.single <- getCbgAutoParam("pbmc.single")
+  NSCLC_Single <- getCbgAutoParam("NSCLC_Single")
 
-  cbg.demo <- colorByMarkerTable(object = pbmc.single$object,
-                           samples.subset = pbmc.single$samples.subset,
-                           samples.to.display = pbmc.single$samples.to.display,
-                           marker.table = pbmc.single$marker.table,
-                           cells.of.interest = pbmc.single$cells.of.interest)
+  cbg.demo <- colorByMarkerTable(object = NSCLC_Single$object,
+                           samples.subset = NSCLC_Single$samples.subset,
+                           samples.to.display = NSCLC_Single$samples.to.display,
+                           marker.table = NSCLC_Single$marker.table,
+                           cells.of.interest = NSCLC_Single$cells.of.interest)
   
   # skip_on_ci()
   # expect_snapshot_file(
   #   .drawCbG(cbg.demo),
-  #   "pbmc_single_cbg.png"
+  #   "NSCLC_Single_cbg.png"
   # )
 
   expect_true(is.list(cbg.demo))

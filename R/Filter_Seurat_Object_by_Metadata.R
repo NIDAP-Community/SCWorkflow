@@ -38,10 +38,8 @@
 #'
 #' @import Seurat
 #' @import ggplot2
-#' @import gridExtra
 #' @import grid
 #' @import gridBase
-#' @import cowplot
 #' @import RColorBrewer
 #' @import colorspace
 #' @import tidyverse

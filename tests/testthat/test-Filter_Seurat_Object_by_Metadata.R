@@ -166,26 +166,26 @@ test_that("Test Filter Seurat Object by Metadata using NSCLCmulti (Human) data",
 
 
 
-test_that("Test Filter Seurat Object by Metadata using PBMCsingle (Human) data",
+test_that("Test Filter Seurat Object by Metadata using NSCLC_Single (Human) data",
           {
-            pbmc.single.data <- getParamFSOBM("pbmc-single")
+            NSCLC_Single.data <- getParamFSOBM("NSCLC_Single")
             output <-
-              do.call(filterSeuratObjectByMetadata, pbmc.single.data)
+              do.call(filterSeuratObjectByMetadata, NSCLC_Single.data)
             
             ggsave(
-              "output/PBMCsingle_fsobm.plot1.png",
+              "output/NSCLC_Single_fsobm.plot1.png",
               output$plot1,
               width = 10,
               height = 10
             )
-            expect_snapshot_file("output", "PBMCsingle_fsobm.plot1.png")
+            expect_snapshot_file("output", "NSCLC_Single_fsobm.plot1.png")
             ggsave(
-              "output/PBMCsingle_fsobm.plot2.png",
+              "output/NSCLC_Single_fsobm.plot2.png",
               output$plot2,
               width = 10,
               height = 10
             )
-            expect_snapshot_file("output", "PBMCsingle_fsobm.plot2.png")
+            expect_snapshot_file("output", "NSCLC_Single_fsobm.plot2.png")
             
             expect_type(output, "list")
             expected.elements = c("object", "plots")

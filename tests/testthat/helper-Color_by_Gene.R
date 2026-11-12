@@ -27,9 +27,9 @@ getParamCBG <- function(data) {
              "Il2ra",
              "Cd4",
              "Cd8a")
-  } else if (data == "pbmc-single") {
-    object <- selectCRObject("pbmc-single")
-    samples.to.include = 'c("PBMC_Single")'
+  } else if (data == "NSCLC_Single") {
+    object <- selectCRObject("NSCLC_Single")
+    samples.to.include = paste0('c("', unique(as.character(object$orig.ident)), '")')
     gene = c("Gapdh",
              "GAPDH",
              "FOXP3",

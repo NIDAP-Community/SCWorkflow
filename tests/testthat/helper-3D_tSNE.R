@@ -1,26 +1,26 @@
 getParam3D <- function(data) {
   if (data == "TEC") {
-    object <- selectSRObject("TEC")
+    object <- selectCRObject("TEC")
     color.variable = "orig.ident"
-    label.variable = "immgen_main"
+    label.variable = "SCT_snn_res.0.2"
     
   } else if (data == "Chariou") {
-    object <- selectSRObject("Chariou")
-    color.variable = "mouseRNAseq"
-    label.variable = "Barcode"
+    object <- selectCRObject("Chariou")
+    color.variable = "orig.ident"
+    label.variable = "SCT_snn_res.2.4"
     
-  } else if (data == "pbmc-single") {
-    object <- selectSRObject("pbmc-single")
+  } else if (data == "NSCLC_Single") {
+    object <- selectCRObject("NSCLC_Single")
     color.variable = "SCT_snn_res.0.2"
-    label.variable = "BP_encode_main"
+    label.variable = "orig.ident"
     
   } else if (data == "nsclc-multi") {
-    object <- selectSRObject("nsclc-multi")
+    object <- selectCRObject("nsclc-multi")
     color.variable = "orig.ident"
-    label.variable = "BP_encode_main"
+    label.variable = "SCT_snn_res.0.2"
     
   } else if (data == "BRCA") {
-    object <- selectSRObject("BRCA")
+    object <- selectCRObject("BRCA")
     color.variable = "orig.ident"
     label.variable = "SCT_snn_res.0.4"
     
@@ -35,8 +35,12 @@ getParam3D <- function(data) {
   )
 }
 
-.drawplot <- function(x) {
-  path <- tempfile(fileext = ".png")
-  plotly::save_image(x, path)
-  path
+expect3DHtmlOutput <- function(plot) {
+  testthat::expect_s3_class(plot, "plotly")
+  testthat::expect_s3_class(plot, "htmlwidget")
+  path <- tempfile(fileext = ".html")
+  htmlwidgets::saveWidget(plotly::as_widget(plot), path, selfcontained = TRUE)
+  testthat::expect_true(file.exists(path))
+  testthat::expect_gt(file.info(path)$size, 0)
+  invisible(path)
 }

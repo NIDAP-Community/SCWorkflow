@@ -6,6 +6,7 @@ Rcheck.txt
 tests/testthat/otherData/
 tests/testthat/_snaps
 tests/testthat/fixtures/
+tests/testthat/fixtures_raw_small/
 tests/testthat/output/
 
 .Rproj.user
@@ -15,4 +16,5 @@ inst/doc
 
 .github.zip
 decision_log.md
+/ci-artifacts/
 

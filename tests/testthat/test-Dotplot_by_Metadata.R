@@ -112,10 +112,10 @@ test_that("dotplot produced and contingency table returned - Chariou Data", {
   )
 })
 
-test_that("dotplot produced and contingency table returned - PBMC-single Data",
+test_that("dotplot produced and contingency table returned - NSCLC_Single Data",
     {
-      pbmc.single.data <- getParamDP("pbmc-single")
-        output <- do.call(dotPlotMet, pbmc.single.data)
+      NSCLC_Single.data <- getParamDP("NSCLC_Single")
+        output <- do.call(dotPlotMet, NSCLC_Single.data)
 
         expect_type(output, "list")
         expected.elements <- c("plots","data")
@@ -124,7 +124,7 @@ test_that("dotplot produced and contingency table returned - PBMC-single Data",
         skip_on_ci()
         expect_snapshot_file(
           .drawDotPng(output$plot),
-          "pbmc-single_dotplot.png"
+          "NSCLC_Single_dotplot.png"
         )
 })
 

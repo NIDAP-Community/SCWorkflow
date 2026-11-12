@@ -1,9 +1,9 @@
 
-for (data in c('TEC','Chariou','NSCLC_Multi','PBMC_Single')) {
+for (data in c('TEC','Chariou','NSCLC_Multi','NSCLC_Single')) {
   
   
   
-  test_that(paste0("Test Filter and QC - Standard (",data," dataset)"), {
+  testRawDataIsolated(paste0("Test Filter and QC - Standard (",data," dataset)"), {
     
     
     data.run <- getParamRaw(data)
@@ -46,7 +46,7 @@ for (data in c('TEC','Chariou','NSCLC_Multi','PBMC_Single')) {
 
 for (data in c('BRCA')) {
 
-  test_that(paste0("Test Split h5 (",data," dataset)"), {
+  testRawDataIsolated(paste0("Test Split h5 (",data," dataset)"), {
 
 
     data.run <- getParamRaw(data)
@@ -84,7 +84,7 @@ for (data in c('BRCA')) {
 
 for (data in c('Chariou')) {
 
-  test_that(paste0("Blank rename column does not rename metadata-backed samples (",data," dataset)"), {
+  testRawDataIsolated(paste0("Blank rename column does not rename metadata-backed samples (",data," dataset)"), {
 
 
     data.run <- getParamRaw(data)
@@ -104,7 +104,7 @@ for (data in c('Chariou')) {
 
 for (data in c('BRCA')) {
 
-  test_that(paste0("Metadata sample count mismatch points to split h5 parameter (",data," dataset)"), {
+  testRawDataIsolated(paste0("Metadata sample count mismatch points to split h5 parameter (",data," dataset)"), {
 
 
     data.run <- getParamRaw(data)
@@ -123,7 +123,7 @@ for (data in c('BRCA')) {
 
 for (data in c('BRCA')) {
 
-  test_that(paste0("Metadata sample count mismatch points to split h5 parameter when sample column is blank (",data," dataset)"), {
+  testRawDataIsolated(paste0("Metadata sample count mismatch points to split h5 parameter when sample column is blank (",data," dataset)"), {
 
 
     data.run <- getParamRaw(data)
@@ -147,7 +147,7 @@ for (data in c('BRCA')) {
 
 for (data in c('Chariou')) {
   
-  test_that(paste0("Test Filter and QC - TCR data for (",data," dataset)"), {
+  testRawDataIsolated(paste0("Test Filter and QC - TCR data for (",data," dataset)"), {
     
     
     data.run <- getParamRaw(data)
@@ -217,7 +217,7 @@ for (data in c('Chariou')) {
 
 for (data in c('TEC')) {
   
-  test_that(paste0("Test Filter and QC - Regex (",data," dataset)"), {
+  testRawDataIsolated(paste0("Test Filter and QC - Regex (",data," dataset)"), {
     
     data.run <- getParamRaw(data)
     data.run$keep = TRUE

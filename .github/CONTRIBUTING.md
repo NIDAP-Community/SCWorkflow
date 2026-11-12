@@ -105,6 +105,13 @@ Test files are organized as described in
 <https://style.tidyverse.org/tests.html>.
 Take a look at the existing code in this package for examples.
 
+To run the raw-data integration tests from the package root in a configured
+R environment:
+
+```r
+devtools::test(filter = "Process_Raw_Data")
+```
+
 #### document
 
 If you have written a new function or changed the API of an existing function,
@@ -119,6 +126,20 @@ If the function is used in a vignette, you may also need to update the vignette.
 
 After making your changes, run `devtools::check()` from an R console to make
 sure the package still passes R CMD check.
+
+### Test fixtures
+
+Test datasets are published as versioned data assets in the
+[test-fixtures-v1 release](https://github.com/NIDAP-Community/SCWorkflow/releases/tag/test-fixtures-v1).
+They are not tracked by Git or included in package source archives.
+
+Test fixtures are restored automatically when tests run. The first restore
+requires internet access and the `piggyback` test dependency; verified local
+fixtures can be reused offline. Do not add fixture files or archives to Git.
+
+See the [advanced testing and CI guidance](copilot-instructions.md#test-fixture-releases)
+for fixture releases, offline setup, local Podman resources, and maintenance
+of pinned CI packages.
 
 ### Commit and push your changes
 

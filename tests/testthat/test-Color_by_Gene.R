@@ -94,17 +94,17 @@ test_that("Test Annotate Cell Types using NSCLCmulti (Human) dataset", {
 
 
 
-test_that("Test Annotate Cell Types using PBMCsingle (Human) dataset", {
-  pbmc.single.data <- getParamCBG("pbmc-single")
-  output <- do.call(colorByGene, pbmc.single.data)
+test_that("Test Annotate Cell Types using NSCLC_Single (Human) dataset", {
+  NSCLC_Single.data <- getParamCBG("NSCLC_Single")
+  output <- do.call(colorByGene, NSCLC_Single.data)
   
   ggsave(
-    "output/PBMCsingle_colbygeneplot_MYC.png",
+    "output/NSCLC_Single_colbygeneplot_MYC.png",
     output$plots[[1]],
     width = 10,
     height = 10
   )
-  expect_snapshot_file("output", "PBMCsingle_colbygeneplot_MYC.png")
+  expect_snapshot_file("output", "NSCLC_Single_colbygeneplot_MYC.png")
   
   expect_type(output, "list")
   expected.elements <- c("data", "plots")

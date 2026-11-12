@@ -66,9 +66,9 @@ selectViolin <- function(dataset) {
   #   genes.of.interest = sample(rownames(object$SCT@scale.data), 5,
   #                              replace = FALSE)
 
-  } else if (dataset == "pbmc.single"){
+  } else if (dataset == "NSCLC_Single"){
 
-    object = selectCRObject("pbmc-single")
+    object = selectCRObject("NSCLC_Single")
     group = "orig_ident"
     assay = 'SCT'
     layer = 'scale.data'
