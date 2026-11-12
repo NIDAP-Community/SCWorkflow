@@ -64,7 +64,7 @@ violinPlot <- function (object,
   }
   
   available_layers <- if(packageVersion("Seurat") >= "5.0.0"){
-    Layers(object[[assay]])
+    getExportedValue("SeuratObject", "Layers")(object[[assay]])
   } else (
     slotNames(object[[assay]])
   )
@@ -80,7 +80,7 @@ violinPlot <- function (object,
   }
   
   # Scale to non-negative for visualization
-  gene_mtx <- as.matrix(GetAssayData(object, assay = assay, layer = layer))
+  gene_mtx <- as.matrix(SeuratObject::GetAssayData(object, assay = assay, layer = layer))
   gene_mtx <- scales::rescale(gene_mtx, to = c(0,1))
   
   if(length(genes[!genes %in% rownames(gene_mtx)]) > 0){
